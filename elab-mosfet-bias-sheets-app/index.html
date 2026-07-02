@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 6: การจัดไบอัสและคุณสมบัติของ MOSFET (IRF540 & IRF9540)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+/* Core Design System & Theme Definitions */
+:root {
+  --bg-primary: #0b0f19;
+  --bg-secondary: #131c31;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --border-color: rgba(71, 85, 105, 0.4);
+  
+  --accent-cyan: #38bdf8;
+  --accent-cyan-glow: rgba(56, 189, 248, 0.4);
+  
+  --accent-red: #ef4444;
+  --accent-red-glow: rgba(239, 68, 68, 0.4);
+  
+  --accent-green: #10b981;
+  --accent-green-glow: rgba(16, 185, 129, 0.3);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-blur: blur(12px);
+  --transition-speed: 0.3s;
+}
+
+/* Base resets & Fonts */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: 'Sarabun', sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+}
+
+/* Layout Container */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 280px;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 0 8px var(--accent-cyan-glow));
+}
+
+.logo-text h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.logo-text span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 14px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+}
+
+.nav-btn:hover {
+  background: rgba(56, 189, 248, 0.05);
+  color: var(--text-main);
+  border-color: rgba(56, 189, 248, 0.1);
+}
+
+.nav-btn.active {
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--accent-cyan);
+  border-color: rgba(56, 189, 248, 0.2);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.05);
+}
+
+.btn-icon {
+  font-size: 18px;
+}
+
+.sidebar-footer {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Main Content area */
+.main-content {
+  flex-grow: 1;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-header {
+  margin-bottom: 30px;
+}
+
+.content-header h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Cards & Glassmorphic boxes */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .number {
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+/* Lists */
+.custom-list {
+  list-style-type: none;
+  padding-left: 10px;
+}
+
+.custom-list li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.custom-list li::before {
+  content: '⚡';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  color: var(--accent-cyan);
+  font-size: 12px;
+}
+
+/* SVGs / Illustration Boxes */
+.illustration-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin: 25px 0;
+}
+
+.illustration-box {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+}
+
+.illustration-box h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.ill-svg {
+  background: #090d16;
+  border-radius: 8px;
+  border: 1px solid rgba(71, 85, 105, 0.2);
+  display: block;
+}
+
+.subsection-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  margin-top: 30px;
+  margin-bottom: 15px;
+  border-left: 3px solid var(--accent-cyan);
+  padding-left: 10px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.subcard {
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.subcard h4 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.bias-forward h4 { color: var(--accent-cyan); }
+.bias-reverse h4 { color: var(--accent-red); }
+
+.highlight-text {
+  font-size: 13px;
+  margin-top: 8px;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border-color);
+  padding-left: 10px;
+}
+
+.lab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+.lab-table th, .lab-table td {
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.lab-table th {
+  background: rgba(30, 41, 59, 0.5);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+}
+
+.lab-table td {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Button UI Components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent-cyan);
+  color: #0f172a;
+}
+
+.btn-primary:hover {
+  background: #7dd3fc;
+  box-shadow: 0 0 15px var(--accent-cyan-glow);
+}
+
+.btn-secondary {
+  background: rgba(30, 41, 59, 0.8);
+  color: #fff;
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}
+
+.btn-success {
+  background: var(--accent-green);
+  color: #fff;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #34d399;
+  box-shadow: 0 0 15px var(--accent-green-glow);
+}
+
+.btn-success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-toggle {
+  background: rgba(15, 23, 42, 0.5);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.btn-toggle.active {
+  background: var(--accent-cyan);
+  color: #0f172a;
+  border-color: var(--accent-cyan);
+}
+
+.btn-large {
+  font-size: 16px;
+  padding: 14px 32px;
+}
+
+.btn-small {
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.card-footer-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Tabs Toggle Behavior */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   PART 2 SIMULATOR LAYOUT
+   ========================================================================== */
+.grid-simulator-p2 {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 25px;
+}
+
+.sim-pane-controls {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sim-pane-controls h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+  color: #fff;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-cyan);
+  background: #1e293b;
+  border-radius: 4px;
+  height: 6px;
+  cursor: pointer;
+}
+
+.switch-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.switch-container .btn {
+  font-size: 11px;
+  padding: 8px;
+}
+
+.control-group select {
+  background: #0f172a;
+  color: #fff;
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Digital Multimeter Screen */
+.dmm-pane {
+  background: #082f49;
+  border: 3px solid #0c4a6e;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.lcd-header-dmm {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 8px;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lcd-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  margin: 5px 0;
+}
+
+.dmm-number {
+  font-family: 'Chakra Petch', monospace;
+  font-size: 32px;
+  font-weight: bold;
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+.dmm-unit {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 16px;
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+.dmm-mode {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.sim-pane-circuit {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-pane-circuit h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+  color: #fff;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+.circuit-svg-container {
+  flex-grow: 1;
+  background: #090d16;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.circuit-status-indicator {
+  margin-top: 15px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.badge-normal { background: #334155; color: #cbd5e1; }
+.badge-active { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+.badge-alert { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+/* ==========================================================================
+   PART 3 LAB SHEET FORM LAYOUT
+   ========================================================================== */
+.report-header {
+  border-bottom: 3px double var(--border-color);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.university-banner {
+  text-align: center;
+}
+
+.university-banner h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.university-banner h3 {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.student-info-card {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(56, 189, 248, 0.2);
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.input-field input[type="text"],
+.input-field input[type="number"],
+.input-field input[type="date"],
+.input-field textarea,
+.input-field select {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 14px;
+  transition: all var(--transition-speed);
+}
+
+.input-field input:focus,
+.input-field textarea:focus {
+  border-color: var(--accent-cyan);
+  outline: none;
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+.tip-inline {
+  font-size: 11px;
+  color: var(--accent-cyan);
+}
+
+.post-instruction {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 15px;
+  background: rgba(15, 23, 42, 0.2);
+  padding: 10px 15px;
+  border-radius: 6px;
+}
+
+.input-unit-group {
+  display: flex;
+}
+
+.input-unit-group input {
+  flex-grow: 1;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.input-unit-group .unit {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  border-left: none;
+  padding: 10px 15px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.report-table-form {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.report-table-form th, .report-table-form td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.report-table-form th {
+  background: rgba(30, 41, 59, 0.6);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  text-align: left;
+}
+
+.report-table-form td {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.report-table-form td input {
+  width: 100%;
+  max-width: 85px;
+  padding: 8px 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: #fff;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 13px;
+  text-align: center;
+  transition: all var(--transition-speed);
+}
+
+.report-table-form td input:focus {
+  border-color: var(--accent-cyan);
+  outline: none;
+  box-shadow: 0 0 8px var(--accent-cyan-glow);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin: 15px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.table-responsive .report-table-form {
+  margin: 0;
+}
+
+.q-label {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: bold;
+}
+
+.signature-section {
+  background: rgba(30, 41, 59, 0.2);
+}
+
+.sign-block {
+  padding: 10px;
+}
+
+.line-space {
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.teacher-grading {
+  border-left: 2px solid var(--border-color);
+  padding-left: 30px;
+}
+
+.grading-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.grading-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-container {
+  display: block;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkbox-container .checkmark {
+  border-radius: 4px;
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: #1e293b;
+  border: 1px solid var(--border-color);
+}
+
+.checkbox-container:hover input ~ .checkmark {
+  background-color: #334155;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.checkbox-container .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #0f172a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.label-under {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: -10px;
+  padding-left: 120px;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 14px;
+  }
+  
+  .app-container {
+    display: block;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .main-content {
+    padding: 0;
+    max-width: 100%;
+  }
+  
+  .tab-content {
+    display: none !important;
+  }
+  
+  #report.tab-content {
+    display: block !important;
+  }
+  
+  .card {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 10px 0 !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .card-title, h3, h4 {
+    color: #000000 !important;
+    font-family: 'Sarabun', sans-serif !important;
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 5px !important;
+  }
+  
+  input[type="text"], input[type="number"], input[type="date"], textarea {
+    background: transparent !important;
+    color: #000000 !important;
+    border: none !important;
+    border-bottom: 1px dotted #000000 !important;
+    border-radius: 0 !important;
+    padding: 2px !important;
+  }
+  
+  .report-table-form th, .report-table-form td {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+  }
+  
+  .teacher-grading {
+    border-left: 2px solid #000000 !important;
+  }
+}
+</style>
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-header">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">
+          <h2>E-Lab Simulator</h2>
+          <span>วิเคราะห์วงจรอิเล็กทรอนิกส์</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-tab="theory" onclick="switchTab('theory')">
+          <span class="btn-icon">📖</span>
+          <span class="btn-text">1. ทฤษฎีและอุปกรณ์</span>
+        </button>
+        <button class="nav-btn" data-tab="simulator" onclick="switchTab('simulator')">
+          <span class="btn-icon">🔬</span>
+          <span class="btn-text">2. ห้องทดลองจำลอง</span>
+        </button>
+        <button class="nav-btn" data-tab="report" onclick="switchTab('report')">
+          <span class="btn-icon">📝</span>
+          <span class="btn-text">3. ใบงานบันทึกผล</span>
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <p>ใบงานการทดลองที่ 6<br>MOSFET Biasing Lab</p>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: THEORY & EQUIPMENT -->
+      <section id="theory" class="tab-content active">
+        <header class="content-header">
+          <h1>ใบงานการทดลองที่ 6: การจัดไบอัสและคุณสมบัติของ MOSFET (IRF540 & IRF9540)</h1>
+          <p class="subtitle">วิชา: วิเคราะห์วงจรอิเล็กทรอนิกส์ (Electronic Circuit Analysis)</p>
+        </header>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">1.</span> วัตถุประสงค์</h2>
+          <ul class="custom-list">
+            <li>เพื่อศึกษาการทำงานและการจัดไบอัสกระแสตรงให้กับทรานซิสเตอร์ชนิด MOSFET ทั้ง N-Channel และ P-Channel</li>
+            <li>เพื่อศึกษาและพล็อตหาเส้นคุณลักษณะการถ่ายโอน (Transfer Characteristics) $I_D$ vs $V_{GS}$</li>
+            <li>เพื่อหาค่าแรงดันขีดเริ่มเปลี่ยนระดับนำกระแส (Threshold Voltage: $V_{th}$) และตัวคูณสภาพนำกระแส $K$</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">2.</span> ทฤษฎีเบื้องต้น (Theory)</h2>
+          <p>MOSFET (Metal-Oxide-Semiconductor Field-Effect Transistor) เป็นอุปกรณ์ทรานซิสเตอร์ประเภทขั้วเดียว (Unipolar) ควบคุมการนำกระแสด้วยความต่างศักย์ไฟฟ้าที่ป้อนเข้าที่ขั้วเกต (Gate) เทียบกับแหล่งสารขั้วซอร์ส (Source)</p>
+          
+          <h3 class="subsection-title">2.1 ย่านและลักษณะการทำงาน</h3>
+          <p>เมื่อต่อจ่ายแรงดัน $V_{GS}$ มากกว่าแรงดันขีดเริ่ม $V_{th}$ (สำหรับ N-Channel) หรือติดลบมากกว่า $-V_{th}$ (สำหรับ P-Channel) อุปกรณ์จะนำกระแสเดรน $I_D$ และทำงานใน 2 ย่านหลัก:</p>
+          
+          <div class="grid-2" style="margin-top: 15px;">
+            <div class="subcard bias-forward">
+              <h4>ย่านอิ่มตัว (Saturation Region)</h4>
+              <p>เกิดขึ้นเมื่อแรงดันเอาต์พุต $V_{DS} \ge V_{GS} - V_{th}$ โดยกระแส $I_D$ จะขึ้นอยู่กับแรงดันอินพุต $V_{GS}$ เป็นหลักตามความสัมพันธ์กำลังสอง:</p>
+              <div class="highlight-text" style="font-family: Chakra Petch, monospace; font-size: 14px; text-align: center; margin: 10px 0;">
+                I<sub>D</sub> = K (V<sub>GS</sub> - V<sub>th</sub>)<sup>2</sup>
+              </div>
+            </div>
+            <div class="subcard bias-reverse">
+              <h4>ย่านโอห์มมิก / ไตรโอด (Triode Region)</h4>
+              <p>เกิดขึ้นเมื่อแรงดัน $V_{DS} < V_{GS} - V_{th}$ โดยกระแสจะขึ้นอยู่กับทั้ง $V_{GS}$ และ $V_{DS}$ ดังสูตร:</p>
+              <div class="highlight-text" style="font-family: Chakra Petch, monospace; font-size: 14px; text-align: center; margin: 10px 0;">
+                I<sub>D</sub> = K [ 2(V<sub>GS</sub> - V<sub>th</sub>)V<sub>DS</sub> - V<sub>DS</sub><sup>2</sup> ]
+              </div>
+            </div>
+          </div>
+          
+          <div class="illustration-container" style="margin-top: 20px;">
+            <div class="illustration-box">
+              <h3>สัญลักษณ์และการจัดขา TO-220 (IRF540 / IRF9540)</h3>
+              <svg class="ill-svg" viewBox="0 0 400 120" width="100%">
+                <!-- Package outlines -->
+                <rect x="50" y="30" width="50" height="60" rx="3" fill="#334155" stroke="#475569" stroke-width="2"/>
+                <rect x="60" y="10" width="30" height="20" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
+                <circle cx="75" cy="20" r="4" fill="#0f172a"/>
+                
+                <!-- Pins -->
+                <line x1="60" y1="90" x2="60" y2="115" stroke="#cbd5e1" stroke-width="3"/>
+                <line x1="75" y1="90" x2="75" y2="115" stroke="#cbd5e1" stroke-width="3"/>
+                <line x1="90" y1="90" x2="90" y2="115" stroke="#cbd5e1" stroke-width="3"/>
+                
+                <text x="60" y="122" fill="#cbd5e1" font-family="Chakra Petch" font-size="8" text-anchor="middle">1(G)</text>
+                <text x="75" y="122" fill="#cbd5e1" font-family="Chakra Petch" font-size="8" text-anchor="middle">2(D)</text>
+                <text x="90" y="122" fill="#cbd5e1" font-family="Chakra Petch" font-size="8" text-anchor="middle">3(S)</text>
+                
+                <!-- Symbols -->
+                <g transform="translate(180, 20)">
+                  <circle cx="50" cy="40" r="28" fill="none" stroke="#f8fafc" stroke-width="2"/>
+                  <!-- Gate -->
+                  <line x1="20" y1="40" x2="38" y2="40" stroke="#f8fafc" stroke-width="2"/>
+                  <line x1="38" y1="20" x2="38" y2="60" stroke="#f8fafc" stroke-width="3"/>
+                  <!-- Channel -->
+                  <line x1="48" y1="20" x2="48" y2="30" stroke="#f8fafc" stroke-width="2"/>
+                  <line x1="48" y1="35" x2="48" y2="45" stroke="#f8fafc" stroke-width="2"/>
+                  <line x1="48" y1="50" x2="48" y2="60" stroke="#f8fafc" stroke-width="2"/>
+                  <!-- Drain connection -->
+                  <line x1="48" y1="20" x2="65" y2="20" stroke="#f8fafc" stroke-width="2"/>
+                  <line x1="65" y1="20" x2="65" y2="5" stroke="#f8fafc" stroke-width="2"/>
+                  <!-- Source connection -->
+                  <line x1="48" y1="60" x2="65" y2="60" stroke="#f8fafc" stroke-width="2"/>
+                  <line x1="65" y1="60" x2="65" y2="75" stroke="#f8fafc" stroke-width="2"/>
+                  <!-- Bulk arrow N-ch (pointing in) -->
+                  <line x1="48" y1="40" x2="65" y2="40" stroke="#f8fafc" stroke-width="2"/>
+                  <line x1="65" y1="40" x2="65" y2="60" stroke="#f8fafc" stroke-width="2"/>
+                  <polygon points="48,40 56,36 56,44" fill="#38bdf8"/>
+                  <text x="50" y="80" fill="#38bdf8" font-family="Chakra Petch" font-size="8" text-anchor="middle">N-Channel</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">3.</span> รายการอุปกรณ์ตรวจวัด</h2>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th style="width: 80px">ลำดับ</th>
+                <th>รายการอุปกรณ์</th>
+                <th>คุณลักษณะ (Specification)</th>
+                <th style="width: 100px">จำนวน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center">1</td>
+                <td>Power MOSFET N-Channel</td>
+                <td>เบอร์ IRF540 (TO-220)</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">2</td>
+                <td>Power MOSFET P-Channel</td>
+                <td>เบอร์ IRF9540 (TO-220)</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">3</td>
+                <td>ตัวต้านทานโหลดขาเดรน (R<sub>D</sub>)</td>
+                <td>ขนาด 220 Ω 5W หรือ 10W เพื่อทนกำลังสูญเสีย</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">4</td>
+                <td>แหล่งจ่ายไฟคู่ละเอียด (DC Supply)</td>
+                <td>V<sub>GG</sub> (0-10V) และ V<sub>DD</sub> (0-15V)</td>
+                <td class="text-center">1 ชุด</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="card-footer-action no-print">
+          <button class="btn btn-primary" onclick="switchTab('simulator')">เข้าสู่ห้องปฏิบัติการจำลอง 🔬</button>
+        </div>
+      </section>
+      
+      <!-- TAB 2: VIRTUAL LAB SIMULATOR -->
+      <section id="simulator" class="tab-content">
+        <header class="content-header">
+          <h1>เครื่องมือจำลองวิเคราะห์การไบอัส MOSFET (MOSFET Bias Simulator)</h1>
+          <p class="subtitle">ปรับเปลี่ยนแรงดันแหล่งจ่ายเกตและเดรน เพื่อวัดวิเคราะห์จุดทำงานเชิงกราฟถ่ายโอน</p>
+        </header>
+        
+        <div class="grid-simulator-p2">
+          <!-- Control Panel -->
+          <div class="sim-pane-controls">
+            <h3>ส่วนจ่ายแรงดันไบอัส</h3>
+            
+            <div class="control-group">
+              <label>เลือกชนิดของ MOSFET:</label>
+              <select id="mosfet-type" onchange="resetSimulator()">
+                <option value="IRF540">IRF540 (N-Channel MOSFET)</option>
+                <option value="IRF9540">IRF9540 (P-Channel MOSFET)</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label for="input-vgg">แรงดันปรับไบอัสเกต (V<sub>GG</sub>): <strong id="val-vgg">0.0</strong> V</label>
+              <input type="range" id="input-vgg" min="0" max="10" step="0.1" value="0.0" oninput="updateCircuitSimulation()">
+            </div>
+            
+            <div class="control-group">
+              <label for="input-vdd">แหล่งจ่ายขั้วคอลเล็กเตอร์ (V<sub>DD</sub>): <strong id="val-vdd">10.0</strong> V</label>
+              <input type="range" id="input-vdd" min="0" max="15" step="0.5" value="10.0" oninput="updateCircuitSimulation()">
+            </div>
+            
+            <div class="control-group">
+              <label for="measuring-target">เลือกเครื่องมือวัด DMM:</label>
+              <select id="measuring-target" onchange="updateCircuitSimulation()">
+                <option value="none">--- ปลดสายโพรบออก ---</option>
+                <option value="vgs">วัดแรงดันตกคร่อมขั้วเกต-ซอร์ส (VGS)</option>
+                <option value="vds">วัดแรงดันตกคร่อมขั้วเดรน-ซอร์ส (VDS)</option>
+                <option value="vrd">วัดแรงดันตกคร่อมตัวต้านทานโหลด (VRd)</option>
+                <option value="id">วัดกระแสเดรน (ID) [ต่ออนุกรม]</option>
+              </select>
+            </div>
+            
+            <!-- LCD Screen -->
+            <div class="digital-lcd-pane dmm-pane">
+              <div class="lcd-header-dmm">Digital Multimeter</div>
+              <div class="lcd-readout">
+                <span id="dmm-value" class="dmm-number">0.00</span>
+                <span id="dmm-unit" class="dmm-unit">V</span>
+              </div>
+              <div id="dmm-mode-text" class="dmm-mode">ไม่ได้ต่อโพรบวัด</div>
+            </div>
+            
+            <button class="btn btn-success w-100" onclick="recordCurrentValues()">
+              💾 บันทึกค่าวัดลงตารางใบงาน
+            </button>
+          </div>
+          
+          <!-- Circuit Schema Board -->
+          <div class="sim-pane-circuit">
+            <h3>แผนภาพแสดงตำแหน่งวัดในวงจร MOSFET Biasing</h3>
+            
+            <div class="circuit-svg-container">
+              <svg id="mosfet-circuit-svg" viewBox="0 0 460 250" width="100%">
+                <!-- Background plate -->
+                <rect x="0" y="0" width="460" height="250" rx="8" fill="#0b0f19" stroke="#1e293b" stroke-width="2"/>
+                
+                <!-- Schematic wires -->
+                <!-- Vgg to Gate -->
+                <path d="M 60 120 L 160 120" fill="none" stroke="#ef4444" stroke-width="3"/>
+                <!-- Vdd to Rd -->
+                <path d="M 380 40 L 260 40 L 260 70" fill="none" stroke="#e11d48" stroke-width="3"/>
+                <!-- Rd to Drain -->
+                <path d="M 260 110 L 260 120" fill="none" stroke="#cbd5e1" stroke-width="3"/>
+                <!-- Source to GND -->
+                <path id="source-gnd-wire" d="M 260 180 L 260 210 L 60 210 L 60 120" fill="none" stroke="#3b82f6" stroke-width="3"/>
+                
+                <!-- GND symbols -->
+                <path d="M 50 210 L 70 210 M 55 215 L 65 215 M 58 220 L 62 220" stroke="#3b82f6" stroke-width="2"/>
+                <text x="60" y="235" fill="#3b82f6" font-family="Chakra Petch" font-size="10" text-anchor="middle">GND</text>
+                
+                <!-- Supply nodes -->
+                <circle cx="60" cy="120" r="5" fill="#f8fafc"/>
+                <circle cx="260" cy="120" r="5" fill="#f8fafc"/>
+                <circle cx="160" cy="120" r="5" fill="#f8fafc"/>
+                
+                <!-- Supply indicators -->
+                <text x="50" y="100" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold">V_GG</text>
+                <text x="390" y="35" fill="#e11d48" font-family="Chakra Petch" font-size="12" font-weight="bold">V_DD</text>
+                <text id="svg-vdd-lbl" x="390" y="55" fill="#e11d48" font-family="Chakra Petch" font-size="10">10.0V</text>
+                
+                <!-- Resistor RD 220 Ohm -->
+                <g>
+                  <rect x="251" y="70" width="18" height="40" rx="3" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                  <rect x="251" y="76" width="18" height="4" fill="#dc2626"/> <!-- Red -->
+                  <rect x="251" y="84" width="18" height="4" fill="#dc2626"/> <!-- Red -->
+                  <rect x="251" y="92" width="18" height="4" fill="#78350f"/> <!-- Brown -->
+                  <rect x="251" y="100" width="18" height="4" fill="#fbbf24"/> <!-- Gold -->
+                  <text x="280" y="94" fill="#94a3b8" font-family="Chakra Petch" font-size="10">Rd = 220 Ω</text>
+                </g>
+                
+                <!-- MOSFET TO-220 Graphic -->
+                <g id="svg-mosfet" transform="translate(180, 100)">
+                  <rect x="0" y="10" width="60" height="60" rx="4" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                  <rect x="15" y="-10" width="30" height="20" fill="#64748b" stroke="#475569" stroke-width="1"/>
+                  <circle cx="30" cy="0" r="3" fill="#0b0f19"/>
+                  
+                  <!-- Connections inside package -->
+                  <line x1="-20" y1="20" x2="10" y2="20" stroke="#cbd5e1" stroke-width="2"/> <!-- Gate Lead -->
+                  <line x1="80" y1="20" x2="50" y2="20" stroke="#cbd5e1" stroke-width="2"/> <!-- Drain Lead -->
+                  <line x1="80" y1="80" x2="80" y2="110" stroke="#cbd5e1" stroke-width="2"/> <!-- Dummy lead -->
+                  
+                  <text id="mosfet-name-svg" x="30" y="45" fill="#f8fafc" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="middle">IRF540</text>
+                  
+                  <!-- Internal pins inside SVG coordinates -->
+                  <circle cx="10" cy="20" r="4" fill="#ef4444"/> <!-- Gate pin -->
+                  <circle cx="50" cy="20" r="4" fill="#e11d48"/> <!-- Drain pin -->
+                  <circle cx="30" cy="65" r="4" fill="#3b82f6"/> <!-- Source pin -->
+                </g>
+                
+                <!-- Schematic symbols overlaid -->
+                <g transform="translate(180, 100)" opacity="0.35">
+                  <circle cx="30" cy="40" r="24" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3"/>
+                </g>
+                
+                <!-- Probes visual animated layer -->
+                <g id="svg-probes-layer">
+                  <path id="svg-probe-red-wire" d="M 0 0" fill="none" stroke="#dc2626" stroke-width="2"/>
+                  <circle id="svg-probe-red-tip" cx="0" cy="0" r="6" fill="#dc2626" stroke="#fca5a5" stroke-width="2" opacity="0"/>
+                  <path id="svg-probe-black-wire" d="M 0 0" fill="none" stroke="#000000" stroke-width="2"/>
+                  <circle id="svg-probe-black-tip" cx="0" cy="0" r="6" fill="#000000" stroke="#4b5563" stroke-width="2" opacity="0"/>
+                </g>
+              </svg>
+            </div>
+            
+            <div class="circuit-status-indicator">
+              <span>สถานะการทำงานของตัวนำ: </span>
+              <span id="mosfet-state-badge" class="badge badge-normal">คัทออฟ (Cutoff)</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Transfer Characteristics Plot Card -->
+        <div class="card" style="margin-top: 25px;">
+          <div class="card-title">
+            <span class="number">2.1</span> วิเคราะห์เส้นโค้งการถ่ายโอนกำลังจำลอง (MOSFET Transfer Characteristics Curve)
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+            กราฟนี้แสดงพฤติกรรมการควบคุมกระแสไฟฟ้าของเดรน (Id) เทียบกับแรงดันควบคุมเกต (Vgs) ที่แรงดันเดรน Vds คงที่ จุด Q-point สีฟ้าจะวิ่งไต่ตามเส้นโค้งคุณลักษณะกำลังสองของ MOSFET จริงเมื่อมีการเลื่อนปรับแรงดัน Gate
+          </p>
+          <div class="grid-2">
+            <div style="position: relative; height: 350px; background: rgba(15, 23, 42, 0.4); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px;">
+              <canvas id="mosfet-chart"></canvas>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+              <h4 style="font-family: 'Chakra Petch', sans-serif; color: var(--accent-cyan); margin-bottom: 15px;">พารามิเตอร์จุดทำงานเงียบ (Quiescent Q-Point Parameters)</h4>
+              <table class="lab-table" style="margin-top: 0;">
+                <tbody>
+                  <tr>
+                    <td><strong>แรงดันตกคร่อมขั้วเกต-ซอร์ส (V<sub>GS,Q</sub>)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-vgs" style="font-family: 'Chakra Petch', monospace; font-size: 16px; font-weight: bold; color: var(--accent-cyan);">0.00</span> V</td>
+                  </tr>
+                  <tr>
+                    <td><strong>กระแสไฟฟ้าไหลเดรน (I<sub>D,Q</sub>)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-id" style="font-family: 'Chakra Petch', monospace; font-size: 16px; font-weight: bold; color: var(--accent-cyan);">0.00</span> mA</td>
+                  </tr>
+                  <tr>
+                    <td><strong>แรงดันตกคร่อมขั้วเดรน-ซอร์ส (V<sub>DS,Q</sub>)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-vds" style="font-family: 'Chakra Petch', monospace; font-size: 16px; font-weight: bold; color: var(--accent-cyan);">0.00</span> V</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ย่านการทำงาน (Operating Region)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-state" class="badge badge-normal">Cutoff</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted); line-height: 1.5; border-left: 2px solid var(--accent-cyan); padding-left: 10px;">
+                💡 <strong>แนวคิดในการทดลอง:</strong> ค่อย ๆ ปรับ <strong>Vgg</strong> ให้ข้ามพ้นระดับ 3V ขึ้นไป (สำหรับ IRF540) สังเกตการเติบโตแบบก้าวกระโดดกำลังสองของกระแส Id และการตกวูบของแรงดัน Vds เมื่อช่องนำกระแสเริ่มเปิดกว้างขึ้น
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-footer-action no-print" style="margin-top: 25px;">
+          <button class="btn btn-secondary" onclick="switchTab('theory')">⬅️ กลับหน้าทฤษฎี</button>
+          <button class="btn btn-primary" onclick="switchTab('report')">ไปกรอกผลการทดลอง 📝</button>
+        </div>
+      </section>
+      
+      <!-- TAB 3: DIGITAL LAB REPORT -->
+      <section id="report" class="tab-content">
+        <header class="report-header">
+          <div class="university-banner">
+            <h2>ใบงานสรุปการปฏิบัติการทดลอง: การจัดไบอัสและคุณสมบัติของ MOSFET</h2>
+            <h3>วิเคราะห์จุดทำงาน Q-point และพล็อตเส้นคุณสมบัติโอนย้ายกระแส</h3>
+          </div>
+        </header>
+        
+        <!-- Identity Card -->
+        <div class="card student-info-card">
+          <div class="grid-3 student-grid">
+            <div class="input-field">
+              <label for="student-name">ชื่อ-นามสกุลนักศึกษา:</label>
+              <input type="text" id="student-name" placeholder="ระบุชื่อจริง-นามสกุล">
+            </div>
+            <div class="input-field">
+              <label for="student-id">รหัสนักศึกษา:</label>
+              <input type="text" id="student-id" placeholder="รหัสประจำตัว 10 หลัก">
+            </div>
+            <div class="input-field">
+              <label for="student-group">กลุ่มเรียน / ตอนเรียน:</label>
+              <input type="text" id="student-group" placeholder="เช่น บอ. 4">
+            </div>
+          </div>
+          <div class="grid-2 student-grid" style="margin-top: 15px">
+            <div class="input-field">
+              <label for="lab-date">วันที่ทดลอง:</label>
+              <input type="date" id="lab-date">
+            </div>
+            <div class="input-field no-print">
+              <label>&nbsp;</label>
+              <span class="tip-inline">💡 แนะนำ: ใช้ปุ่มจำลองค่าวัดอย่างง่ายดายในแถบควบคุมทางซ้าย หรือปุ่มดึงค่าวัดในแต่ละระดับย่อย</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PART 1: TABLE 1 -->
+        <div class="card report-section">
+          <h3>ตอนที่ 1: ตารางบันทึกผลการทดลองหาลักษณะสมบัติการถ่ายโอน (V<sub>DS</sub> = 10.0 V คงที่)</h3>
+          <div class="post-instruction">
+            ล็อกแรงดัน $V_{DD}$ (หรือปรับ $V_{DD}$ เพื่อรักษาระดับแรงดันตกคร่อมขั้วเดรน-ซอร์ส $V_{DS} \approx 10\text{V}$) แล้วปรับเพิ่ม $V_{GS}$ บันทึกกระแสเดรน:
+          </div>
+          
+          <div class="table-responsive">
+            <table class="report-table-form">
+              <thead>
+                <tr>
+                  <th style="width: 100px">แรงดันไบอัส V<sub>GS</sub> (V)</th>
+                  <th>แรงดันตกคร่อมจริง V<sub>DS</sub> (V)</th>
+                  <th>กระแสไฟฟ้าไหลเดรน I<sub>D</sub> (mA)</th>
+                  <th>สถานะรอยต่อ (Cutoff / Saturation / Triode)</th>
+                  <th style="width: 100px" class="no-print">ดึงค่าวัด</th>
+                </tr>
+              </thead>
+              <tbody id="table1-body">
+                <!-- Data generated dynamically for 8 rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- PART 2: TABLE 2 -->
+        <div class="card report-section">
+          <h3>ตอนที่ 2: ตารางบันทึกผลการทดลองหาลักษณะสมบัติเอาต์พุต (V<sub>GS</sub> = 5.0 V คงที่)</h3>
+          <div class="post-instruction">
+            ล็อกแรงดันป้อนเกต $V_{GS} = 5.0\text{V}$ คงที่ แล้วปรับระดับแหล่งจ่าย $V_{DD}$ ตามตาราง วัดกระแสเดรนและแรงดันตกคร่อมขั้วเดรน-ซอร์ส:
+          </div>
+          
+          <div class="table-responsive">
+            <table class="report-table-form">
+              <thead>
+                <tr>
+                  <th style="width: 100px">แรงดันแหล่งจ่าย V<sub>DD</sub> (V)</th>
+                  <th>แรงดันวัดจริง V<sub>DS</sub> (V)</th>
+                  <th>กระแสไฟฟ้าเดรน I<sub>D</sub> (mA)</th>
+                  <th>สถานะการนำกระแส</th>
+                  <th style="width: 100px" class="no-print">ดึงค่าวัด</th>
+                </tr>
+              </thead>
+              <tbody id="table2-body">
+                <!-- Data generated dynamically for 8 rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- PART 3: CALCULATIONS -->
+        <div class="card report-section">
+          <h3>ตอนที่ 3: การหาค่าพารามิเตอร์ขีดเริ่มทางฟิสิกส์ (V<sub>th</sub> & K)</h3>
+          <div class="post-instruction">
+            วิเคราะห์ระดับจุดนำกระแสเปิด $V_{GS}$ จากตารางและสูตรหาตัวคูณประชากรเกต:
+          </div>
+          
+          <div class="grid-2">
+            <div class="input-field">
+              <label for="ans-vth">1. แรงดันขีดเริ่มนำกระแสตรวจวัดได้ (Threshold Voltage V<sub>th</sub>):</label>
+              <div class="input-unit-group">
+                <input type="number" id="ans-vth" step="0.1" placeholder="เช่น 3.0">
+                <span class="unit">V</span>
+              </div>
+            </div>
+            <div class="input-field">
+              <label for="ans-k">2. ค่าคงที่ transconductance คำนวณได้ (K = I<sub>D</sub> / (V<sub>GS</sub> - V<sub>th</sub>)<sup>2</sup>):</label>
+              <div class="input-unit-group">
+                <input type="number" id="ans-k" step="0.01" placeholder="เช่น 1.25">
+                <span class="unit">mA/V<sup>2</sup></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- POST-LAB QUESTIONS -->
+        <div class="card report-section">
+          <h3>คำถามท้ายการปฏิบัติการทดลอง (Post-Lab Questions)</h3>
+          
+          <div class="input-field">
+            <label class="q-label">1. เส้นกราฟคุณลักษณะการถ่ายโอน (Transfer Curve) ของ MOSFET มีความต่างจากกราฟคุณลักษณะโอนย้ายกระแสของ BJT (เช่น BC108) อย่างไร? จงระบุมิติวิเคราะห์เชิงทฤษฎี</label>
+            <textarea id="q1-answer" rows="3" placeholder="วิเคราะห์และเปรียบเทียบการควบคุมกระแสควบคุม (Voltage-Controlled vs Current-Controlled)..."></textarea>
+          </div>
+          
+          <div class="input-field" style="margin-top: 20px;">
+            <label class="q-label">2. จงอธิบายเงื่อนไขทางแรงดันตกคร่อมรอยต่อที่แบ่งช่วงการทำงานของ MOSFET ระหว่างย่านอิ่มตัว (Saturation) และย่านโอห์มมิก (Triode) จากการสังเกตผลการวัดในตารางที่ 2</label>
+            <textarea id="q2-answer" rows="3" placeholder="ระบุความสัมพันธ์เปรียบเทียบ Vds กับระดับ Vgs - Vth..."></textarea>
+          </div>
+          
+          <div class="input-field" style="margin-top: 20px;">
+            <label class="q-label">3. หากต่อขั้วขา MOSFET สลับตำแหน่งระหว่างขั้วเดรน (Drain) และขั้วซอร์ส (Source) อุปกรณ์จะยังทำงานควบคุมนำสัญญาณได้หรือไม่? จงอธิบายโดยอ้างอิงถึงปรสิตไดโอด (Body Diode)</label>
+            <textarea id="q3-answer" rows="3" placeholder="อธิบายบทบาทของปรสิตไดโอดภายในถัง MOSFET ที่ต่อย้อนหลัง..."></textarea>
+          </div>
+        </div>
+        
+        <!-- CONCLUSION -->
+        <div class="card report-section">
+          <h3>สรุปผลการทดลอง (Conclusion)</h3>
+          <div class="input-field">
+            <textarea id="lab-conclusion" rows="5" placeholder="เขียนบันทึกสรุปแนวคิด ย่านทำงาน Q-point ความต้านทานโหลด และการเคลื่อนตัวตามกราฟถ่ายโอนพลังงาน..."></textarea>
+          </div>
+        </div>
+        
+        <!-- SIGNATURES AND TEACHER GRADING -->
+        <div class="card report-section signature-section">
+          <div class="grid-2">
+            <div class="sign-block">
+              <div class="line-space">ลงชื่อนักศึกษาผู้ส่งงาน: ............................................................</div>
+              <div class="line-space">วันที่ส่งชิ้นงาน: ......./......./.......</div>
+            </div>
+            
+            <div class="sign-block teacher-grading">
+              <div class="grading-title">การประเมินโดยผู้ตรวจชิ้นงาน:</div>
+              <div class="grading-checkboxes">
+                <label class="checkbox-container">
+                  <input type="checkbox" id="grade-excellent">
+                  <span class="checkmark"></span> ดีเยี่ยม (Excellent)
+                </label>
+                <label class="checkbox-container">
+                  <input type="checkbox" id="grade-good">
+                  <span class="checkmark"></span> ผ่านเกณฑ์ (Pass)
+                </label>
+                <label class="checkbox-container">
+                  <input type="checkbox" id="grade-fix">
+                  <span class="checkmark"></span> ต้องแก้ไขงานใหม่ (Resubmit)
+                </label>
+              </div>
+              <div class="line-space" style="margin-top: 15px">ลงชื่อผู้ตรวจงาน: ............................................................</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Footer actions -->
+        <div class="card-footer-action no-print" style="justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-large" onclick="switchTab('simulator')">🔬 กลับหน้าระเบียบจ่ายจำลอง</button>
+          <button class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานส่งผล / บันทึก PDF</button>
+          <button class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color: #0284c7;" onclick="submitReportToGAS()">ส่งรายงานตรวจให้คะแนนสะสม 🚀</button>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <script>
+/**
+ * MOSFET Bias Lab Simulator Engine - IRF540 / IRF9540
+ */
+
+const STATE = {
+  mosfetType: 'IRF540', // 'IRF540' (N-ch), 'IRF9540' (P-ch)
+  vgg: 0.0,
+  vdd: 10.0,
+  measuringTarget: 'none', // 'vgs', 'vds', 'vrd', 'id'
+  
+  variance: {
+    rd: 220,    // 220 Ohms nominal
+    vth: 3.0,   // 3.0V threshold
+    k: 1.25e-3  // 1.25 mA/V^2 transconductance coefficient
+  }
+};
+
+function solveMosfet(Vdd, Vgs, isNch = true) {
+  const Rd = STATE.variance.rd;
+  const Vth = STATE.variance.vth;
+  const K = STATE.variance.k;
+  
+  const vgs = Math.abs(Vgs);
+  const vdd = Math.abs(Vdd);
+  
+  // Cutoff
+  if (vgs < Vth) {
+    return { id: 0, vds: vdd, state: 'Cutoff' };
+  }
+  
+  // Try Saturation assumption
+  const idSat = K * Math.pow(vgs - Vth, 2);
+  const vdsSat = vdd - idSat * Rd;
+  
+  if (vdsSat >= vgs - Vth) {
+    // Saturation region
+    return {
+      id: idSat * 1e3, // mA
+      vds: isNch ? vdsSat : -vdsSat,
+      state: 'Saturation'
+    };
+  } else {
+    // Ohmic/Triode region
+    // Solve: Rd*K*Vds^2 - (2*Rd*K*(Vgs-Vth) + 1)*Vds + Vdd = 0
+    const a = Rd * K;
+    const b = -(2 * Rd * K * (vgs - Vth) + 1);
+    const c = vdd;
+    
+    const disc = b * b - 4 * a * c;
+    if (disc < 0) {
+      return { id: idSat * 1e3, vds: isNch ? 0.1 : -0.1, state: 'Triode' };
+    }
+    
+    const vds = (-b - Math.sqrt(disc)) / (2 * a);
+    const id = K * (2 * (vgs - Vth) * vds - vds * vds);
+    
+    return {
+      id: id * 1e3, // mA
+      vds: isNch ? vds : -vds,
+      state: 'Triode'
+    };
+  }
+}
+
+function solveCircuit() {
+  const isNch = STATE.mosfetType === 'IRF540';
+  const solved = solveMosfet(STATE.vdd, STATE.vgg, isNch);
+  
+  // Add noise
+  const noiseVal = () => (Math.random() - 0.5) * 0.004;
+  const idNoise = () => (Math.random() - 0.5) * 0.01;
+  
+  const addNoise = (val, n = noiseVal()) => val !== 0 ? parseFloat((val + n).toFixed(3)) : 0;
+  
+  const vrd = (solved.id / 1000) * STATE.variance.rd;
+  
+  return {
+    vgs: isNch ? STATE.vgg : -STATE.vgg,
+    vds: addNoise(solved.vds),
+    vrd: addNoise(vrd),
+    id: solved.id > 0 ? parseFloat((solved.id + idNoise()).toFixed(3)) : 0, // mA
+    state: solved.state
+  };
+}
+  </script>
+
+  <script>
+/**
+ * UI & Charting Controller
+ */
+let mosfetChart = null;
+
+const vinList1 = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0]; // Vgs
+const vddList2 = [0.5, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0]; // Vdd
+
+window.onerror = function(message, source, lineno, colno, error) {
+  alert("พบข้อผิดพลาด: " + message + "\nบรรทัดที่: " + lineno);
+  return false;
+};
+
+function initApp() {
+  // Set date
+  const dateInput = document.getElementById('lab-date');
+  if (dateInput) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  
+  // Populate Report tables DOM
+  buildReportTables();
+  
+  // Initialize Chart.js
+  initChart();
+  
+  resetSimulator();
+}
+
+function buildReportTables() {
+  const t1Body = document.getElementById('table1-body');
+  const t2Body = document.getElementById('table2-body');
+  
+  t1Body.innerHTML = '';
+  t2Body.innerHTML = '';
+  
+  // Table 1: Vds = 10V constant
+  vinList1.forEach((vgs, idx) => {
+    t1Body.innerHTML += `
+      <tr>
+        <td class="text-center font-bold">${vgs.toFixed(1)} V</td>
+        <td><input type="number" id="t1-vds-${idx}" step="0.001" placeholder="0.00"></td>
+        <td><input type="number" id="t1-id-${idx}" step="0.001" placeholder="0.00"></td>
+        <td><input type="text" id="t1-state-${idx}" placeholder="คัทออฟ..."></td>
+        <td class="text-center no-print">
+          <button class="btn btn-small" onclick="measureRow1(${idx})">วัดค่า 🔬</button>
+        </td>
+      </tr>
+    `;
+  });
+  
+  // Table 2: Vgs = 5V constant
+  vddList2.forEach((vdd, idx) => {
+    t2Body.innerHTML += `
+      <tr>
+        <td class="text-center font-bold">${vdd.toFixed(1)} V</td>
+        <td><input type="number" id="t2-vds-${idx}" step="0.001" placeholder="0.00"></td>
+        <td><input type="number" id="t2-id-${idx}" step="0.001" placeholder="0.00"></td>
+        <td><input type="text" id="t2-state-${idx}" placeholder="นำกระแส..."></td>
+        <td class="text-center no-print">
+          <button class="btn btn-small" onclick="measureRow2(${idx})">วัดค่า 🔬</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function initChart() {
+  const ctx = document.getElementById('mosfet-chart').getContext('2d');
+  
+  mosfetChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: []
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: 'linear',
+          position: 'bottom',
+          title: {
+            display: true,
+            text: 'แรงดันเกต V_GS (V)',
+            color: '#94a3b8',
+            font: { family: 'Chakra Petch', size: 12, weight: 'bold' }
+          },
+          min: 0,
+          max: 10,
+          grid: { color: 'rgba(71, 85, 105, 0.15)' },
+          ticks: { color: '#94a3b8', font: { family: 'Chakra Petch' } }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'กระแสเดรน I_D (mA)',
+            color: '#94a3b8',
+            font: { family: 'Chakra Petch', size: 12, weight: 'bold' }
+          },
+          min: 0,
+          max: 40,
+          grid: { color: 'rgba(71, 85, 105, 0.15)' },
+          ticks: { color: '#94a3b8', font: { family: 'Chakra Petch' } }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#cbd5e1',
+            font: { family: 'Chakra Petch', size: 10 }
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateChart(vgs, results) {
+  if (!mosfetChart) return;
+  
+  const Vth = STATE.variance.vth;
+  const K = STATE.variance.k;
+  
+  // Generate Transfer Characteristic curve data points
+  // Id = K * (Vgs - Vth)^2 for Vgs >= Vth
+  const curvePoints = [];
+  for (let v = 0; v <= 10; v += 0.2) {
+    let id = 0;
+    if (v >= Vth) {
+      id = K * Math.pow(v - Vth, 2) * 1000; // in mA
+    }
+    curvePoints.push({ x: v, y: id });
+  }
+  
+  // Q-Point
+  const qPoint = [{ x: Math.abs(vgs), y: results.id }];
+  
+  mosfetChart.data.datasets = [
+    {
+      label: 'MOSFET Transfer Curve (I_D vs V_GS)',
+      data: curvePoints,
+      showLine: true,
+      borderColor: '#38bdf8', // Cyan
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.1
+    },
+    {
+      label: 'จุดทำงานเงียบ Q-Point',
+      data: qPoint,
+      pointRadius: 8,
+      pointHoverRadius: 10,
+      pointBackgroundColor: '#ef4444', // Red
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 2,
+      borderColor: '#ef4444',
+      showLine: false
+    }
+  ];
+  
+  mosfetChart.update();
+}
+
+function switchTab(tabId) {
+  const navButtons = document.querySelectorAll('.nav-btn');
+  navButtons.forEach(btn => {
+    if (btn.getAttribute('data-tab') === tabId) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabContents.forEach(content => {
+    if (content.id === tabId) {
+      content.classList.add('active');
+    } else {
+      content.classList.remove('active');
+    }
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.switchTab = switchTab;
+
+function resetSimulator() {
+  const select = document.getElementById('mosfet-type');
+  if (select) {
+    STATE.mosfetType = select.value;
+    document.getElementById('mosfet-name-svg').textContent = STATE.mosfetType;
+  }
+  
+  // Configure visual styles/symbols depending on N/P Channel
+  const isNch = STATE.mosfetType === 'IRF540';
+  const color = isNch ? '#38bdf8' : '#f43f5e';
+  
+  document.getElementById('mosfet-name-svg').setAttribute('fill', color);
+  
+  updateCircuitSimulation();
+}
+window.resetSimulator = resetSimulator;
+
+function updateCircuitSimulation() {
+  // Read inputs
+  const vggSlider = document.getElementById('input-vgg');
+  if (vggSlider) {
+    STATE.vgg = parseFloat(vggSlider.value);
+    document.getElementById('val-vgg').innerText = STATE.vgg.toFixed(1);
+  }
+  
+  const vddSlider = document.getElementById('input-vdd');
+  if (vddSlider) {
+    STATE.vdd = parseFloat(vddSlider.value);
+    document.getElementById('val-vdd').innerText = STATE.vdd.toFixed(1);
+    document.getElementById('svg-vdd-lbl').innerText = STATE.vdd.toFixed(1) + 'V';
+  }
+  
+  // Solve circuit
+  const results = solveCircuit();
+  
+  // Update status badge
+  const badge = document.getElementById('mosfet-state-badge');
+  if (badge) {
+    if (results.state === 'Cutoff') {
+      badge.className = 'badge badge-normal';
+      badge.innerText = 'คัทออฟ (Cutoff / ไม่นำกระแส)';
+    } else if (results.state === 'Saturation') {
+      badge.className = 'badge badge-success';
+      badge.innerText = `อิ่มตัว (Saturation): ${results.id.toFixed(2)} mA`;
+    } else {
+      badge.className = 'badge badge-active';
+      badge.innerText = `ไตรโอด / โอห์มมิก (Triode): ${results.id.toFixed(2)} mA`;
+    }
+  }
+  
+  // Update DMM
+  const target = document.getElementById('measuring-target').value;
+  const dmmVal = document.getElementById('dmm-value');
+  const dmmUnit = document.getElementById('dmm-unit');
+  const dmmMode = document.getElementById('dmm-mode-text');
+  
+  const pRed = document.getElementById('svg-probe-red-tip');
+  const pBlack = document.getElementById('svg-probe-black-tip');
+  const pRedWire = document.getElementById('svg-probe-red-wire');
+  const pBlackWire = document.getElementById('svg-probe-black-wire');
+  
+  if (pRed && pBlack && pRedWire && pBlackWire) {
+    pRed.setAttribute('opacity', '0');
+    pBlack.setAttribute('opacity', '0');
+    pRedWire.setAttribute('d', 'M 0 0');
+    pBlackWire.setAttribute('d', 'M 0 0');
+  }
+  
+  if (target === 'none') {
+    dmmVal.innerText = '0.00';
+    dmmUnit.innerText = 'V';
+    dmmMode.innerText = 'ไม่ได้ต่อสายวัด';
+  } else if (target === 'vgs') {
+    dmmVal.innerText = results.vgs.toFixed(3);
+    dmmUnit.innerText = 'V';
+    dmmMode.innerText = 'DC Voltage: Gate-Source voltage (VGS)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      // Red on Gate (X=190, Y=120), Black on Source (X=210, Y=165)
+      pRed.setAttribute('cx', '190'); pRed.setAttribute('cy', '120'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 220 20, 200 80, 190 120');
+      
+      pBlack.setAttribute('cx', '210'); pBlack.setAttribute('cy', '165'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 210 40, 210 100, 210 165');
+    }
+  } else if (target === 'vds') {
+    dmmVal.innerText = results.vds.toFixed(3);
+    dmmUnit.innerText = 'V';
+    dmmMode.innerText = 'DC Voltage: Drain-Source voltage (VDS)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      // Red on Drain (X=230, Y=120), Black on Source (X=210, Y=165)
+      pRed.setAttribute('cx', '230'); pRed.setAttribute('cy', '120'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 240 20, 240 80, 230 120');
+      
+      pBlack.setAttribute('cx', '210'); pBlack.setAttribute('cy', '165'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 210 40, 210 100, 210 165');
+    }
+  } else if (target === 'vrd') {
+    dmmVal.innerText = results.vrd.toFixed(3);
+    dmmUnit.innerText = 'V';
+    dmmMode.innerText = 'DC Voltage: Voltage drop across Load Resistor (VRd)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      // Across resistor Rd (X=260, Y=70 and Y=110)
+      pRed.setAttribute('cx', '260'); pRed.setAttribute('cy', '70'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 255 30, 260 50, 260 70');
+      
+      pBlack.setAttribute('cx', '260'); pBlack.setAttribute('cy', '110'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 230 30, 250 80, 260 110');
+    }
+  } else if (target === 'id') {
+    dmmVal.innerText = results.id.toFixed(3);
+    dmmUnit.innerText = 'mA';
+    dmmMode.innerText = 'DC Current: Drain series current (ID)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      // Measuring in series
+      pRed.setAttribute('cx', '260'); pRed.setAttribute('cy', '110'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 250 50, 255 80, 260 110');
+      
+      pBlack.setAttribute('cx', '230'); pBlack.setAttribute('cy', '120'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 220 20, 225 80, 230 120');
+    }
+  }
+  
+  // Update Chart
+  updateChart(STATE.vgg, results);
+  
+  // Update chart Q-point UI values
+  document.getElementById('chart-val-vgs').innerText = results.vgs.toFixed(2);
+  document.getElementById('chart-val-id').innerText = results.id.toFixed(3);
+  document.getElementById('chart-val-vds').innerText = results.vds.toFixed(2);
+  
+  const stateVal = document.getElementById('chart-val-state');
+  if (stateVal) {
+    stateVal.innerText = results.state;
+    if (results.state === 'Cutoff') stateVal.className = 'badge badge-normal';
+    else if (results.state === 'Saturation') stateVal.className = 'badge badge-active';
+    else stateVal.className = 'badge badge-alert';
+  }
+}
+window.updateCircuitSimulation = updateCircuitSimulation;
+
+function recordCurrentValues() {
+  const target = document.getElementById('measuring-target').value;
+  if (target === 'none') {
+    alert('⚠️ กรุณาเลือกเครื่องมือวัดและจัดตำแหน่งสายโพรบก่อน!');
+    return;
+  }
+  
+  const results = solveCircuit();
+  alert(`💾 จำลองบันทึกค่าในขณะนี้:\nVGS = ${results.vgs.toFixed(3)} V\nVDS = ${results.vds.toFixed(3)} V\nID = ${results.id.toFixed(3)} mA\n\nสามารถกรอกข้อมูลเหล่านี้ลงในใบงานตารางถัดไปครับ!`);
+}
+window.recordCurrentValues = recordCurrentValues;
+
+function measureRow1(idx) {
+  const vgs = vinList1[idx];
+  
+  // Set slider
+  const vgsSlider = document.getElementById('input-vgg');
+  if (vgsSlider) vgsSlider.value = vgs;
+  
+  // Force Vdd = 10V
+  const vddSlider = document.getElementById('input-vdd');
+  if (vddSlider) vddSlider.value = 10.0;
+  
+  STATE.vgg = vgs;
+  STATE.vdd = 10.0;
+  
+  updateCircuitSimulation();
+  
+  const results = solveCircuit();
+  
+  document.getElementById(`t1-vds-${idx}`).value = results.vds.toFixed(3);
+  document.getElementById(`t1-id-${idx}`).value = results.id.toFixed(3);
+  
+  let stateThai = 'คัทออฟ (Cutoff)';
+  if (results.state === 'Saturation') stateThai = 'อิ่มตัว (Saturation)';
+  else if (results.state === 'Triode') stateThai = 'โอห์มมิก (Triode)';
+  
+  document.getElementById(`t1-state-${idx}`).value = stateThai;
+  
+  highlightRow(`t1-vds-${idx}`);
+}
+window.measureRow1 = measureRow1;
+
+function measureRow2(idx) {
+  const vdd = vddList2[idx];
+  
+  // Set slider Vdd
+  const vddSlider = document.getElementById('input-vdd');
+  if (vddSlider) vddSlider.value = vdd;
+  
+  // Force Vgs = 5.0V
+  const vgsSlider = document.getElementById('input-vgg');
+  if (vgsSlider) vgsSlider.value = 5.0;
+  
+  STATE.vgg = 5.0;
+  STATE.vdd = vdd;
+  
+  updateCircuitSimulation();
+  
+  const results = solveCircuit();
+  
+  document.getElementById(`t2-vds-${idx}`).value = results.vds.toFixed(3);
+  document.getElementById(`t2-id-${idx}`).value = results.id.toFixed(3);
+  
+  let stateThai = 'คัทออฟ (Cutoff)';
+  if (results.state === 'Saturation') stateThai = 'อิ่มตัว (Saturation)';
+  else if (results.state === 'Triode') stateThai = 'โอห์มมิก (Triode)';
+  
+  document.getElementById(`t2-state-${idx}`).value = stateThai;
+  
+  highlightRow(`t2-vds-${idx}`);
+}
+window.measureRow2 = measureRow2;
+
+function highlightRow(elId) {
+  const el = document.getElementById(elId);
+  if (el) {
+    const tr = el.closest('tr');
+    if (tr) {
+      tr.style.backgroundColor = 'rgba(56, 189, 248, 0.15)';
+      setTimeout(() => { tr.style.backgroundColor = ''; }, 800);
+    }
+  }
+}
+
+function printReport() {
+  const name = document.getElementById('student-name').value.trim();
+  const id = document.getElementById('student-id').value.trim();
+  if (!name || !id) {
+    const check = confirm('⚠️ ข้อมูลนักศึกษายังไม่สมบูรณ์ ต้องการปริ้นต์ต่อไปหรือไม่?');
+    if (!check) return;
+  }
+  window.print();
+}
+window.printReport = printReport;
+
+function submitReportToGAS() {
+  const name = document.getElementById('student-name').value.trim();
+  const id = document.getElementById('student-id').value.trim();
+  const group = document.getElementById('student-group').value.trim();
+  const date = document.getElementById('lab-date').value;
+  
+  if (!name || !id || !group || !date) {
+    alert('⚠️ กรุณากรอกข้อมูลส่วนตัวของนักศึกษาให้ครบถ้วนก่อนส่งใบงาน!');
+    return;
+  }
+  
+  // Package tables data
+  const t1Rows = [];
+  const t2Rows = [];
+  
+  for (let i = 0; i < vinList1.length; i++) {
+    t1Rows.push({
+      vgs: vinList1[i],
+      vds: document.getElementById(`t1-vds-${i}`).value.trim(),
+      id: document.getElementById(`t1-id-${i}`).value.trim()
+    });
+  }
+  
+  for (let i = 0; i < vddList2.length; i++) {
+    t2Rows.push({
+      vds: document.getElementById(`t2-vds-${i}`).value.trim(),
+      id: document.getElementById(`t2-id-${i}`).value.trim()
+    });
+  }
+  
+  const data = {
+    studentName: name,
+    studentId: id,
+    studentGroup: group,
+    labDate: date,
+    mosfetType: STATE.mosfetType,
+    table1Rows: t1Rows,
+    table2Rows: t2Rows,
+    ansVth: document.getElementById('ans-vth').value.trim(),
+    ansK: document.getElementById('ans-k').value.trim(),
+    q1Answer: document.getElementById('q1-answer').value.trim(),
+    q2Answer: document.getElementById('q2-answer').value.trim(),
+    q3Answer: document.getElementById('q3-answer').value.trim(),
+    labConclusion: document.getElementById('lab-conclusion').value.trim()
+  };
+  
+  showGradingOverlay(true);
+  
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(onSuccessGrading)
+      .withFailureHandler(onFailureGrading)
+      .submitWorksheet(data);
+  } else {
+    // Simulator local fallback for testing
+    setTimeout(() => {
+      onSuccessGrading({
+        status: 'success',
+        score: 10,
+        maxScore: 10,
+        comment: 'ผ่านเกณฑ์ดีเยี่ยม (Local Simulation)',
+        feedback: 'ตารางบันทึกผลการทดลองตอนที่ 1: ถูกต้อง 8 จาก 8 แถว\nตารางบันทึกผลการทดลองตอนที่ 2: ถูกต้อง 8 จาก 8 แถว\nแรงดันขีดเริ่ม Vth: ถูกต้อง (~3.0 V)\nค่าคงที่สภาพนำกระแส K: ถูกต้อง (~1.25 mA/V^2)'
+      });
+    }, 1500);
+  }
+}
+window.submitReportToGAS = submitReportToGAS;
+
+function showGradingOverlay(show) {
+  let overlay = document.getElementById('grading-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'grading-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(11, 15, 25, 0.9)';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '9999';
+    overlay.style.color = '#f8fafc';
+    overlay.style.fontFamily = 'Chakra Petch, sans-serif';
+    
+    overlay.innerHTML = `
+      <div class="card" style="width: 90%; max-width: 500px; text-align: center; border: 2px solid var(--accent-cyan); background-color: var(--bg-secondary); padding: 30px; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);">
+        <h2 id="overlay-title" style="margin-bottom: 20px; font-size: 24px; color: var(--accent-cyan);">กำลังส่งคำตอบ...</h2>
+        <div id="overlay-spinner" class="logo-icon" style="font-size: 50px; animation: spin 2s linear infinite; margin-bottom: 20px;">⚡</div>
+        <p id="overlay-message" style="font-size: 14px; font-family: Sarabun, sans-serif; color: var(--text-muted); line-height: 1.6;"></p>
+        <button id="overlay-close-btn" class="btn btn-primary" style="margin-top: 25px; display: none;" onclick="showGradingOverlay(false)">ปิด ❌</button>
+      </div>
+      <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+    `;
+    document.body.appendChild(overlay);
+  }
+  
+  overlay.style.display = show ? 'flex' : 'none';
+  if (show) {
+    document.getElementById('overlay-title').innerText = 'กำลังประมวลผลตรวจการส่งงาน...';
+    document.getElementById('overlay-spinner').style.display = 'block';
+    document.getElementById('overlay-message').innerText = 'ระบบกำลังทำการคำนวณและบันทึกคะแนนสะสมอัตโนมัติลงในระบบ Google Sheets ของอาจารย์ผู้สอน...';
+    document.getElementById('overlay-close-btn').style.display = 'none';
+  }
+}
+window.showGradingOverlay = showGradingOverlay;
+
+function onSuccessGrading(res) {
+  showGradingOverlay(true);
+  const title = document.getElementById('overlay-title');
+  const spinner = document.getElementById('overlay-spinner');
+  const msg = document.getElementById('overlay-message');
+  const closeBtn = document.getElementById('overlay-close-btn');
+  
+  if (res.status === 'success') {
+    title.innerText = '🎉 ตรวจคะแนนและเก็บผลบันทึกเรียบร้อย!';
+    title.style.color = 'var(--accent-green)';
+    spinner.style.display = 'none';
+    
+    const feedback = res.feedback.replace(/\n/g, '<br>');
+    msg.innerHTML = `
+      <div style="text-align: left; background: rgba(15,23,42,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin: 15px 0;">
+        <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">คะแนนสอบ: <span style="font-size: 24px; color: var(--accent-green);">${res.score}</span> / ${res.maxScore}</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">ผลการประเมิน: <strong style="color: var(--accent-cyan);">${res.comment}</strong></p>
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 10px;">
+        <div style="font-size: 12px; line-height: 1.6; color: var(--text-main);">${feedback}</div>
+      </div>
+    `;
+    closeBtn.style.display = 'inline-block';
+  } else {
+    onFailureGrading(res.message);
+  }
+}
+
+function onFailureGrading(err) {
+  showGradingOverlay(true);
+  document.getElementById('overlay-title').innerText = '❌ ระบบบันทึกขัดข้อง';
+  document.getElementById('overlay-title').style.color = 'var(--accent-red)';
+  document.getElementById('overlay-spinner').style.display = 'none';
+  document.getElementById('overlay-message').innerHTML = `
+    <p style="color: var(--accent-red); font-weight: bold;">ไม่สามารถส่งข้อมูลได้เนื่องจาก:</p>
+    <p style="font-family: monospace; font-size: 12px; background: rgba(239,68,68,0.1); border: 1px solid var(--accent-red); padding: 10px; margin-top: 8px; border-radius: 4px;">${err}</p>
+  `;
+  document.getElementById('overlay-close-btn').style.display = 'inline-block';
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
