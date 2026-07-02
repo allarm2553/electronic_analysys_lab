@@ -1299,6 +1299,8 @@ body {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -1840,6 +1842,47 @@ body {
           </div>
         </div>
         
+        <!-- Diode I-V Characteristics Card -->
+        <div class="card" style="margin-top: 25px;">
+          <div class="card-title">
+            <span class="number">2.1</span> กราฟวิเคราะห์ลักษณะสมบัติกระแสและแรงดัน (Diode I-V Characteristic Curve)
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+            กราฟแสดงความสัมพันธ์ระหว่างแรงดันตกคร่อมไดโอด (Vd) และกระแสไฟฟ้าที่ไหลผ่านไดโอด (Id) จุดสีฟ้าคือจุดทำงานปัจจุบัน (Operating Q-Point) ซึ่งจะเลื่อนตามแรงดันไบอัสตรง (ฝั่งบวก) หรือไบอัสกลับ (ฝั่งลบ) ในวงจรจริง
+          </p>
+          <div class="grid-2">
+            <div style="position: relative; height: 350px; background: rgba(15, 23, 42, 0.4); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px;">
+              <canvas id="diode-chart"></canvas>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+              <h4 style="font-family: 'Chakra Petch', sans-serif; color: var(--accent-cyan); margin-bottom: 15px;">สถานะจุดทำงานของไดโอด (Diode Q-Point Status)</h4>
+              <table class="lab-table" style="margin-top: 0;">
+                <tbody>
+                  <tr>
+                    <td><strong>สภาวะการจัดไบอัส (Bias Condition)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-bias" class="badge badge-normal">ปลดโพรบออก</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>แรงดันตกคร่อมไดโอด (V<sub>D</sub>)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-vd" style="font-family: 'Chakra Petch', monospace; font-size: 16px; font-weight: bold; color: var(--accent-cyan);">0.00</span> V</td>
+                  </tr>
+                  <tr>
+                    <td><strong>กระแสไฟฟ้าไหลผ่าน (I<sub>D</sub>)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-id" style="font-family: 'Chakra Petch', monospace; font-size: 16px; font-weight: bold; color: var(--accent-cyan);">0.00</span> mA</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ความต้านทานไดนามิก (r<sub>d</sub> = &Delta;v<sub>d</sub> / &Delta;i<sub>d</sub>)</strong></td>
+                    <td style="text-align: right;"><span id="chart-val-rd" style="font-family: 'Chakra Petch', monospace; font-size: 16px; font-weight: bold; color: var(--accent-cyan);">---</span> &Omega;</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted); line-height: 1.5; border-left: 2px solid var(--accent-cyan); padding-left: 10px;">
+                💡 <strong>ข้อสังเกตการเรียนรู้:</strong> เมื่อต่อ <strong>ไบอัสตรง</strong> แรงดันตกคร่อมไดโอดจะมีค่าประมาณ 0.6V - 0.7V และกระแสจะสูงขึ้นอย่างรวดเร็ว แต่เมื่อต่อ <strong>ไบอัสกลับ</strong> แรงดันตกคร่อมไดโอดจะมีค่าเท่ากับแรงดันแหล่งจ่ายป้อนเข้ามาในทิศทางติดลบ (เช่น -5V, -10V) และไม่มีกระแสไหลผ่าน
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card-footer-action no-print">
           <button class="btn btn-secondary" onclick="switchTab('theory')">⬅️ กลับหน้ารายละเอียดทฤษฎี</button>
           <button class="btn btn-primary" onclick="switchTab('report')">กรอกข้อมูลและบันทึกรายงาน 📝</button>
@@ -2421,6 +2464,151 @@ window.onerror = function(message, source, lineno, colno, error) {
   return false;
 };
 
+let diodeChart = null;
+
+function initChart() {
+  const canvas = document.getElementById('diode-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  diodeChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: []
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: 'linear',
+          position: 'bottom',
+          title: {
+            display: true,
+            text: 'แรงดันตกคร่อมไดโอด V_D (V)',
+            color: '#94a3b8',
+            font: { family: 'Chakra Petch', size: 12, weight: 'bold' }
+          },
+          min: -16,
+          max: 2,
+          grid: { color: 'rgba(71, 85, 105, 0.15)' },
+          ticks: { color: '#94a3b8', font: { family: 'Chakra Petch' } }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'กระแสไหลผ่านไดโอด I_D (mA)',
+            color: '#94a3b8',
+            font: { family: 'Chakra Petch', size: 12, weight: 'bold' }
+          },
+          min: -2,
+          max: 16,
+          grid: { color: 'rgba(71, 85, 105, 0.15)' },
+          ticks: { color: '#94a3b8', font: { family: 'Chakra Petch' } }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#cbd5e1',
+            font: { family: 'Chakra Petch', size: 10 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.dataset.label}: (${context.parsed.x.toFixed(2)} V, ${context.parsed.y.toFixed(2)} mA)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateChart(vin, direction, results) {
+  if (!diodeChart) return;
+  
+  const curvePoints = [];
+  
+  for (let v = -16; v < 0; v += 0.5) {
+    curvePoints.push({ x: v, y: 0 });
+  }
+  
+  for (let v = 0; v <= 0.85; v += 0.01) {
+    let id = 1e-6 * (Math.exp(v / 0.045) - 1);
+    curvePoints.push({ x: v, y: id });
+  }
+  
+  let qx = 0;
+  let qy = 0;
+  
+  if (direction === 'forward') {
+    qx = results.vd;
+    qy = results.current;
+  } else {
+    qx = -results.vd;
+    qy = -results.current;
+  }
+  
+  const qPoint = [{ x: qx, y: qy }];
+  
+  diodeChart.data.datasets = [
+    {
+      label: 'Diode I-V Curve (เส้นคุณลักษณะสมบัติ)',
+      data: curvePoints,
+      showLine: true,
+      borderColor: '#ef4444',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.1
+    },
+    {
+      label: 'Q-Point (จุดทำงานปัจจุบัน)',
+      data: qPoint,
+      pointRadius: 8,
+      pointHoverRadius: 10,
+      pointBackgroundColor: '#38bdf8',
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 2,
+      borderColor: '#38bdf8',
+      showLine: false
+    }
+  ];
+  
+  diodeChart.update();
+  
+  const valBias = document.getElementById('chart-val-bias');
+  const valVd = document.getElementById('chart-val-vd');
+  const valId = document.getElementById('chart-val-id');
+  const valRd = document.getElementById('chart-val-rd');
+  
+  if (valVd) valVd.innerText = qx.toFixed(3);
+  if (valId) valId.innerText = Math.abs(qy).toFixed(3);
+  
+  if (valBias) {
+    if (direction === 'forward') {
+      valBias.className = 'badge badge-active';
+      valBias.innerText = 'ไบอัสตรง (Forward Bias)';
+    } else {
+      valBias.className = 'badge badge-alert';
+      valBias.innerText = 'ไบอัสกลับ (Reverse Bias)';
+    }
+  }
+  
+  if (valRd) {
+    const current_mA = Math.abs(qy);
+    if (direction === 'forward' && current_mA > 0.05) {
+      const rd = 45 / current_mA;
+      valRd.innerText = rd.toFixed(1) + ' Ω';
+    } else {
+      valRd.innerText = '∞ (สูงมาก)';
+    }
+  }
+}
+
 function initApp() {
   // Set default date to today
   const dateInput = document.getElementById('lab-date');
@@ -2438,6 +2626,7 @@ function initApp() {
     });
   });
 
+  initChart();
   // Init simulation
   resetDiodeTest();
   updateCircuitSimulation();
@@ -2919,6 +3108,9 @@ function updateCircuitSimulation() {
       probeBlackWire.setAttribute('d', 'M 210 20 C 250 50, 340 80, 360 130');
     }
   }
+
+  // Update Diode characteristics chart
+  updateChart(STATE.vin, STATE.diodeDirection, results);
 }
 window.updateCircuitSimulation = updateCircuitSimulation;
 
