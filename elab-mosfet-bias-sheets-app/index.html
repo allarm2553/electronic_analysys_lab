@@ -968,8 +968,8 @@ body {
           <h2 class="card-title"><span class="number">1.</span> วัตถุประสงค์</h2>
           <ul class="custom-list">
             <li>เพื่อศึกษาการทำงานและการจัดไบอัสกระแสตรงให้กับทรานซิสเตอร์ชนิด MOSFET ทั้ง N-Channel และ P-Channel</li>
-            <li>เพื่อศึกษาและพล็อตหาเส้นคุณลักษณะการถ่ายโอน (Transfer Characteristics) $I_D$ vs $V_{GS}$</li>
-            <li>เพื่อหาค่าแรงดันขีดเริ่มเปลี่ยนระดับนำกระแส (Threshold Voltage: $V_{th}$) และตัวคูณสภาพนำกระแส $K$</li>
+            <li>เพื่อศึกษาและพล็อตหาเส้นคุณลักษณะการถ่ายโอน (Transfer Characteristics) I<sub>D</sub> vs V<sub>GS</sub></li>
+            <li>เพื่อหาค่าแรงดันขีดเริ่มเปลี่ยนระดับนำกระแส (Threshold Voltage: V<sub>th</sub>) และตัวคูณสภาพนำกระแส K</li>
           </ul>
         </div>
         
@@ -978,19 +978,19 @@ body {
           <p>MOSFET (Metal-Oxide-Semiconductor Field-Effect Transistor) เป็นอุปกรณ์ทรานซิสเตอร์ประเภทขั้วเดียว (Unipolar) ควบคุมการนำกระแสด้วยความต่างศักย์ไฟฟ้าที่ป้อนเข้าที่ขั้วเกต (Gate) เทียบกับแหล่งสารขั้วซอร์ส (Source)</p>
           
           <h3 class="subsection-title">2.1 ย่านและลักษณะการทำงาน</h3>
-          <p>เมื่อต่อจ่ายแรงดัน $V_{GS}$ มากกว่าแรงดันขีดเริ่ม $V_{th}$ (สำหรับ N-Channel) หรือติดลบมากกว่า $-V_{th}$ (สำหรับ P-Channel) อุปกรณ์จะนำกระแสเดรน $I_D$ และทำงานใน 2 ย่านหลัก:</p>
+          <p>เมื่อต่อจ่ายแรงดัน V<sub>GS</sub> มากกว่าแรงดันขีดเริ่ม V<sub>th</sub> (สำหรับ N-Channel) หรือติดลบมากกว่า -V<sub>th</sub> (สำหรับ P-Channel) อุปกรณ์จะนำกระแสเดรน I<sub>D</sub> และทำงานใน 2 ย่านหลัก:</p>
           
           <div class="grid-2" style="margin-top: 15px;">
             <div class="subcard bias-forward">
               <h4>ย่านอิ่มตัว (Saturation Region)</h4>
-              <p>เกิดขึ้นเมื่อแรงดันเอาต์พุต $V_{DS} \ge V_{GS} - V_{th}$ โดยกระแส $I_D$ จะขึ้นอยู่กับแรงดันอินพุต $V_{GS}$ เป็นหลักตามความสัมพันธ์กำลังสอง:</p>
+              <p>เกิดขึ้นเมื่อแรงดันเอาต์พุต V<sub>DS</sub> &ge; V<sub>GS</sub> - V<sub>th</sub> โดยกระแส I<sub>D</sub> จะขึ้นอยู่กับแรงดันอินพุต V<sub>GS</sub> เป็นหลักตามความสัมพันธ์กำลังสอง:</p>
               <div class="highlight-text" style="font-family: Chakra Petch, monospace; font-size: 14px; text-align: center; margin: 10px 0;">
                 I<sub>D</sub> = K (V<sub>GS</sub> - V<sub>th</sub>)<sup>2</sup>
               </div>
             </div>
             <div class="subcard bias-reverse">
               <h4>ย่านโอห์มมิก / ไตรโอด (Triode Region)</h4>
-              <p>เกิดขึ้นเมื่อแรงดัน $V_{DS} < V_{GS} - V_{th}$ โดยกระแสจะขึ้นอยู่กับทั้ง $V_{GS}$ และ $V_{DS}$ ดังสูตร:</p>
+              <p>เกิดขึ้นเมื่อแรงดัน V<sub>DS</sub> &lt; V<sub>GS</sub> - V<sub>th</sub> โดยกระแสจะขึ้นอยู่กับทั้ง V<sub>GS</sub> และ V<sub>DS</sub> ดังสูตร:</p>
               <div class="highlight-text" style="font-family: Chakra Petch, monospace; font-size: 14px; text-align: center; margin: 10px 0;">
                 I<sub>D</sub> = K [ 2(V<sub>GS</sub> - V<sub>th</sub>)V<sub>DS</sub> - V<sub>DS</sub><sup>2</sup> ]
               </div>
@@ -1315,7 +1315,7 @@ body {
         <div class="card report-section">
           <h3>ตอนที่ 1: ตารางบันทึกผลการทดลองหาลักษณะสมบัติการถ่ายโอน (V<sub>DS</sub> = 10.0 V คงที่)</h3>
           <div class="post-instruction">
-            ล็อกแรงดัน $V_{DD}$ (หรือปรับ $V_{DD}$ เพื่อรักษาระดับแรงดันตกคร่อมขั้วเดรน-ซอร์ส $V_{DS} \approx 10\text{V}$) แล้วปรับเพิ่ม $V_{GS}$ บันทึกกระแสเดรน:
+            ล็อกแรงดัน V<sub>DD</sub> (หรือปรับ V<sub>DD</sub> เพื่อรักษาระดับแรงดันตกคร่อมขั้วเดรน-ซอร์ส V<sub>DS</sub> &approx; 10 V) แล้วปรับเพิ่ม V<sub>GS</sub> บันทึกกระแสเดรน:
           </div>
           
           <div class="table-responsive">
@@ -1340,7 +1340,7 @@ body {
         <div class="card report-section">
           <h3>ตอนที่ 2: ตารางบันทึกผลการทดลองหาลักษณะสมบัติเอาต์พุต (V<sub>GS</sub> = 5.0 V คงที่)</h3>
           <div class="post-instruction">
-            ล็อกแรงดันป้อนเกต $V_{GS} = 5.0\text{V}$ คงที่ แล้วปรับระดับแหล่งจ่าย $V_{DD}$ ตามตาราง วัดกระแสเดรนและแรงดันตกคร่อมขั้วเดรน-ซอร์ส:
+            ล็อกแรงดันป้อนเกต V<sub>GS</sub> = 5.0 V คงที่ แล้วปรับระดับแหล่งจ่าย V<sub>DD</sub> ตามตาราง วัดกระแสเดรนและแรงดันตกคร่อมขั้วเดรน-ซอร์ส:
           </div>
           
           <div class="table-responsive">
@@ -1365,7 +1365,7 @@ body {
         <div class="card report-section">
           <h3>ตอนที่ 3: การหาค่าพารามิเตอร์ขีดเริ่มทางฟิสิกส์ (V<sub>th</sub> & K)</h3>
           <div class="post-instruction">
-            วิเคราะห์ระดับจุดนำกระแสเปิด $V_{GS}$ จากตารางและสูตรหาตัวคูณประชากรเกต:
+            วิเคราะห์ระดับจุดนำกระแสเปิด V<sub>GS</sub> จากตารางและสูตรหาตัวคูณประชากรเกต:
           </div>
           
           <div class="grid-2">
