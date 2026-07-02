@@ -128,7 +128,7 @@ function gradeWorksheet(data) {
   } else if (cond === 'short') {
     expectedVD = 0.0;
   }
-  const tolVD = 0.15; // tolerance ±0.15V
+  const tolVD = 0.35; // Relaxed from 0.15V (Silicon diode ranges from 0.5V to 0.85V)
   if (Math.abs(vD - expectedVD) <= tolVD) {
     score += 1;
     feedback.push("2.2 แรงดัน VD: ถูกต้อง (" + vD.toFixed(2) + " V)");
@@ -149,12 +149,12 @@ function gradeWorksheet(data) {
     expectedVR = 0.0;
   } else if (cond === 'short') {
     if (dir === 'forward') {
-      expectedVR = 5.0 - 1.95; // ~ 3.0V (shorted diode means Vr = Vin - Vled)
+      expectedVR = 5.0 - 1.95; // ~ 3.0V
     } else {
       expectedVR = 0.0;
     }
   }
-  const tolVR = 0.35; // tolerance ±0.35V
+  const tolVR = 0.70; // Relaxed from 0.35V
   if (Math.abs(vR - expectedVR) <= tolVR) {
     score += 1;
     feedback.push("2.3 แรงดัน VR: ถูกต้อง (" + vR.toFixed(2) + " V)");
@@ -180,7 +180,7 @@ function gradeWorksheet(data) {
       expectedVLED = 0.0;
     }
   }
-  const tolVLED = 0.25; // tolerance ±0.25V
+  const tolVLED = 0.50; // Relaxed from 0.25V
   if (Math.abs(vLed - expectedVLED) <= tolVLED) {
     score += 1;
     feedback.push("2.4 แรงดัน VLED: ถูกต้อง (" + vLed.toFixed(2) + " V)");
@@ -191,8 +191,10 @@ function gradeWorksheet(data) {
   // 2.5 Kirchhoff's Voltage Law (Vsum = VD + VR + VLED)
   const vSum = parseFloat(data.vSum) || 0;
   const expectedVSum = 5.0; // Input supply
-  const tolVSum = 0.25; // tolerance ±0.25V
-  if (Math.abs(vSum - expectedVSum) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= 0.05) {
+  const tolVSum = 0.50; // Relaxed from 0.25V
+  // Allow sum to mismatch marginally due to meter rounding errors (within 0.25V)
+  const isKvlValid = Math.abs(vSum - expectedVSum) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= 0.25;
+  if (isKvlValid) {
     score += 1;
     feedback.push("2.5 ผลรวมแรงดัน (KVL): ถูกต้อง (" + vSum.toFixed(2) + " V)");
   } else {
@@ -201,8 +203,8 @@ function gradeWorksheet(data) {
   
   // 2.6 Calculated Current Icalc = VR / 1kOhm
   const iCalc = parseFloat(data.iCalc) || 0;
-  const expectedICalc = vR; // in mA (since R = 1k, I = VR/1)
-  const tolICalc = 0.1;
+  const expectedICalc = vR; // in mA (R = 1k, I = VR/1)
+  const tolICalc = 0.20; // Relaxed from 0.1
   if (Math.abs(iCalc - expectedICalc) <= tolICalc) {
     score += 1;
     feedback.push("2.6 กระแสคำนวณ Icalc: ถูกต้อง (" + iCalc.toFixed(2) + " mA)");
@@ -213,7 +215,7 @@ function gradeWorksheet(data) {
   // 2.7 Measured Current Imeas
   const iMeas = parseFloat(data.iMeas) || 0;
   let expectedIMeas = expectedICalc;
-  const tolIMeas = 0.25;
+  const tolIMeas = 0.50; // Relaxed from 0.25
   if (Math.abs(iMeas - expectedIMeas) <= tolIMeas) {
     score += 1;
     feedback.push("2.7 กระแสวัดจริง Imeas: ถูกต้อง (" + iMeas.toFixed(2) + " mA)");

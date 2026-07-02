@@ -139,17 +139,49 @@ function gradeWorksheet(data) {
       }
     }
     
-    // Check tolerances
-    const tolV = 0.20; // ±0.20V
-    const tolI = 0.25; // ±0.25mA
+    // Check tolerances (Simulation checking)
+    const tolV = 0.25; // ±0.25V
+    const tolI = 0.35; // ±0.35mA
     
-    const vr1Ok = Math.abs(vr1 - expVR1) <= tolV;
-    // For Vd1, allow small knee curvature in good zener diode
-    const vd1Ok = Math.abs(vd1 - expVD1) <= (cond === 'good' && vin > 5.8 && vin < 6.6 ? 0.35 : tolV);
-    const iCalcOk = Math.abs(iCalc - vr1) <= 0.10; // Icalc must match VR1/1k
-    const iMeasOk = Math.abs(iMeas - expIz) <= tolI;
+    const simVr1Ok = Math.abs(vr1 - expVR1) <= tolV;
+    const simVd1Ok = Math.abs(vd1 - expVD1) <= (cond === 'good' && vin > 5.8 && vin < 6.6 ? 0.45 : tolV);
+    const simICalcOk = Math.abs(iCalc - vr1) <= 0.15; // Icalc must match VR1/1k
+    const simIMeasOk = Math.abs(iMeas - expIz) <= tolI;
     
-    if (vr1Ok && vd1Ok && iCalcOk && iMeasOk) {
+    const simRowOk = simVr1Ok && simVd1Ok && simICalcOk && simIMeasOk;
+    
+    // Physical circuit constraints checking (permits physical lab experimental values)
+    let physicalRowOk = false;
+    if (cond === 'good') {
+      const kvlDiff = Math.abs((vr1 + vd1) - vin);
+      const kvlOk = kvlDiff <= 0.8; // 0.8V tolerance for meter rounding
+      
+      const impliedRc = iCalc > 0 ? (vr1 / (iCalc * 1e-3)) : 0;
+      const rcOk = impliedRc >= 600 && impliedRc <= 1300; // nominal 1k resistor
+      
+      const iCalcMeasDiff = Math.abs(iCalc - iMeas);
+      const currentOk = iCalcMeasDiff <= 0.4;
+      
+      let zenerBehaviorOk = false;
+      if (vin <= 5.0) {
+        // Zener not in breakdown yet: Vr1 should be very small
+        zenerBehaviorOk = vr1 <= 0.8 && vd1 >= vin - 0.8;
+      } else if (vin >= 8.0) {
+        // Zener in breakdown: Vd1 should stabilize in breakdown region (accept 4.8V to 7.5V)
+        zenerBehaviorOk = vd1 >= 4.8 && vd1 <= 7.5 && vr1 >= (vin - vd1 - 0.8);
+      } else {
+        // Transition region: just accept it if KVL and current checks pass
+        zenerBehaviorOk = true;
+      }
+      
+      physicalRowOk = kvlOk && rcOk && currentOk && zenerBehaviorOk;
+    } else if (cond === 'open') {
+      physicalRowOk = Math.abs(vd1 - vin) <= 0.8 && vr1 === 0 && iCalc === 0 && iMeas === 0;
+    } else if (cond === 'short') {
+      physicalRowOk = Math.abs(vr1 - vin) <= 0.8 && vd1 <= 0.6 && Math.abs(iMeas - vin) <= 0.5;
+    }
+    
+    if (simRowOk || physicalRowOk) {
       correctRowsCount++;
     }
   }

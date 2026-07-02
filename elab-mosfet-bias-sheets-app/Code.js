@@ -62,17 +62,39 @@ function gradeWorksheet(data) {
     const vds = parseFloat(sRow.vds) || 0;
     const id = parseFloat(sRow.id) || 0;
     
-    // Theoretical solution at Vdd = 10V
+    // Check 1: Check against simulation values
     const exp = solveMosfet(10.0, vgs_input, isNch);
     
-    const tolV = 0.15;
-    const tolI = 0.5; // mA
+    const tolV = 0.25; // Relaxed from 0.15V
+    const tolI = 0.6; // mA, relaxed from 0.5
     
-    const vgsOk = Math.abs(vgs - (isNch ? vgs_input : -vgs_input)) <= tolV;
-    const vdsOk = Math.abs(vds - exp.vds) <= tolV;
-    const idOk = Math.abs(id - exp.id) <= tolI;
+    const simVgsOk = Math.abs(vgs - (isNch ? vgs_input : -vgs_input)) <= tolV;
+    const simVdsOk = Math.abs(vds - exp.vds) <= tolV;
+    const simIdOk = Math.abs(id - exp.id) <= tolI;
     
-    if (vgsOk && vdsOk && idOk) {
+    const simRowOk = simVgsOk && simVdsOk && simIdOk;
+    
+    // Check 2: Check against physical MOSFET loop constraints
+    let physicalRowOk = false;
+    const vgs_abs = Math.abs(vgs);
+    const vds_abs = Math.abs(vds);
+    const id_abs = Math.abs(id);
+    
+    const kvlDiff = Math.abs((10.0 - vds_abs) - id_abs * 0.22); // RD = 220 ohms -> 0.22 V/mA
+    const kvlOk = kvlDiff <= 1.0; // 1.0V meter error margin
+    
+    let mosfetBehaviorOk = false;
+    if (vgs_abs <= 2.0) {
+      // Cutoff
+      mosfetBehaviorOk = id_abs <= 0.5 && Math.abs(vds_abs - 10.0) <= 1.0;
+    } else {
+      // Conducting (Saturation or Triode)
+      mosfetBehaviorOk = id_abs >= 0.0 && vds_abs <= 10.0;
+    }
+    
+    physicalRowOk = kvlOk && mosfetBehaviorOk && (vgs_abs >= vgs_input - 0.25 && vgs_abs <= vgs_input + 0.25);
+    
+    if (simRowOk || physicalRowOk) {
       t1Correct++;
     }
   }
@@ -94,16 +116,35 @@ function gradeWorksheet(data) {
     const vds = parseFloat(sRow.vds) || 0;
     const id = parseFloat(sRow.id) || 0;
     
-    // Theoretical solution at Vgs = 5V
+    // Check 1: Check against simulation values
     const exp = solveMosfet(vdd_input, 5.0, isNch);
     
-    const tolV = 0.15;
-    const tolI = 0.5; // mA
+    const tolV = 0.25; // Relaxed from 0.15V
+    const tolI = 0.6; // mA, relaxed from 0.5
     
-    const vdsOk = Math.abs(vds - exp.vds) <= tolV;
-    const idOk = Math.abs(id - exp.id) <= tolI;
+    const simVdsOk = Math.abs(vds - exp.vds) <= tolV;
+    const simIdOk = Math.abs(id - exp.id) <= tolI;
     
-    if (vdsOk && idOk) {
+    const simRowOk = simVdsOk && simIdOk;
+    
+    // Check 2: Check against physical MOSFET loop constraints
+    let physicalRowOk = false;
+    const vds_abs = Math.abs(vds);
+    const id_abs = Math.abs(id);
+    
+    const kvlDiff = Math.abs((vdd_input - vds_abs) - id_abs * 0.22); // RD = 220 ohms -> 0.22 V/mA
+    const kvlOk = kvlDiff <= 1.0;
+    
+    let mosfetBehaviorOk = false;
+    if (vdd_input <= 1.5) {
+      mosfetBehaviorOk = id_abs <= 2.0 && vds_abs <= vdd_input;
+    } else {
+      mosfetBehaviorOk = id_abs >= 0.0 && vds_abs <= vdd_input;
+    }
+    
+    physicalRowOk = kvlOk && mosfetBehaviorOk;
+    
+    if (simRowOk || physicalRowOk) {
       t2Correct++;
     }
   }
@@ -117,22 +158,22 @@ function gradeWorksheet(data) {
   const ansVth = Math.abs(parseFloat(data.ansVth) || 0);
   const ansK = parseFloat(data.ansK) || 0;
   
-  // Nominal Vth = 3.0V, Nominal K = 1.25 mA/V^2
-  const vthOk = Math.abs(ansVth - 3.0) <= 0.35;
-  const kOk = Math.abs(ansK - 1.25) <= 0.25;
+  // Nominal Vth = 3.0V (allows 2.0V to 4.0V), Nominal K = 1.25 mA/V^2 (allows 0.8 to 1.8)
+  const vthOk = ansVth >= 2.0 && ansVth <= 4.0;
+  const kOk = ansK >= 0.8 && ansK <= 1.8;
   
   if (vthOk) {
     score += 1;
     feedback.push(`แรงดันขีดเริ่ม Vth: ถูกต้อง (${ansVth} V)`);
   } else {
-    feedback.push(`แรงดันขีดเริ่ม Vth: ไม่ถูกต้อง (กรอก ${ansVth} V คาดหวัง ~3.0 V)`);
+    feedback.push(`แรงดันขีดเริ่ม Vth: ไม่ถูกต้อง (กรอก ${ansVth} V คาดหวังช่วง 2.0 - 4.0 V)`);
   }
   
   if (kOk) {
     score += 1;
     feedback.push(`ค่าคงที่การนำกระแส K: ถูกต้อง (${ansK} mA/V^2)`);
   } else {
-    feedback.push(`ค่าคงที่การนำกระแส K: ไม่ถูกต้อง (กรอก ${ansK} mA/V^2 คาดหวัง ~1.25)`);
+    feedback.push(`ค่าคงที่การนำกระแส K: ไม่ถูกต้อง (กรอก ${ansK} mA/V^2 คาดหวังช่วง 0.8 - 1.8)`);
   }
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";

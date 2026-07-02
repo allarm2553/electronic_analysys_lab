@@ -130,16 +130,16 @@ function gradeWorksheet(data) {
   let p2Correct = 0;
   
   if (cond === 'good') {
-    // Row 1 (Correct bias): before touch should be high/Infinity (e.g. >10k), after touch should be low (e.g. <5k)
+    // Row 1 (Correct bias): before touch should be high/Infinity (e.g. >5k), after touch should be low (e.g. <35k due to skin contact resistance variations)
     const r1 = p2Rows[0] || { rBefore: '', rAfter: '' };
-    const bBefore = r1.rBefore === '∞' || parseFloat(r1.rBefore) > 10;
-    const bAfter = parseFloat(r1.rAfter) < 10 && r1.rAfter !== '∞';
+    const bBefore = r1.rBefore === '∞' || parseFloat(r1.rBefore) > 5;
+    const bAfter = parseFloat(r1.rAfter) < 35 && r1.rAfter !== '∞' && parseFloat(r1.rAfter) >= 0;
     if (bBefore && bAfter) p2Correct++;
     
-    // Row 2 (Wrong bias): before and after touch should both be high/Infinity (>10k)
+    // Row 2 (Wrong bias): before and after touch should both be high/Infinity (>5k)
     const r2 = p2Rows[1] || { rBefore: '', rAfter: '' };
-    const wBefore = r2.rBefore === '∞' || parseFloat(r2.rBefore) > 10;
-    const wAfter = r2.rAfter === '∞' || parseFloat(r2.rAfter) > 10;
+    const wBefore = r2.rBefore === '∞' || parseFloat(r2.rBefore) > 5;
+    const wAfter = r2.rAfter === '∞' || parseFloat(r2.rAfter) > 5;
     if (wBefore && wAfter) p2Correct++;
   } else {
     // Faulty conditions are marked correct if database entries matches open/short behaviors
