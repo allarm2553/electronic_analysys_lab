@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Lab Worksheets Portal - คลังปฏิบัติการจำลองอิเล็กทรอนิกส์</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #080c14;
+      --bg-secondary: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.45);
+      --border-color: rgba(71, 85, 105, 0.3);
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.3);
+      --accent-green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    header {
+      padding: 50px 20px 30px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(15, 23, 42, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo-glow {
+      font-size: 55px;
+      display: inline-block;
+      margin-bottom: 15px;
+      animation: pulse 2s infinite ease-in-out;
+      filter: drop-shadow(0 0 15px var(--accent-cyan-glow));
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--accent-cyan-glow)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 25px var(--accent-cyan-glow)); }
+    }
+
+    h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 50px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .grid-labs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+
+    .lab-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      transition: all var(--transition-speed);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .lab-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-cyan);
+      opacity: 0;
+      transition: opacity var(--transition-speed);
+    }
+
+    .lab-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 12px 40px 0 rgba(56, 189, 248, 0.15);
+      background: rgba(30, 41, 59, 0.6);
+    }
+
+    .lab-card:hover::before {
+      opacity: 1;
+    }
+
+    .lab-icon {
+      font-size: 38px;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .lab-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      transition: color var(--transition-speed);
+    }
+
+    .lab-card:hover .lab-title {
+      color: var(--accent-cyan);
+    }
+
+    .lab-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 25px;
+      flex-grow: 1;
+    }
+
+    .lab-btn {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all var(--transition-speed);
+    }
+
+    .lab-card:hover .lab-btn {
+      background: var(--accent-cyan);
+      color: #080c14;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    footer {
+      padding: 30px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="logo-glow">⚡</div>
+      <h1>คลังจำลองปฏิบัติการวิเคราะห์วงจร E-Lab Portal</h1>
+      <p class="subtitle">ระบบจำลองการทำงานของวงจรอิเล็กทรอนิกส์เสมือนจริง ตรวจข้อผิดพลาดและวัดคำนวณคะแนนอัตโนมัติพร้อมบันทึกผลการเข้าเรียน</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid-labs">
+      
+      <!-- Lab 1: Diode Characteristics -->
+      <a href="/elab-diode-sheets-app/index.html" class="lab-card">
+        <span class="lab-icon">🔌</span>
+        <h3 class="lab-title">1. การทดลองหาลักษณะสมบัติของไดโอด (Diode Characteristics)</h3>
+        <p class="lab-desc">ศึกษารอยต่อ P-N ทดลองจำลองการวัดค่าแรงดันและกระแสไฟฟ้าเมื่อจ่ายไบอัสตรงและไบอัสกลับให้กับไดโอดทั่วไป</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 2: Zener Diode Characteristics -->
+      <a href="/elab-zener-sheets-app/index.html" class="lab-card">
+        <span class="lab-icon">🛡️</span>
+        <h3 class="lab-title">2. วงจรรักษาระดับแรงดันด้วยซีเนอร์ไดโอด (Zener Regulator)</h3>
+        <p class="lab-desc">ศึกษาคุณลักษณะเฉพาะของซีเนอร์ไดโอดและการพังทลายแบบซีเนอร์เพื่อรักษาระดับแรงดันเอาต์พุตให้คงที่เมื่อโหลดเปลี่ยนไป</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 3: BJT DC Fixed Bias -->
+      <a href="/elab-bjt-bias-sheets-app/index.html" class="lab-card">
+        <span class="lab-icon">📊</span>
+        <h3 class="lab-title">3. วงจรไบอัสกระแสตรงทรานซิสเตอร์ (BJT Fixed Bias - BC108)</h3>
+        <p class="lab-desc">วิเคราะห์แรงดันและกระแสประจำจุดทำงาน Q-point บนเส้นโหลดไลน์กระแสตรง พร้อมระบบจำลองกราฟ BJT แบบเรียลไทม์</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 4: BJT Output Characteristics -->
+      <a href="/elab-transistor-sheets-app/index.html" class="lab-card">
+        <span class="lab-icon">📈</span>
+        <h3 class="lab-title">4. การวัดหาลักษณะสมบัติเอาต์พุตของทรานซิสเตอร์ (BJT Curves)</h3>
+        <p class="lab-desc">ทดสอบความสัมพันธ์ของกระแส Ic และแรงดัน Vce ที่ระดับกระแสเบส Ib ต่าง ๆ เพื่อทำความเข้าใจพฤติกรรมของทรานซิสเตอร์แอกทีฟ</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 5: MOSFET Pinout & Characteristics -->
+      <a href="/elab-mosfet-pinout-sheets-app/index.html" class="lab-card">
+        <span class="lab-icon">🎛️</span>
+        <h3 class="lab-title">5. การระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต (MOSFET)</h3>
+        <p class="lab-desc">ตรวจสอบการจัดขา (Pinout Identification) ของ N-Channel MOSFET และวิเคราะห์กระแสเดรนเปรียบเทียบกับแรงดันเกต</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>ระบบพัฒนาโดยคณาจารย์ผู้สอนวิเคราะห์วงจรอิเล็กทรอนิกส์ | รองรับการรันจำลองภายในเครื่องแบบ Local Server</p>
+  </footer>
+
+</body>
+</html>

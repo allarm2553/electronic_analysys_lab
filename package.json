@@ -1,0 +1,24 @@
+{
+  "name": "elab-sheet-apps",
+  "version": "1.0.0",
+  "description": "Electronic Analysis Lab Worksheets Web Apps",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "electronic",
+    "lab",
+    "simulation",
+    "google-sheets",
+    "bjt",
+    "mosfet"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^5.0.12"
+  }
+}
