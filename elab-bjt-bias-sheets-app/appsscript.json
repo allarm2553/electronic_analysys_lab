@@ -1,0 +1,10 @@
+{
+  "timeZone": "Asia/Bangkok",
+  "dependencies": {
+  },
+  "webapp": {
+    "access": "ANYONE",
+    "executeAs": "USER_LAUNCHING"
+  },
+  "exceptionLogging": "STACKDRIVER"
+}
