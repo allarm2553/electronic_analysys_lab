@@ -104,10 +104,12 @@ function submitWorksheet(data) {
     // 7. Write to Google Sheet Database
     const sheet = getOrCreateSubmissionsSheet();
     const timestamp = new Date();
+    const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
     
     // Append row
     sheet.appendRow([
       timestamp,
+      studentEmail,
       data.studentName,
       "'" + data.studentId, // Prepend quote to preserve ID format as text
       data.studentGroup,
@@ -153,6 +155,7 @@ function getOrCreateSubmissionsSheet() {
     // Define Headers
     const headers = [
       'Timestamp (วันเวลาที่ส่ง)',
+      'อีเมลนักศึกษา',
       'ชื่อ-นามสกุลนักศึกษา',
       'รหัสนักศึกษา',
       'กลุ่มเรียน / ตอนเรียน',

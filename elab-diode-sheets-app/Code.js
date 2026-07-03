@@ -250,7 +250,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
-      "Timestamp", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
       "Diode Condition", "Diode Direction", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
@@ -262,9 +262,13 @@ function recordToSheet(data, grading) {
          .setBorder(true, true, true, true, true, true);
   }
   
+  // Automatically retrieve active user email (works in same-domain Google Workspace)
+  var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
+  
   // Append raw submission row
   var rowData = [
     new Date(),
+    studentEmail,
     data.studentName,
     data.studentId,
     data.studentGroup,
