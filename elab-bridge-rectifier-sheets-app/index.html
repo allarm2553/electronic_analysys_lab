@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 7: วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Full-Wave Bridge Rectifier Circuit)</title>
+  <style>
+/* ==========================================================================
+   Full-Wave Bridge Rectifier Simulator - CSS Stylesheet
+   ========================================================================== */
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.4);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent-cyan: #22d3ee;
+  --accent-cyan-glow: rgba(34, 211, 238, 0.35);
+  --accent-green: #10b981;
+  --accent-green-glow: rgba(16, 185, 129, 0.35);
+  --accent-yellow: #fbbf24;
+  --accent-yellow-glow: rgba(251, 191, 36, 0.35);
+  --accent-red: #f87171;
+  --accent-red-glow: rgba(248, 113, 113, 0.35);
+  --transition-speed: 0.25s;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Sarabun', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  padding: 0;
+  margin: 0;
+}
+
+/* App Layout Grid */
+.app-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  background-color: #0b0f19;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 25px 20px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 35px;
+}
+
+.logo-icon {
+  font-size: 24px;
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, #0369a1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px var(--accent-cyan-glow));
+}
+
+.logo-text h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.logo-text span {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 14px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  transition: all var(--transition-speed);
+}
+
+.nav-btn:hover {
+  background: rgba(30, 41, 59, 0.5);
+  color: #fff;
+}
+
+.nav-btn.active {
+  background: rgba(34, 211, 238, 0.1);
+  border-color: rgba(34, 211, 238, 0.3);
+  color: var(--accent-cyan);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.05);
+}
+
+.sidebar-footer {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 15px;
+}
+
+/* Main Content Area */
+.main-content {
+  padding: 30px 40px;
+  overflow-y: auto;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.content-header {
+  margin-bottom: 25px;
+}
+
+.content-header h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.content-header .subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Cards & Content Panels */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  backdrop-filter: blur(8px);
+}
+
+.card-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .number {
+  color: var(--accent-cyan);
+  font-size: 22px;
+}
+
+/* Layout Grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Sub-panels inside Theory */
+.subcard {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.subcard h4 {
+  font-family: 'Chakra Petch', sans-serif;
+  margin-bottom: 8px;
+}
+
+.highlight-text {
+  font-size: 13px;
+  margin-top: 8px;
+  color: var(--text-muted);
+  border-left: 2px solid var(--accent-cyan);
+  padding-left: 10px;
+}
+
+.note-box {
+  background: rgba(34, 211, 238, 0.05);
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  font-size: 13.5px;
+}
+
+.note-box ul {
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+/* Tab Panels Visibility */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.35s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Simulator Layout Grid (Oscilloscope / Multimeter + Schematic)
+   ========================================================================== */
+.simulator-layout {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: 25px;
+}
+
+.instrument-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Oscilloscope Panel */
+.oscilloscope-box {
+  background: #181c26;
+  border: 2px solid #2d3748;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.oscilloscope-screen-wrapper {
+  position: relative;
+  background: #080c10;
+  border: 3px solid #1e293b;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.oscilloscope-canvas {
+  display: block;
+  width: 100%;
+  height: 220px;
+  background: transparent;
+}
+
+/* Scope Parameters Grid */
+.scope-measurements {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: #0f121a;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 12px;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.meas-item {
+  color: var(--text-muted);
+}
+
+.meas-item span {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.meas-ch1 span { color: var(--accent-yellow); }
+.meas-ch2 span { color: var(--accent-cyan); }
+.meas-freq span { color: var(--accent-green); }
+
+/* Scope Controls Panel */
+.scope-controls {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.control-knob-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.control-knob-group label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.knob-value {
+  font-family: monospace;
+  font-size: 11px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+/* Multimeter Panel */
+.multimeter-box {
+  background: #f59e0b;
+  border: 3px solid #d97706;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  font-family: 'Chakra Petch', sans-serif;
+  color: #0f172a;
+}
+
+.multimeter-header {
+  font-weight: 700;
+  font-size: 15px;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.multimeter-lcd {
+  background: #b4cbb7;
+  border: 4px solid #1e293b;
+  border-radius: 6px;
+  padding: 8px;
+  text-align: right;
+  height: 54px;
+  margin-bottom: 15px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+.multimeter-lcd .reading-value {
+  font-family: 'Chakra Petch', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.multimeter-lcd .reading-unit {
+  font-size: 14px;
+  font-weight: bold;
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+.multimeter-dial-selection {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+}
+
+.multimeter-dial-selection select {
+  width: 100%;
+  background: #0f172a;
+  color: #fff;
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+/* Schematic Area */
+.schematic-box {
+  background: #0d1220;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.schematic-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.schematic-header h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 16px;
+  color: #fff;
+}
+
+.svg-circuit-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #07090f;
+  border-radius: 12px;
+  padding: 20px;
+  flex-grow: 1;
+  border: 1px dashed rgba(255,255,255,0.05);
+}
+
+/* Interactive SVG Hotspots */
+.probe-point {
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.probe-point:hover circle {
+  fill: var(--accent-cyan);
+  stroke-width: 5;
+}
+
+.probe-point.red-selected circle {
+  fill: var(--accent-red) !important;
+  stroke: #fff !important;
+  stroke-width: 3 !important;
+}
+
+.probe-point.black-selected circle {
+  fill: #22d3ee !important;
+  stroke: #fff !important;
+  stroke-width: 3 !important;
+}
+
+/* Table Forms in Report */
+.report-table-form {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.report-table-form th, .report-table-form td {
+  border: 1px solid var(--border-color);
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.report-table-form th {
+  background: rgba(30, 41, 59, 0.6);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  color: #fff;
+}
+
+.report-table-form td {
+  background: rgba(15, 23, 42, 0.15);
+}
+
+.report-table-form td input, .report-table-form td select {
+  background: #0f172a;
+  color: #fff;
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 6px;
+  width: 100%;
+  font-family: 'Sarabun', sans-serif;
+}
+
+.report-table-form td input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+
+/* General Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent-cyan);
+  color: #0f172a;
+}
+
+.btn-primary:hover {
+  background: #67e8f9;
+  box-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
+.btn-secondary {
+  background: rgba(30, 41, 59, 0.8);
+  color: #fff;
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}
+
+.btn-warning {
+  background: var(--accent-yellow);
+  color: #0f172a;
+}
+
+.btn-warning:hover {
+  background: #fbbf24;
+}
+
+.btn-small {
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.btn-large {
+  font-size: 16px;
+  padding: 14px 32px;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.font-bold { font-weight: bold; }
+
+/* Questions Box inside Report */
+.question-group {
+  margin-bottom: 20px;
+  background: rgba(15, 23, 42, 0.25);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.question-group label {
+  display: block;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Customize Radio selections */
+.radio-container {
+  display: block;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-size: 13.5px;
+  user-select: none;
+}
+
+.radio-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: #1e293b;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+}
+
+.radio-container:hover input ~ .checkmark {
+  background-color: #334155;
+}
+
+.radio-container input:checked ~ .checkmark {
+  background-color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.radio-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.radio-container .checkmark:after {
+  top: 5px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f172a;
+}
+
+/* User identity inputs inside Report */
+.student-grid {
+  margin-bottom: 20px;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.input-field label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.input-field input {
+  background: #0f172a;
+  color: #fff;
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13.5px;
+}
+
+.input-field input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+
+/* Footer Buttons container */
+.card-footer-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+/* Printing styles */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .sidebar, .no-print, button, input[type="button"] {
+    display: none !important;
+  }
+  .main-content {
+    padding: 0;
+    max-width: 100%;
+  }
+  .card {
+    background: none !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+    page-break-inside: avoid;
+  }
+  input[type="text"], input[type="number"], select, textarea {
+    border: none !important;
+    border-bottom: 1px solid #000 !important;
+    background: none !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  .table-responsive {
+    border: none !important;
+  }
+  .report-table-form th {
+    background: #f1f5f9 !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+  }
+  .report-table-form td {
+    background: none !important;
+    border: 1px solid #000 !important;
+  }
+  .report-table-form td select {
+    border: none !important;
+    background: none !important;
+    color: #000 !important;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+}
+
+</style>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-header">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">
+          <h2>E-Lab Simulator</h2>
+          <span>วิเคราะห์วงจรอิเล็กทรอนิกส์</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-tab="theory" onclick="switchTab('theory')">
+          <span class="btn-icon">📖</span>
+          <span class="btn-text">1. ทฤษฎีและข้อกำหนด</span>
+        </button>
+        <button class="nav-btn" data-tab="simulator" onclick="switchTab('simulator')">
+          <span class="btn-icon">🔬</span>
+          <span class="btn-text">2. การทดลองและจำลอง</span>
+        </button>
+        <button class="nav-btn" data-tab="report" onclick="switchTab('report')">
+          <span class="btn-icon">📝</span>
+          <span class="btn-text">3. ใบงานและรายงานผล</span>
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <p>ใบงานการทดลองที่ 7<br>Bridge Rectifier Lab</p>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: THEORY & SPECIFICATIONS -->
+      <section id="theory" class="tab-content active">
+        <header class="content-header">
+          <h1>ใบงานการทดลองที่ 7: วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Full-Wave Bridge Rectifier Circuit)</h1>
+          <p class="subtitle">วิชา: วิเคราะห์วงจรอิเล็กทรอนิกส์ (Electronic Circuit Analysis)</p>
+        </header>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">1.</span> วัตถุประสงค์</h2>
+          <ul class="custom-list" style="padding-left: 20px;">
+            <li>เพื่อศึกษาและทำความเข้าใจโครงสร้างการทำงานของวงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Full-wave Bridge Rectifier)</li>
+            <li>เพื่อเรียนรู้วิธีการวัดกระแสไฟตรงเฉลี่ย ($I_{dc}$) ในระบบโดยการต่อมัลติมิเตอร์แบบอนุกรมร่วมกับสวิตช์จัมป์</li>
+            <li>เพื่อวิเคราะห์ผลกระทบของแรงดันตกคร่อมไดโอดบริดจ์ (2 ไดโอดนำกระแสพร้อมกัน $2 \times 0.7\text{ V}$) ต่อค่าแรงดันไฟตรงเอาต์พุต</li>
+            <li>เพื่อวิเคราะห์รูปคลื่นสัญญาณและความถี่ริปเปิลเอาต์พุตของวงจรเรียงกระแสแบบเต็มคลื่นด้วยออสซิลโลสโคป</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">2.</span> ทฤษฎีเบื้องต้น (Theory)</h2>
+          <p>วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier) ใช้ไดโอดทั้งหมด 4 ตัวต่อสลับทิศทางในลักษณะสะพาน (Bridge) โดยมีข้อดีเหนือกว่าแบบครึ่งคลื่นคือ สามารถเรียงกระแสได้เต็มลูกคลื่นทั้งซีกบวกและซีกลบของไฟฟ้ากระแสสลับ ส่งผลให้ได้ประสิทธิภาพพลังงานและแรงดันเฉลี่ยสูงขึ้น และความถี่ริปเปิลเพิ่มขึ้นเป็น 2 เท่า ($2 \times f_{in} = 100\text{ Hz}$)</p>
+          
+          <div class="note-box">
+            <strong>💡 พารามิเตอร์การคำนวณที่สำคัญ:</strong>
+            <ul>
+              <li><strong>แรงดันอินพุต (Input voltage):</strong> AC 12 Vrms (ยอดแรงดันสูงสุด $V_{peak} = 12 \times \sqrt{2} \approx 16.97\text{ V}$)</li>
+              <li><strong>การทำงานของไดโอด (Diode Operation):</strong> ไดโอดจะทำงานสลับกันคู่ละ 2 ตัวต่อช่วงครึ่งคาบ ดังนั้นแรงดันตกคร่อมรอยต่อไดโอดรวมเป็น $V_{rect\_drop} = 2 \times 0.7\text{ V} = 1.4\text{ V}$</li>
+              <li><strong>แรงดันยอดเอาต์พุตสูงสุดคร่อมโหลด ($V_{p,load}$):</strong> $V_{p,load} = V_{peak} - 1.4\text{ V} \approx 15.57\text{ V}$</li>
+              <li><strong>ค่าเฉลี่ยแรงดันไฟตรงเอาต์พุต ($V_{dc}$):</strong> $V_{dc} = \frac{2 \times V_{p,load}}{\pi} \approx \frac{2 \times 15.57}{3.14159} \approx 9.91\text{ V DC}$</li>
+              <li><strong>ค่ากระแสตรงเฉลี่ยผ่านโหลด ($I_{dc}$):</strong> $I_{dc} = V_{dc} / R_L = 9.91\text{ V} / 1\text{ k}\Omega \approx 9.91\text{ mA DC}$</li>
+            </ul>
+          </div>
+          
+          <h3 class="subsection-title" style="margin-top: 15px; font-weight: bold; color: #fff;">2.1 การวัดกระแสและใช้จุดจัมป์ (Jumper B-C)</h3>
+          <p>สำหรับการวัดกระแสตรงผ่านโหลดด้วย DMM ในใบงานนี้:</p>
+          <ol style="padding-left: 20px; margin-top: 8px;">
+            <li>นักศึกษาต้องเปิดหรือ **ถอดสายจัมป์ B-C** ออกจากกันเพื่อให้กระแสในวงจรหลักหยุดไหล</li>
+            <li>ปรับย่านวัดมัลติมิเตอร์ไปที่ **DC Current (mA-)**</li>
+            <li>นำสายวัดสีแดงมาแตะที่ **จุด B (ออกบริดจ์)** และสายวัดสีดำมาแตะที่ **จุด C (เข้าโหลด)** เพื่อต่อ DMM แบบอนุกรมเข้ากับวงจร ระบบจะแสดงค่ากระแสปกติ $9.91\text{ mA}$</li>
+          </ol>
+        </div>
+        
+        <div class="card-footer-action no-print">
+          <button class="btn btn-primary" onclick="switchTab('simulator')">เข้าสู่ส่วนห้องทดลองเสมือนจริง 🔬</button>
+        </div>
+      </section>
+      
+      <!-- TAB 2: VIRTUAL LAB SIMULATOR -->
+      <section id="simulator" class="tab-content">
+        <header class="content-header">
+          <h1>พื้นที่จำลองการวัดวงจรเรียงกระแสแบบบริดจ์ (Bridge Rectifier Simulator)</h1>
+          <p class="subtitle">คลิกจุดวัดบนวงจรไฟฟ้าเพื่อตรวจวัดค่าแรงดัน/กระแส หรือปรับตั้งค่าสเกลออสซิลโลสโคป</p>
+        </header>
+        
+        <!-- Selection parameters -->
+        <div class="card no-print">
+          <h2 class="card-title">แผงควบคุมวงจรทดลอง</h2>
+          <div class="grid-2 student-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+            <div class="input-field">
+              <label for="jumper-select">สถานะสายจัมป์เชื่อมต่อ (Jumper B-C):</label>
+              <select id="jumper-select" onchange="toggleJumperSelect(this.value)">
+                <option value="closed">เชื่อมต่อสายจัมป์ B-C (Closed - กระแสไหลผ่านปกติ)</option>
+                <option value="open">ถอดสายจัมป์ B-C (Open - วงจรขาด ต้องใช้แอมมิเตอร์ต่ออนุกรมเพื่อเชื่อมต่อ)</option>
+              </select>
+            </div>
+            <div class="input-field" style="justify-content: center; align-items: flex-start; padding-left: 20px;">
+              <label>&nbsp;</label>
+              <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.4;">
+                💡 <strong>คำแนะนำวัดกระแส:</strong> ปรับสถานะสวิตช์จัมเปอร์เป็น <strong>"ถอดสายจัมป์ (Open)"</strong> (หรือคลิกที่เส้นเชื่อม B-C ในรูปวงจร) แล้วเปลี่ยนโหมด DMM เป็น <strong>DC Current</strong> นำโพรบสีแดงจิ้มที่ **จุด B** และสีดำจิ้มที่ **จุด C**
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="simulator-layout">
+          <!-- Left Column: Instruments -->
+          <div class="instrument-panel">
+            
+            <!-- Oscilloscope Display -->
+            <div class="oscilloscope-box">
+              <div class="oscilloscope-screen-wrapper">
+                <canvas id="osc-screen" class="oscilloscope-canvas"></canvas>
+              </div>
+              
+              <!-- Readings panel inside Scope -->
+              <div class="scope-measurements">
+                <div class="meas-item meas-ch1">CH1 Vpp:<span id="meas-ch1-vpp">0.0 V</span></div>
+                <div class="meas-item meas-ch1">CH1 Vrms:<span id="meas-ch1-vrms">0.0 V</span></div>
+                <div class="meas-item meas-ch2">CH2 Vmax:<span id="meas-ch2-vmax">0.0 V</span></div>
+                <div class="meas-item meas-ch2">CH2 Vdc:<span id="meas-ch2-vdc">0.00 V</span></div>
+                <div class="meas-item meas-ch2">CH2 Vrms:<span id="meas-ch2-vrms">0.00 V</span></div>
+                <div class="meas-item meas-freq">Freq:<span id="meas-freq">100.0 Hz</span></div>
+              </div>
+              
+              <!-- Scope adjustment panel -->
+              <div class="scope-controls">
+                <div class="control-knob-group">
+                  <label>Time/Div</label>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-small btn-secondary" onclick="adjustTimebase('down')">-</button>
+                    <button class="btn btn-small btn-secondary" onclick="adjustTimebase('up')">+</button>
+                  </div>
+                  <span id="timebase-val" class="knob-value">5 ms/div</span>
+                </div>
+                <div class="control-knob-group">
+                  <label>CH1 Volts/Div</label>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-small btn-secondary" onclick="adjustVoltsDiv(1, 'down')">-</button>
+                    <button class="btn btn-small btn-secondary" onclick="adjustVoltsDiv(1, 'up')">+</button>
+                  </div>
+                  <span id="ch1-val" class="knob-value">5 V/div</span>
+                </div>
+                <div class="control-knob-group">
+                  <label>CH2 Volts/Div</label>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-small btn-secondary" onclick="adjustVoltsDiv(2, 'down')">-</button>
+                    <button class="btn btn-small btn-secondary" onclick="adjustVoltsDiv(2, 'up')">+</button>
+                  </div>
+                  <span id="ch2-val" class="knob-value">5 V/div</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Digital Multimeter (DMM) -->
+            <div class="multimeter-box">
+              <div class="multimeter-header">Digital Multimeter</div>
+              <div class="multimeter-lcd">
+                <span id="dmm-reading-value" class="reading-value">0.00</span>
+                <span id="dmm-reading-unit" class="reading-unit">V AC</span>
+              </div>
+              
+              <div class="multimeter-dial-selection">
+                <div style="margin-bottom: 8px;">
+                  <label style="font-size: 12px; color: #0f172a; font-weight: bold;">ย่านการวัด DMM:</label>
+                  <select id="dmm-dial-select" onchange="updateSimulation()">
+                    <option value="ACV">AC Voltage (V~)</option>
+                    <option value="DCV">DC Voltage (V-)</option>
+                    <option value="DCA">DC Current (mA-)</option>
+                  </select>
+                </div>
+                <div class="grid-2" style="margin-top: 8px;">
+                  <div>
+                    <label style="font-size: 11px; color: #0f172a; font-weight: bold;">สายวัดสีแดง (V/Ω):</label>
+                    <select id="dmm-red-select" onchange="updateSimulation()">
+                      <option value="none">-- เปิดลอย --</option>
+                      <option value="A1">จุด A1 (ขั้ว AC 1)</option>
+                      <option value="A2">จุด A2 (ขั้ว AC 2)</option>
+                      <option value="B">จุด B (ออกไดโอดบริดจ์ +)</option>
+                      <option value="C">จุด C (เข้าตัวต้านทาน RL)</option>
+                      <option value="G">จุด G (ขั้วลบบริดจ์ / กราวด์)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: #0f172a; font-weight: bold;">สายวัดสีดำ (COM):</label>
+                    <select id="dmm-black-select" onchange="updateSimulation()">
+                      <option value="none">-- เปิดลอย --</option>
+                      <option value="A1">จุด A1 (ขั้ว AC 1)</option>
+                      <option value="A2">จุด A2 (ขั้ว AC 2)</option>
+                      <option value="B">จุด B (ออกไดโอดบริดจ์ +)</option>
+                      <option value="C">จุด C (เข้าตัวต้านทาน RL)</option>
+                      <option value="G">จุด G (ขั้วลบบริดจ์ / กราวด์)</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Probe mode helper buttons -->
+                <div style="display: flex; gap: 8px; margin-top: 10px; justify-content: center;" class="no-print">
+                  <button id="btn-probe-red" class="btn btn-small btn-warning active" onclick="setProbeMode('red')">🔴 ต่อสายแดง</button>
+                  <button id="btn-probe-black" class="btn btn-small btn-secondary" onclick="setProbeMode('black')">🔵 ต่อสายดำ</button>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- Right Column: Interactive Circuit Schematic -->
+          <div class="schematic-box">
+            <div class="schematic-header">
+              <h3>วงจรบริดจ์เร็กติไฟเออร์ (Bridge Rectifier Circuit)</h3>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">คำแนะนำ: คลิกที่โหนด A1, A2, B, C, G เพื่อเชื่อมต่อมัลติมิเตอร์จิ้มวัดสัญญาณในจุดต่าง ๆ</p>
+            </div>
+            
+            <div class="svg-circuit-wrapper">
+              <svg viewBox="0 0 460 300" width="100%" height="100%">
+                
+                <!-- AC Voltage Source -->
+                <circle cx="60" cy="150" r="25" fill="none" stroke="#64748b" stroke-width="3"/>
+                <!-- Sine wave icon inside AC Source -->
+                <path d="M 50 150 Q 55 138, 60 150 T 70 150" fill="none" stroke="#f59e0b" stroke-width="3"/>
+                <text x="60" y="115" fill="#f59e0b" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">AC 12Vrms 50Hz</text>
+                
+                <!-- Connecting lines AC Source to Bridge -->
+                <line x1="60" y1="50" x2="60" y2="125" stroke="#475569" stroke-width="3"/>
+                <line x1="60" y1="175" x2="60" y2="250" stroke="#475569" stroke-width="3"/>
+                
+                <line x1="60" y1="50" x2="180" y2="50" stroke="#475569" stroke-width="3"/>
+                <line x1="180" y1="50" x2="180" y2="150" stroke="#475569" stroke-width="3"/>
+                
+                <line x1="60" y1="250" x2="260" y2="250" stroke="#475569" stroke-width="3"/>
+                <line x1="260" y1="250" x2="260" y2="150" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Diode Bridge Diamond Lines -->
+                <line x1="180" y1="150" x2="220" y2="110" stroke="#475569" stroke-width="2"/>
+                <line x1="220" y1="110" x2="260" y2="150" stroke="#475569" stroke-width="2"/>
+                <line x1="180" y1="150" x2="220" y2="190" stroke="#475569" stroke-width="2"/>
+                <line x1="220" y1="190" x2="260" y2="150" stroke="#475569" stroke-width="2"/>
+                
+                <!-- Diode Symbols inside Diamond -->
+                <!-- D1 (Left to Top) -->
+                <g transform="translate(192,138) rotate(-45)">
+                  <path d="M -5 5 L -5 -5 L 5 0 Z" fill="#38bdf8" stroke="#38bdf8" stroke-width="1"/>
+                  <line x1="5" y1="5" x2="5" y2="-5" stroke="#ef4444" stroke-width="2"/>
+                </g>
+                <text x="188" y="125" fill="#f1f5f9" font-family="Chakra Petch" font-size="9">D1</text>
+                
+                <!-- D2 (Bottom to Left) -->
+                <g transform="translate(192,162) rotate(-135)">
+                  <path d="M -5 5 L -5 -5 L 5 0 Z" fill="#38bdf8" stroke="#38bdf8" stroke-width="1"/>
+                  <line x1="5" y1="5" x2="5" y2="-5" stroke="#ef4444" stroke-width="2"/>
+                </g>
+                <text x="188" y="185" fill="#f1f5f9" font-family="Chakra Petch" font-size="9">D2</text>
+                
+                <!-- D3 (Right to Top) -->
+                <g transform="translate(248,138) rotate(45)">
+                  <path d="M -5 5 L -5 -5 L 5 0 Z" fill="#38bdf8" stroke="#38bdf8" stroke-width="1"/>
+                  <line x1="5" y1="5" x2="5" y2="-5" stroke="#ef4444" stroke-width="2"/>
+                </g>
+                <text x="248" y="125" fill="#f1f5f9" font-family="Chakra Petch" font-size="9">D3</text>
+                
+                <!-- D4 (Bottom to Right) -->
+                <g transform="translate(248,162) rotate(135)">
+                  <path d="M -5 5 L -5 -5 L 5 0 Z" fill="#38bdf8" stroke="#38bdf8" stroke-width="1"/>
+                  <line x1="5" y1="5" x2="5" y2="-5" stroke="#ef4444" stroke-width="2"/>
+                </g>
+                <text x="248" y="185" fill="#f1f5f9" font-family="Chakra Petch" font-size="9">D4</text>
+                
+                <!-- Bridge Output Positive Node (Top) -->
+                <line x1="220" y1="110" x2="220" y2="70" stroke="#475569" stroke-width="3"/>
+                <line x1="220" y1="70" x2="285" y2="70" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Bridge Output Negative Node (Bottom) to Ground & RL Bottom -->
+                <line x1="220" y1="190" x2="220" y2="230" stroke="#475569" stroke-width="3"/>
+                <line x1="220" y1="230" x2="380" y2="230" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Resistor RL Top wire -->
+                <line x1="335" y1="70" x2="380" y2="70" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Load Resistor RL = 1k -->
+                <rect x="365" y="110" width="30" height="80" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="3"/>
+                <line x1="380" y1="70" x2="380" y2="110" stroke="#475569" stroke-width="3"/>
+                <line x1="380" y1="190" x2="380" y2="230" stroke="#475569" stroke-width="3"/>
+                <text x="415" y="145" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold">RL = 1kΩ</text>
+                
+                <!-- Jumper Switch B-C (Interactive Group) -->
+                <g id="jumper-switch" style="cursor: pointer;" onclick="toggleJumper()">
+                  <circle cx="285" cy="70" r="3.5" fill="#fff"/>
+                  <circle cx="335" cy="70" r="3.5" fill="#fff"/>
+                  <line id="jumper-line" x1="285" y1="70" x2="335" y2="70" stroke="#10b981" stroke-width="3"/>
+                  <text x="310" y="52" id="jumper-text" fill="#10b981" font-family="Sarabun" font-size="9" text-anchor="middle">Jumper B-C</text>
+                </g>
+                
+                <!-- Ground Connection Symbol -->
+                <line x1="220" y1="230" x2="220" y2="250" stroke="#475569" stroke-width="3"/>
+                <line x1="205" y1="250" x2="235" y2="250" stroke="#475569" stroke-width="3"/>
+                <line x1="210" y1="255" x2="230" y2="255" stroke="#475569" stroke-width="3"/>
+                <line x1="215" y1="260" x2="225" y2="260" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Interactive Probe Hotspots (A1, A2, B, C, G) -->
+                <!-- Hotspot A1 (AC Terminal 1) -->
+                <g id="point-A1" class="probe-point" onclick="selectProbePoint('A1')">
+                  <circle cx="130" cy="50" r="10" fill="#f59e0b" stroke="#000" stroke-width="1.5"/>
+                  <text x="130" y="54" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">A1</text>
+                </g>
+                <text x="130" y="70" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">ขั้ว AC 1</text>
+                
+                <!-- Hotspot A2 (AC Terminal 2) -->
+                <g id="point-A2" class="probe-point" onclick="selectProbePoint('A2')">
+                  <circle cx="130" cy="250" r="10" fill="#f59e0b" stroke="#000" stroke-width="1.5"/>
+                  <text x="130" y="254" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">A2</text>
+                </g>
+                <text x="130" y="270" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">ขั้ว AC 2</text>
+                
+                <!-- Hotspot B (Cathode Output) -->
+                <g id="point-B" class="probe-point" onclick="selectProbePoint('B')">
+                  <circle cx="270" cy="70" r="10" fill="#38bdf8" stroke="#000" stroke-width="1.5"/>
+                  <text x="270" y="74" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">B</text>
+                </g>
+                <text x="270" y="90" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">ขั้วออก B</text>
+                
+                <!-- Hotspot C (Resistor Top) -->
+                <g id="point-C" class="probe-point" onclick="selectProbePoint('C')">
+                  <circle cx="350" cy="70" r="10" fill="#a78bfa" stroke="#000" stroke-width="1.5"/>
+                  <text x="350" y="74" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">C</text>
+                </g>
+                <text x="350" y="90" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">ขั้วโหลด C</text>
+                
+                <!-- Hotspot G (Ground) -->
+                <g id="point-G" class="probe-point" onclick="selectProbePoint('G')">
+                  <circle cx="220" cy="230" r="10" fill="#10b981" stroke="#000" stroke-width="1.5"/>
+                  <text x="220" y="234" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">G</text>
+                </g>
+                <text x="180" y="234" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">กราวด์ G</text>
+                
+              </svg>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="card-footer-action no-print">
+          <button class="btn btn-primary" onclick="switchTab('report')">ไปทำใบงานบันทึกผลแล็บ 📝</button>
+        </div>
+      </section>
+      
+      <!-- TAB 3: DIGITAL LAB REPORT -->
+      <section id="report" class="tab-content">
+        <header class="report-header">
+          <h1 class="text-center" style="font-family: 'Chakra Petch', sans-serif; font-size: 24px; color: #fff; margin-bottom: 5px;">ใบงานบันทึกผลการทดลองวิเคราะห์วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์</h1>
+          <p class="text-center" style="font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">กรุณากรอกข้อมูลและค่าวัดให้ครบถ้วน จากนั้นคลิกส่งผลตรวจคะแนน</p>
+        </header>
+        
+        <!-- Student Metadata -->
+        <div class="card">
+          <h2 class="card-title">ข้อมูลผู้ทำการทดลอง</h2>
+          <div class="grid-2 student-grid">
+            <div class="input-field">
+              <label for="student-name">ชื่อ-นามสกุล นักศึกษา:</label>
+              <input type="text" id="student-name" placeholder="นาย/นางสาว เรียนดี มีความรู้">
+            </div>
+            <div class="input-field">
+              <label for="student-id">รหัสนักศึกษา:</label>
+              <input type="text" id="student-id" placeholder="67XXXXXXXX-X">
+            </div>
+          </div>
+          <div class="grid-2 student-grid">
+            <div class="input-field">
+              <label for="student-group">กลุ่มเรียน / ตอนเรียน (Section):</label>
+              <input type="text" id="student-group" placeholder="บอ.67-1A">
+            </div>
+            <div class="input-field">
+              <label for="lab-date">วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Table 1: DMM Readings -->
+        <div class="card">
+          <h2 class="card-title">ตอนที่ 1: การวัดแรงดันและกระแสด้วยมัลติมิเตอร์</h2>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">คำแนะนำ: นักศึกษาสามารถคลิกปุ่ม "ดึงค่าวัด 🔬" เพื่อนำค่าที่จำลองจากเครื่องวัด DMM มากรอกในตารางได้อัตโนมัติ</p>
+          
+          <div class="table-responsive">
+            <table class="report-table-form">
+              <thead>
+                <tr>
+                  <th style="width: 60px">ข้อที่</th>
+                  <th>พารามิเตอร์จุดวัดในการทดลอง</th>
+                  <th style="width: 200px">ค่าวัดมัลติมิเตอร์</th>
+                  <th style="width: 120px" class="no-print">ปฏิบัติการ</th>
+                  <th style="width: 100px">หน่วย</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-center font-bold">1</td>
+                  <td>แรงดันแหล่งจ่าย AC ด้านเข้า (จุด A1 เทียบ A2)</td>
+                  <td><input type="number" step="0.01" id="t1-val-0" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable1Row(0)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V AC (rms)</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">2</td>
+                  <td>แรงดันไฟตรงคร่อมโหลด RL (จุด C เทียบ G) (ปิดสวิตช์จัมป์ B-C)</td>
+                  <td><input type="number" step="0.01" id="t1-val-1" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable1Row(1)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V DC</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">3</td>
+                  <td>กระแสตรงเฉลี่ยไหลในวงจร (เปิดสวิตช์จัมป์ B-C แล้วใช้ย่าน DCA วัดคร่อม B และ C)</td>
+                  <td><input type="number" step="0.01" id="t1-val-2" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable1Row(2)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">mA DC</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">4</td>
+                  <td>แรงดันไฟตรงตกคร่อมขั้วไดโอด D1 ขณะนำกระแส (จุด A1 เทียบ B) (ปิดสวิตช์จัมป์ B-C)</td>
+                  <td><input type="number" step="0.01" id="t1-val-3" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable1Row(3)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V DC</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Table 2: Scope Readings -->
+        <div class="card">
+          <h2 class="card-title">ตอนที่ 2: การวิเคราะห์สัญญาณด้วยออสซิลโลสโคปดิจิทัล</h2>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">คำแนะนำ: ดึงค่าวัดของสัญญาณที่ปรากฏบนหน้าจอออสซิลโลสโคป (วัดขณะปิดสวิตช์จัมป์ B-C เพื่อให้วงจรปกติ)</p>
+          
+          <div class="table-responsive">
+            <table class="report-table-form">
+              <thead>
+                <tr>
+                  <th style="width: 60px">ข้อที่</th>
+                  <th>พารามิเตอร์คลื่นสัญญาณ (Oscilloscope Parameters)</th>
+                  <th style="width: 200px">ค่าวัดออสซิลโลสโคป</th>
+                  <th style="width: 120px" class="no-print">ปฏิบัติการ</th>
+                  <th style="width: 100px">หน่วย</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-center font-bold">1</td>
+                  <td>แรงดันอินพุตยอดถึงยอดสูงสุด CH1 (Input Peak-to-Peak: V<sub>pp</sub>)</td>
+                  <td><input type="number" step="0.1" id="t2-val-0" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable2Row(0)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V (peak-peak)</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">2</td>
+                  <td>แรงดันอินพุตเฉลี่ยกำลังสอง CH1 (Input RMS Voltage: V<sub>rms</sub>)</td>
+                  <td><input type="number" step="0.1" id="t2-val-1" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable2Row(1)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V (rms)</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">3</td>
+                  <td>แรงดันคร่อมโหลดสูงสุด CH2 (Output Peak Voltage: V<sub>max</sub>)</td>
+                  <td><input type="number" step="0.1" id="t2-val-2" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable2Row(2)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V (peak)</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">4</td>
+                  <td>แรงดันเฉลี่ยตรงเอาต์พุต CH2 (Output DC average: V<sub>dc</sub>)</td>
+                  <td><input type="number" step="0.01" id="t2-val-3" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable2Row(3)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V DC</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">5</td>
+                  <td>แรงดันเฉลี่ยกำลังสองเอาต์พุต CH2 (Output RMS Voltage: V<sub>rms</sub>)</td>
+                  <td><input type="number" step="0.01" id="t2-val-4" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable2Row(4)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">V (rms)</td>
+                </tr>
+                <tr>
+                  <td class="text-center font-bold">6</td>
+                  <td>คาบเวลาของคลื่นไฟฟ้าเอาต์พุตหลังผ่านการเรียงกระแส (Output Ripple Period)</td>
+                  <td><input type="number" step="0.1" id="t2-val-5" required></td>
+                  <td class="text-center no-print"><button class="btn btn-small btn-secondary" onclick="measureTable2Row(5)">ดึงค่าวัด 🔬</button></td>
+                  <td class="text-center font-bold">ms</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Post-Lab Questions -->
+        <div class="card">
+          <h2 class="card-title">ตอนที่ 3: คำถามท้ายการทดลอง (Post-Lab Questions)</h2>
+          
+          <div class="question-group">
+            <label>1. ค่าความถี่ริปเปิลเอาต์พุต (Output Ripple Frequency) ของวงจรบริดจ์เร็กติไฟเออร์มีค่าเป็นกี่เท่าของความถี่ไฟฟ้ากระแสสลับอินพุต?</label>
+            <div class="option-list">
+              <label class="radio-container">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                ก) 1 เท่า (ความถี่ 50 Hz เท่าเดิม)
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                ข) 2 เท่า (ความถี่เพิ่มขึ้นเป็น 100 Hz และคาบลดเหลือ 10 ms)
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                ค) 4 เท่า (ความถี่เพิ่มขึ้นเป็น 200 Hz)
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-group">
+            <label>2. เหตุใดตัวเรียงกระแสแบบบริดจ์จึงสูญเสียแรงดันยอดเอาต์พุตสูงสุด $V_{p,load}$ ลดลงประมาณ 1.4V จากอินพุตยอดสูงสุด $V_{peak}$?</label>
+            <div class="option-list">
+              <label class="radio-container">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                ก) มีไดโอดนำกระแสพร้อมกันในแต่ละช่วงเวลา 2 ตัว ทำให้เกิดแรงดันตกคร่อมรวม $2 \times V_D \approx 1.4\text{ V}$
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                ข) ตัวต้านทานโหลด 1k ดูดกลืนแรงดันไปบางส่วนในช่วงไฟสลับ
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                ค) แรงดันสะท้อนกลับจากขั้วกราวด์ลัดวงจร
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-group">
+            <label>3. ค่าแรงดันเฉลี่ยกระแสตรงเอาต์พุต ($V_{dc}$) ของวงจรเรียงกระแสแบบเต็มคลื่น สัมพันธ์กับค่าแรงดันเอาต์พุตสูงสุดคร่อมโหลด ($V_{p,load}$) ตามสูตรคำนวณข้อใด?</label>
+            <div class="option-list">
+              <label class="radio-container">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                ก) $V_{dc} = V_{p,load} / \pi$
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                ข) $V_{dc} = 2 \times V_{p,load} / \pi$
+              </label>
+              <label class="radio-container">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                ค) $V_{dc} = V_{p,load} / \sqrt{2}$
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Lab Conclusion -->
+        <div class="card">
+          <h2 class="card-title">ตอนที่ 4: สรุปและวิจารณ์ผลการทดลอง</h2>
+          <div class="input-field">
+            <label for="lab-conclusion">วิจารณ์ผลการทดลองและเปรียบเทียบข้อแตกต่างของวงจรแบบครึ่งคลื่นและแบบเต็มคลื่นบริดจ์:</label>
+            <textarea id="lab-conclusion" rows="5" placeholder="กรอกสรุปผลการทดลองของนักศึกษา..." style="width:100%; background:#0f172a; color:#fff; border:1px solid var(--border-color); border-radius:8px; padding:12px; font-family:'Sarabun', sans-serif; font-size:13.5px;"></textarea>
+          </div>
+        </div>
+        
+        <!-- Action Row -->
+        <div class="card-footer-action no-print" style="justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
+          <button class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF 🖨️</button>
+          <button class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #22d3ee 0%, #0369a1 100%); border-color: #22d3ee; color: #0b0f19;" onclick="submitReportToGAS()">ส่งใบงานและตรวจคะแนนอัตโนมัติ 🚀</button>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+/* ==========================================================================
+   Full-Wave Bridge Rectifier Simulator - Mathematical Engine
+   ========================================================================== */
+
+const STATE = {
+  // Circuit Parameters
+  vRmsInput: 12.0,           // 12 Vrms AC
+  frequency: 50.0,          // 50 Hz
+  rlResistor: 1000.0,       // 1k Ohm Load
+  diodeForwardDrop: 0.7,    // 0.7V Diode drop (conduction pathway drops 2 * 0.7 = 1.4V)
+  isJumperClosed: true,     // Jumper B-C connection state
+  
+  // Instrument settings
+  ch1VoltsDiv: 5,           // 5V per div
+  ch2VoltsDiv: 5,           // 5V per div
+  timebaseMsDiv: 5,         // 5ms per div (Total 10 divisions = 50ms)
+  
+  // DMM state
+  dmmDialMode: 'ACV',       // ACV, DCV, DCA
+  dmmRedProbe: 'none',      // 'A1', 'A2', 'B' (Cathode Bridge), 'C' (Resistor Top), 'G' (Ground)
+  dmmBlackProbe: 'none',    // 'A1', 'A2', 'B' (Cathode Bridge), 'C' (Resistor Top), 'G' (Ground)
+};
+
+// Derived values
+function getVPeakInput() {
+  return STATE.vRmsInput * Math.sqrt(2); // ~16.97 V
+}
+
+/**
+ * Checks if the B-C connection is completed (either via jumper or DMM in DCA mode)
+ */
+function isBcConnected() {
+  if (STATE.isJumperClosed) {
+    return true;
+  }
+  // DMM completes the circuit in series if set to DCA and probes are on B and C
+  if (STATE.dmmDialMode === 'DCA') {
+    if ((STATE.dmmRedProbe === 'B' && STATE.dmmBlackProbe === 'C') ||
+        (STATE.dmmRedProbe === 'C' && STATE.dmmBlackProbe === 'B')) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Calculates current multimeter reading based on dial and probe positions
+ */
+function getMultimeterReading() {
+  const r = STATE.dmmRedProbe;
+  const b = STATE.dmmBlackProbe;
+  
+  if (r === 'none' || b === 'none' || r === b) {
+    return { value: '0.00', unit: '' };
+  }
+  
+  const mode = STATE.dmmDialMode;
+  const active = isBcConnected();
+  const vPeak = getVPeakInput();
+  const vDiodeTotal = STATE.diodeForwardDrop * 2; // 2 diodes conduct -> 1.4V
+  
+  // Generate average & RMS values over 1 full period (20ms) using numerical integration
+  const N = 200;
+  const dt = 0.0001; // 0.1ms step
+  const omega = 2 * Math.PI * STATE.frequency;
+  
+  let sumDiff = 0;
+  let sumDiffSq = 0;
+  
+  for (let i = 0; i < N; i++) {
+    const t = i * dt;
+    const vIn = vPeak * Math.sin(omega * t);
+    
+    let vA1 = 0;
+    let vA2 = 0;
+    let vB = 0;
+    let vC = 0;
+    
+    // Precise full-wave bridge solver relative to DC load negative output (G = 0V)
+    if (vIn > vDiodeTotal) {
+      // Positive half cycle conduction
+      vA1 = vIn - STATE.diodeForwardDrop;
+      vA2 = STATE.diodeForwardDrop;
+      vB = vIn - vDiodeTotal;
+    } else if (vIn < -vDiodeTotal) {
+      // Negative half cycle conduction
+      vA1 = STATE.diodeForwardDrop;
+      vA2 = -vIn - STATE.diodeForwardDrop;
+      vB = -vIn - vDiodeTotal;
+    } else {
+      // Non-conducting dead band
+      vA1 = vIn / 2;
+      vA2 = -vIn / 2;
+      vB = 0;
+    }
+    
+    if (active) {
+      vC = vB;
+    } else {
+      vC = 0; // Jumper open, no current flows, top of RL pulled to ground (0V)
+    }
+    
+    const valRed = (r === 'A1') ? vA1 : (r === 'A2') ? vA2 : (r === 'B') ? vB : (r === 'C') ? vC : 0;
+    const valBlack = (b === 'A1') ? vA1 : (b === 'A2') ? vA2 : (b === 'B') ? vB : (b === 'C') ? vC : 0;
+    const diff = valRed - valBlack;
+    
+    sumDiff += diff;
+    sumDiffSq += diff * diff;
+  }
+  
+  const vDc = sumDiff / N;
+  const vRms = Math.sqrt(sumDiffSq / N);
+  
+  // 1. AC Voltage Mode (ACV)
+  if (mode === 'ACV') {
+    // Pure input AC source across A1 and A2
+    if ((r === 'A1' && b === 'A2') || (r === 'A2' && b === 'A1')) {
+      return { value: STATE.vRmsInput.toFixed(2), unit: 'V AC' };
+    }
+    const acRms = Math.sqrt(Math.max(0, vRms * vRms - vDc * vDc));
+    return { value: acRms.toFixed(2), unit: 'V AC' };
+  }
+  
+  // 2. DC Voltage Mode (DCV)
+  if (mode === 'DCV') {
+    return { value: vDc.toFixed(2), unit: 'V DC' };
+  }
+  
+  // 3. DC Current Mode (DCA)
+  if (mode === 'DCA') {
+    // DCA completes the circuit in series across B and C
+    if ((r === 'B' && b === 'C') || (r === 'C' && b === 'B')) {
+      const vPeakLoad = Math.max(0, vPeak - vDiodeTotal);
+      const vDcLoad = (2 * vPeakLoad) / Math.PI;
+      const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000;
+      const multiplier = (r === 'B') ? 1 : -1;
+      return { value: (iDcLoadMa * multiplier).toFixed(2), unit: 'mA DC' };
+    }
+    // If circuit is closed by jumper, and they measure in series elsewhere
+    if (active && ((r === 'B' && b === 'C') || (r === 'C' && b === 'B'))) {
+      const vPeakLoad = Math.max(0, vPeak - vDiodeTotal);
+      const vDcLoad = (2 * vPeakLoad) / Math.PI;
+      const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000;
+      const multiplier = (r === 'B') ? 1 : -1;
+      return { value: (iDcLoadMa * multiplier).toFixed(2), unit: 'mA DC' };
+    }
+    return { value: '0.00', unit: 'mA DC' };
+  }
+  
+  return { value: '0.00', unit: '' };
+}
+
+/**
+ * Generates wave points for Channel 1 (AC Input) and Channel 2 (Load output)
+ * @param {number} width - width of screen in pixels
+ * @param {number} height - height of screen in pixels
+ */
+function getOscilloscopeWaveforms(width, height) {
+  const msPerDiv = STATE.timebaseMsDiv;
+  const totalDivsX = 10;
+  const totalMs = msPerDiv * totalDivsX;
+  
+  const ch1Points = [];
+  const ch2Points = [];
+  
+  const ch1VoltsPerDiv = STATE.ch1VoltsDiv;
+  const ch2VoltsPerDiv = STATE.ch2VoltsDiv;
+  const totalDivsY = 8;
+  const centerY = height / 2;
+  
+  const ch1PixelsPerVolt = (height / totalDivsY) / ch1VoltsPerDiv;
+  const ch2PixelsPerVolt = (height / totalDivsY) / ch2VoltsPerDiv;
+  
+  const vPeak = getVPeakInput();
+  const vDiodeTotal = STATE.diodeForwardDrop * 2;
+  const omega = 2 * Math.PI * STATE.frequency;
+  const active = isBcConnected();
+  
+  // Generate waveform points
+  for (let px = 0; px < width; px++) {
+    const tMs = (px / width) * totalMs;
+    const tSec = tMs / 1000;
+    
+    const vIn = vPeak * Math.sin(omega * tSec);
+    
+    // Node C voltage: follows rectified full-wave if circuit is closed, else flat 0V
+    const vOut = active ? Math.max(0, Math.abs(vIn) - vDiodeTotal) : 0;
+    
+    const pyCh1 = centerY - (vIn * ch1PixelsPerVolt);
+    // Draw full-wave rectified output on CH2, shifting up since it is positive only
+    const pyCh2 = centerY - (vOut * ch2PixelsPerVolt);
+    
+    ch1Points.push({ x: px, y: pyCh1 });
+    ch2Points.push({ x: px, y: pyCh2 });
+  }
+  
+  // Calculate digital measurements of the displayed full-wave rectified signal
+  const vPeakLoad = active ? Math.max(0, vPeak - vDiodeTotal) : 0;
+  const ch2Vdc = active ? ((2 * vPeakLoad) / Math.PI) : 0;
+  // RMS of full-wave rectified wave is same as sine: Vpeak_load / sqrt(2)
+  const ch2Vrms = active ? (vPeakLoad / Math.sqrt(2)) : 0;
+  
+  return {
+    ch1Points: ch1Points,
+    ch2Points: ch2Points,
+    measurements: {
+      ch1Vpp: (vPeak * 2).toFixed(1),
+      ch1Vrms: STATE.vRmsInput.toFixed(1),
+      ch2Vmax: vPeakLoad.toFixed(1),
+      ch2Vdc: ch2Vdc.toFixed(2),
+      ch2Vrms: ch2Vrms.toFixed(2),
+      frequency: active ? (STATE.frequency * 2).toFixed(1) : '0.0', // 100 Hz due to full-wave rectification
+      periodMs: active ? (1000 / (STATE.frequency * 2)).toFixed(1) : '0.0' // 10 ms
+    }
+  };
+}
+
+// Export functions to global scope
+window.STATE = STATE;
+window.getMultimeterReading = getMultimeterReading;
+window.getOscilloscopeWaveforms = getOscilloscopeWaveforms;
+window.getVPeakInput = getVPeakInput;
+window.isBcConnected = isBcConnected;
+
+</script>
+<script>
+/* ==========================================================================
+   Full-Wave Bridge Rectifier Simulator - UI & Canvas Rendering Logic
+   ========================================================================== */
+
+let scopeCanvas = null;
+let scopeCtx = null;
+let activeProbeMode = 'red'; // 'red' or 'black'
+
+function initUI() {
+  scopeCanvas = document.getElementById('osc-screen');
+  if (scopeCanvas) {
+    scopeCtx = scopeCanvas.getContext('2d');
+    scopeCanvas.width = scopeCanvas.clientWidth;
+    scopeCanvas.height = scopeCanvas.clientHeight;
+  }
+  
+  updateSimulation();
+  
+  // Set window-level callbacks
+  window.switchTab = switchTab;
+  window.updateSimulation = updateSimulation;
+  window.selectProbePoint = selectProbePoint;
+  window.setProbeMode = setProbeMode;
+  window.measureTable1Row = measureTable1Row;
+  window.measureTable2Row = measureTable2Row;
+  window.adjustTimebase = adjustTimebase;
+  window.adjustVoltsDiv = adjustVoltsDiv;
+  window.toggleJumper = toggleJumper;
+  window.toggleJumperSelect = toggleJumperSelect;
+}
+
+/**
+ * Handles Tab Navigation
+ */
+function switchTab(tabId) {
+  const navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(btn => {
+    if (btn.getAttribute('data-tab') === tabId) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  const sections = document.querySelectorAll('.tab-content');
+  sections.forEach(sec => {
+    if (sec.id === tabId) {
+      sec.classList.add('active');
+    } else {
+      sec.classList.remove('active');
+    }
+  });
+  
+  if (tabId === 'simulator' && scopeCanvas) {
+    setTimeout(() => {
+      scopeCanvas.width = scopeCanvas.clientWidth;
+      scopeCanvas.height = scopeCanvas.clientHeight;
+      updateSimulation();
+    }, 50);
+  }
+}
+
+/**
+ * Adjust Scope Timebase
+ */
+function adjustTimebase(dir) {
+  const steps = [1, 2, 5, 10, 20]; // ms/div
+  let idx = steps.indexOf(STATE.timebaseMsDiv);
+  if (dir === 'up' && idx < steps.length - 1) idx++;
+  if (dir === 'down' && idx > 0) idx--;
+  STATE.timebaseMsDiv = steps[idx];
+  
+  document.getElementById('timebase-val').innerText = STATE.timebaseMsDiv + ' ms/div';
+  updateSimulation();
+}
+
+/**
+ * Adjust Scope Volts per Division
+ */
+function adjustVoltsDiv(channel, dir) {
+  const steps = [1, 2, 5, 10]; // V/div
+  let currentVal = (channel === 1) ? STATE.ch1VoltsDiv : STATE.ch2VoltsDiv;
+  let idx = steps.indexOf(currentVal);
+  if (dir === 'up' && idx < steps.length - 1) idx++;
+  if (dir === 'down' && idx > 0) idx--;
+  
+  if (channel === 1) {
+    STATE.ch1VoltsDiv = steps[idx];
+    document.getElementById('ch1-val').innerText = STATE.ch1VoltsDiv + ' V/div';
+  } else {
+    STATE.ch2VoltsDiv = steps[idx];
+    document.getElementById('ch2-val').innerText = STATE.ch2VoltsDiv + ' V/div';
+  }
+  updateSimulation();
+}
+
+/**
+ * Connect Probe from SVG Hotspot click
+ */
+function selectProbePoint(point) {
+  if (activeProbeMode === 'red') {
+    STATE.dmmRedProbe = point;
+    const select = document.getElementById('dmm-red-select');
+    if (select) select.value = point;
+  } else {
+    STATE.dmmBlackProbe = point;
+    const select = document.getElementById('dmm-black-select');
+    if (select) select.value = point;
+  }
+  updateSimulation();
+}
+
+/**
+ * Toggles Red/Black active probe selection mode
+ */
+function setProbeMode(mode) {
+  activeProbeMode = mode;
+  document.getElementById('btn-probe-red').classList.toggle('active', mode === 'red');
+  document.getElementById('btn-probe-black').classList.toggle('active', mode === 'black');
+}
+
+/**
+ * Toggles the series jumper B-C connection
+ */
+function toggleJumper() {
+  STATE.isJumperClosed = !STATE.isJumperClosed;
+  updateSimulation();
+}
+
+/**
+ * Toggles jumper from select dropdown
+ */
+function toggleJumperSelect(val) {
+  STATE.isJumperClosed = (val === 'closed');
+  updateSimulation();
+}
+
+/**
+ * Main function to redraw canvas and recalculate values
+ */
+function updateSimulation() {
+  const redSel = document.getElementById('dmm-red-select');
+  const blackSel = document.getElementById('dmm-black-select');
+  const dialSel = document.getElementById('dmm-dial-select');
+  const jumperSel = document.getElementById('jumper-select');
+  
+  if (redSel) STATE.dmmRedProbe = redSel.value;
+  if (blackSel) STATE.dmmBlackProbe = blackSel.value;
+  if (dialSel) STATE.dmmDialMode = dialSel.value;
+  
+  if (jumperSel) {
+    jumperSel.value = STATE.isJumperClosed ? 'closed' : 'open';
+  }
+  
+  // Update Jumper line & text in SVG schematic
+  const jLine = document.getElementById('jumper-line');
+  const jText = document.getElementById('jumper-text');
+  if (jLine && jText) {
+    if (STATE.isJumperClosed) {
+      jLine.setAttribute('x1', '285');
+      jLine.setAttribute('y1', '150');
+      jLine.setAttribute('x2', '335');
+      jLine.setAttribute('y2', '150');
+      jLine.setAttribute('stroke', '#10b981');
+      jText.textContent = 'Jumper B-C: ต่ออยู่';
+      jText.setAttribute('fill', '#10b981');
+    } else {
+      jLine.setAttribute('x1', '285');
+      jLine.setAttribute('y1', '150');
+      jLine.setAttribute('x2', '305');
+      jLine.setAttribute('y2', '125');
+      jLine.setAttribute('stroke', '#ef4444');
+      jText.textContent = 'Jumper B-C: เปิด';
+      jText.setAttribute('fill', '#ef4444');
+    }
+  }
+  
+  // Update Multimeter LCD
+  const dmmResult = getMultimeterReading();
+  const dmmValEl = document.getElementById('dmm-reading-value');
+  const dmmUnitEl = document.getElementById('dmm-reading-unit');
+  if (dmmValEl) dmmValEl.innerText = dmmResult.value;
+  if (dmmUnitEl) dmmUnitEl.innerText = dmmResult.unit;
+  
+  // Highlight probe points in SVG schematic
+  const points = ['A1', 'A2', 'B', 'C', 'G'];
+  points.forEach(p => {
+    const el = document.getElementById('point-' + p);
+    if (el) {
+      el.classList.remove('red-selected', 'black-selected');
+      if (STATE.dmmRedProbe === p) el.classList.add('red-selected');
+      else if (STATE.dmmBlackProbe === p) el.classList.add('black-selected');
+    }
+  });
+  
+  // Render Oscilloscope
+  if (scopeCtx && scopeCanvas) {
+    drawOscilloscope();
+  }
+}
+
+/**
+ * Draws Grid, Divisions, and Waves on the Canvas
+ */
+function drawOscilloscope() {
+  const w = scopeCanvas.width;
+  const h = scopeCanvas.height;
+  
+  scopeCtx.fillStyle = '#080c10';
+  scopeCtx.fillRect(0, 0, w, h);
+  
+  scopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+  scopeCtx.lineWidth = 1;
+  
+  const colWidth = w / 10;
+  const rowHeight = h / 8;
+  
+  // Grid lines
+  for (let i = 1; i < 10; i++) {
+    scopeCtx.beginPath();
+    scopeCtx.setLineDash([4, 4]);
+    scopeCtx.moveTo(i * colWidth, 0);
+    scopeCtx.lineTo(i * colWidth, h);
+    scopeCtx.stroke();
+  }
+  for (let i = 1; i < 8; i++) {
+    scopeCtx.beginPath();
+    scopeCtx.setLineDash([4, 4]);
+    scopeCtx.moveTo(0, i * rowHeight);
+    scopeCtx.lineTo(w, i * rowHeight);
+    scopeCtx.stroke();
+  }
+  
+  // Center Axes
+  scopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+  scopeCtx.lineWidth = 1.5;
+  scopeCtx.setLineDash([]);
+  
+  scopeCtx.beginPath();
+  scopeCtx.moveTo(0, h / 2);
+  scopeCtx.lineTo(w, h / 2);
+  scopeCtx.stroke();
+  
+  scopeCtx.beginPath();
+  scopeCtx.moveTo(w / 2, 0);
+  scopeCtx.lineTo(w / 2, h);
+  scopeCtx.stroke();
+  
+  // Draw waveforms
+  const waveData = getOscilloscopeWaveforms(w, h);
+  
+  // CH1: Input AC Sine (Yellow)
+  scopeCtx.strokeStyle = '#f59e0b';
+  scopeCtx.lineWidth = 2.5;
+  scopeCtx.beginPath();
+  waveData.ch1Points.forEach((p, idx) => {
+    if (idx === 0) scopeCtx.moveTo(p.x, p.y);
+    else scopeCtx.lineTo(p.x, p.y);
+  });
+  scopeCtx.stroke();
+  
+  // CH2: Full-wave rectified (Cyan)
+  scopeCtx.strokeStyle = '#38bdf8';
+  scopeCtx.lineWidth = 2.5;
+  scopeCtx.beginPath();
+  waveData.ch2Points.forEach((p, idx) => {
+    if (idx === 0) scopeCtx.moveTo(p.x, p.y);
+    else scopeCtx.lineTo(p.x, p.y);
+  });
+  scopeCtx.stroke();
+  
+  // Update Digital Readings
+  document.getElementById('meas-ch1-vpp').innerText = waveData.measurements.ch1Vpp + ' V';
+  document.getElementById('meas-ch1-vrms').innerText = waveData.measurements.ch1Vrms + ' V';
+  document.getElementById('meas-ch2-vmax').innerText = waveData.measurements.ch2Vmax + ' V';
+  document.getElementById('meas-ch2-vdc').innerText = waveData.measurements.ch2Vdc + ' V';
+  document.getElementById('meas-ch2-vrms').innerText = waveData.measurements.ch2Vrms + ' V';
+  document.getElementById('meas-freq').innerText = waveData.measurements.frequency + ' Hz';
+}
+
+/**
+ * Automate Table 1 measurements from user clicking 'ดึงค่าวัด' (Multimeter)
+ */
+function measureTable1Row(idx) {
+  if (idx === 0) {
+    // 1. AC input voltage (A1 to A2)
+    STATE.dmmDialMode = 'ACV';
+    STATE.dmmRedProbe = 'A1';
+    STATE.dmmBlackProbe = 'A2';
+    STATE.isJumperClosed = true;
+  } else if (idx === 1) {
+    // 2. Load DC voltage (C to G) - Jumper must be closed
+    STATE.dmmDialMode = 'DCV';
+    STATE.dmmRedProbe = 'C';
+    STATE.dmmBlackProbe = 'G';
+    STATE.isJumperClosed = true;
+  } else if (idx === 2) {
+    // 3. Load DC Current in series (Red to B, Black to C) - Jumper must be open
+    STATE.dmmDialMode = 'DCA';
+    STATE.dmmRedProbe = 'B';
+    STATE.dmmBlackProbe = 'C';
+    STATE.isJumperClosed = false;
+  } else if (idx === 3) {
+    // 4. Diode drop (A1 to B) - Jumper must be closed
+    STATE.dmmDialMode = 'DCV';
+    STATE.dmmRedProbe = 'A1';
+    STATE.dmmBlackProbe = 'B';
+    STATE.isJumperClosed = true;
+  }
+  
+  document.getElementById('dmm-red-select').value = STATE.dmmRedProbe;
+  document.getElementById('dmm-black-select').value = STATE.dmmBlackProbe;
+  document.getElementById('dmm-dial-select').value = STATE.dmmDialMode;
+  
+  updateSimulation();
+  
+  const dmmResult = getMultimeterReading();
+  const inputCell = document.getElementById('t1-val-' + idx);
+  if (inputCell) {
+    inputCell.value = dmmResult.value;
+    const row = inputCell.closest('tr');
+    if (row) {
+      row.style.backgroundColor = 'rgba(34, 211, 238, 0.15)';
+      setTimeout(() => row.style.backgroundColor = '', 1000);
+    }
+  }
+}
+
+/**
+ * Automate Table 2 measurements from user clicking 'ดึงค่าวัด' (Oscilloscope)
+ */
+function measureTable2Row(idx) {
+  STATE.isJumperClosed = true;
+  updateSimulation();
+  
+  const w = scopeCanvas.width;
+  const h = scopeCanvas.height;
+  const waveData = getOscilloscopeWaveforms(w, h);
+  const meas = waveData.measurements;
+  
+  let val = '';
+  if (idx === 0) val = meas.ch1Vpp;
+  else if (idx === 1) val = meas.ch1Vrms;
+  else if (idx === 2) val = meas.ch2Vmax;
+  else if (idx === 3) val = meas.ch2Vdc;
+  else if (idx === 4) val = meas.ch2Vrms;
+  else if (idx === 5) val = meas.periodMs;
+  
+  const inputCell = document.getElementById('t2-val-' + idx);
+  if (inputCell) {
+    inputCell.value = val;
+    const row = inputCell.closest('tr');
+    if (row) {
+      row.style.backgroundColor = 'rgba(34, 211, 238, 0.15)';
+      setTimeout(() => row.style.backgroundColor = '', 1000);
+    }
+  }
+}
+
+// Bind DOM loaded listener
+document.addEventListener('DOMContentLoaded', initUI);
+
+
+/* ==========================================================================
+   PART 5: GOOGLE SHEETS WEB APP SUBMISSION & AUTO-GRADING UI
+   ========================================================================== */
+
+function submitReportToGAS() {
+  const name = document.getElementById('student-name').value.trim();
+  const id = document.getElementById('student-id').value.trim();
+  const group = document.getElementById('student-group').value.trim();
+  const date = document.getElementById('lab-date').value;
+  
+  if (!name || !id || !group || !date) {
+    alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');
+    return;
+  }
+  
+  // Package table 1 rows (4 rows)
+  const t1Rows = [];
+  for (let i = 0; i < 4; i++) {
+    t1Rows.push(document.getElementById('t1-val-' + i).value);
+  }
+  
+  // Package table 2 rows (6 rows)
+  const t2Rows = [];
+  for (let i = 0; i < 6; i++) {
+    t2Rows.push(document.getElementById('t2-val-' + i).value);
+  }
+  
+  // Get post-lab question responses
+  const q1 = getSelectedRadioValue('q1');
+  const q2 = getSelectedRadioValue('q2');
+  const q3 = getSelectedRadioValue('q3');
+  
+  const conclusion = document.getElementById('lab-conclusion').value.trim();
+  
+  if (!q1 || !q2 || !q3) {
+    alert('⚠️ กรุณาตอบคำถามท้ายการทดลองให้ครบทั้ง 3 ข้อ!');
+    return;
+  }
+  
+  const data = {
+    studentName: name,
+    studentId: id,
+    studentGroup: group,
+    labDate: date,
+    t1Rows: t1Rows,
+    t2Rows: t2Rows,
+    q1: q1,
+    q2: q2,
+    q3: q3,
+    labConclusion: conclusion
+  };
+  
+  // Show loading indicator
+  showSubmittingDialog();
+  
+  // Send data to GAS backend submitWorksheet function
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(onSuccessGrading)
+      .withFailureHandler(onFailureGrading)
+      .submitWorksheet(data);
+  } else {
+    // Offline simulation mode
+    setTimeout(() => {
+      alert('⚠️ ไม่พบการเชื่อมต่อ Google Apps Script (กำลังรันในโหมด Offline / Local Simulator)\nระบบจะทำคะแนนจำลองให้ที่นี่:\n\n' + JSON.stringify(data, null, 2));
+      hideSubmittingDialog();
+    }, 1000);
+  }
+}
+window.submitReportToGAS = submitReportToGAS;
+
+function getSelectedRadioValue(name) {
+  const radio = document.querySelector(`input[name="${name}"]:checked`);
+  return radio ? radio.value : null;
+}
+
+function showSubmittingDialog() {
+  let modal = document.getElementById('grading-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'grading-modal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(5px); font-family:Sarabun, sans-serif;';
+    document.body.appendChild(modal);
+  }
+  
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:16px; padding:30px; max-width:480px; width:90%; text-align:center; color:#fff; box-shadow:0 15px 30px rgba(0,0,0,0.5);">
+      <div style="font-size:40px; margin-bottom:15px; animation:spin 1.5s linear infinite;">⏳</div>
+      <h3 style="font-family:Chakra Petch, sans-serif; font-size:18px; margin-bottom:10px;">กำลังส่งผลตรวจและประเมินคะแนน...</h3>
+      <p style="font-size:13px; color:#94a3b8;">ระบบกำลังคำนวณและเกรดใบงานตามหลักการทางคณิตศาสตร์แบบอัตโนมัติ โปรดรอสักครู่</p>
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function hideSubmittingDialog() {
+  const modal = document.getElementById('grading-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function onSuccessGrading(res) {
+  hideSubmittingDialog();
+  
+  let modal = document.getElementById('grading-modal');
+  if (!modal) return;
+  
+  if (res.status === 'success') {
+    modal.innerHTML = `
+      <div style="background:#1e293b; border:2px solid #22d3ee; border-radius:16px; padding:30px; max-width:520px; width:95%; text-align:left; color:#fff; box-shadow:0 15px 30px rgba(0,0,0,0.5); position:relative;">
+        <h2 style="font-family:Chakra Petch, sans-serif; font-size:22px; color:#22d3ee; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <span>🎉</span> ส่งและตรวจใบงานเรียบร้อยแล้ว
+        </h2>
+        <div style="background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.2); border-radius:10px; padding:15px; margin-bottom:20px; text-align:center;">
+          <span style="font-size:12px; color:#94a3b8; display:block;">คะแนนที่ได้ในการประเมิน</span>
+          <strong style="font-size:36px; color:#22d3ee; font-family:Chakra Petch, sans-serif;">${res.score} / ${res.maxScore}</strong>
+          <span style="display:block; font-size:13px; font-weight:bold; margin-top:5px; color:#67e8f9;">เกณฑ์การประเมิน: ${res.comment}</span>
+        </div>
+        <h4 style="font-family:Chakra Petch, sans-serif; margin-bottom:8px; color:#94a3b8; font-size:13px;">สรุปรายการตรวจสอบ:</h4>
+        <pre style="background:#0f172a; border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:12px; font-size:12px; max-height:180px; overflow-y:auto; font-family:Sarabun, sans-serif; white-space:pre-wrap; color:#cbd5e1; margin-bottom:20px;">${res.feedback}</pre>
+        <div style="text-align:center;">
+          <button class="btn btn-primary" onclick="hideSubmittingDialog()" style="padding:10px 30px; font-size:13px;">ปิดหน้าต่างตรวจผล</button>
+        </div>
+      </div>
+    `;
+  } else {
+    onFailureGrading(res.message);
+  }
+}
+window.onSuccessGrading = onSuccessGrading;
+
+function onFailureGrading(error) {
+  hideSubmittingDialog();
+  
+  let modal = document.getElementById('grading-modal');
+  if (!modal) return;
+  
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:2px solid #ef4444; border-radius:16px; padding:30px; max-width:480px; width:90%; text-align:center; color:#fff; box-shadow:0 15px 30px rgba(0,0,0,0.5);">
+      <div style="font-size:40px; color:#ef4444; margin-bottom:15px;">❌</div>
+      <h3 style="font-family:Chakra Petch, sans-serif; font-size:18px; color:#ef4444; margin-bottom:10px;">เกิดข้อผิดพลาดในการประเมินผล</h3>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:20px;">รายละเอียด: ${error}</p>
+      <button class="btn btn-secondary" onclick="hideSubmittingDialog()" style="padding:8px 24px; font-size:13px;">ปิด</button>
+    </div>
+  `;
+}
+window.onFailureGrading = onFailureGrading;
+
+</script>
+  <script>
+    // General print helper
+    function printReport() {
+      window.print();
+    }
+    window.printReport = printReport;
+  </script>
+</body>
+</html>
