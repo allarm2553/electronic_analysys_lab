@@ -828,6 +828,26 @@ body {
           <p class="subtitle">คลิกจุดวัดบนวงจรไฟฟ้าเพื่อตรวจวัดค่าแรงดัน/กระแส หรือปรับตั้งค่าสเกลออสซิลโลสโคป</p>
         </header>
         
+        <!-- Selection parameters -->
+        <div class="card no-print">
+          <h2 class="card-title">แผงควบคุมวงจรทดลอง</h2>
+          <div class="grid-2 student-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+            <div class="input-field">
+              <label for="jumper-select">เชื่อมต่อตัวเก็บประจุ C (Filter Capacitor):</label>
+              <select id="jumper-select" onchange="toggleJumperSelect(this.value)">
+                <option value="open">ไม่เชื่อมต่อตัวเก็บประจุ C (No Filter - Half-wave Rectifier)</option>
+                <option value="closed">เชื่อมต่อตัวเก็บประจุ C = 47 µF (With Filter Capacitor)</option>
+              </select>
+            </div>
+            <div class="input-field" style="justify-content: center; align-items: flex-start; padding-left: 20px;">
+              <label>&nbsp;</label>
+              <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.4;">
+                💡 <strong>คำแนะนำ:</strong> คุณสามารถคลิกที่ตัวสวิตช์จัมเปอร์บนผังวงจร (จุดสีขาว/สายเชื่อมด้านบนของตัวเก็บประจุ) เพื่อเปิด-ปิดการจัมป์ตัวเก็บประจุ C ได้โดยตรงเช่นเดียวกัน
+              </p>
+            </div>
+          </div>
+        </div>
+        
         <div class="simulator-layout">
           <!-- Left Column: Instruments -->
           <div class="instrument-panel">
@@ -958,6 +978,27 @@ body {
                 
                 <line x1="190" y1="50" x2="200" y2="50" stroke="#475569" stroke-width="3"/>
                 <line x1="225" y1="50" x2="380" y2="50" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Capacitor Branch (C = 47uF) -->
+                <!-- Junction dots -->
+                <circle cx="300" cy="50" r="4" fill="#475569"/>
+                <circle cx="300" cy="250" r="4" fill="#475569"/>
+                <!-- Connecting lines -->
+                <line x1="300" y1="50" x2="300" y2="85" stroke="#475569" stroke-width="3"/>
+                <line x1="300" y1="165" x2="300" y2="250" stroke="#475569" stroke-width="3"/>
+                
+                <!-- Capacitor Symbol -->
+                <line x1="285" y1="150" x2="315" y2="150" stroke="#38bdf8" stroke-width="3"/>
+                <line x1="285" y1="158" x2="315" y2="158" stroke="#38bdf8" stroke-width="3"/>
+                <text x="265" y="180" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="middle">C = 47µF</text>
+                
+                <!-- Jumper Switch (Interactive Group) -->
+                <g id="jumper-switch" style="cursor: pointer;" onclick="toggleJumper()">
+                  <circle cx="300" cy="85" r="3" fill="#fff"/>
+                  <circle cx="300" cy="120" r="3" fill="#fff"/>
+                  <line id="jumper-line" x1="300" y1="85" x2="315" y2="105" stroke="#ef4444" stroke-width="3"/>
+                  <text x="320" y="108" id="jumper-text" fill="#ef4444" font-family="Sarabun" font-size="10">C: เปิด (Open)</text>
+                </g>
                 
                 <!-- Load Resistor RL = 1k -->
                 <rect x="365" y="110" width="30" height="80" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="3"/>
@@ -1242,7 +1283,7 @@ body {
   <!-- Scripts -->
   <script>
 /* ==========================================================================
-   Half-Wave Rectifier Simulator - Mathematical Engine
+   Half-Wave Rectifier Simulator - Mathematical Engine with Capacitor Filter
    ========================================================================== */
 
 const STATE = {
@@ -1251,6 +1292,7 @@ const STATE = {
   frequency: 50.0,          // 50 Hz
   rlResistor: 1000.0,       // 1k Ohm Load
   diodeForwardDrop: 0.7,    // 0.7V Diode drop for 1N4007
+  isCapacitorConnected: false, // Jumper C state
   
   // Instrument settings
   ch1VoltsDiv: 5,           // 5V per div
@@ -1269,73 +1311,148 @@ function getVPeakInput() {
 }
 
 /**
- * Calculates current multimeter reading based on dial and probe positions
+ * Runs Euler numerical integration of the circuit to obtain steady-state values
+ * @param {number} totalMs - total simulation time in milliseconds
  */
-function getMultimeterReading() {
+function runCircuitSimulation(totalMs) {
   const vPeak = getVPeakInput();
   const vDiode = STATE.diodeForwardDrop;
+  const omega = 2 * Math.PI * STATE.frequency;
+  const R = STATE.rlResistor;
+  const C = STATE.isCapacitorConnected ? 47e-6 : 0; // 47 uF Filter Capacitor
+  const tau = R * C;
   
+  // Time-stepping parameters
+  const dt = 0.0001; // 0.1 ms step
+  const startT = -0.1; // simulate 100ms early to reach steady state
+  const endT = totalMs / 1000;
+  
+  let t = startT;
+  let vc = 0;
+  
+  const simTime = [];
+  const simVin = [];
+  const simVc = [];
+  
+  while (t <= endT) {
+    const vIn = vPeak * Math.sin(omega * t);
+    const vCharge = vIn - vDiode;
+    
+    if (C > 0) {
+      if (vCharge > vc) {
+        vc = vCharge; // Charging phase (diode conducting)
+      } else {
+        vc += (-vc / tau) * dt; // Discharging phase (diode blocking)
+      }
+    } else {
+      vc = Math.max(0, vCharge); // No capacitor: simple half-wave
+    }
+    
+    // Only record from 0 onwards (discard the pre-simulation warm-up)
+    if (t >= -0.00001) {
+      simTime.push(t);
+      simVin.push(vIn);
+      simVc.push(vc);
+    }
+    
+    t += dt;
+  }
+  
+  return {
+    time: simTime,
+    vin: simVin,
+    vc: simVc,
+    dt: dt
+  };
+}
+
+/**
+ * Calculates current multimeter reading based on dial, probe positions, and capacitor state
+ */
+function getMultimeterReading() {
   const r = STATE.dmmRedProbe;
   const b = STATE.dmmBlackProbe;
   
-  // If probes aren't connected, reading is OL or 0
+  // If probes aren't connected, reading is 0
   if (r === 'none' || b === 'none' || r === b) {
     return { value: '0.00', unit: '' };
   }
   
   const mode = STATE.dmmDialMode;
   
+  // Run a short 40ms simulation (2 full cycles) to compute exact DC/RMS averages
+  const sim = runCircuitSimulation(40);
+  const N = sim.vc.length;
+  
+  // Compute DC Average of Vin (AC source) and Vc (Load)
+  let sumVin = 0;
+  let sumVc = 0;
+  let sumVcSq = 0;
+  let sumVinSq = 0;
+  
+  for (let i = 0; i < N; i++) {
+    sumVin += sim.vin[i];
+    sumVc += sim.vc[i];
+    sumVinSq += sim.vin[i] * sim.vin[i];
+    sumVcSq += sim.vc[i] * sim.vc[i];
+  }
+  
+  const vDcInput = sumVin / N;     // should be close to 0
+  const vDcLoad = sumVc / N;       // DC average load voltage
+  const vRmsInput = Math.sqrt(sumVinSq / N); // RMS input
+  const vRmsLoad = Math.sqrt(sumVcSq / N);   // RMS load
+  
   // 1. AC Voltage Mode (ACV)
   if (mode === 'ACV') {
-    // Measuring across AC source (Node A and Ground)
+    // Across AC source (Node A and Ground)
     if ((r === 'A' && b === 'G') || (r === 'G' && b === 'A')) {
-      return { value: STATE.vRmsInput.toFixed(2), unit: 'V AC' };
+      return { value: vRmsInput.toFixed(2), unit: 'V AC' };
     }
-    // Measuring across load (Node B and Ground) - half-wave RMS value
+    // Across load (Node B and Ground)
     if ((r === 'B' && b === 'G') || (r === 'G' && b === 'B')) {
-      // RMS of half-wave rectified sine = V_peak_load / 2
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vRmsLoad = vPeakLoad / 2;
-      return { value: vRmsLoad.toFixed(2), unit: 'V AC' };
+      // AC voltage is the AC component: sqrt(Vrms^2 - Vdc^2)
+      const acRms = Math.sqrt(Math.max(0, Math.pow(vRmsLoad, 2) - Math.pow(vDcLoad, 2)));
+      return { value: acRms.toFixed(2), unit: 'V AC' };
     }
-    // Measuring across diode (Node A and Node B)
+    // Across diode (Node A and Node B)
     if ((r === 'A' && b === 'B') || (r === 'B' && b === 'A')) {
-      // RMS of diode voltage = sqrt(Vrms_in^2 - Vrms_load^2)
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vRmsLoad = vPeakLoad / 2;
-      const vRmsDiode = Math.sqrt(Math.pow(STATE.vRmsInput, 2) - Math.pow(vRmsLoad, 2));
-      return { value: vRmsDiode.toFixed(2), unit: 'V AC' };
+      // Numerical diode voltage: vD(t) = vIn(t) - vC(t)
+      let sumVdSq = 0;
+      let sumVd = 0;
+      for (let i = 0; i < N; i++) {
+        const vd = sim.vin[i] - sim.vc[i];
+        sumVd += vd;
+        sumVdSq += vd * vd;
+      }
+      const vDcDiode = sumVd / N;
+      const vRmsDiode = Math.sqrt(sumVdSq / N);
+      const acRmsDiode = Math.sqrt(Math.max(0, Math.pow(vRmsDiode, 2) - Math.pow(vDcDiode, 2)));
+      return { value: acRmsDiode.toFixed(2), unit: 'V AC' };
     }
     return { value: '0.00', unit: 'V AC' };
   }
   
   // 2. DC Voltage Mode (DCV)
   if (mode === 'DCV') {
-    // Load DC Voltage (Node B and Ground)
+    // Across load (Node B and Ground)
     if (r === 'B' && b === 'G') {
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vDcLoad = vPeakLoad / Math.PI; // Vp/pi
       return { value: vDcLoad.toFixed(2), unit: 'V DC' };
     }
     if (r === 'G' && b === 'B') {
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vDcLoad = -1 * (vPeakLoad / Math.PI);
-      return { value: vDcLoad.toFixed(2), unit: 'V DC' };
+      return { value: (-vDcLoad).toFixed(2), unit: 'V DC' };
     }
-    // Input DC Voltage (Node A and Ground) - Pure Sine average is 0
+    // Across AC source (Node A and Ground)
     if ((r === 'A' && b === 'G') || (r === 'G' && b === 'A')) {
       return { value: '0.00', unit: 'V DC' };
     }
-    // Diode DC Voltage (Node A and Node B)
+    // Across diode (Node A and Node B)
     if (r === 'A' && b === 'B') {
-      // V_diode_dc = 0.7/2 - Vp/pi = 0.35 - 5.4 = -5.05V
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vDcDiode = 0.35 - (vPeak / Math.PI);
+      // average of diode voltage: vIn - vC
+      const vDcDiode = vDcInput - vDcLoad;
       return { value: vDcDiode.toFixed(2), unit: 'V DC' };
     }
     if (r === 'B' && b === 'A') {
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vDcDiode = (vPeak / Math.PI) - 0.35;
+      const vDcDiode = vDcLoad - vDcInput;
       return { value: vDcDiode.toFixed(2), unit: 'V DC' };
     }
     return { value: '0.00', unit: 'V DC' };
@@ -1343,22 +1460,18 @@ function getMultimeterReading() {
   
   // 3. DC Current Mode (DCA)
   if (mode === 'DCA') {
-    // Current is measured in series. Let's assume current flows from A -> B -> G
-    // If probes are placed Node B and Ground (in series connection simulation)
-    if ((r === 'B' && b === 'G') || (r === 'G' && b === 'B')) {
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vDcLoad = vPeakLoad / Math.PI;
-      const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000; // in mA
-      const multiplier = (r === 'B') ? 1 : -1;
-      return { value: (iDcLoadMa * multiplier).toFixed(2), unit: 'mA DC' };
+    const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000;
+    if (r === 'B' && b === 'G') {
+      return { value: iDcLoadMa.toFixed(2), unit: 'mA DC' };
     }
-    // Current in series with Diode
-    if ((r === 'A' && b === 'B') || (r === 'B' && b === 'A')) {
-      const vPeakLoad = Math.max(0, vPeak - vDiode);
-      const vDcLoad = vPeakLoad / Math.PI;
-      const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000;
-      const multiplier = (r === 'A') ? 1 : -1;
-      return { value: (iDcLoadMa * multiplier).toFixed(2), unit: 'mA DC' };
+    if (r === 'G' && b === 'B') {
+      return { value: (-iDcLoadMa).toFixed(2), unit: 'mA DC' };
+    }
+    if (r === 'A' && b === 'B') {
+      return { value: iDcLoadMa.toFixed(2), unit: 'mA DC' };
+    }
+    if (r === 'B' && b === 'A') {
+      return { value: (-iDcLoadMa).toFixed(2), unit: 'mA DC' };
     }
     return { value: '0.00', unit: 'mA DC' };
   }
@@ -1372,46 +1485,34 @@ function getMultimeterReading() {
  * @param {number} height - height of screen in pixels
  */
 function getOscilloscopeWaveforms(width, height) {
-  const vPeak = getVPeakInput();
-  const vDiode = STATE.diodeForwardDrop;
+  const msPerDiv = STATE.timebaseMsDiv;
+  const totalDivsX = 10;
+  const totalMs = msPerDiv * totalDivsX;
+  
+  // Run the full simulation for the scope window
+  const sim = runCircuitSimulation(totalMs);
   
   const ch1Points = [];
   const ch2Points = [];
   
-  // Grid properties: 10 divisions horizontally, 8 divisions vertically
-  const totalDivsX = 10;
-  const totalDivsY = 8;
-  
-  const msPerDiv = STATE.timebaseMsDiv;
-  const totalMs = msPerDiv * totalDivsX;
-  
   const ch1VoltsPerDiv = STATE.ch1VoltsDiv;
   const ch2VoltsPerDiv = STATE.ch2VoltsDiv;
+  const totalDivsY = 8;
+  const centerY = height / 2;
   
-  // Mathematical signal generation
-  // f = 50Hz -> period T = 20ms
-  const omega = 2 * Math.PI * STATE.frequency; // rad/sec
+  const ch1PixelsPerVolt = (height / totalDivsY) / ch1VoltsPerDiv;
+  const ch2PixelsPerVolt = (height / totalDivsY) / ch2VoltsPerDiv;
   
+  // Map simulation points to pixel coordinate points
+  const simN = sim.time.length;
   for (let px = 0; px < width; px++) {
-    // Map pixel X to time in seconds
-    const tMs = (px / width) * totalMs;
-    const tSec = tMs / 1000;
+    // Find closest simulation index
+    const targetT = (px / width) * (totalMs / 1000);
+    const idx = Math.min(simN - 1, Math.max(0, Math.round(targetT / sim.dt)));
     
-    // Wave 1: Input Sine wave
-    const vIn = vPeak * Math.sin(omega * tSec);
+    const vIn = sim.vin[idx];
+    const vOut = sim.vc[idx];
     
-    // Wave 2: Rectified half-wave load voltage
-    const vOut = Math.max(0, vIn - vDiode);
-    
-    // Map Volts to Pixel Y
-    // Center is height / 2
-    const centerY = height / 2;
-    
-    // 1 Volt = (height / totalDivsY) / VoltsPerDiv pixels
-    const ch1PixelsPerVolt = (height / totalDivsY) / ch1VoltsPerDiv;
-    const ch2PixelsPerVolt = (height / totalDivsY) / ch2VoltsPerDiv;
-    
-    // Subtract from centerY because positive voltage goes UP in pixel coordinates
     const pyCh1 = centerY - (vIn * ch1PixelsPerVolt);
     const pyCh2 = centerY - (vOut * ch2PixelsPerVolt);
     
@@ -1419,18 +1520,41 @@ function getOscilloscopeWaveforms(width, height) {
     ch2Points.push({ x: px, y: pyCh2 });
   }
   
-  // Calculate digital measurements
-  const vPeakLoad = Math.max(0, vPeak - vDiode);
-  const ch2Vdc = vPeakLoad / Math.PI;
-  const ch2Vrms = vPeakLoad / 2;
+  // Calculate digital measurements of the displayed waveform
+  let maxCh1 = -Infinity;
+  let minCh1 = Infinity;
+  let maxCh2 = -Infinity;
+  let sumCh2 = 0;
+  let sumCh2Sq = 0;
+  let sumCh1Sq = 0;
+  
+  const N = sim.vc.length;
+  for (let i = 0; i < N; i++) {
+    const v1 = sim.vin[i];
+    const v2 = sim.vc[i];
+    
+    if (v1 > maxCh1) maxCh1 = v1;
+    if (v1 < minCh1) minCh1 = v1;
+    if (v2 > maxCh2) maxCh2 = v2;
+    
+    sumCh2 += v2;
+    sumCh2Sq += v2 * v2;
+    sumCh1Sq += v1 * v1;
+  }
+  
+  const ch1Vpp = maxCh1 - minCh1;
+  const ch1Vrms = Math.sqrt(sumCh1Sq / N);
+  const ch2Vmax = maxCh2;
+  const ch2Vdc = sumCh2 / N;
+  const ch2Vrms = Math.sqrt(sumCh2Sq / N);
   
   return {
     ch1Points: ch1Points,
     ch2Points: ch2Points,
     measurements: {
-      ch1Vpp: (vPeak * 2).toFixed(1),
-      ch1Vrms: STATE.vRmsInput.toFixed(1),
-      ch2Vmax: vPeakLoad.toFixed(1),
+      ch1Vpp: ch1Vpp.toFixed(1),
+      ch1Vrms: ch1Vrms.toFixed(1),
+      ch2Vmax: ch2Vmax.toFixed(1),
       ch2Vdc: ch2Vdc.toFixed(2),
       ch2Vrms: ch2Vrms.toFixed(2),
       frequency: STATE.frequency.toFixed(1),
@@ -1444,6 +1568,7 @@ window.STATE = STATE;
 window.getMultimeterReading = getMultimeterReading;
 window.getOscilloscopeWaveforms = getOscilloscopeWaveforms;
 window.getVPeakInput = getVPeakInput;
+window.runCircuitSimulation = runCircuitSimulation;
 
 </script>
 <script>
@@ -1573,6 +1698,24 @@ function setProbeMode(mode) {
 }
 
 /**
+ * Toggles the Capacitor jumper switch in the circuit
+ */
+function toggleJumper() {
+  STATE.isCapacitorConnected = !STATE.isCapacitorConnected;
+  updateSimulation();
+}
+window.toggleJumper = toggleJumper;
+
+/**
+ * Toggles Capacitor from Select Dropdown
+ */
+function toggleJumperSelect(val) {
+  STATE.isCapacitorConnected = (val === 'closed');
+  updateSimulation();
+}
+window.toggleJumperSelect = toggleJumperSelect;
+
+/**
  * Main function to redraw canvas and recalculate values
  */
 function updateSimulation() {
@@ -1580,10 +1723,40 @@ function updateSimulation() {
   const redSel = document.getElementById('dmm-red-select');
   const blackSel = document.getElementById('dmm-black-select');
   const dialSel = document.getElementById('dmm-dial-select');
+  const jumperSel = document.getElementById('jumper-select');
   
   if (redSel) STATE.dmmRedProbe = redSel.value;
   if (blackSel) STATE.dmmBlackProbe = blackSel.value;
   if (dialSel) STATE.dmmDialMode = dialSel.value;
+  
+  // Sync Jumper select dropdown & SVG switch
+  if (jumperSel) {
+    jumperSel.value = STATE.isCapacitorConnected ? 'closed' : 'open';
+  }
+  
+  const jLine = document.getElementById('jumper-line');
+  const jText = document.getElementById('jumper-text');
+  if (jLine && jText) {
+    if (STATE.isCapacitorConnected) {
+      // Closed state: straight down, green color
+      jLine.setAttribute('x1', '300');
+      jLine.setAttribute('y1', '85');
+      jLine.setAttribute('x2', '300');
+      jLine.setAttribute('y2', '120');
+      jLine.setAttribute('stroke', '#10b981');
+      jText.textContent = 'C: ต่ออยู่ (Closed)';
+      jText.setAttribute('fill', '#10b981');
+    } else {
+      // Open state: tilted 45 deg, red color
+      jLine.setAttribute('x1', '300');
+      jLine.setAttribute('y1', '85');
+      jLine.setAttribute('x2', '315');
+      jLine.setAttribute('y2', '105');
+      jLine.setAttribute('stroke', '#ef4444');
+      jText.textContent = 'C: เปิด (Open)';
+      jText.setAttribute('fill', '#ef4444');
+    }
+  }
   
   // 2. Update Multimeter LCD
   const dmmResult = getMultimeterReading();
