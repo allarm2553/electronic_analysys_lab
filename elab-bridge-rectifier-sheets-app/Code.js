@@ -5,7 +5,7 @@
 function doGet(e) {
   return HtmlService.createTemplateFromFile('index')
     .evaluate()
-    .setTitle('ใบงานการทดลองที่ 7: วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์')
+    .setTitle('ใบงานการทดลองที่ 8: วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์')
     .setSandboxMode(HtmlService.SandboxMode.IFRAME)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
