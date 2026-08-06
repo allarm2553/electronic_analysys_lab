@@ -695,6 +695,9 @@ body {
     background: #fff !important;
     color: #000 !important;
   }
+  .app-container {
+    display: block !important;
+  }
   .sidebar, .no-print, button, input[type="button"] {
     display: none !important;
   }
@@ -1531,6 +1534,7 @@ function initUI() {
   window.adjustVoltsDiv = adjustVoltsDiv;
   window.toggleJumper = toggleJumper;
   window.toggleJumperSelect = toggleJumperSelect;
+  window.printReport = printReport;
 }
 
 /**
@@ -1883,6 +1887,13 @@ function measureTable2Row(idx) {
   }
 }
 
+/**
+ * Triggers browser print dialog for PDF saving
+ */
+function printReport() {
+  window.print();
+}
+
 // Bind DOM loaded listener
 document.addEventListener('DOMContentLoaded', initUI);
 
@@ -2011,6 +2022,7 @@ function onSuccessGrading(res) {
         </div>
       </div>
     `;
+    modal.style.display = 'flex';
   } else {
     onFailureGrading(res.message);
   }
@@ -2031,6 +2043,7 @@ function onFailureGrading(error) {
       <button class="btn btn-secondary" onclick="hideSubmittingDialog()" style="padding:8px 24px; font-size:13px;">ปิด</button>
     </div>
   `;
+  modal.style.display = 'flex';
 }
 window.onFailureGrading = onFailureGrading;
 

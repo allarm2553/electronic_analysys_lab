@@ -146,6 +146,7 @@ function onSuccessGrading(res) {
         </div>
       </div>
     `;
+    modal.style.display = 'flex';
   } else {
     onFailureGrading(res.message);
   }
@@ -166,6 +167,7 @@ function onFailureGrading(error) {
       <button class="btn btn-secondary" onclick="hideSubmittingDialog()" style="padding:8px 24px; font-size:13px;">ปิด</button>
     </div>
   `;
+  modal.style.display = 'flex';
 }
 window.onFailureGrading = onFailureGrading;
 """
