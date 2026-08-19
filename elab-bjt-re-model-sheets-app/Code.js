@@ -1,0 +1,273 @@
+/**
+ * Google Apps Script Web App - Backend Controller (Code.gs)
+ * Lab 9: BJT Small-Signal Analysis using re Model
+ * Handles HTML page serving, form submissions, dynamic mathematical auto-grading, and Google Sheets DB logs.
+ */
+
+function doGet(e) {
+  return HtmlService.createHtmlOutputFromFile('index')
+    .setTitle('E-Lab: การวิเคราะห์วงจรขยาย BJT ด้วยแบบจำลอง re')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
+}
+
+/**
+ * Processes the student's lab report submission
+ */
+function submitWorksheet(data) {
+  try {
+    const gradingResults = gradeWorksheet(data);
+    recordToSheet(data, gradingResults);
+    
+    return {
+      status: 'success',
+      score: gradingResults.score,
+      maxScore: gradingResults.maxScore,
+      feedback: gradingResults.feedback,
+      comment: gradingResults.comment
+    };
+  } catch (error) {
+    return {
+      status: 'error',
+      message: error.toString()
+    };
+  }
+}
+
+/**
+ * BJT re-Model Dynamic Small-Signal Mathematical Solver & Auto-Grading Engine
+ */
+function gradeWorksheet(data) {
+  let score = 0;
+  const maxScore = 10;
+  const feedback = [];
+  
+  // Parameter Mode and Values (Dynamic from client or Default Fixed)
+  const mode = data.param_mode || 'fixed';
+  const Vcc = parseFloat(data.param_vcc) || 12.0;       // V
+  const R1 = (parseFloat(data.param_r1) || 33.0) * 1000; // ohms
+  const R2 = (parseFloat(data.param_r2) || 6.8) * 1000;  // ohms
+  const Rc = (parseFloat(data.param_rc) || 2.2) * 1000;  // ohms
+  const Re = parseFloat(data.param_re) || 560;          // ohms
+  const Beta = parseFloat(data.param_beta) || 200;      // Nominal Beta
+  const Vbe = 0.70;                                      // V
+  
+  // Theoretical DC calculations (Voltage divider bias with exact Thevenin)
+  const Vth = Vcc * (R2 / (R1 + R2));
+  const Rth = (R1 * R2) / (R1 + R2);
+  let Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re);
+  if (Ib < 0) Ib = 0;
+  
+  const Ie = (Beta + 1) * Ib;
+  const Ic = Beta * Ib;
+  const Ve = Ie * Re;
+  const Vb = Ve + (Ib > 0 ? Vbe : 0);
+  const Vc = Math.max(0, Vcc - Ic * Rc);
+  const Vce = Vc - Ve;
+  const Ie_mA = Ie * 1000;
+  const re_calc = Ie_mA > 0 ? (26.0 / Ie_mA) : 9999;
+  
+  // Theoretical AC calculations
+  // Case A: With CE (Bypassed)
+  const Zb_bypassed = Beta * re_calc;
+  const Zi_bypassed = 1 / (1/R1 + 1/R2 + 1/Zb_bypassed); // ohms
+  const Zo_bypassed = Rc;                                // ohms
+  const Av_bypassed = re_calc > 0 ? (Rc / re_calc) : 0;  // magnitude
+  
+  // Case B: Without CE (Unbypassed)
+  const Zb_unbypassed = Beta * (re_calc + Re);
+  const Zi_unbypassed = 1 / (1/R1 + 1/R2 + 1/Zb_unbypassed); // ohms
+  const Zo_unbypassed = Rc;                                  // ohms
+  const Av_unbypassed = Rc / (re_calc + Re);                 // magnitude
+  
+  const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)';
+  feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
+  feedback.push(`  (พารามิเตอร์: Vcc=${Vcc}V, R1=${(R1/1000).toFixed(1)}k, R2=${(R2/1000).toFixed(1)}k, Rc=${(Rc/1000).toFixed(1)}k, RE=${Re}Ω, β=${Beta})`);
+  
+  // --- PART 1: DC OPERATING POINT & re CALCULATION (3 Points) ---
+  const sVb = parseFloat(data.dc_vb) || 0;
+  const sVe = parseFloat(data.dc_ve) || 0;
+  const sVc = parseFloat(data.dc_vc) || 0;
+  const sVce = parseFloat(data.dc_vce) || 0;
+  const sIe = parseFloat(data.dc_ie) || 0;
+  const sRe = parseFloat(data.dc_re) || 0;
+  
+  // Tolerances for DC values
+  const vbTol = Math.max(0.35, Vb * 0.15);
+  const veTol = Math.max(0.35, Ve * 0.15);
+  const vcTol = Math.max(0.60, Vc * 0.15);
+  const vceTol = Math.max(0.70, Math.abs(Vce) * 0.15);
+  const ieTol = Math.max(0.40, Ie_mA * 0.18);
+  
+  const vbOk = Math.abs(sVb - Vb) <= vbTol || Math.abs(sVb - Vth) <= vbTol;
+  const veOk = Math.abs(sVe - Ve) <= veTol;
+  const vcOk = Math.abs(sVc - Vc) <= vcTol;
+  const vceOk = Math.abs(sVce - Vce) <= vceTol;
+  const ieOk = Math.abs(sIe - Ie_mA) <= ieTol;
+  
+  // Check student re calculation: either from theoretical re or from student's own entered Ie
+  let studentImpliedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
+  const reTol = Math.max(2.5, re_calc * 0.20);
+  const reOk = Math.abs(sRe - re_calc) <= reTol || Math.abs(sRe - studentImpliedRe) <= Math.max(1.5, studentImpliedRe * 0.15);
+  
+  let dcVoltagesScore = (vbOk && veOk && vcOk && vceOk) ? 1 : 0;
+  let dcCurrentScore = ieOk ? 1 : 0;
+  let reScore = reOk ? 1 : 0;
+  
+  let part1Score = dcVoltagesScore + dcCurrentScore + reScore;
+  score += part1Score;
+  
+  feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่า re: ได้ ${part1Score} / 3 คะแนน`);
+  if (dcVoltagesScore) {
+    feedback.push(`  ✓ แรงดันไฟตรง (Vb, Ve, Vc, Vce) ถูกต้อง`);
+  } else {
+    feedback.push(`  ✗ แรงดันไฟตรงคลาดเคลื่อน (Vb ~${Vb.toFixed(2)}V, Ve ~${Ve.toFixed(2)}V, Vc ~${Vc.toFixed(2)}V, Vce ~${Vce.toFixed(2)}V)`);
+  }
+  if (dcCurrentScore) {
+    feedback.push(`  ✓ กระแสอิมิตเตอร์ Ie ถูกต้อง (${sIe.toFixed(2)} mA, คาดหวัง ~${Ie_mA.toFixed(2)} mA)`);
+  } else {
+    feedback.push(`  ✗ กระแสอิมิตเตอร์ Ie คลาดเคลื่อน (กรอก ${sIe} mA, คาดหวัง ~${Ie_mA.toFixed(2)} mA)`);
+  }
+  if (reScore) {
+    feedback.push(`  ✓ ค่าความต้านทานไดนามิก re ถูกต้อง (${sRe.toFixed(1)} Ω, คาดหวัง ~${re_calc.toFixed(1)} Ω)`);
+  } else {
+    feedback.push(`  ✗ ค่า re คลาดเคลื่อน (กรอก ${sRe} Ω, คาดหวัง re = 26mV/Ie ≈ ${re_calc.toFixed(1)} Ω)`);
+  }
+  
+  // --- PART 2: AC PERFORMANCE WITH CE (BYPASSED) (2 Points) ---
+  const sAv_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
+  const sZi_byp = parseFloat(data.ac_zi_bypassed) || 0;
+  const sPhase_byp = parseInt(data.ac_phase_bypassed) || 0;
+  
+  const avBypMin = Av_bypassed * 0.70;
+  const avBypMax = Av_bypassed * 1.30;
+  const avBypOk = sAv_byp >= avBypMin && sAv_byp <= avBypMax;
+  
+  const ziByp_k_expected = Zi_bypassed / 1000;
+  const ziByp_k = sZi_byp > 50 ? sZi_byp / 1000 : sZi_byp;
+  const ziBypOk = Math.abs(ziByp_k - ziByp_k_expected) <= Math.max(0.6, ziByp_k_expected * 0.40);
+  const phaseBypOk = sPhase_byp === 180;
+  
+  let part2Score = 0;
+  if (avBypOk) part2Score += 1;
+  if (ziBypOk && phaseBypOk) part2Score += 1;
+  else if (ziBypOk || phaseBypOk) part2Score += 0.5;
+  
+  score += Math.round(part2Score);
+  feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรกรณีมี CE (Bypassed): ได้ ${Math.round(part2Score)} / 2 คะแนน`);
+  if (avBypOk) feedback.push(`  ✓ อัตราขยาย Av (มี CE) ถูกต้อง (~${sAv_byp.toFixed(1)} เท่า, คาดหวัง ~${Av_bypassed.toFixed(1)})`);
+  else feedback.push(`  ✗ อัตราขยาย Av (มี CE) คลาดเคลื่อน (กรอก ${sAv_byp}, คาดหวัง Av = Rc/re ≈ ${Av_bypassed.toFixed(1)} เท่า)`);
+  if (phaseBypOk) feedback.push(`  ✓ สัญญาณกลับเฟส 180 องศา ถูกต้อง`);
+  else feedback.push(`  ✗ เฟสสัญญาณไม่ถูกต้อง (Common-Emitter มีเฟสกลับ 180°)`);
+  
+  // --- PART 3: AC PERFORMANCE WITHOUT CE (UNBYPASSED) (2 Points) ---
+  const sAv_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
+  const sZi_unbyp = parseFloat(data.ac_zi_unbypassed) || 0;
+  const sPhase_unbyp = parseInt(data.ac_phase_unbypassed) || 0;
+  
+  const avUnbypMin = Av_unbypassed * 0.70;
+  const avUnbypMax = Av_unbypassed * 1.30;
+  const avUnbypOk = sAv_unbyp >= avUnbypMin && sAv_unbyp <= avUnbypMax;
+  
+  const ziUnbyp_k_expected = Zi_unbypassed / 1000;
+  const ziUnbyp_k = sZi_unbyp > 50 ? sZi_unbyp / 1000 : sZi_unbyp;
+  const ziUnbypOk = Math.abs(ziUnbyp_k - ziUnbyp_k_expected) <= Math.max(1.0, ziUnbyp_k_expected * 0.40);
+  const phaseUnbypOk = sPhase_unbyp === 180;
+  
+  let part3Score = 0;
+  if (avUnbypOk) part3Score += 1;
+  if (ziUnbypOk && phaseUnbypOk) part3Score += 1;
+  else if (ziUnbypOk || phaseUnbypOk) part3Score += 0.5;
+  
+  score += Math.round(part3Score);
+  feedback.push(`\n[ตอนที่ 3] การทดสอบวงจรกรณีไม่มี CE (Unbypassed): ได้ ${Math.round(part3Score)} / 2 คะแนน`);
+  if (avUnbypOk) feedback.push(`  ✓ อัตราขยาย Av (ไม่มี CE) ถูกต้อง (~${sAv_unbyp.toFixed(2)} เท่า, คาดหวัง ~${Av_unbypassed.toFixed(2)})`);
+  else feedback.push(`  ✗ อัตราขยาย Av (ไม่มี CE) คลาดเคลื่อน (กรอก ${sAv_unbyp}, คาดหวัง Av ≈ Rc/(re+RE) ≈ ${Av_unbypassed.toFixed(2)} เท่า)`);
+  
+  // --- PART 4: POST-LAB QUESTIONS & CONCEPTUAL ASSESSMENT (3 Points) ---
+  const q1 = data.q1_choice; // Answer key: 'b'
+  const q2 = data.q2_choice; // Answer key: 'c'
+  const q3 = data.q3_choice; // Answer key: 'a'
+  
+  let qScore = 0;
+  if (q1 === 'b') qScore++;
+  if (q2 === 'c') qScore++;
+  if (q3 === 'a') qScore++;
+  
+  score += qScore;
+  feedback.push(`\n[ตอนที่ 4] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 3 ข้อ (ได้ ${qScore} คะแนน)`);
+  
+  let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+  if (score >= 9) {
+    comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  } else if (score >= 7) {
+    comment = "ผ่านเกณฑ์ดี (Good)";
+  } else if (score >= 5) {
+    comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+  }
+  
+  return {
+    score: score,
+    maxScore: maxScore,
+    feedback: feedback.join('\n'),
+    comment: comment
+  };
+}
+
+/**
+ * Appends the graded worksheet details into the Google Sheets database
+ */
+function recordToSheet(data, grading) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("Submissions");
+  
+  if (!sheet) {
+    sheet = ss.insertSheet("Submissions");
+    const headers = [
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Auto Score", "Evaluation", "Circuit Mode", "Circuit Params",
+      "DC Vb (V)", "DC Ve (V)", "DC Vc (V)", "DC Vce (V)", "DC Ie (mA)", "Calc re (Ω)",
+      "Av (with CE)", "Zi (with CE)", "Av (no CE)", "Zi (no CE)",
+      "Q1 Ans", "Q2 Ans", "Q3 Ans", "Feedback Summary", "Lab Conclusion"
+    ];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length)
+         .setFontWeight("bold")
+         .setBackground("#38bdf8") // Sky blue accent for re Model Lab
+         .setFontColor("#080c14")
+         .setBorder(true, true, true, true, true, true);
+  }
+  
+  const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / Local User";
+  const paramSummary = `Vcc=${data.param_vcc || 12}V, R1=${data.param_r1 || 33}k, R2=${data.param_r2 || 6.8}k, Rc=${data.param_rc || 2.2}k, RE=${data.param_re || 560}Ω, β=${data.param_beta || 200}`;
+  
+  const rowData = [
+    new Date(),
+    studentEmail,
+    data.studentName,
+    data.studentId,
+    data.studentGroup,
+    data.labDate,
+    grading.score + " / " + grading.maxScore,
+    grading.comment,
+    data.param_mode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',
+    paramSummary,
+    data.dc_vb,
+    data.dc_ve,
+    data.dc_vc,
+    data.dc_vce,
+    data.dc_ie,
+    data.dc_re,
+    data.ac_av_bypassed,
+    data.ac_zi_bypassed,
+    data.ac_av_unbypassed,
+    data.ac_zi_unbypassed,
+    data.q1_choice,
+    data.q2_choice,
+    data.q3_choice,
+    grading.feedback,
+    data.labConclusion
+  ];
+  sheet.appendRow(rowData);
+  sheet.autoResizeColumns(1, rowData.length);
+}

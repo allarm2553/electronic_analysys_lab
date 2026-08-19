@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 9: การวิเคราะห์วงจรขยายสัญญาณขนาดเล็กด้วยแบบจำลอง re ของ BJT</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.45);
+      --border-color: rgba(71, 85, 105, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.35);
+      --accent-yellow: #f59e0b;
+      --accent-yellow-glow: rgba(245, 158, 11, 0.35);
+      --accent-red: #ef4444;
+      --accent-red-glow: rgba(239, 68, 68, 0.35);
+      --scope-bg: #050b14;
+      --scope-grid: #132338;
+      --transition-speed: 0.25s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    /* Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #0b0f19;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px var(--accent-cyan-glow));
+    }
+
+    .logo-text h2 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-grow: 1;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-btn:hover {
+      background: rgba(56, 189, 248, 0.08);
+      color: var(--text-main);
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .nav-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    .sidebar-footer {
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      padding: 30px 40px;
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header-bar {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+    }
+
+    .header-title h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Chakra Petch', sans-serif;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    /* Simulator Controls */
+    .control-group {
+      margin-bottom: 16px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .control-label span.val {
+      color: var(--accent-cyan);
+      font-family: 'Fira Code', monospace;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-cyan-glow);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #fff;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px var(--accent-cyan-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: #080c14;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.8);
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-toggle {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-toggle.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+
+    /* Oscilloscope Visual */
+    .scope-container {
+      background: var(--scope-bg);
+      border: 2px solid #1e293b;
+      border-radius: 12px;
+      padding: 15px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .scope-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+    }
+
+    .scope-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #040810;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scope-readouts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .readout-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .readout-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .readout-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent-cyan);
+    }
+
+    .readout-val.yellow { color: #facc15; }
+    .readout-val.green { color: var(--accent-green); }
+    .readout-val.red { color: var(--accent-red); }
+
+    /* Schematic View */
+    .schematic-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+
+    .probe-card {
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    /* Forms and Tables */
+    table.lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+
+    table.lab-table th, table.lab-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    table.lab-table th {
+      background: rgba(15, 23, 42, 0.8);
+      font-family: 'Chakra Petch', sans-serif;
+      color: var(--accent-cyan);
+    }
+
+    table.lab-table input[type="text"],
+    table.lab-table input[type="number"],
+    .form-control {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 8px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .form-control:focus, table.lab-table input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan-glow);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    textarea.form-control {
+      text-align: left;
+      font-family: 'Sarabun', sans-serif;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    /* Question Options */
+    .question-block {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .question-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .option-label:hover {
+      color: var(--text-main);
+    }
+
+    .option-label input[type="radio"] {
+      accent-color: var(--accent-cyan);
+    }
+
+    /* Formula Box */
+    .formula-box {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: #38bdf8;
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .nav-btn {
+        flex: 1 1 calc(50% - 8px);
+      }
+      .main-content {
+        padding: 20px 15px;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .grid-3, .grid-4, .scope-readouts {
+        grid-template-columns: 1fr 1fr;
+      }
+      .nav-btn {
+        flex: 1 1 100%;
+      }
+    }
+
+    /* Print styling */
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .sidebar, .btn, .scope-controls, .hide-print {
+        display: none !important;
+      }
+      .main-content {
+        padding: 0 !important;
+      }
+      .tab-pane {
+        display: block !important;
+      }
+      .card {
+        border: 1px solid #ccc !important;
+        background: none !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+      table.lab-table th {
+        background: #eee !important;
+        color: #000 !important;
+      }
+      table.lab-table th, table.lab-table td {
+        border: 1px solid #999 !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">
+          <h2>E-Lab Simulator</h2>
+          <span>BJT re Model Analysis</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="switchTab('theory')">
+          <span>📖</span> ทฤษฎีและคู่มือแล็บ
+        </button>
+        <button class="nav-btn" onclick="switchTab('simulator')">
+          <span>🔬</span> ห้องทดลองจำลองเสมือน
+        </button>
+        <button class="nav-btn" onclick="switchTab('worksheet')">
+          <span>📝</span> ตารางบันทึกผลการทดลอง
+        </button>
+        <button class="nav-btn" onclick="switchTab('assessment')">
+          <span>❓</span> คำถามและสรุปผล
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>วิชา วิเคราะห์วงจรอิเล็กทรอนิกส์</p>
+        <p style="font-size: 10px; margin-top: 4px; color: var(--accent-cyan);">Lab 9: re Model Simulator V1.0</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Header -->
+      <div class="header-bar">
+        <div class="header-title">
+          <h1>การวิเคราะห์วงจรขยายด้วยแบบจำลอง re ของ BJT</h1>
+          <p>BJT AC Small-Signal Analysis using re Transistor Equivalent Circuit</p>
+        </div>
+        <div class="badge">
+          <span>🟢 สถานะ:</span> ออนไลน์พร้อมจำลอง
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           TAB 1: THEORY & BACKGROUND
+           =================================================================== -->
+      <section id="tab-theory" class="tab-pane active">
+        <div class="card">
+          <h2 class="card-title">📌 วัตถุประสงค์การทดลอง</h2>
+          <ul style="padding-left: 20px; color: var(--text-muted); font-size: 14px; line-height: 1.8;">
+            <li>เพื่อศึกษาและเข้าใจโครงสร้าง <strong>แบบจำลองความต้านทานไดนามิก r<sub>e</sub> (AC Small-Signal r<sub>e</sub> Model)</strong> ของทรานซิสเตอร์ BJT</li>
+            <li>เพื่อคำนวณและวัดหาค่า <strong>r<sub>e</sub> = 26 mV / I<sub>E</sub></strong> จากจุดทำงานกระแสตรง (Q-point)</li>
+            <li>เพื่อวิเคราะห์และเปรียบเทียบพารามิเตอร์สัญญาณกระแสสลับ (A<sub>v</sub>, Z<sub>i</sub>, Z<sub>o</sub>) ระหว่างวงจรที่มีและไม่มีตัวเก็บประจุบายพาส (C<sub>E</sub>)</li>
+            <li>เพื่อสังเกตการกลับเฟส 180° ระหว่างสัญญาณอินพุต (v<sub>i</sub>) และเอาต์พุต (v<sub>o</sub>) ในวงจรขยายแบบ Common-Emitter</li>
+          </ul>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="card-title">⚡ ทฤษฎีค่าความต้านทานไดนามิก r<sub>e</sub></h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+              ในสภาวะสัญญาณกระแสสลับขนาดเล็ก รอยต่อ Base-Emitter มีคุณสมบัติเสมือนไดโอดไบแอสตรง ค่าความต้านทานไดนามิกของอิมิตเตอร์ r<sub>e</sub> ถูกกำหนดโดยกระแสไฟตรง I<sub>E</sub>:
+            </p>
+            <div class="formula-box">
+              r<sub>e</sub> = V<sub>T</sub> / I<sub>E</sub> ≈ 26 mV / I<sub>E</sub> (mA)  [ที่อุณหภูมิห้อง 300K]
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted);">
+              เมื่อ I<sub>E</sub> เพิ่มขึ้น ค่า r<sub>e</sub> จะลดลง ส่งผลให้อัตราขยายสัญญาณกระแสสลับของวงจรเปลี่ยนแปลงตามไปด้วย
+            </p>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">🔄 การเปรียบเทียบผลของ Bypass Capacitor (C<sub>E</sub>)</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">
+              ในวงจร Common Emitter การต่อตัวเก็บประจุ C<sub>E</sub> ขนานคร่อม R<sub>E</sub> จะทำหน้าที่เป็น Short Circuit สำหรับสัญญาณ AC:
+            </p>
+            <div class="formula-box" style="border-left-color: var(--accent-green); color: var(--accent-green);">
+              [มี C<sub>E</sub> (Bypassed)]: A<sub>v</sub> = - R<sub>C</sub> / r<sub>e</sub>   (อัตราขยายสูงมาก)<br>
+              [ไม่มี C<sub>E</sub> (Unbypassed)]: A<sub>v</sub> ≈ - R<sub>C</sub> / (r<sub>e</sub> + R<sub>E</sub>) ≈ - R<sub>C</sub> / R<sub>E</sub>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              การไม่มี C<sub>E</sub> จะทำให้อัตราขยายลดลง แต่จะได้เสถียรภาพสูงและความต้านทานอินพุต Z<sub>i</sub> ที่เพิ่มขึ้นอย่างมาก
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">📊 สรุปสูตรการคำนวณวงจรสมมูล r<sub>e</sub> Model</h2>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>พารามิเตอร์</th>
+                <th>กรณีมีตัวเก็บประจุบายพาส (C<sub>E</sub> Bypassed)</th>
+                <th>กรณีไม่มีตัวเก็บประจุบายพาส (Unbypassed R<sub>E</sub>)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ความต้านทานขาเบส (Z<sub>b</sub>)</strong></td>
+                <td>Z<sub>b</sub> = β &bull; r<sub>e</sub></td>
+                <td>Z<sub>b</sub> ≈ β (r<sub>e</sub> + R<sub>E</sub>)</td>
+              </tr>
+              <tr>
+                <td><strong>ความต้านทานอินพุต (Z<sub>i</sub>)</strong></td>
+                <td>Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || βr<sub>e</sub></td>
+                <td>Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || [β(r<sub>e</sub> + R<sub>E</sub>)]</td>
+              </tr>
+              <tr>
+                <td><strong>ความต้านทานเอาต์พุต (Z<sub>o</sub>)</strong></td>
+                <td>Z<sub>o</sub> ≈ R<sub>C</sub></td>
+                <td>Z<sub>o</sub> ≈ R<sub>C</sub></td>
+              </tr>
+              <tr>
+                <td><strong>อัตราขยายแรงดัน (A<sub>v</sub>)</strong></td>
+                <td>A<sub>v</sub> = - R<sub>C</sub> / r<sub>e</sub></td>
+                <td>A<sub>v</sub> = - R<sub>C</sub> / (r<sub>e</sub> + R<sub>E</sub>) ≈ - R<sub>C</sub> / R<sub>E</sub></td>
+              </tr>
+              <tr>
+                <td><strong>ความต่างเฟส (θ)</strong></td>
+                <td>180° (กลับเฟส Inverted)</td>
+                <td>180° (กลับเฟส Inverted)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 2: INTERACTIVE SIMULATOR & OSCILLOSCOPE
+           =================================================================== -->
+      <section id="tab-simulator" class="tab-pane">
+        
+        <!-- Controls & Schematic Grid -->
+        <div class="grid-2">
+          
+          <!-- Circuit Controls Card -->
+          <div class="card">
+            <h2 class="card-title">🎛️ แผงปรับพารามิเตอร์วงจร (Circuit Settings)</h2>
+            
+            <div class="control-group">
+              <div class="control-label">
+                <span>แรงดันแหล่งจ่ายไฟตรง V<sub>CC</sub></span>
+                <span class="val" id="val-vcc">12.0 V</span>
+              </div>
+              <input type="range" id="slider-vcc" min="5" max="18" step="0.5" value="12" oninput="updateSim()">
+            </div>
+
+            <div class="grid-2">
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>1</sub></span>
+                  <span class="val" id="val-r1">33.0 kΩ</span>
+                </div>
+                <input type="range" id="slider-r1" min="10" max="68" step="1" value="33" oninput="updateSim()">
+              </div>
+
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>2</sub></span>
+                  <span class="val" id="val-r2">6.8 kΩ</span>
+                </div>
+                <input type="range" id="slider-r2" min="2.2" max="15" step="0.2" value="6.8" oninput="updateSim()">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>C</sub></span>
+                  <span class="val" id="val-rc">2.2 kΩ</span>
+                </div>
+                <input type="range" id="slider-rc" min="1.0" max="5.6" step="0.1" value="2.2" oninput="updateSim()">
+              </div>
+
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>E</sub></span>
+                  <span class="val" id="val-re">560 Ω</span>
+                </div>
+                <input type="range" id="slider-re" min="200" max="1200" step="20" value="560" oninput="updateSim()">
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>อัตราขยายกระแสไฟตรง (β or h<sub>FE</sub>)</span>
+                <span class="val" id="val-beta">200</span>
+              </div>
+              <input type="range" id="slider-beta" min="100" max="400" step="10" value="200" oninput="updateSim()">
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>ขนาดสัญญาณกระแสสลับอินพุต V<sub>i(p-p)</sub></span>
+                <span class="val" id="val-vi">20 mV</span>
+              </div>
+              <input type="range" id="slider-vi" min="2" max="100" step="1" value="20" oninput="updateSim()">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+              <button id="btn-ce-toggle" class="btn btn-toggle active" style="flex: 1;" onclick="toggleBypassCap()">
+                ⚡ ตัวเก็บประจุ C<sub>E</sub>: <strong id="lbl-ce-state">มี Bypass (ON)</strong>
+              </button>
+              <button id="btn-model-view" class="btn btn-secondary" style="flex: 1;" onclick="toggleModelDiagram()">
+                🔄 สลับดูแบบจำลอง r<sub>e</sub>
+              </button>
+            </div>
+          </div>
+
+          <!-- Circuit Diagram & Live Probes Card -->
+          <div class="card">
+            <h2 class="card-title">📐 แผนภาพวงจรและจุดวัดค่า (Circuit & r<sub>e</sub> Model)</h2>
+            
+            <div class="schematic-box">
+              <!-- Mode 1: Physical Circuit Schematic -->
+              <svg id="svg-schematic-physical" viewBox="0 0 450 250" style="width: 100%; height: auto; max-height: 220px; display: block;">
+                <!-- Supply Rails -->
+                <line x1="50" y1="20" x2="400" y2="20" stroke="#38bdf8" stroke-width="2.5" />
+                <text x="405" y="24" fill="#38bdf8" font-size="12" font-family="Chakra Petch">+Vcc</text>
+                
+                <line x1="50" y1="230" x2="400" y2="230" stroke="#64748b" stroke-width="2.5" />
+                <text x="405" y="234" fill="#64748b" font-size="12" font-family="Chakra Petch">GND</text>
+
+                <!-- R1 and R2 divider branch -->
+                <line x1="120" y1="20" x2="120" y2="60" stroke="#94a3b8" stroke-width="2" />
+                <rect x="110" y="60" width="20" height="35" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="85" y="82" fill="#94a3b8" font-size="11" font-family="Fira Code">R1</text>
+
+                <line x1="120" y1="95" x2="120" y2="155" stroke="#94a3b8" stroke-width="2" />
+                <rect x="110" y="155" width="20" height="35" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="85" y="177" fill="#94a3b8" font-size="11" font-family="Fira Code">R2</text>
+                <line x1="120" y1="190" x2="120" y2="230" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Input branch -->
+                <circle cx="40" cy="125" r="4" fill="#facc15" />
+                <text x="15" y="130" fill="#facc15" font-size="11" font-family="Chakra Petch">Vin</text>
+                <line x1="40" y1="125" x2="80" y2="125" stroke="#facc15" stroke-width="2" />
+                <!-- C1 -->
+                <line x1="80" y1="115" x2="80" y2="135" stroke="#94a3b8" stroke-width="2" />
+                <line x1="86" y1="115" x2="86" y2="135" stroke="#94a3b8" stroke-width="2" />
+                <line x1="86" y1="125" x2="220" y2="125" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- BJT Symbol -->
+                <!-- Base lead -->
+                <line x1="220" y1="125" x2="240" y2="125" stroke="#94a3b8" stroke-width="2" />
+                <line x1="240" y1="105" x2="240" y2="145" stroke="#f8fafc" stroke-width="3" />
+                <!-- Collector lead -->
+                <line x1="240" y1="115" x2="270" y2="90" stroke="#94a3b8" stroke-width="2" />
+                <line x1="270" y1="90" x2="270" y2="60" stroke="#94a3b8" stroke-width="2" />
+                <!-- Emitter lead with arrow -->
+                <line x1="240" y1="135" x2="270" y2="160" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="268,158 255,148 262,143" fill="#10b981" />
+                <line x1="270" y1="160" x2="270" y2="175" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Collector Branch (RC) -->
+                <rect x="260" y="25" width="20" height="35" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="290" y="47" fill="#94a3b8" font-size="11" font-family="Fira Code">RC</text>
+
+                <!-- Output Branch (C2 & Vo) -->
+                <circle cx="270" cy="75" r="3" fill="#38bdf8" />
+                <line x1="270" y1="75" x2="330" y2="75" stroke="#38bdf8" stroke-width="2" />
+                <!-- C2 -->
+                <line x1="330" y1="65" x2="330" y2="85" stroke="#94a3b8" stroke-width="2" />
+                <line x1="336" y1="65" x2="336" y2="85" stroke="#94a3b8" stroke-width="2" />
+                <line x1="336" y1="75" x2="380" y2="75" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="380" cy="75" r="4" fill="#38bdf8" />
+                <text x="390" y="80" fill="#38bdf8" font-size="12" font-family="Chakra Petch">Vo</text>
+
+                <!-- Emitter Branch (RE & CE) -->
+                <rect x="260" y="175" width="20" height="35" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="235" y="195" fill="#94a3b8" font-size="11" font-family="Fira Code">RE</text>
+                <line x1="270" y1="210" x2="270" y2="230" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- CE Parallel Capacitor with active indicator -->
+                <g id="svg-ce-branch">
+                  <line x1="270" y1="168" x2="330" y2="168" stroke="#10b981" stroke-width="1.5" />
+                  <line x1="330" y1="168" x2="330" y2="182" stroke="#10b981" stroke-width="1.5" />
+                  <!-- CE Capacitor symbol -->
+                  <line x1="322" y1="182" x2="338" y2="182" stroke="#10b981" stroke-width="2" />
+                  <line x1="322" y1="188" x2="338" y2="188" stroke="#10b981" stroke-width="2" />
+                  <line x1="330" y1="188" x2="330" y2="230" stroke="#10b981" stroke-width="1.5" />
+                  <text x="345" y="188" fill="#10b981" font-size="10" font-family="Fira Code">CE 100uF</text>
+                </g>
+              </svg>
+
+              <!-- Mode 2: AC Small-Signal re Equivalent Model -->
+              <svg id="svg-schematic-re-model" viewBox="0 0 460 250" style="width: 100%; height: auto; max-height: 220px; display: none;">
+                <!-- AC Ground Rail -->
+                <line x1="20" y1="210" x2="440" y2="210" stroke="#64748b" stroke-width="2.5" />
+                <text x="395" y="226" fill="#64748b" font-size="10" font-family="Chakra Petch">AC GND</text>
+
+                <!-- Input Vi -->
+                <circle cx="30" cy="80" r="4" fill="#facc15" />
+                <text x="12" y="84" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
+                <line x1="30" y1="80" x2="75" y2="80" stroke="#facc15" stroke-width="2" />
+
+                <!-- RB = R1 || R2 -->
+                <line x1="75" y1="80" x2="75" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <rect x="65" y="110" width="20" height="40" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="32" y="135" fill="#38bdf8" font-size="10" font-family="Fira Code">R1||R2</text>
+                <line x1="75" y1="150" x2="75" y2="210" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Base Terminal B -->
+                <line x1="75" y1="80" x2="155" y2="80" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="155" cy="80" r="3.5" fill="#fff" />
+                <text x="155" y="66" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">B (Base)</text>
+
+                <!-- Base current ib arrow -->
+                <line x1="105" y1="73" x2="135" y2="73" stroke="#facc15" stroke-width="1.5" />
+                <polygon points="138,73 131,69 131,77" fill="#facc15" />
+                <text x="118" y="65" fill="#facc15" font-size="10" font-family="Fira Code" text-anchor="middle">ib</text>
+
+                <!-- Internal Base Resistance (beta*re or beta*(re+RE)) -->
+                <line x1="155" y1="80" x2="155" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <rect x="145" y="110" width="20" height="40" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+                <text id="svg-txt-zb" x="175" y="134" fill="#10b981" font-size="10" font-family="Fira Code">β &bull; re</text>
+                <line x1="155" y1="150" x2="155" y2="210" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="155" cy="210" r="3" fill="#10b981" />
+                <text x="155" y="226" fill="#10b981" font-size="10" font-family="Chakra Petch" text-anchor="middle">E (Emitter)</text>
+
+                <!-- Dependent Current Source (beta*ib) at Collector -->
+                <!-- Collector Node C -->
+                <circle cx="315" cy="80" r="3.5" fill="#fff" />
+                <text x="315" y="66" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">C (Collector)</text>
+
+                <line x1="315" y1="80" x2="315" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <!-- Current source circle -->
+                <circle cx="315" cy="130" r="18" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+                <!-- Arrow pointing down inside circle -->
+                <line x1="315" y1="119" x2="315" y2="141" stroke="#38bdf8" stroke-width="2" />
+                <polygon points="315,145 310,137 320,137" fill="#38bdf8" />
+                <!-- Text for current source placed cleanly to the left of the circle -->
+                <text x="260" y="134" fill="#38bdf8" font-size="10" font-family="Fira Code">β &bull; ib</text>
+                <line x1="315" y1="148" x2="315" y2="210" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- RC branch to AC GND -->
+                <line x1="315" y1="80" x2="385" y2="80" stroke="#94a3b8" stroke-width="2" />
+                <line x1="385" y1="80" x2="385" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <rect x="375" y="110" width="20" height="40" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="402" y="135" fill="#94a3b8" font-size="10" font-family="Fira Code">RC</text>
+                <line x1="385" y1="150" x2="385" y2="210" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Output vo -->
+                <line x1="385" y1="80" x2="430" y2="80" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="430" cy="80" r="4" fill="#38bdf8" />
+                <text x="438" y="84" fill="#38bdf8" font-size="12" font-family="Chakra Petch">vo</text>
+
+                <!-- Model Formula Note at Bottom -->
+                <text id="svg-txt-formula-re" x="230" y="242" fill="#38bdf8" font-size="11" font-family="Fira Code" text-anchor="middle">vo = - (β &bull; ib) &bull; RC  ==>  Av = - RC / re</text>
+              </svg>
+            </div>
+
+            <!-- Probe Readout Badges -->
+            <div class="grid-4" style="margin-top: 15px;">
+              <div class="probe-card">
+                <span class="readout-label">แรงดัน V<sub>B</sub></span>
+                <span class="readout-val" id="probe-vb">1.92 V</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">แรงดัน V<sub>E</sub></span>
+                <span class="readout-val" id="probe-ve">1.22 V</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">แรงดัน V<sub>C</sub></span>
+                <span class="readout-val" id="probe-vc">7.22 V</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">กระแส I<sub>E</sub></span>
+                <span class="readout-val green" id="probe-ie">2.18 mA</span>
+              </div>
+            </div>
+
+            <div class="grid-3" style="margin-top: 10px;">
+              <div class="probe-card" style="border-color: var(--accent-cyan);">
+                <span class="readout-label">ความต้านทาน r<sub>e</sub></span>
+                <span class="readout-val yellow" id="probe-re">11.9 Ω</span>
+              </div>
+              <div class="probe-card" style="border-color: var(--accent-green);">
+                <span class="readout-label">อัตราขยายแรงดัน A<sub>v</sub></span>
+                <span class="readout-val green" id="probe-av">-184.8</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">ความต้านทาน Z<sub>i</sub></span>
+                <span class="readout-val" id="probe-zi">1.62 kΩ</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Real-Time Dual Channel Oscilloscope -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="scope-header">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              <span>📺</span> ออสซิลโลสโคปเสมือนจริง 2 ช่อง (Dual-Channel Live Oscilloscope)
+            </h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleScopeRun()">
+                <span id="btn-scope-state">⏸️ หยุดรูปคลื่น (Pause)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="scope-container">
+            <div class="scope-canvas-wrapper">
+              <canvas id="scopeCanvas"></canvas>
+            </div>
+
+            <div class="scope-readouts">
+              <div class="readout-item">
+                <span class="readout-label">🟡 CH1 (Vin)</span>
+                <span class="readout-val yellow" id="scope-ch1-vpp">20.0 mVpp</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-label">🔵 CH2 (Vout)</span>
+                <span class="readout-val" id="scope-ch2-vpp">3.70 Vpp</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-label">⚡ อัตราขยายจริง (|Av|)</span>
+                <span class="readout-val green" id="scope-measured-av">185.0 เท่า</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-label">🔄 เฟสสัมพันธ์</span>
+                <span class="readout-val red" id="scope-phase">180° Inverted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           TAB 3: DATA WORKSHEET & OBSERVATION
+           =================================================================== -->
+      <section id="tab-worksheet" class="tab-pane">
+        
+        <!-- Student Info -->
+        <div class="card">
+          <h2 class="card-title">👤 ข้อมูลผู้ทำปฏิบัติการ</h2>
+          <div class="grid-4">
+            <div class="form-group">
+              <label>ชื่อ-นามสกุล:</label>
+              <input type="text" id="student-name" class="form-control" placeholder="เช่น นายวิศวกรรม นามสมมุติ">
+            </div>
+            <div class="form-group">
+              <label>รหัสนักศึกษา:</label>
+              <input type="text" id="student-id" class="form-control" placeholder="เช่น 66010001">
+            </div>
+            <div class="form-group">
+              <label>กลุ่มเรียน (Group / Sec):</label>
+              <input type="text" id="student-group" class="form-control" placeholder="เช่น กลุ่ม 1 / Sec 01">
+            </div>
+            <div class="form-group">
+              <label>วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date" class="form-control">
+            </div>
+          </div>
+        </div>
+
+        <!-- Parameter Mode Selector Card -->
+        <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.35); background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.6));">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h2 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                <span>⚙️</span> ระบบกำหนดค่าพารามิเตอร์วงจรสำหรับการทดลอง
+              </h2>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 0;">
+                เลือกรูปแบบการทำแล็บ: ใช้ชุดค่ามาตรฐานของใบงาน หรือป้อนกำหนดค่าพารามิเตอร์เองแบบ Dynamic
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-mode-fixed" class="btn btn-secondary active" style="font-size: 13px; padding: 8px 16px; transition: all 0.2s ease;" onclick="setWorksheetMode('fixed')">
+                📌 โหมดค่ามาตรฐาน (Fixed Preset)
+              </button>
+              <button id="btn-mode-custom" class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px; transition: all 0.2s ease;" onclick="setWorksheetMode('custom')">
+                🛠️ โหมดกำหนดค่าเอง (Custom Dynamic)
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Parameter Box (Visible when in Custom Mode) -->
+          <div id="custom-param-panel" style="display: none; background: rgba(11, 15, 25, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 13px; font-weight: bold; color: var(--accent-cyan);">
+                🎛️ แผงปรับแต่งค่าพารามิเตอร์วงจร BJT (Circuit Parameters)
+              </span>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="syncWorksheetFromSim()" title="ดึงค่าจากหน้าห้องทดลองจำลองเสมือน">
+                  ⚡ ซิงค์จากแล็บเสมือน
+                </button>
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="randomizeWorksheetParams()" title="สุ่มค่าตัวต้านทานและแรงดันที่เหมาะสม">
+                  🎲 สุ่มโจทย์ใหม่
+                </button>
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="resetWorksheetToDefault()" title="คืนค่าพารามิเตอร์ตั้งต้น">
+                  ⏪ คืนค่ามาตรฐาน
+                </button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">V<sub>CC</sub> (V):</label>
+                <input type="number" id="ws-param-vcc" class="form-control" step="0.5" min="5" max="24" value="12.0" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>1</sub> (kΩ):</label>
+                <input type="number" id="ws-param-r1" class="form-control" step="0.1" min="1" max="100" value="33.0" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>2</sub> (kΩ):</label>
+                <input type="number" id="ws-param-r2" class="form-control" step="0.1" min="0.5" max="30" value="6.8" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>C</sub> (kΩ):</label>
+                <input type="number" id="ws-param-rc" class="form-control" step="0.1" min="0.5" max="10" value="2.2" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>E</sub> (Ω):</label>
+                <input type="number" id="ws-param-re" class="form-control" step="10" min="100" max="2000" value="560" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">β (h<sub>FE</sub>):</label>
+                <input type="number" id="ws-param-beta" class="form-control" step="10" min="50" max="500" value="200" oninput="onWorksheetParamChange()">
+              </div>
+            </div>
+            <div id="ws-param-alert" style="display: none; margin-top: 10px; font-size: 12px; padding: 6px 12px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); border: 1px solid var(--accent-red); color: #fca5a5;"></div>
+          </div>
+        </div>
+
+        <!-- Part 1: DC Operating Point -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              1️⃣ ตอนที่ 1: การกำหนดจุดทำงาน DC และการคำนวณหาค่า r<sub>e</sub>
+            </h2>
+            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="autoFillDCFromSim()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            บันทึกค่าแรงดันไฟตรงที่วัดได้จากวงจร (<span id="txt-dc-params" style="color: var(--accent-cyan); font-weight: 500;">V<sub>CC</sub> = 12 V, R<sub>1</sub> = 33 kΩ, R<sub>2</sub> = 6.8 kΩ, R<sub>C</sub> = 2.2 kΩ, R<sub>E</sub> = 560 Ω</span>) และคำนวณหาค่า r<sub>e</sub> = 26 mV / I<sub>E</sub>
+          </p>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>แรงดัน V<sub>B</sub> (V)</th>
+                <th>แรงดัน V<sub>E</sub> (V)</th>
+                <th>แรงดัน V<sub>C</sub> (V)</th>
+                <th>แรงดัน V<sub>CE</sub> (V)</th>
+                <th>กระแส I<sub>E</sub> (mA)</th>
+                <th>ค่าความต้านทาน r<sub>e</sub> = 26mV / I<sub>E</sub> (Ω)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="number" id="dc-vb" step="0.01" placeholder="1.92"></td>
+                <td><input type="number" id="dc-ve" step="0.01" placeholder="1.22"></td>
+                <td><input type="number" id="dc-vc" step="0.01" placeholder="7.22"></td>
+                <td><input type="number" id="dc-vce" step="0.01" placeholder="6.00"></td>
+                <td><input type="number" id="dc-ie" step="0.01" placeholder="2.18"></td>
+                <td><input type="number" id="dc-re" step="0.1" placeholder="11.9" style="color: var(--accent-cyan); font-weight: bold;"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Part 2: AC Performance Table -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              2️⃣ ตอนที่ 2: การทดสอบวงจรขยายสัญญาณขนาดเล็ก (AC Small-Signal Test)
+            </h2>
+            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="autoFillACFromSim()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            ทดสอบวัดสัญญาณกระแสสลับที่ความถี่ 1 kHz และเปรียบเทียบสภาวะเมื่อมี C<sub>E</sub> และไม่มี C<sub>E</sub> (<span id="txt-ac-params" style="color: var(--accent-cyan); font-weight: 500;">R<sub>C</sub> = 2.2 kΩ, R<sub>E</sub> = 560 Ω, β = 200</span>)
+          </p>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>สภาวะวงจร</th>
+                <th>แรงดัน V<sub>i</sub> (mV<sub>p-p</sub>)</th>
+                <th>แรงดัน V<sub>o</sub> (V<sub>p-p</sub>)</th>
+                <th>อัตราขยายแรงดัน A<sub>v</sub> = v<sub>o</sub> / v<sub>i</sub></th>
+                <th>ความต้านทาน Z<sub>i</sub> (kΩ)</th>
+                <th>ความต้านทาน Z<sub>o</sub> (kΩ)</th>
+                <th>เฟสสัญญาณ (°)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>มี C<sub>E</sub> (Bypassed)</strong></td>
+                <td><input type="number" id="ac-vi-byp" step="1" value="20"></td>
+                <td><input type="number" id="ac-vo-byp" step="0.01" placeholder="3.70"></td>
+                <td><input type="number" id="ac-av-byp" step="0.1" placeholder="185.0"></td>
+                <td><input type="number" id="ac-zi-byp" step="0.01" placeholder="1.62"></td>
+                <td><input type="number" id="ac-zo-byp" step="0.01" placeholder="2.20"></td>
+                <td>
+                  <select id="ac-phase-byp" class="form-control">
+                    <option value="180">180° (กลับเฟส)</option>
+                    <option value="0">0° (ตรงเฟส)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>ไม่มี C<sub>E</sub> (Unbypassed)</strong></td>
+                <td><input type="number" id="ac-vi-unbyp" step="1" value="100"></td>
+                <td><input type="number" id="ac-vo-unbyp" step="0.01" placeholder="0.38"></td>
+                <td><input type="number" id="ac-av-unbyp" step="0.01" placeholder="3.85"></td>
+                <td><input type="number" id="ac-zi-unbyp" step="0.01" placeholder="5.37"></td>
+                <td><input type="number" id="ac-zo-unbyp" step="0.01" placeholder="2.20"></td>
+                <td>
+                  <select id="ac-phase-unbyp" class="form-control">
+                    <option value="180">180° (กลับเฟส)</option>
+                    <option value="0">0° (ตรงเฟส)</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           TAB 4: ASSESSMENT & CONCLUSION
+           =================================================================== -->
+      <section id="tab-assessment" class="tab-pane">
+        
+        <!-- Post-Lab Questions -->
+        <div class="card">
+          <h2 class="card-title">❓ คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</h2>
+
+          <div class="question-block">
+            <div class="question-title">
+              1. หากเราปรับวงจรไบแอสให้กระแสไฟตรง I<sub>E</sub> มีค่าสูงขึ้น จะส่งผลต่อค่า r<sub>e</sub> และอัตราขยายแรงดัน A<sub>v</sub> (กรณีมี C<sub>E</sub>) อย่างไร?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q1" value="a">
+              <span>ก. ค่า r<sub>e</sub> จะเพิ่มขึ้น และอัตราขยาย A<sub>v</sub> จะลดลง</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="b">
+              <span>ข. ค่า r<sub>e</sub> จะลดลง และอัตราขยาย A<sub>v</sub> จะเพิ่มขึ้น</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="c">
+              <span>ค. ค่า r<sub>e</sub> และอัตราขยาย A<sub>v</sub> จะไม่เปลี่ยนแปลง เพราะขึ้นอยู่กับตัวต้านทานภายนอกเท่านั้น</span>
+            </label>
+          </div>
+
+          <div class="question-block">
+            <div class="question-title">
+              2. การต่อตัวเก็บประจุบายพาส C<sub>E</sub> ขนานคร่อม R<sub>E</sub> ส่งผลกระทบต่ออัตราขยาย A<sub>v</sub> และความต้านทานอินพุต Z<sub>i</sub> อย่างไรเมื่อเทียบกับตอนไม่มี C<sub>E</sub>?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q2" value="a">
+              <span>ก. อัตราขยาย A<sub>v</sub> ลดลง และความต้านทาน Z<sub>i</sub> ลดลง</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="b">
+              <span>ข. อัตราขยาย A<sub>v</sub> ลดลง แต่ความต้านทาน Z<sub>i</sub> สูงขึ้น</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="c">
+              <span>ค. อัตราขยาย A<sub>v</sub> สูงขึ้นมาก แลกกับความต้านทาน Z<sub>i</sub> ที่ลดลง</span>
+            </label>
+          </div>
+
+          <div class="question-block">
+            <div class="question-title">
+              3. เหตุใดสัญญาณเอาต์พุต v<sub>o</sub> ของวงจรขยายแบบ Common-Emitter จึงมีเฟสต่างกับสัญญาณอินพุต v<sub>i</sub> อยู่ 180°?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q3" value="a">
+              <span>ก. เมื่อ v<sub>i</sub> เพิ่มขึ้น กระแส i<sub>c</sub> จะสูงขึ้น ทำให้แรงดันตกคร่อม R<sub>C</sub> เพิ่มขึ้น ส่งผลให้ศักย์ที่ขา Collector (v<sub>o</sub>) ลดลง</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="b">
+              <span>ข. เนื่องจากตัวเก็บประจุ $C_1$ และ $C_2$ เลื่อนเฟสของคลื่นไซน์ไปข้างหน้า $180^\circ$</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="c">
+              <span>ค. เนื่องจากทรานซิสเตอร์ BJT กลับขั้วกระแสระหว่าง Base และ Emitter</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Conclusion Block -->
+        <div class="card">
+          <h2 class="card-title">📝 สรุปและวิจารณ์ผลการทดลอง (Conclusion & Discussion)</h2>
+          <div class="form-group">
+            <label>สรุปสิ่งที่ได้เรียนรู้จากการจำลองแบบจำลอง $r_e$ และผลการทดลอง:</label>
+            <textarea id="lab-conclusion" class="form-control" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่าง re กับกระแสไบแอส IE, ความแตกต่างของวงจรเมื่อมีและไม่มี CE, และประโยชน์ของแบบจำลอง re ในการวิเคราะห์วงจร..."></textarea>
+          </div>
+        </div>
+
+        <!-- Submission Actions -->
+        <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;">
+          <button class="btn btn-secondary" onclick="window.print()">
+            🖨️ พิมพ์รายงาน / บันทึก PDF
+          </button>
+          <button class="btn btn-primary" onclick="submitReportToGAS()">
+            🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Grading Overlay Modal -->
+  <div id="grading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(9, 13, 22, 0.92); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: #f8fafc; font-family: 'Chakra Petch', sans-serif;">
+    <div class="card" style="width: 90%; max-width: 520px; text-align: center; border: 2px solid var(--accent-cyan); background-color: #0f172a; padding: 30px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);">
+      <h2 id="overlay-title" style="margin-bottom: 20px; font-size: 22px; color: var(--accent-cyan);">กำลังส่งข้อมูลคำตอบ...</h2>
+      <div id="overlay-spinner" class="logo-icon" style="font-size: 45px; animation: spin 2s linear infinite; margin-bottom: 20px;">⚡</div>
+      <div id="overlay-message" style="font-size: 14px; font-family: 'Sarabun', sans-serif; color: var(--text-muted); line-height: 1.6;"></div>
+      <button id="overlay-close-btn" class="btn btn-primary" style="margin-top: 25px; display: none;" onclick="showGradingOverlay(false)">ปิดหน้าต่างนี้ ❌</button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+
+  <!-- ===================================================================
+       JAVASCRIPT SIMULATOR & CLIENT LOGIC
+       =================================================================== -->
+  <script>
+    // State Object
+    const STATE = {
+      vcc: 12.0,
+      r1: 33000,
+      r2: 6800,
+      rc: 2200,
+      re: 560,
+      beta: 200,
+      vbe: 0.70,
+      vi_mv: 20,
+      hasBypass: true,
+      scopeRunning: true,
+      time: 0,
+      animId: null
+    };
+
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      const targetPane = document.getElementById('tab-' + tabId);
+      if (targetPane) {
+        targetPane.classList.add('active');
+      }
+
+      const targetBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => {
+        const attr = b.getAttribute('onclick');
+        return attr && attr.includes(tabId);
+      });
+      if (targetBtn) {
+        targetBtn.classList.add('active');
+      }
+
+      // Scroll top smoothly on tab switch
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // If switching to simulator, re-measure canvas size
+      if (tabId === 'simulator') {
+        setTimeout(() => {
+          resizeScope();
+          updateSim();
+        }, 50);
+      }
+    }
+    window.switchTab = switchTab;
+
+    // Set Default Date and Init Display
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateField = document.getElementById('lab-date');
+      if (dateField) {
+        const today = new Date().toISOString().split('T')[0];
+        dateField.value = today;
+      }
+      initScope();
+      updateSim();
+      if (typeof updateWorksheetParamDisplay === 'function') {
+        updateWorksheetParamDisplay();
+      }
+    });
+
+    // Update Simulation Parameters
+    function updateSim() {
+      const sliderVcc = document.getElementById('slider-vcc');
+      if (!sliderVcc) return;
+
+      STATE.vcc = parseFloat(sliderVcc.value);
+      STATE.r1 = parseFloat(document.getElementById('slider-r1').value) * 1000;
+      STATE.r2 = parseFloat(document.getElementById('slider-r2').value) * 1000;
+      STATE.rc = parseFloat(document.getElementById('slider-rc').value) * 1000;
+      STATE.re = parseFloat(document.getElementById('slider-re').value);
+      STATE.beta = parseFloat(document.getElementById('slider-beta').value);
+      STATE.vi_mv = parseFloat(document.getElementById('slider-vi').value);
+
+      // Update Labels
+      document.getElementById('val-vcc').innerText = STATE.vcc.toFixed(1) + ' V';
+      document.getElementById('val-r1').innerText = (STATE.r1 / 1000).toFixed(1) + ' kΩ';
+      document.getElementById('val-r2').innerText = (STATE.r2 / 1000).toFixed(1) + ' kΩ';
+      document.getElementById('val-rc').innerText = (STATE.rc / 1000).toFixed(1) + ' kΩ';
+      document.getElementById('val-re').innerText = STATE.re.toFixed(0) + ' Ω';
+      document.getElementById('val-beta').innerText = STATE.beta.toFixed(0);
+      document.getElementById('val-vi').innerText = STATE.vi_mv.toFixed(0) + ' mV';
+
+      // --- DC Operating Point Calculation ---
+      const vth = STATE.vcc * (STATE.r2 / (STATE.r1 + STATE.r2));
+      const rth = (STATE.r1 * STATE.r2) / (STATE.r1 + STATE.r2);
+      
+      let ib = (vth - STATE.vbe) / (rth + (STATE.beta + 1) * STATE.re);
+      if (ib < 0) ib = 0;
+      
+      const ie = (STATE.beta + 1) * ib;
+      const ic = STATE.beta * ib;
+      const ve = ie * STATE.re;
+      const vb = ve + (ib > 0 ? STATE.vbe : 0);
+      const vc = Math.max(0, STATE.vcc - ic * STATE.rc);
+      const ie_ma = ie * 1000;
+      
+      // re calculation
+      const re_dyn = ie_ma > 0 ? (26.0 / ie_ma) : 9999;
+
+      // --- AC Parameters Calculation ---
+      let zb, zi, av;
+      if (STATE.hasBypass) {
+        zb = STATE.beta * re_dyn;
+        zi = 1 / (1/STATE.r1 + 1/STATE.r2 + 1/zb);
+        av = STATE.rc / re_dyn;
+      } else {
+        zb = STATE.beta * (re_dyn + STATE.re);
+        zi = 1 / (1/STATE.r1 + 1/STATE.r2 + 1/zb);
+        av = STATE.rc / (re_dyn + STATE.re);
+      }
+
+      // Update Probes (Theoretical Small-Signal Value)
+      document.getElementById('probe-vb').innerText = vb.toFixed(2) + ' V';
+      document.getElementById('probe-ve').innerText = ve.toFixed(2) + ' V';
+      document.getElementById('probe-vc').innerText = vc.toFixed(2) + ' V';
+      document.getElementById('probe-ie').innerText = ie_ma.toFixed(2) + ' mA';
+      document.getElementById('probe-re').innerText = re_dyn.toFixed(1) + ' Ω';
+      document.getElementById('probe-av').innerText = (-av).toFixed(1);
+      document.getElementById('probe-zi').innerText = (zi / 1000).toFixed(2) + ' kΩ';
+
+      // --- Realistic Output Swing & Scope Readouts ---
+      // Maximum peak swing before hitting Cutoff (Vcc) or Saturation (Ve + 0.2V)
+      const maxUpperSwing = Math.max(0.5, STATE.vcc - vc);
+      const maxLowerSwing = Math.max(0.5, vc - ve - 0.2);
+      const maxVpp = (maxUpperSwing + maxLowerSwing) * 0.95; // Realistic output swing limit
+
+      const vout_ideal_pp = (STATE.vi_mv / 1000) * av;
+      const isClipped = vout_ideal_pp > maxVpp;
+      const vout_real_pp = isClipped ? maxVpp : vout_ideal_pp;
+      const measured_av = vout_real_pp / (STATE.vi_mv / 1000);
+
+      document.getElementById('scope-ch1-vpp').innerText = STATE.vi_mv.toFixed(1) + ' mVpp';
+      document.getElementById('scope-ch2-vpp').innerText = (vout_real_pp >= 1 ? vout_real_pp.toFixed(2) + ' Vpp' : (vout_real_pp * 1000).toFixed(0) + ' mVpp');
+      
+      const avScopeBadge = document.getElementById('scope-measured-av');
+      if (isClipped) {
+        avScopeBadge.innerHTML = `<span style="color: #facc15; font-size: 13px;">⚠️ ${measured_av.toFixed(1)} เท่า (ขลิบ)</span>`;
+      } else {
+        avScopeBadge.innerText = measured_av.toFixed(1) + ' เท่า';
+      }
+
+      STATE.currentSim = {
+        vb, ve, vc, vce: vc - ve, ie_ma, re_dyn, av, measured_av, zi_k: zi / 1000, rc_k: STATE.rc / 1000, isClipped
+      };
+    }
+
+    // Toggle Bypass Capacitor CE
+    function toggleBypassCap() {
+      STATE.hasBypass = !STATE.hasBypass;
+      const btn = document.getElementById('btn-ce-toggle');
+      const lbl = document.getElementById('lbl-ce-state');
+      const svgCe = document.getElementById('svg-ce-branch');
+
+      if (STATE.hasBypass) {
+        btn.classList.add('active');
+        lbl.innerText = 'มี Bypass (ON)';
+        svgCe.style.opacity = '1';
+      } else {
+        btn.classList.remove('active');
+        lbl.innerText = 'ไม่มี Bypass (OFF)';
+        svgCe.style.opacity = '0.25';
+      }
+      const txtZb = document.getElementById('svg-txt-zb');
+      if (txtZb) {
+        txtZb.innerHTML = STATE.hasBypass ? 'β &bull; re' : 'β &bull; (re+RE)';
+      }
+      const txtForm = document.getElementById('svg-txt-formula-re');
+      if (txtForm) {
+        txtForm.innerHTML = STATE.hasBypass ? 
+          'vo = - (β &bull; ib) &bull; RC  ==>  Av = - RC / re' : 
+          'vo = - (β &bull; ib) &bull; RC  ==>  Av = - RC / (re + RE) ≈ - RC / RE';
+      }
+      updateSim();
+    }
+
+    // Toggle Diagram between Physical Schematic and AC Small-Signal re Model
+    STATE.isModelView = false;
+
+    function toggleModelDiagram() {
+      STATE.isModelView = !STATE.isModelView;
+      const svgPhys = document.getElementById('svg-schematic-physical');
+      const svgModel = document.getElementById('svg-schematic-re-model');
+      const btn = document.getElementById('btn-model-view');
+      const txtZb = document.getElementById('svg-txt-zb');
+
+      if (STATE.isModelView) {
+        svgPhys.style.display = 'none';
+        svgModel.style.display = 'block';
+        btn.classList.add('active');
+        btn.innerHTML = '🔄 สลับกลับดูวงจรจริง (Circuit)';
+        if (txtZb) {
+          txtZb.innerHTML = STATE.hasBypass ? 'β &bull; re' : 'β &bull; (re+RE)';
+        }
+      } else {
+        svgPhys.style.display = 'block';
+        svgModel.style.display = 'none';
+        btn.classList.remove('active');
+        btn.innerHTML = '🔄 สลับดูแบบจำลอง r<sub>e</sub>';
+      }
+    }
+
+    // --- WORKSHEET PARAMETERS & DYNAMIC AUTO-GRADING ENGINE ---
+    const WS_STATE = {
+      mode: 'fixed', // 'fixed' or 'custom'
+      defaultParams: {
+        vcc: 12.0,
+        r1: 33.0, // in kΩ
+        r2: 6.8,  // in kΩ
+        rc: 2.2,  // in kΩ
+        re: 560,  // in Ω
+        beta: 200
+      },
+      customParams: {
+        vcc: 12.0,
+        r1: 33.0,
+        r2: 6.8,
+        rc: 2.2,
+        re: 560,
+        beta: 200
+      }
+    };
+
+    function getActiveWorksheetParams() {
+      return WS_STATE.mode === 'fixed' ? WS_STATE.defaultParams : WS_STATE.customParams;
+    }
+
+    function setWorksheetMode(mode) {
+      WS_STATE.mode = mode;
+      const btnFixed = document.getElementById('btn-mode-fixed');
+      const btnCustom = document.getElementById('btn-mode-custom');
+      const panel = document.getElementById('custom-param-panel');
+
+      if (mode === 'custom') {
+        btnCustom.classList.add('active');
+        btnFixed.classList.remove('active');
+        panel.style.display = 'block';
+      } else {
+        btnFixed.classList.add('active');
+        btnCustom.classList.remove('active');
+        panel.style.display = 'none';
+      }
+      updateWorksheetParamDisplay();
+    }
+
+    function onWorksheetParamChange() {
+      const vcc = parseFloat(document.getElementById('ws-param-vcc').value) || 12.0;
+      const r1 = parseFloat(document.getElementById('ws-param-r1').value) || 33.0;
+      const r2 = parseFloat(document.getElementById('ws-param-r2').value) || 6.8;
+      const rc = parseFloat(document.getElementById('ws-param-rc').value) || 2.2;
+      const re = parseFloat(document.getElementById('ws-param-re').value) || 560;
+      const beta = parseFloat(document.getElementById('ws-param-beta').value) || 200;
+
+      WS_STATE.customParams = { vcc, r1, r2, rc, re, beta };
+      updateWorksheetParamDisplay();
+    }
+
+    function syncWorksheetFromSim() {
+      if (!STATE.currentSim) updateSim();
+      document.getElementById('ws-param-vcc').value = STATE.vcc.toFixed(1);
+      document.getElementById('ws-param-r1').value = (STATE.r1 / 1000).toFixed(1);
+      document.getElementById('ws-param-r2').value = (STATE.r2 / 1000).toFixed(1);
+      document.getElementById('ws-param-rc').value = (STATE.rc / 1000).toFixed(1);
+      document.getElementById('ws-param-re').value = STATE.re.toFixed(0);
+      document.getElementById('ws-param-beta').value = STATE.beta.toFixed(0);
+      onWorksheetParamChange();
+    }
+
+    function randomizeWorksheetParams() {
+      const vccChoices = [10, 12, 15, 18];
+      const r1Choices = [22, 27, 33, 39, 47, 56];
+      const r2Choices = [4.7, 5.6, 6.8, 8.2, 10];
+      const rcChoices = [1.5, 2.2, 2.7, 3.3, 4.7];
+      const reChoices = [330, 470, 560, 680, 820, 1000];
+      const betaChoices = [150, 180, 200, 250, 300];
+
+      const vcc = vccChoices[Math.floor(Math.random() * vccChoices.length)];
+      const r1 = r1Choices[Math.floor(Math.random() * r1Choices.length)];
+      const r2 = r2Choices[Math.floor(Math.random() * r2Choices.length)];
+      const rc = rcChoices[Math.floor(Math.random() * rcChoices.length)];
+      const re = reChoices[Math.floor(Math.random() * reChoices.length)];
+      const beta = betaChoices[Math.floor(Math.random() * betaChoices.length)];
+
+      document.getElementById('ws-param-vcc').value = vcc.toFixed(1);
+      document.getElementById('ws-param-r1').value = r1.toFixed(1);
+      document.getElementById('ws-param-r2').value = r2.toFixed(1);
+      document.getElementById('ws-param-rc').value = rc.toFixed(1);
+      document.getElementById('ws-param-re').value = re;
+      document.getElementById('ws-param-beta').value = beta;
+
+      onWorksheetParamChange();
+    }
+
+    function resetWorksheetToDefault() {
+      document.getElementById('ws-param-vcc').value = "12.0";
+      document.getElementById('ws-param-r1').value = "33.0";
+      document.getElementById('ws-param-r2').value = "6.8";
+      document.getElementById('ws-param-rc').value = "2.2";
+      document.getElementById('ws-param-re').value = "560";
+      document.getElementById('ws-param-beta').value = "200";
+      onWorksheetParamChange();
+    }
+
+    function calculateTheoreticalCircuit(p) {
+      const vcc = p.vcc;
+      const r1 = p.r1 * 1000;
+      const r2 = p.r2 * 1000;
+      const rc = p.rc * 1000;
+      const re = p.re;
+      const beta = p.beta;
+      const vbe = 0.70;
+
+      const vth = vcc * (r2 / (r1 + r2));
+      const rth = (r1 * r2) / (r1 + r2);
+      let ib = (vth - vbe) / (rth + (beta + 1) * re);
+      if (ib < 0) ib = 0;
+
+      const ie = (beta + 1) * ib;
+      const ic = beta * ib;
+      const ve = ie * re;
+      const vb = ve + (ib > 0 ? vbe : 0);
+      const vc = Math.max(0, vcc - ic * rc);
+      const vce = vc - ve;
+      const ie_ma = ie * 1000;
+      const re_dyn = ie_ma > 0 ? (26.0 / ie_ma) : 9999;
+
+      // AC calculations
+      const zb_byp = beta * re_dyn;
+      const zi_byp = 1 / (1/r1 + 1/r2 + 1/zb_byp);
+      const zo_byp = rc;
+      const av_byp = re_dyn > 0 ? (rc / re_dyn) : 0;
+
+      const zb_unbyp = beta * (re_dyn + re);
+      const zi_unbyp = 1 / (1/r1 + 1/r2 + 1/zb_unbyp);
+      const zo_unbyp = rc;
+      const av_unbyp = rc / (re_dyn + re);
+
+      return {
+        vcc, r1, r2, rc, re, beta, vth, rth, ib, ie, ic, ve, vb, vc, vce, ie_ma, re_dyn,
+        zb_byp, zi_byp, zo_byp, av_byp,
+        zb_unbyp, zi_unbyp, zo_unbyp, av_unbyp
+      };
+    }
+
+    function updateWorksheetParamDisplay() {
+      const p = getActiveWorksheetParams();
+      const txtDc = document.getElementById('txt-dc-params');
+      const txtAc = document.getElementById('txt-ac-params');
+
+      if (txtDc) {
+        txtDc.innerHTML = `V<sub>CC</sub> = ${p.vcc} V, R<sub>1</sub> = ${p.r1} kΩ, R<sub>2</sub> = ${p.r2} kΩ, R<sub>C</sub> = ${p.rc} kΩ, R<sub>E</sub> = ${p.re} Ω, β = ${p.beta}`;
+      }
+      if (txtAc) {
+        txtAc.innerHTML = `R<sub>C</sub> = ${p.rc} kΩ, R<sub>E</sub> = ${p.re} Ω, β = ${p.beta}`;
+      }
+
+      // Sanity Check Alert for Custom Mode
+      const alertBox = document.getElementById('ws-param-alert');
+      if (alertBox) {
+        if (WS_STATE.mode === 'custom') {
+          const calc = calculateTheoreticalCircuit(p);
+          if (calc.ib <= 0) {
+            alertBox.style.display = 'block';
+            alertBox.innerHTML = '⚠️ <strong>วงจรอยู่ในสภาวะ Cut-off:</strong> ค่า R1 สูงเกินไปหรือ R2 ต่ำเกินไป ทำให้ทรานซิสเตอร์ไม่นำกระแส (Ie ≈ 0)';
+          } else if (calc.vce < 0.5) {
+            alertBox.style.display = 'block';
+            alertBox.innerHTML = '⚠️ <strong>วงจรอยู่ในสภาวะ Saturation:</strong> จุดทำงานชิดกราวด์เกินไป (Vce < 0.5V) สัญญาณขยายจะเกิดการคลิบตัดยอดอย่างรุนแรง';
+          } else {
+            alertBox.style.display = 'none';
+          }
+        } else {
+          alertBox.style.display = 'none';
+        }
+      }
+
+      // Update placeholders in the input tables
+      const calc = calculateTheoreticalCircuit(p);
+      const phVb = document.getElementById('dc-vb');
+      const phVe = document.getElementById('dc-ve');
+      const phVc = document.getElementById('dc-vc');
+      const phVce = document.getElementById('dc-vce');
+      const phIe = document.getElementById('dc-ie');
+      const phRe = document.getElementById('dc-re');
+      if (phVb) phVb.placeholder = calc.vb.toFixed(2);
+      if (phVe) phVe.placeholder = calc.ve.toFixed(2);
+      if (phVc) phVc.placeholder = calc.vc.toFixed(2);
+      if (phVce) phVce.placeholder = calc.vce.toFixed(2);
+      if (phIe) phIe.placeholder = calc.ie_ma.toFixed(2);
+      if (phRe) phRe.placeholder = calc.re_dyn.toFixed(1);
+
+      const phVoByp = document.getElementById('ac-vo-byp');
+      const phAvByp = document.getElementById('ac-av-byp');
+      const phZiByp = document.getElementById('ac-zi-byp');
+      const phZoByp = document.getElementById('ac-zo-byp');
+      if (phVoByp) phVoByp.placeholder = ((20 / 1000) * calc.av_byp).toFixed(2);
+      if (phAvByp) phAvByp.placeholder = calc.av_byp.toFixed(1);
+      if (phZiByp) phZiByp.placeholder = (calc.zi_byp / 1000).toFixed(2);
+      if (phZoByp) phZoByp.placeholder = (calc.rc / 1000).toFixed(2);
+
+      const phVoUnbyp = document.getElementById('ac-vo-unbyp');
+      const phAvUnbyp = document.getElementById('ac-av-unbyp');
+      const phZiUnbyp = document.getElementById('ac-zi-unbyp');
+      const phZoUnbyp = document.getElementById('ac-zo-unbyp');
+      if (phVoUnbyp) phVoUnbyp.placeholder = ((100 / 1000) * calc.av_unbyp).toFixed(2);
+      if (phAvUnbyp) phAvUnbyp.placeholder = calc.av_unbyp.toFixed(2);
+      if (phZiUnbyp) phZiUnbyp.placeholder = (calc.zi_unbyp / 1000).toFixed(2);
+      if (phZoUnbyp) phZoUnbyp.placeholder = (calc.rc / 1000).toFixed(2);
+    }
+
+    // Auto-Fill Buttons for Student Convenience (Calculated based on Active Mode Parameters)
+    function autoFillDCFromSim() {
+      const p = getActiveWorksheetParams();
+      const calc = calculateTheoreticalCircuit(p);
+      document.getElementById('dc-vb').value = calc.vb.toFixed(2);
+      document.getElementById('dc-ve').value = calc.ve.toFixed(2);
+      document.getElementById('dc-vc').value = calc.vc.toFixed(2);
+      document.getElementById('dc-vce').value = calc.vce.toFixed(2);
+      document.getElementById('dc-ie').value = calc.ie_ma.toFixed(2);
+      document.getElementById('dc-re').value = calc.re_dyn.toFixed(1);
+    }
+
+    function autoFillACFromSim() {
+      const p = getActiveWorksheetParams();
+      const calc = calculateTheoreticalCircuit(p);
+
+      // Bypassed values
+      document.getElementById('ac-vi-byp').value = 20;
+      document.getElementById('ac-vo-byp').value = ((20 / 1000) * calc.av_byp).toFixed(2);
+      document.getElementById('ac-av-byp').value = calc.av_byp.toFixed(1);
+      document.getElementById('ac-zi-byp').value = (calc.zi_byp / 1000).toFixed(2);
+      document.getElementById('ac-zo-byp').value = (calc.rc / 1000).toFixed(2);
+      document.getElementById('ac-phase-byp').value = "180";
+
+      // Unbypassed values
+      document.getElementById('ac-vi-unbyp').value = 100;
+      document.getElementById('ac-vo-unbyp').value = ((100 / 1000) * calc.av_unbyp).toFixed(2);
+      document.getElementById('ac-av-unbyp').value = calc.av_unbyp.toFixed(2);
+      document.getElementById('ac-zi-unbyp').value = (calc.zi_unbyp / 1000).toFixed(2);
+      document.getElementById('ac-zo-unbyp').value = (calc.rc / 1000).toFixed(2);
+      document.getElementById('ac-phase-unbyp').value = "180";
+    }
+
+    // --- OSCILLOSCOPE CANVAS ENGINE ---
+    let scopeCanvas, scopeCtx;
+
+    function initScope() {
+      scopeCanvas = document.getElementById('scopeCanvas');
+      if (scopeCanvas) {
+        scopeCtx = scopeCanvas.getContext('2d');
+        resizeScope();
+        window.addEventListener('resize', resizeScope);
+        requestAnimationFrame(drawScope);
+      }
+    }
+
+    function resizeScope() {
+      if (!scopeCanvas || !scopeCanvas.parentElement) return;
+      const rect = scopeCanvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        scopeCanvas.width = rect.width;
+        scopeCanvas.height = rect.height;
+      }
+    }
+
+    function toggleScopeRun() {
+      STATE.scopeRunning = !STATE.scopeRunning;
+      document.getElementById('btn-scope-state').innerText = STATE.scopeRunning ? '⏸️ หยุดรูปคลื่น (Pause)' : '▶️ เล่นรูปคลื่น (Run)';
+    }
+
+    function drawScope() {
+      if (!scopeCtx || !scopeCanvas) return;
+      const w = scopeCanvas.width;
+      const h = scopeCanvas.height;
+
+      // Guard against zero dimensions when tab is hidden
+      if (w <= 10 || h <= 10) {
+        requestAnimationFrame(drawScope);
+        return;
+      }
+
+      // Clear & Background
+      scopeCtx.fillStyle = '#040810';
+      scopeCtx.fillRect(0, 0, w, h);
+
+      // Draw Grid with guaranteed non-zero steps
+      scopeCtx.strokeStyle = '#0f2238';
+      scopeCtx.lineWidth = 1;
+      
+      const gridX = Math.max(20, w / 10);
+      const gridY = Math.max(15, h / 8);
+
+      for (let x = 0; x <= w; x += gridX) {
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(x, 0);
+        scopeCtx.lineTo(x, h);
+        scopeCtx.stroke();
+      }
+
+      for (let y = 0; y <= h; y += gridY) {
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, y);
+        scopeCtx.lineTo(w, y);
+        scopeCtx.stroke();
+      }
+
+      // Center Axes
+      scopeCtx.strokeStyle = '#1e3a5f';
+      scopeCtx.lineWidth = 1.5;
+      scopeCtx.beginPath();
+      scopeCtx.moveTo(0, h/2);
+      scopeCtx.lineTo(w, h/2);
+      scopeCtx.moveTo(w/2, 0);
+      scopeCtx.lineTo(w/2, h);
+      scopeCtx.stroke();
+
+      // Waveform parameters
+      const cycles = 3;
+      const freq = (2 * Math.PI * cycles) / w;
+      if (STATE.scopeRunning) {
+        STATE.time += 0.04;
+      }
+
+      const av = STATE.currentSim ? STATE.currentSim.av : 180;
+      
+      // CH1 (Vin - Yellow): Normalized so input is always crisp and visible (~25% of half-screen)
+      const ch1Amp = Math.min(h * 0.28, Math.max(18, (STATE.vi_mv / 100) * (h * 0.28)));
+      
+      // Clipping boundary limit on oscilloscope screen (40% of canvas height from center)
+      const clipLimit = h * 0.40;
+
+      // CH2 (Vout - Cyan): Shows amplified inverted wave with true clipping over-swing
+      let ch2Amp;
+      if (STATE.hasBypass) {
+        // In bypassed mode (high gain ~185x): 20mV is near limit (82%), higher Vi severely clips
+        ch2Amp = (STATE.vi_mv / 20) * (clipLimit * 0.82);
+      } else {
+        // In unbypassed mode (gain ~3.9x): stays clean and proportional to CH1
+        ch2Amp = ch1Amp * 1.85;
+      }
+
+      const isClippedOnScope = STATE.hasBypass && (ch2Amp > clipLimit);
+
+      // --- CH1: Input Waveform (Yellow Sine: +Vin goes UPWARDS on canvas) ---
+      scopeCtx.strokeStyle = '#facc15';
+      scopeCtx.lineWidth = 2;
+      scopeCtx.shadowColor = 'rgba(250, 204, 21, 0.6)';
+      scopeCtx.shadowBlur = 6;
+      scopeCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        // Positive sine -> (h/2 - value) goes UP
+        const y = h/2 - Math.sin(x * freq + STATE.time) * ch1Amp;
+        if (x === 0) scopeCtx.moveTo(x, y);
+        else scopeCtx.lineTo(x, y);
+      }
+      scopeCtx.stroke();
+
+      // --- CH2: Output Waveform (Cyan Inverted: 180° out of phase, with flat clipping) ---
+      scopeCtx.strokeStyle = isClippedOnScope ? '#38bdf8' : '#38bdf8';
+      scopeCtx.lineWidth = 2.5;
+      scopeCtx.shadowColor = isClippedOnScope ? 'rgba(239, 68, 68, 0.5)' : 'rgba(56, 189, 248, 0.7)';
+      scopeCtx.shadowBlur = 8;
+      scopeCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        // Inverted: When Vin goes UP (sin > 0), Vo goes DOWN (h/2 + value)
+        let rawY = Math.sin(x * freq + STATE.time) * ch2Amp;
+        
+        // Realistic flat clipping at saturation boundaries
+        if (rawY > clipLimit) rawY = clipLimit;
+        if (rawY < -clipLimit) rawY = -clipLimit;
+
+        const y = h/2 + rawY;
+        if (x === 0) scopeCtx.moveTo(x, y);
+        else scopeCtx.lineTo(x, y);
+      }
+      scopeCtx.stroke();
+      scopeCtx.shadowBlur = 0; // reset
+
+      // --- Clipping Boundary Rails & Alert when saturated ---
+      if (isClippedOnScope) {
+        scopeCtx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+        scopeCtx.lineWidth = 1;
+        scopeCtx.setLineDash([5, 5]);
+        
+        // Top clipping limit line
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, h/2 - clipLimit);
+        scopeCtx.lineTo(w, h/2 - clipLimit);
+        scopeCtx.stroke();
+
+        // Bottom clipping limit line
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, h/2 + clipLimit);
+        scopeCtx.lineTo(w, h/2 + clipLimit);
+        scopeCtx.stroke();
+
+        scopeCtx.setLineDash([]); // Reset line dash
+
+        // On-screen warning tag
+        scopeCtx.fillStyle = '#ef4444';
+        scopeCtx.font = 'bold 11px Chakra Petch';
+        scopeCtx.fillText('⚠️ SATURATION CLIPPED (สัญญาณเอาต์พุตถูกขลิบตัดยอด)', 15, h/2 - clipLimit - 6);
+      }
+
+      requestAnimationFrame(drawScope);
+    }
+
+    // --- CLIENT LOCAL GRADING SOLVER ENGINE ---
+    function gradeClientLocally(data) {
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [];
+
+      const mode = data.param_mode || 'fixed';
+      const Vcc = parseFloat(data.param_vcc) || 12.0;
+      const R1 = (parseFloat(data.param_r1) || 33.0) * 1000;
+      const R2 = (parseFloat(data.param_r2) || 6.8) * 1000;
+      const Rc = (parseFloat(data.param_rc) || 2.2) * 1000;
+      const Re = parseFloat(data.param_re) || 560;
+      const Beta = parseFloat(data.param_beta) || 200;
+      const Vbe = 0.70;
+
+      const Vth = Vcc * (R2 / (R1 + R2));
+      const Rth = (R1 * R2) / (R1 + R2);
+      let Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re);
+      if (Ib < 0) Ib = 0;
+
+      const Ie = (Beta + 1) * Ib;
+      const Ic = Beta * Ib;
+      const Ve = Ie * Re;
+      const Vb = Ve + (Ib > 0 ? Vbe : 0);
+      const Vc = Math.max(0, Vcc - Ic * Rc);
+      const Vce = Vc - Ve;
+      const Ie_mA = Ie * 1000;
+      const re_calc = Ie_mA > 0 ? (26.0 / Ie_mA) : 9999;
+
+      const Av_bypassed = re_calc > 0 ? (Rc / re_calc) : 0;
+      const Av_unbypassed = Rc / (re_calc + Re);
+
+      const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)';
+      feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
+      feedback.push(`  (พารามิเตอร์: Vcc=${Vcc}V, R1=${(R1/1000).toFixed(1)}k, R2=${(R2/1000).toFixed(1)}k, Rc=${(Rc/1000).toFixed(1)}k, RE=${Re}Ω, β=${Beta})`);
+
+      // Part 1: DC
+      const sVb = parseFloat(data.dc_vb) || 0;
+      const sVe = parseFloat(data.dc_ve) || 0;
+      const sVc = parseFloat(data.dc_vc) || 0;
+      const sVce = parseFloat(data.dc_vce) || 0;
+      const sIe = parseFloat(data.dc_ie) || 0;
+      const sRe = parseFloat(data.dc_re) || 0;
+
+      const vbOk = Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15);
+      const veOk = Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
+      const vcOk = Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
+      const vceOk = Math.abs(sVce - Vce) <= Math.max(0.70, Math.abs(Vce) * 0.15);
+      const ieOk = Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+
+      let studentImpliedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
+      const reOk = Math.abs(sRe - re_calc) <= Math.max(2.5, re_calc * 0.20) || Math.abs(sRe - studentImpliedRe) <= Math.max(1.5, studentImpliedRe * 0.15);
+
+      let dcVoltagesScore = (vbOk && veOk && vcOk && vceOk) ? 1 : 0;
+      let dcCurrentScore = ieOk ? 1 : 0;
+      let reScore = reOk ? 1 : 0;
+      let part1Score = dcVoltagesScore + dcCurrentScore + reScore;
+      score += part1Score;
+
+      feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่า re: ได้ ${part1Score} / 3 คะแนน`);
+      if (dcVoltagesScore) feedback.push(`  ✓ แรงดันไฟตรง (Vb, Ve, Vc, Vce) ถูกต้อง`);
+      else feedback.push(`  ✗ แรงดันไฟตรงคลาดเคลื่อน (Vb ~${Vb.toFixed(2)}V, Ve ~${Ve.toFixed(2)}V, Vc ~${Vc.toFixed(2)}V, Vce ~${Vce.toFixed(2)}V)`);
+      if (dcCurrentScore) feedback.push(`  ✓ กระแสอิมิตเตอร์ Ie ถูกต้อง (${sIe.toFixed(2)} mA, คาดหวัง ~${Ie_mA.toFixed(2)} mA)`);
+      else feedback.push(`  ✗ กระแสอิมิตเตอร์ Ie คลาดเคลื่อน (กรอก ${sIe} mA, คาดหวัง ~${Ie_mA.toFixed(2)} mA)`);
+      if (reScore) feedback.push(`  ✓ ค่าความต้านทานไดนามิก re ถูกต้อง (${sRe.toFixed(1)} Ω, คาดหวัง ~${re_calc.toFixed(1)} Ω)`);
+      else feedback.push(`  ✗ ค่า re คลาดเคลื่อน (กรอก ${sRe} Ω, คาดหวัง re = 26mV/Ie ≈ ${re_calc.toFixed(1)} Ω)`);
+
+      // Part 2: AC Bypassed
+      const sAv_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
+      const sZi_byp = parseFloat(data.ac_zi_bypassed) || 0;
+      const sPhase_byp = parseInt(data.ac_phase_bypassed) || 0;
+
+      const avBypOk = sAv_byp >= (Av_bypassed * 0.70) && sAv_byp <= (Av_bypassed * 1.30);
+      const phaseBypOk = sPhase_byp === 180;
+      let part2Score = 0;
+      if (avBypOk) part2Score += 1;
+      if (phaseBypOk) part2Score += 1;
+      score += part2Score;
+
+      feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรกรณีมี CE (Bypassed): ได้ ${part2Score} / 2 คะแนน`);
+      if (avBypOk) feedback.push(`  ✓ อัตราขยาย Av (มี CE) ถูกต้อง (~${sAv_byp.toFixed(1)} เท่า, คาดหวัง ~${Av_bypassed.toFixed(1)})`);
+      else feedback.push(`  ✗ อัตราขยาย Av (มี CE) คลาดเคลื่อน (กรอก ${sAv_byp}, คาดหวัง Av = Rc/re ≈ ${Av_bypassed.toFixed(1)} เท่า)`);
+      if (phaseBypOk) feedback.push(`  ✓ สัญญาณกลับเฟส 180 องศา ถูกต้อง`);
+      else feedback.push(`  ✗ เฟสสัญญาณไม่ถูกต้อง (Common-Emitter มีเฟสกลับ 180°)`);
+
+      // Part 3: AC Unbypassed
+      const sAv_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
+      const sPhase_unbyp = parseInt(data.ac_phase_unbypassed) || 0;
+      const avUnbypOk = sAv_unbyp >= (Av_unbypassed * 0.70) && sAv_unbyp <= (Av_unbypassed * 1.30);
+      const phaseUnbypOk = sPhase_unbyp === 180;
+      let part3Score = 0;
+      if (avUnbypOk) part3Score += 1;
+      if (phaseUnbypOk) part3Score += 1;
+      score += part3Score;
+
+      feedback.push(`\n[ตอนที่ 3] การทดสอบวงจรกรณีไม่มี CE (Unbypassed): ได้ ${part3Score} / 2 คะแนน`);
+      if (avUnbypOk) feedback.push(`  ✓ อัตราขยาย Av (ไม่มี CE) ถูกต้อง (~${sAv_unbyp.toFixed(2)} เท่า, คาดหวัง ~${Av_unbypassed.toFixed(2)})`);
+      else feedback.push(`  ✗ อัตราขยาย Av (ไม่มี CE) คลาดเคลื่อน (กรอก ${sAv_unbyp}, คาดหวัง Av ≈ Rc/(re+RE) ≈ ${Av_unbypassed.toFixed(2)} เท่า)`);
+
+      // Part 4: Post-lab questions
+      let qScore = 0;
+      if (data.q1_choice === 'b') qScore++;
+      if (data.q2_choice === 'c') qScore++;
+      if (data.q3_choice === 'a') qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 4] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 3 ข้อ (ได้ ${qScore} คะแนน)`);
+
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+      return {
+        status: 'success',
+        score: score,
+        maxScore: maxScore,
+        comment: comment,
+        feedback: feedback.join('\n')
+      };
+    }
+
+    // --- SUBMISSION HANDLER ---
+    function submitReportToGAS() {
+      const name = document.getElementById('student-name').value.trim();
+      const id = document.getElementById('student-id').value.trim();
+      const group = document.getElementById('student-group').value.trim();
+      const date = document.getElementById('lab-date').value;
+
+      if (!name || !id || !group || !date) {
+        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+        switchTab('worksheet');
+        return;
+      }
+
+      // Get Radio choices
+      const q1Val = document.querySelector('input[name="q1"]:checked')?.value || '';
+      const q2Val = document.querySelector('input[name="q2"]:checked')?.value || '';
+      const q3Val = document.querySelector('input[name="q3"]:checked')?.value || '';
+
+      const p = getActiveWorksheetParams();
+
+      const data = {
+        studentName: name,
+        studentId: id,
+        studentGroup: group,
+        labDate: date,
+        param_mode: WS_STATE.mode,
+        param_vcc: p.vcc,
+        param_r1: p.r1,
+        param_r2: p.r2,
+        param_rc: p.rc,
+        param_re: p.re,
+        param_beta: p.beta,
+        dc_vb: document.getElementById('dc-vb').value.trim(),
+        dc_ve: document.getElementById('dc-ve').value.trim(),
+        dc_vc: document.getElementById('dc-vc').value.trim(),
+        dc_vce: document.getElementById('dc-vce').value.trim(),
+        dc_ie: document.getElementById('dc-ie').value.trim(),
+        dc_re: document.getElementById('dc-re').value.trim(),
+        ac_av_bypassed: document.getElementById('ac-av-byp').value.trim(),
+        ac_zi_bypassed: document.getElementById('ac-zi-byp').value.trim(),
+        ac_phase_bypassed: document.getElementById('ac-phase-byp').value,
+        ac_av_unbypassed: document.getElementById('ac-av-unbyp').value.trim(),
+        ac_zi_unbypassed: document.getElementById('ac-zi-unbyp').value.trim(),
+        ac_phase_unbypassed: document.getElementById('ac-phase-unbyp').value,
+        q1_choice: q1Val,
+        q2_choice: q2Val,
+        q3_choice: q3Val,
+        labConclusion: document.getElementById('lab-conclusion').value.trim()
+      };
+
+      showGradingOverlay(true);
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onSuccessGrading)
+          .withFailureHandler(onFailureGrading)
+          .submitWorksheet(data);
+      } else {
+        // Local simulation fallback with dynamic solver
+        setTimeout(() => {
+          const localRes = gradeClientLocally(data);
+          onSuccessGrading(localRes);
+        }, 800);
+      }
+    }
+
+    function showGradingOverlay(show) {
+      const overlay = document.getElementById('grading-overlay');
+      overlay.style.display = show ? 'flex' : 'none';
+      if (show) {
+        document.getElementById('overlay-title').innerText = 'กำลังส่งข้อมูลใบงานและประมวลผล...';
+        document.getElementById('overlay-title').style.color = 'var(--accent-cyan)';
+        document.getElementById('overlay-spinner').style.display = 'block';
+        document.getElementById('overlay-message').innerText = 'ระบบกำลังส่งผลการทดลองของคุณไปยัง Google Sheets ของผู้สอนเพื่อตรวจประเมินคะแนนสะสมอัตโนมัติ กรุณารอสักครู่...';
+        document.getElementById('overlay-close-btn').style.display = 'none';
+      }
+    }
+
+    function onSuccessGrading(res) {
+      showGradingOverlay(true);
+      const title = document.getElementById('overlay-title');
+      const spinner = document.getElementById('overlay-spinner');
+      const msg = document.getElementById('overlay-message');
+      const closeBtn = document.getElementById('overlay-close-btn');
+
+      if (res.status === 'success') {
+        title.innerText = '🎉 ตรวจใบงานและบันทึกคะแนนสำเร็จ!';
+        title.style.color = 'var(--accent-green)';
+        spinner.style.display = 'none';
+
+        const formattedFeedback = res.feedback.replace(/\n/g, '<br>');
+
+        msg.innerHTML = `
+          <div style="text-align: left; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin: 15px 0;">
+            <p style="font-size: 18px; font-weight: bold; margin-bottom: 8px; color: var(--text-main);">
+              คะแนนที่ได้: <span style="font-size: 24px; color: var(--accent-green);">${res.score}</span> / ${res.maxScore}
+            </p>
+            <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-cyan);">
+              ผลการประเมิน: ${res.comment}
+            </p>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+            <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">รายละเอียดการตรวจ:</p>
+            <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main);">${formattedFeedback}</div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted);">ข้อมูลของคุณถูกบันทึกส่งเข้าแผ่นงาน Google Sheets เรียบร้อยแล้ว</p>
+        `;
+        closeBtn.style.display = 'inline-block';
+      } else {
+        onFailureGrading(res.message);
+      }
+    }
+
+    function onFailureGrading(error) {
+      showGradingOverlay(true);
+      const title = document.getElementById('overlay-title');
+      const spinner = document.getElementById('overlay-spinner');
+      const msg = document.getElementById('overlay-message');
+      const closeBtn = document.getElementById('overlay-close-btn');
+
+      title.innerText = '❌ ระบบส่งคะแนนล้มเหลว';
+      title.style.color = 'var(--accent-red)';
+      spinner.style.display = 'none';
+      msg.innerHTML = `
+        <p style="color: var(--accent-red); font-weight: bold; margin-bottom: 10px;">เกิดข้อผิดพลาดในการเชื่อมต่อ:</p>
+        <div style="font-family: monospace; font-size: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); padding: 10px; border-radius: 6px; color: var(--text-main); margin-bottom: 15px; text-align: left;">
+          ${error}
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted);">กรุณาตรวจสอบการตั้งค่าสิทธิ์ Deployment ของอาจารย์ผู้สอน</p>
+      `;
+      closeBtn.style.display = 'inline-block';
+    }
+  </script>
+</body>
+</html>

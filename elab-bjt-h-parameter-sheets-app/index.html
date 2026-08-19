@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 10: การวิเคราะห์วงจรขยายสัญญาณขนาดเล็กด้วยแบบจำลอง h-Parameter ของ BJT</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.45);
+      --border-color: rgba(71, 85, 105, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-purple: #a855f7;
+      --accent-purple-glow: rgba(168, 85, 247, 0.35);
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.35);
+      --accent-yellow: #f59e0b;
+      --accent-yellow-glow: rgba(245, 158, 11, 0.35);
+      --accent-red: #ef4444;
+      --scope-bg: #050b14;
+      --transition-speed: 0.25s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.08) 0, transparent 55%),
+        radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.05) 0, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    /* Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #0b0f19;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px var(--accent-purple-glow));
+    }
+
+    .logo-text h2 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--accent-purple);
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-grow: 1;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-btn:hover {
+      background: rgba(168, 85, 247, 0.08);
+      color: var(--text-main);
+      border-color: rgba(168, 85, 247, 0.2);
+    }
+
+    .nav-btn.active {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--accent-purple);
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 15px var(--accent-purple-glow);
+    }
+
+    .sidebar-footer {
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      padding: 30px 40px;
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header-bar {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+    }
+
+    .header-title h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Chakra Petch', sans-serif;
+      background: rgba(168, 85, 247, 0.1);
+      color: var(--accent-purple);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    /* Simulator Controls */
+    .control-group {
+      margin-bottom: 16px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .control-label span.val {
+      color: var(--accent-purple);
+      font-family: 'Fira Code', monospace;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-purple-glow);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+      color: #fff;
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 12px var(--accent-purple-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.8);
+      border-color: var(--accent-purple);
+    }
+
+    .btn-toggle {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-toggle.active {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: var(--accent-purple);
+      color: var(--accent-purple);
+      font-weight: bold;
+    }
+
+    /* Oscilloscope Visual */
+    .scope-container {
+      background: var(--scope-bg);
+      border: 2px solid #1e293b;
+      border-radius: 12px;
+      padding: 15px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .scope-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+    }
+
+    .scope-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #040810;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scope-readouts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .readout-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .readout-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .readout-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent-purple);
+    }
+
+    .readout-val.yellow { color: #facc15; }
+    .readout-val.cyan { color: var(--accent-cyan); }
+    .readout-val.green { color: var(--accent-green); }
+    .readout-val.red { color: var(--accent-red); }
+
+    /* Schematic View */
+    .schematic-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+
+    .probe-card {
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    /* Forms and Tables */
+    table.lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+
+    table.lab-table th, table.lab-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    table.lab-table th {
+      background: rgba(15, 23, 42, 0.8);
+      font-family: 'Chakra Petch', sans-serif;
+      color: var(--accent-purple);
+    }
+
+    table.lab-table input[type="text"],
+    table.lab-table input[type="number"],
+    .form-control {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 8px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .form-control:focus, table.lab-table input:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 8px var(--accent-purple-glow);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    textarea.form-control {
+      text-align: left;
+      font-family: 'Sarabun', sans-serif;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    /* Question Options */
+    .question-block {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .question-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .option-label:hover {
+      color: var(--text-main);
+    }
+
+    .option-label input[type="radio"] {
+      accent-color: var(--accent-purple);
+    }
+
+    /* Formula Box */
+    .formula-box {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 3px solid var(--accent-purple);
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: #c084fc;
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .nav-btn {
+        flex: 1 1 calc(50% - 8px);
+      }
+      .main-content {
+        padding: 20px 15px;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .grid-3, .grid-4, .scope-readouts {
+        grid-template-columns: 1fr 1fr;
+      }
+      .nav-btn {
+        flex: 1 1 100%;
+      }
+    }
+
+    /* Print styling */
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .sidebar, .btn, .hide-print {
+        display: none !important;
+      }
+      .main-content {
+        padding: 0 !important;
+      }
+      .tab-pane {
+        display: block !important;
+      }
+      .card {
+        border: 1px solid #ccc !important;
+        background: none !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+      table.lab-table th {
+        background: #eee !important;
+        color: #000 !important;
+      }
+      table.lab-table th, table.lab-table td {
+        border: 1px solid #999 !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🎛️</div>
+        <div class="logo-text">
+          <h2>E-Lab Simulator</h2>
+          <span>BJT h-Parameter Lab</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="switchTab('theory')">
+          <span>📖</span> ทฤษฎีและคู่มือแล็บ
+        </button>
+        <button class="nav-btn" onclick="switchTab('simulator')">
+          <span>🔬</span> ห้องทดลองจำลองเสมือน
+        </button>
+        <button class="nav-btn" onclick="switchTab('worksheet')">
+          <span>📝</span> ตารางบันทึกผลการทดลอง
+        </button>
+        <button class="nav-btn" onclick="switchTab('assessment')">
+          <span>❓</span> คำถามและสรุปผล
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>วิชา วิเคราะห์วงจรอิเล็กทรอนิกส์</p>
+        <p style="font-size: 10px; margin-top: 4px; color: var(--accent-purple);">Lab 10: h-Parameter V1.0</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Header -->
+      <div class="header-bar">
+        <div class="header-title">
+          <h1>การวิเคราะห์วงจรขยายสัญญาณด้วยแบบจำลอง h-Parameter ของ BJT</h1>
+          <p>BJT AC Small-Signal Analysis using Hybrid (h-Parameter) Two-Port Model</p>
+        </div>
+        <div class="badge">
+          <span>🟣 สถานะ:</span> ออนไลน์พร้อมจำลอง
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           TAB 1: THEORY & BACKGROUND
+           =================================================================== -->
+      <section id="tab-theory" class="tab-pane active">
+        <div class="card">
+          <h2 class="card-title">📌 วัตถุประสงค์การทดลอง</h2>
+          <ul style="padding-left: 20px; color: var(--text-muted); font-size: 14px; line-height: 1.8;">
+            <li>เพื่อศึกษาและทำความเข้าใจโครงสร้าง <strong>แบบจำลองไฮบริดพารามิเตอร์ (Hybrid h-Parameter Model)</strong> ของทรานซิสเตอร์ BJT โครงสร้าง Common-Emitter (CE)</li>
+            <li>เพื่อสกัดหาค่าพารามิเตอร์ <strong>h<sub>ie</sub> (ความต้านทานอินพุต)</strong> และ <strong>h<sub>fe</sub> (อัตราขยายกระแส AC)</strong> จากจุดทำงานกระแสตรง (Q-point)</li>
+            <li>เพื่อคำนวณและวัดค่าพารามิเตอร์วงจรขยายสัญญาณกระแสสลับ: อัตราขยายแรงดัน (A<sub>v</sub>), ความต้านทานอินพุต (Z<sub>i</sub>), และความต้านทานเอาต์พุต (Z<sub>o</sub>)</li>
+            <li>เพื่อเปรียบเทียบความสัมพันธ์ระหว่างแบบจำลอง r<sub>e</sub> Model และแบบจำลอง h-Parameter Model</li>
+          </ul>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="card-title">⚡ สมการไฮบริดพารามิเตอร์ (Two-Port Model)</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+              ในโครงสร้าง Common-Emitter แบบจำลองสองพอร์ต (Two-Port Network) ของทรานซิสเตอร์อธิบายด้วยสมการไฮบริด 2 สมการ:
+            </p>
+            <div class="formula-box">
+              v<sub>be</sub> = h<sub>ie</sub> &bull; i<sub>b</sub> + h<sub>re</sub> &bull; v<sub>ce</sub><br>
+              i<sub>c</sub> = h<sub>fe</sub> &bull; i<sub>b</sub> + h<sub>oe</sub> &bull; v<sub>ce</sub>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted);">
+              เนื่องจาก h<sub>re</sub> มีค่าน้อยมาก (~10<sup>-4</sup>) และ 1/h<sub>oe</sub> มีค่าสูงมาก (~40kΩ ขึ้นไป) ในทางปฏิบัติจึงนิยมใช้ <strong>แบบจำลองประมาณการ (Approximate h-Model)</strong>
+            </p>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">🔄 การแปลงระหว่าง r<sub>e</sub> Model และ h-Parameters</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">
+              ความสัมพันธ์ระหว่างพารามิเตอร์ของแบบจำลอง r<sub>e</sub> และแบบจำลอง h-Parameter เป็นดังนี้:
+            </p>
+            <div class="formula-box" style="border-left-color: var(--accent-cyan); color: var(--accent-cyan);">
+              h<sub>ie</sub> = β &bull; r<sub>e</sub> = h<sub>fe</sub> &bull; (26 mV / I<sub>E</sub>)<br>
+              h<sub>fe</sub> = β = i<sub>c</sub> / i<sub>b</sub><br>
+              h<sub>oe</sub> ≈ 1 / r<sub>o</sub><br>
+              h<sub>re</sub> ≈ 0
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              ช่วยให้สามารถคำนวณวงจรขยายด้วยข้อมูลที่ระบุใน Datasheet ของผู้ผลิตได้อย่างแม่นยำ
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">📊 สรุปสูตรการคำนวณวงจรขยายด้วย Approximate h-Model</h2>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>พารามิเตอร์วงจร</th>
+                <th>สูตรคำนวณจาก h-Parameter Model</th>
+                <th>ความหมายทางวิศวกรรม</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ความต้านทานอินพุตของทรานซิสเตอร์ (Z<sub>b</sub>)</strong></td>
+                <td>Z<sub>b</sub> = h<sub>ie</sub></td>
+                <td>ความต้านทานไดนามิกมองเข้าที่ขา Base เมื่อต่อ CE Bypass</td>
+              </tr>
+              <tr>
+                <td><strong>ความต้านทานอินพุตทั้งหมด (Z<sub>i</sub>)</strong></td>
+                <td>Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || h<sub>ie</sub></td>
+                <td>ความต้านทานรวมที่แหล่งจ่ายสัญญาณภายนอกมองเห็น</td>
+              </tr>
+              <tr>
+                <td><strong>ความต้านทานเอาต์พุต (Z<sub>o</sub>)</strong></td>
+                <td>Z<sub>o</sub> = R<sub>C</sub> || (1 / h<sub>oe</sub>) ≈ R<sub>C</sub></td>
+                <td>ความต้านทานภายในฝั่งเอาต์พุตเมื่อมองย้อนกลับเข้าวงจร</td>
+              </tr>
+              <tr>
+                <td><strong>อัตราขยายแรงดัน (A<sub>v</sub>)</strong></td>
+                <td>A<sub>v</sub> = - (h<sub>fe</sub> &bull; R<sub>C</sub>) / h<sub>ie</sub></td>
+                <td>อัตราการขยายขนาดแรงดันสัญญาณ AC (กลับเฟส 180°)</td>
+              </tr>
+              <tr>
+                <td><strong>อัตราขยายกระแส (A<sub>i</sub>)</strong></td>
+                <td>A<sub>i</sub> ≈ h<sub>fe</sub> &bull; [R<sub>B</sub> / (R<sub>B</sub> + h<sub>ie</sub>)]</td>
+                <td>อัตราขยายกระแสจากอินพุตสู่เอาต์พุต</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 2: INTERACTIVE SIMULATOR & OSCILLOSCOPE
+           =================================================================== -->
+      <section id="tab-simulator" class="tab-pane">
+        
+        <div class="grid-2">
+          
+          <!-- Circuit Controls Card -->
+          <div class="card">
+            <h2 class="card-title">🎛️ แผงปรับพารามิเตอร์วงจร (Circuit & h-Parameters)</h2>
+            
+            <div class="control-group">
+              <div class="control-label">
+                <span>แรงดันแหล่งจ่ายไฟตรง V<sub>CC</sub></span>
+                <span class="val" id="val-vcc">12.0 V</span>
+              </div>
+              <input type="range" id="slider-vcc" min="5" max="18" step="0.5" value="12" oninput="updateSim()">
+            </div>
+
+            <div class="grid-2">
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>1</sub></span>
+                  <span class="val" id="val-r1">33.0 kΩ</span>
+                </div>
+                <input type="range" id="slider-r1" min="10" max="68" step="1" value="33" oninput="updateSim()">
+              </div>
+
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>2</sub></span>
+                  <span class="val" id="val-r2">6.8 kΩ</span>
+                </div>
+                <input type="range" id="slider-r2" min="2.2" max="15" step="0.2" value="6.8" oninput="updateSim()">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>C</sub></span>
+                  <span class="val" id="val-rc">2.2 kΩ</span>
+                </div>
+                <input type="range" id="slider-rc" min="1.0" max="5.6" step="0.1" value="2.2" oninput="updateSim()">
+              </div>
+
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ตัวต้านทาน R<sub>E</sub></span>
+                  <span class="val" id="val-re">560 Ω</span>
+                </div>
+                <input type="range" id="slider-re" min="200" max="1200" step="20" value="560" oninput="updateSim()">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="control-group">
+                <div class="control-label">
+                  <span>อัตราขยายกระแส h<sub>fe</sub> (β)</span>
+                  <span class="val" id="val-hfe">200</span>
+                </div>
+                <input type="range" id="slider-hfe" min="100" max="400" step="10" value="200" oninput="updateSim()">
+              </div>
+
+              <div class="control-group">
+                <div class="control-label">
+                  <span>ความนำเอาต์พุต h<sub>oe</sub></span>
+                  <span class="val" id="val-hoe">20 µS</span>
+                </div>
+                <input type="range" id="slider-hoe" min="0" max="50" step="5" value="20" oninput="updateSim()">
+              </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+
+            <div class="control-group">
+              <div class="control-label">
+                <span>ขนาดสัญญาณกระแสสลับอินพุต V<sub>i(p-p)</sub></span>
+                <span class="val" id="val-vi">20 mV</span>
+              </div>
+              <input type="range" id="slider-vi" min="2" max="100" step="1" value="20" oninput="updateSim()">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+              <button id="btn-ce-toggle" class="btn btn-toggle active" style="flex: 1;" onclick="toggleBypassCap()">
+                ⚡ ตัวเก็บประจุ C<sub>E</sub>: <strong id="lbl-ce-state">มี Bypass (ON)</strong>
+              </button>
+              <button id="btn-model-view" class="btn btn-secondary" style="flex: 1;" onclick="toggleModelDiagram()">
+                🔄 สลับดูแบบจำลอง h-Parameter
+              </button>
+            </div>
+          </div>
+
+          <!-- Circuit Diagram & Live Probes Card -->
+          <div class="card">
+            <h2 class="card-title">📐 แผนภาพวงจรและแบบจำลอง (Circuit & h-Model)</h2>
+            
+            <div class="schematic-box">
+              <!-- Mode 1: Physical Circuit Schematic -->
+              <svg id="svg-schematic-physical" viewBox="0 0 450 250" style="width: 100%; height: auto; max-height: 220px; display: block;">
+                <!-- Supply Rails -->
+                <line x1="50" y1="20" x2="400" y2="20" stroke="#a855f7" stroke-width="2.5" />
+                <text x="405" y="24" fill="#a855f7" font-size="12" font-family="Chakra Petch">+Vcc</text>
+                
+                <line x1="50" y1="230" x2="400" y2="230" stroke="#64748b" stroke-width="2.5" />
+                <text x="405" y="234" fill="#64748b" font-size="12" font-family="Chakra Petch">GND</text>
+
+                <!-- R1 and R2 divider branch -->
+                <line x1="120" y1="20" x2="120" y2="60" stroke="#94a3b8" stroke-width="2" />
+                <rect x="110" y="60" width="20" height="35" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text x="85" y="82" fill="#94a3b8" font-size="11" font-family="Fira Code">R1</text>
+
+                <line x1="120" y1="95" x2="120" y2="155" stroke="#94a3b8" stroke-width="2" />
+                <rect x="110" y="155" width="20" height="35" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text x="85" y="177" fill="#94a3b8" font-size="11" font-family="Fira Code">R2</text>
+                <line x1="120" y1="190" x2="120" y2="230" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Input branch -->
+                <circle cx="40" cy="125" r="4" fill="#facc15" />
+                <text x="15" y="130" fill="#facc15" font-size="11" font-family="Chakra Petch">Vin</text>
+                <line x1="40" y1="125" x2="80" y2="125" stroke="#facc15" stroke-width="2" />
+                <!-- C1 -->
+                <line x1="80" y1="115" x2="80" y2="135" stroke="#94a3b8" stroke-width="2" />
+                <line x1="86" y1="115" x2="86" y2="135" stroke="#94a3b8" stroke-width="2" />
+                <line x1="86" y1="125" x2="220" y2="125" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- BJT Symbol -->
+                <line x1="220" y1="125" x2="240" y2="125" stroke="#94a3b8" stroke-width="2" />
+                <line x1="240" y1="105" x2="240" y2="145" stroke="#f8fafc" stroke-width="3" />
+                <line x1="240" y1="115" x2="270" y2="90" stroke="#94a3b8" stroke-width="2" />
+                <line x1="270" y1="90" x2="270" y2="60" stroke="#94a3b8" stroke-width="2" />
+                <line x1="240" y1="135" x2="270" y2="160" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="268,158 255,148 262,143" fill="#10b981" />
+                <line x1="270" y1="160" x2="270" y2="175" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Collector Branch (RC) -->
+                <rect x="260" y="25" width="20" height="35" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text x="290" y="47" fill="#94a3b8" font-size="11" font-family="Fira Code">RC</text>
+
+                <!-- Output Branch (C2 & Vo) -->
+                <circle cx="270" cy="75" r="3" fill="#38bdf8" />
+                <line x1="270" y1="75" x2="330" y2="75" stroke="#38bdf8" stroke-width="2" />
+                <!-- C2 -->
+                <line x1="330" y1="65" x2="330" y2="85" stroke="#94a3b8" stroke-width="2" />
+                <line x1="336" y1="65" x2="336" y2="85" stroke="#94a3b8" stroke-width="2" />
+                <line x1="336" y1="75" x2="380" y2="75" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="380" cy="75" r="4" fill="#38bdf8" />
+                <text x="390" y="80" fill="#38bdf8" font-size="12" font-family="Chakra Petch">Vo</text>
+
+                <!-- Emitter Branch (RE & CE) -->
+                <rect x="260" y="175" width="20" height="35" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text x="235" y="195" fill="#94a3b8" font-size="11" font-family="Fira Code">RE</text>
+                <line x1="270" y1="210" x2="270" y2="230" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- CE Parallel Capacitor -->
+                <g id="svg-ce-branch">
+                  <line x1="270" y1="168" x2="330" y2="168" stroke="#10b981" stroke-width="1.5" />
+                  <line x1="330" y1="168" x2="330" y2="182" stroke="#10b981" stroke-width="1.5" />
+                  <line x1="322" y1="182" x2="338" y2="182" stroke="#10b981" stroke-width="2" />
+                  <line x1="322" y1="188" x2="338" y2="188" stroke="#10b981" stroke-width="2" />
+                  <line x1="330" y1="188" x2="330" y2="230" stroke="#10b981" stroke-width="1.5" />
+                  <text x="345" y="188" fill="#10b981" font-size="10" font-family="Fira Code">CE 100uF</text>
+                </g>
+              </svg>
+
+              <!-- Mode 2: AC Small-Signal h-Parameter Equivalent Model -->
+              <svg id="svg-schematic-h-model" viewBox="0 0 460 250" style="width: 100%; height: auto; max-height: 220px; display: none;">
+                <!-- AC Ground Rail -->
+                <line x1="20" y1="210" x2="440" y2="210" stroke="#64748b" stroke-width="2.5" />
+                <text x="395" y="226" fill="#64748b" font-size="10" font-family="Chakra Petch">AC GND</text>
+
+                <!-- Input Vi -->
+                <circle cx="30" cy="80" r="4" fill="#facc15" />
+                <text x="12" y="84" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
+                <line x1="30" y1="80" x2="75" y2="80" stroke="#facc15" stroke-width="2" />
+
+                <!-- RB = R1 || R2 -->
+                <line x1="75" y1="80" x2="75" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <rect x="65" y="110" width="20" height="40" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text x="32" y="135" fill="#a855f7" font-size="10" font-family="Fira Code">R1||R2</text>
+                <line x1="75" y1="150" x2="75" y2="210" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Base Terminal B -->
+                <line x1="75" y1="80" x2="155" y2="80" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="155" cy="80" r="3.5" fill="#fff" />
+                <text x="155" y="66" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">B (Base)</text>
+
+                <!-- Base current ib arrow -->
+                <line x1="105" y1="73" x2="135" y2="73" stroke="#facc15" stroke-width="1.5" />
+                <polygon points="138,73 131,69 131,77" fill="#facc15" />
+                <text x="118" y="65" fill="#facc15" font-size="10" font-family="Fira Code" text-anchor="middle">ib</text>
+
+                <!-- Internal Base Resistance hie -->
+                <line x1="155" y1="80" x2="155" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <rect x="145" y="110" width="20" height="40" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+                <text id="svg-txt-zb-h" x="175" y="134" fill="#10b981" font-size="10" font-family="Fira Code">hie (β&bull;re)</text>
+                <line x1="155" y1="150" x2="155" y2="210" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="155" cy="210" r="3" fill="#10b981" />
+                <text x="155" y="226" fill="#10b981" font-size="10" font-family="Chakra Petch" text-anchor="middle">E (Emitter)</text>
+
+                <!-- Dependent Current Source (hfe * ib) at Collector -->
+                <circle cx="315" cy="80" r="3.5" fill="#fff" />
+                <text x="315" y="66" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">C (Collector)</text>
+
+                <line x1="315" y1="80" x2="315" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="315" cy="130" r="18" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+                <line x1="315" y1="119" x2="315" y2="141" stroke="#38bdf8" stroke-width="2" />
+                <polygon points="315,145 310,137 320,137" fill="#38bdf8" />
+                <text x="250" y="134" fill="#38bdf8" font-size="10" font-family="Fira Code">hfe &bull; ib</text>
+                <line x1="315" y1="148" x2="315" y2="210" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- RC branch to AC GND -->
+                <line x1="315" y1="80" x2="385" y2="80" stroke="#94a3b8" stroke-width="2" />
+                <line x1="385" y1="80" x2="385" y2="110" stroke="#94a3b8" stroke-width="2" />
+                <rect x="375" y="110" width="20" height="40" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text x="402" y="135" fill="#94a3b8" font-size="10" font-family="Fira Code">RC</text>
+                <line x1="385" y1="150" x2="385" y2="210" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Output vo -->
+                <line x1="385" y1="80" x2="430" y2="80" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="430" cy="80" r="4" fill="#38bdf8" />
+                <text x="438" y="84" fill="#38bdf8" font-size="12" font-family="Chakra Petch">vo</text>
+
+                <!-- Model Formula Note at Bottom -->
+                <text id="svg-txt-formula-h" x="230" y="242" fill="#a855f7" font-size="11" font-family="Fira Code" text-anchor="middle">vo = - (hfe &bull; ib) &bull; RC  ==>  Av = - (hfe &bull; RC) / hie</text>
+              </svg>
+            </div>
+
+            <!-- Probe Readout Badges -->
+            <div class="grid-4" style="margin-top: 15px;">
+              <div class="probe-card">
+                <span class="readout-label">แรงดัน V<sub>B</sub></span>
+                <span class="readout-val" id="probe-vb">1.92 V</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">แรงดัน V<sub>E</sub></span>
+                <span class="readout-val" id="probe-ve">1.22 V</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">แรงดัน V<sub>C</sub></span>
+                <span class="readout-val" id="probe-vc">7.22 V</span>
+              </div>
+              <div class="probe-card">
+                <span class="readout-label">กระแส I<sub>E</sub></span>
+                <span class="readout-val green" id="probe-ie">2.18 mA</span>
+              </div>
+            </div>
+
+            <div class="grid-3" style="margin-top: 10px;">
+              <div class="probe-card" style="border-color: var(--accent-purple);">
+                <span class="readout-label">พารามิเตอร์ h<sub>ie</sub></span>
+                <span class="readout-val yellow" id="probe-hie">2.38 kΩ</span>
+              </div>
+              <div class="probe-card" style="border-color: var(--accent-green);">
+                <span class="readout-label">อัตราขยายแรงดัน A<sub>v</sub></span>
+                <span class="readout-val green" id="probe-av">-184.8</span>
+              </div>
+              <div class="probe-card" style="border-color: var(--accent-cyan);">
+                <span class="readout-label">ความต้านทาน Z<sub>i</sub></span>
+                <span class="readout-val cyan" id="probe-zi">1.61 kΩ</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Real-Time Dual Channel Oscilloscope -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="scope-header">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              <span>📺</span> ออสซิลโลสโคปเสมือนจริง 2 ช่อง (Dual-Channel Live Oscilloscope)
+            </h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleScopeRun()">
+                <span id="btn-scope-state">⏸️ หยุดรูปคลื่น (Pause)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="scope-container">
+            <div class="scope-canvas-wrapper">
+              <canvas id="scopeCanvas"></canvas>
+            </div>
+
+            <div class="scope-readouts">
+              <div class="readout-item">
+                <span class="readout-label">🟡 CH1 (Vin)</span>
+                <span class="readout-val yellow" id="scope-ch1-vpp">20.0 mVpp</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-label">🔵 CH2 (Vout)</span>
+                <span class="readout-val cyan" id="scope-ch2-vpp">3.70 Vpp</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-label">⚡ อัตราขยายจริง (|Av|)</span>
+                <span class="readout-val green" id="scope-measured-av">185.0 เท่า</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-label">🔄 เฟสสัมพันธ์</span>
+                <span class="readout-val red" id="scope-phase">180° Inverted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           TAB 3: DATA WORKSHEET & OBSERVATION
+           =================================================================== -->
+      <section id="tab-worksheet" class="tab-pane">
+        
+        <!-- Student Info -->
+        <div class="card">
+          <h2 class="card-title">👤 ข้อมูลผู้ทำปฏิบัติการ</h2>
+          <div class="grid-4">
+            <div class="form-group">
+              <label>ชื่อ-นามสกุล:</label>
+              <input type="text" id="student-name" class="form-control" placeholder="เช่น นายวิศวกรรม นามสมมุติ">
+            </div>
+            <div class="form-group">
+              <label>รหัสนักศึกษา:</label>
+              <input type="text" id="student-id" class="form-control" placeholder="เช่น 66010001">
+            </div>
+            <div class="form-group">
+              <label>กลุ่มเรียน (Group / Sec):</label>
+              <input type="text" id="student-group" class="form-control" placeholder="เช่น กลุ่ม 1 / Sec 01">
+            </div>
+            <div class="form-group">
+              <label>วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date" class="form-control">
+            </div>
+          </div>
+        </div>
+
+        <!-- Part 1: DC Operating Point & Extraction -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              1️⃣ ตอนที่ 1: การกำหนดจุดทำงาน DC และการหาค่า h-Parameters (h<sub>ie</sub> & h<sub>fe</sub>)
+            </h2>
+            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="autoFillDCFromSim()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            บันทึกค่าแรงดันไฟตรงที่จุดทำงาน และสกัดค่าพารามิเตอร์ไฮบริด: h<sub>fe</sub> = β และ h<sub>ie</sub> = β &bull; r<sub>e</sub> = h<sub>fe</sub> &bull; (26mV / I<sub>E</sub>)
+          </p>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>แรงดัน V<sub>B</sub> (V)</th>
+                <th>แรงดัน V<sub>E</sub> (V)</th>
+                <th>แรงดัน V<sub>C</sub> (V)</th>
+                <th>กระแส I<sub>E</sub> (mA)</th>
+                <th>อัตราขยายกระแส h<sub>fe</sub></th>
+                <th>ความต้านทานอินพุต h<sub>ie</sub> (kΩ)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="number" id="dc-vb" step="0.01" placeholder="1.92"></td>
+                <td><input type="number" id="dc-ve" step="0.01" placeholder="1.22"></td>
+                <td><input type="number" id="dc-vc" step="0.01" placeholder="7.22"></td>
+                <td><input type="number" id="dc-ie" step="0.01" placeholder="2.18"></td>
+                <td><input type="number" id="h-fe" step="1" placeholder="200"></td>
+                <td><input type="number" id="h-ie" step="0.01" placeholder="2.38" style="color: var(--accent-purple); font-weight: bold;"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Part 2: AC Performance Table -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              2️⃣ ตอนที่ 2: การวิเคราะห์และวัดค่าสัญญาณ AC ด้วยแบบจำลอง h-Model
+            </h2>
+            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="autoFillACFromSim()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            คำนวณและวัดค่าอัตราขยายแรงดัน A<sub>v</sub> = (h<sub>fe</sub> &bull; R<sub>C</sub>) / h<sub>ie</sub>, ความต้านทานอินพุต Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || h<sub>ie</sub>, และความต้านทานเอาต์พุต Z<sub>o</sub>
+          </p>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>แรงดัน V<sub>i</sub> (mV<sub>p-p</sub>)</th>
+                <th>แรงดัน V<sub>o</sub> (V<sub>p-p</sub>)</th>
+                <th>อัตราขยายแรงดัน A<sub>v</sub> = v<sub>o</sub> / v<sub>i</sub></th>
+                <th>ความต้านทาน Z<sub>i</sub> (kΩ)</th>
+                <th>ความต้านทาน Z<sub>o</sub> (kΩ)</th>
+                <th>เฟสสัญญาณ (°)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="number" id="ac-vi" step="1" value="20"></td>
+                <td><input type="number" id="ac-vo" step="0.01" placeholder="3.70"></td>
+                <td><input type="number" id="ac-av" step="0.1" placeholder="185.0"></td>
+                <td><input type="number" id="ac-zi" step="0.01" placeholder="1.61"></td>
+                <td><input type="number" id="ac-zo" step="0.01" placeholder="2.20"></td>
+                <td>
+                  <select id="ac-phase" class="form-control">
+                    <option value="180">180° (กลับเฟส Inverted)</option>
+                    <option value="0">0° (ตรงเฟส)</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           TAB 4: ASSESSMENT & CONCLUSION
+           =================================================================== -->
+      <section id="tab-assessment" class="tab-pane">
+        
+        <!-- Post-Lab Questions -->
+        <div class="card">
+          <h2 class="card-title">❓ คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</h2>
+
+          <div class="question-block">
+            <div class="question-title">
+              1. พารามิเตอร์ไฮบริด h<sub>ie</sub> ในแบบจำลอง Common-Emitter มีความหมายและสูตรคำนวณตรงกับข้อใด?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q1" value="a">
+              <span>ก. คือความนำไฟฟ้าเอาต์พุต (Output Admittance) มีค่าเท่ากับ 1/r<sub>o</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="b">
+              <span>ข. คือความต้านทานอินพุต (Input Resistance) มีค่าเท่ากับ β &bull; r<sub>e</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="c">
+              <span>ค. คืออัตราขยายกระแสไฟสลับ มีค่าเท่ากับ i<sub>c</sub> / i<sub>b</sub></span>
+            </label>
+          </div>
+
+          <div class="question-block">
+            <div class="question-title">
+              2. พารามิเตอร์ h<sub>fe</sub> ของทรานซิสเตอร์ BJT มีความหมายเทียบเท่ากับค่าใดในวงจร?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q2" value="a">
+              <span>ก. อัตราขยายกระแสสัญญาณสลับ (&beta;<sub>ac</sub>)</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="b">
+              <span>ข. อัตราขยายแรงดันข้ามขา Emitter และ Base</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="c">
+              <span>ค. ความต้านทานไดนามิกของรอยต่อ p-n</span>
+            </label>
+          </div>
+
+          <div class="question-block">
+            <div class="question-title">
+              3. พารามิเตอร์ h<sub>oe</sub> มีหน่วยเป็นอะไร และมีความสัมพันธ์กับความต้านทานเอาต์พุต r<sub>o</sub> อย่างไร?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q3" value="a">
+              <span>ก. มีหน่วยเป็น โอห์ม (Ω) และมีค่าเท่ากับ r<sub>o</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="b">
+              <span>ข. ไม่มีหน่วย (Unitless) และมีค่าเท่ากับ V<sub>CC</sub> / I<sub>C</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="c">
+              <span>ค. มีหน่วยเป็น ซีเมนส์ (Siemens: S หรือ µS) และมีค่าเท่ากับ 1 / r<sub>o</sub></span>
+            </label>
+          </div>
+
+          <div class="question-block">
+            <div class="question-title">
+              4. เหตุใดใน "แบบจำลองประมาณการ (Approximate h-Model)" จึงสามารถตัดพารามิเตอร์ h<sub>re</sub> และ h<sub>oe</sub> ออกจากการวิเคราะห์ได้?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q4" value="a">
+              <span>ก. เพราะ h<sub>re</sub> มีค่าสูงมากจนลัดวงจร และ h<sub>oe</sub> มีค่าเป็นศูนย์</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q4" value="b">
+              <span>ข. เพราะ h<sub>re</sub> มีค่าน้อยมาก (~10<sup>-4</sup>) และ 1/h<sub>oe</sub> มีค่าความต้านทานสูงมากเมื่อเทียบกับ R<sub>C</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q4" value="c">
+              <span>ค. เพราะ h<sub>re</sub> และ h<sub>oe</sub> มีผลเฉพาะในย่านความถี่สูงมากเท่านั้น</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Conclusion Block -->
+        <div class="card">
+          <h2 class="card-title">📝 สรุปและวิจารณ์ผลการทดลอง (Conclusion & Discussion)</h2>
+          <div class="form-group">
+            <label>สรุปสิ่งที่ได้เรียนรู้จากการจำลองแบบจำลอง h-Parameter และผลการทดลอง:</label>
+            <textarea id="lab-conclusion" class="form-control" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่าง h-parameters กับ r_e model, ประโยชน์ของการใช้ h-parameters จาก Datasheet ในการออกแบบวงจรขยาย..."></textarea>
+          </div>
+        </div>
+
+        <!-- Submission Actions -->
+        <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;">
+          <button class="btn btn-secondary" onclick="window.print()">
+            🖨️ พิมพ์รายงาน / บันทึก PDF
+          </button>
+          <button class="btn btn-primary" onclick="submitReportToGAS()">
+            🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Grading Overlay Modal -->
+  <div id="grading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(9, 13, 22, 0.92); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: #f8fafc; font-family: 'Chakra Petch', sans-serif;">
+    <div class="card" style="width: 90%; max-width: 520px; text-align: center; border: 2px solid var(--accent-purple); background-color: #0f172a; padding: 30px; box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);">
+      <h2 id="overlay-title" style="margin-bottom: 20px; font-size: 22px; color: var(--accent-purple);">กำลังส่งข้อมูลคำตอบ...</h2>
+      <div id="overlay-spinner" class="logo-icon" style="font-size: 45px; animation: spin 2s linear infinite; margin-bottom: 20px;">🎛️</div>
+      <div id="overlay-message" style="font-size: 14px; font-family: 'Sarabun', sans-serif; color: var(--text-muted); line-height: 1.6;"></div>
+      <button id="overlay-close-btn" class="btn btn-primary" style="margin-top: 25px; display: none;" onclick="showGradingOverlay(false)">ปิดหน้าต่างนี้ ❌</button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+
+  <!-- ===================================================================
+       JAVASCRIPT SIMULATOR & CLIENT LOGIC
+       =================================================================== -->
+  <script>
+    // State Object
+    const STATE = {
+      vcc: 12.0,
+      r1: 33000,
+      r2: 6800,
+      rc: 2200,
+      re: 560,
+      hfe: 200,
+      hoe_us: 20,
+      vbe: 0.70,
+      vi_mv: 20,
+      hasBypass: true,
+      isModelView: false,
+      scopeRunning: true,
+      time: 0
+    };
+
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      const targetPane = document.getElementById('tab-' + tabId);
+      if (targetPane) {
+        targetPane.classList.add('active');
+      }
+
+      const targetBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => {
+        const attr = b.getAttribute('onclick');
+        return attr && attr.includes(tabId);
+      });
+      if (targetBtn) {
+        targetBtn.classList.add('active');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (tabId === 'simulator') {
+        setTimeout(() => {
+          resizeScope();
+          updateSim();
+        }, 50);
+      }
+    }
+    window.switchTab = switchTab;
+
+    // Set Default Date
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateField = document.getElementById('lab-date');
+      if (dateField) {
+        const today = new Date().toISOString().split('T')[0];
+        dateField.value = today;
+      }
+      initScope();
+      updateSim();
+    });
+
+    // Update Simulation Parameters
+    function updateSim() {
+      const sliderVcc = document.getElementById('slider-vcc');
+      if (!sliderVcc) return;
+
+      STATE.vcc = parseFloat(sliderVcc.value);
+      STATE.r1 = parseFloat(document.getElementById('slider-r1').value) * 1000;
+      STATE.r2 = parseFloat(document.getElementById('slider-r2').value) * 1000;
+      STATE.rc = parseFloat(document.getElementById('slider-rc').value) * 1000;
+      STATE.re = parseFloat(document.getElementById('slider-re').value);
+      STATE.hfe = parseFloat(document.getElementById('slider-hfe').value);
+      STATE.hoe_us = parseFloat(document.getElementById('slider-hoe').value);
+      STATE.vi_mv = parseFloat(document.getElementById('slider-vi').value);
+
+      // Update Labels
+      document.getElementById('val-vcc').innerText = STATE.vcc.toFixed(1) + ' V';
+      document.getElementById('val-r1').innerText = (STATE.r1 / 1000).toFixed(1) + ' kΩ';
+      document.getElementById('val-r2').innerText = (STATE.r2 / 1000).toFixed(1) + ' kΩ';
+      document.getElementById('val-rc').innerText = (STATE.rc / 1000).toFixed(1) + ' kΩ';
+      document.getElementById('val-re').innerText = STATE.re.toFixed(0) + ' Ω';
+      document.getElementById('val-hfe').innerText = STATE.hfe.toFixed(0);
+      document.getElementById('val-hoe').innerText = STATE.hoe_us.toFixed(0) + ' µS';
+      document.getElementById('val-vi').innerText = STATE.vi_mv.toFixed(0) + ' mV';
+
+      // --- DC Operating Point Calculation ---
+      const vth = STATE.vcc * (STATE.r2 / (STATE.r1 + STATE.r2));
+      const rth = (STATE.r1 * STATE.r2) / (STATE.r1 + STATE.r2);
+      
+      let ib = (vth - STATE.vbe) / (rth + (STATE.hfe + 1) * STATE.re);
+      if (ib < 0) ib = 0;
+      
+      const ie = (STATE.hfe + 1) * ib;
+      const ic = STATE.hfe * ib;
+      const ve = ie * STATE.re;
+      const vb = ve + (ib > 0 ? STATE.vbe : 0);
+      const vc = Math.max(0, STATE.vcc - ic * STATE.rc);
+      const ie_ma = ie * 1000;
+      
+      // Dynamic r_e & h_ie calculation
+      const re_dyn = ie_ma > 0 ? (26.0 / ie_ma) : 9999;
+      const hie_val = STATE.hfe * re_dyn; // ohms
+
+      // --- AC Parameters Calculation using h-Model ---
+      const ro_val = STATE.hoe_us > 0 ? (1 / (STATE.hoe_us * 1e-6)) : 1e9;
+      const zo_eff = (STATE.rc * ro_val) / (STATE.rc + ro_val);
+      
+      let zb_val, zi_eff, av_eff;
+      if (STATE.hasBypass) {
+        zb_val = hie_val;
+        zi_eff = 1 / (1/STATE.r1 + 1/STATE.r2 + 1/zb_val);
+        av_eff = (STATE.hfe * zo_eff) / hie_val;
+      } else {
+        zb_val = hie_val + (1 + STATE.hfe) * STATE.re;
+        zi_eff = 1 / (1/STATE.r1 + 1/STATE.r2 + 1/zb_val);
+        av_eff = (STATE.hfe * zo_eff) / zb_val;
+      }
+
+      // Update Probes (Theoretical Small-Signal Value)
+      document.getElementById('probe-vb').innerText = vb.toFixed(2) + ' V';
+      document.getElementById('probe-ve').innerText = ve.toFixed(2) + ' V';
+      document.getElementById('probe-vc').innerText = vc.toFixed(2) + ' V';
+      document.getElementById('probe-ie').innerText = ie_ma.toFixed(2) + ' mA';
+      document.getElementById('probe-hie').innerText = (hie_val / 1000).toFixed(2) + ' kΩ';
+      document.getElementById('probe-av').innerText = (-av_eff).toFixed(1);
+      document.getElementById('probe-zi').innerText = (zi_eff / 1000).toFixed(2) + ' kΩ';
+
+      // --- Realistic Output Swing & Scope Readouts ---
+      const maxUpperSwing = Math.max(0.5, STATE.vcc - vc);
+      const maxLowerSwing = Math.max(0.5, vc - ve - 0.2);
+      const maxVpp = (maxUpperSwing + maxLowerSwing) * 0.95; // Realistic output swing limit
+
+      const vout_ideal_pp = (STATE.vi_mv / 1000) * av_eff;
+      const isClipped = vout_ideal_pp > maxVpp;
+      const vout_real_pp = isClipped ? maxVpp : vout_ideal_pp;
+      const measured_av = vout_real_pp / (STATE.vi_mv / 1000);
+
+      document.getElementById('scope-ch1-vpp').innerText = STATE.vi_mv.toFixed(1) + ' mVpp';
+      document.getElementById('scope-ch2-vpp').innerText = (vout_real_pp >= 1 ? vout_real_pp.toFixed(2) + ' Vpp' : (vout_real_pp * 1000).toFixed(0) + ' mVpp');
+      
+      const avScopeBadge = document.getElementById('scope-measured-av');
+      if (isClipped) {
+        avScopeBadge.innerHTML = `<span style="color: #facc15; font-size: 13px;">⚠️ ${measured_av.toFixed(1)} เท่า (ขลิบ)</span>`;
+      } else {
+        avScopeBadge.innerText = measured_av.toFixed(1) + ' เท่า';
+      }
+
+      STATE.currentSim = {
+        vb, ve, vc, vce: vc - ve, ie_ma, re_dyn, hie_k: hie_val / 1000, av: av_eff, measured_av, zi_k: zi_eff / 1000, zo_k: zo_eff / 1000, isClipped
+      };
+    }
+
+    // Toggle Bypass Capacitor CE
+    function toggleBypassCap() {
+      STATE.hasBypass = !STATE.hasBypass;
+      const btn = document.getElementById('btn-ce-toggle');
+      const lbl = document.getElementById('lbl-ce-state');
+      const svgCe = document.getElementById('svg-ce-branch');
+      const txtZb = document.getElementById('svg-txt-zb-h');
+
+      if (STATE.hasBypass) {
+        btn.classList.add('active');
+        lbl.innerText = 'มี Bypass (ON)';
+        if (svgCe) svgCe.style.opacity = '1';
+        if (txtZb) txtZb.innerHTML = 'hie (β&bull;re)';
+      } else {
+        btn.classList.remove('active');
+        lbl.innerText = 'ไม่มี Bypass (OFF)';
+        if (svgCe) svgCe.style.opacity = '0.25';
+        if (txtZb) txtZb.innerHTML = 'hie+hfe&bull;RE';
+      }
+      const txtForm = document.getElementById('svg-txt-formula-h');
+      if (txtForm) {
+        txtForm.innerHTML = STATE.hasBypass ? 
+          'vo = - (hfe &bull; ib) &bull; RC  ==>  Av = - (hfe &bull; RC) / hie' : 
+          'vo = - (hfe &bull; ib) &bull; RC  ==>  Av ≈ - (hfe &bull; RC) / (hie + hfe&bull;RE) ≈ - RC / RE';
+      }
+      updateSim();
+    }
+
+    // Toggle Diagram between Physical Schematic and AC Small-Signal h-Model
+    function toggleModelDiagram() {
+      STATE.isModelView = !STATE.isModelView;
+      const svgPhys = document.getElementById('svg-schematic-physical');
+      const svgModel = document.getElementById('svg-schematic-h-model');
+      const btn = document.getElementById('btn-model-view');
+
+      if (STATE.isModelView) {
+        svgPhys.style.display = 'none';
+        svgModel.style.display = 'block';
+        btn.classList.add('active');
+        btn.innerHTML = '🔄 สลับกลับดูวงจรจริง (Circuit)';
+      } else {
+        svgPhys.style.display = 'block';
+        svgModel.style.display = 'none';
+        btn.classList.remove('active');
+        btn.innerHTML = '🔄 สลับดูแบบจำลอง h-Parameter';
+      }
+    }
+
+    // Auto-Fill Buttons for Student Convenience
+    function autoFillDCFromSim() {
+      if (!STATE.currentSim) updateSim();
+      document.getElementById('dc-vb').value = STATE.currentSim.vb.toFixed(2);
+      document.getElementById('dc-ve').value = STATE.currentSim.ve.toFixed(2);
+      document.getElementById('dc-vc').value = STATE.currentSim.vc.toFixed(2);
+      document.getElementById('dc-ie').value = STATE.currentSim.ie_ma.toFixed(2);
+      document.getElementById('h-fe').value = STATE.hfe.toFixed(0);
+      document.getElementById('h-ie').value = STATE.currentSim.hie_k.toFixed(2);
+    }
+
+    function autoFillACFromSim() {
+      if (!STATE.currentSim) updateSim();
+      document.getElementById('ac-vi').value = STATE.vi_mv.toFixed(0);
+      document.getElementById('ac-vo').value = ((STATE.vi_mv / 1000) * STATE.currentSim.av).toFixed(2);
+      document.getElementById('ac-av').value = STATE.currentSim.av.toFixed(1);
+      document.getElementById('ac-zi').value = STATE.currentSim.zi_k.toFixed(2);
+      document.getElementById('ac-zo').value = STATE.currentSim.zo_k.toFixed(2);
+      document.getElementById('ac-phase').value = "180";
+    }
+
+    // --- OSCILLOSCOPE CANVAS ENGINE ---
+    let scopeCanvas, scopeCtx;
+
+    function initScope() {
+      scopeCanvas = document.getElementById('scopeCanvas');
+      if (scopeCanvas) {
+        scopeCtx = scopeCanvas.getContext('2d');
+        resizeScope();
+        window.addEventListener('resize', resizeScope);
+        requestAnimationFrame(drawScope);
+      }
+    }
+
+    function resizeScope() {
+      if (!scopeCanvas || !scopeCanvas.parentElement) return;
+      const rect = scopeCanvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        scopeCanvas.width = rect.width;
+        scopeCanvas.height = rect.height;
+      }
+    }
+
+    function toggleScopeRun() {
+      STATE.scopeRunning = !STATE.scopeRunning;
+      document.getElementById('btn-scope-state').innerText = STATE.scopeRunning ? '⏸️ หยุดรูปคลื่น (Pause)' : '▶️ เล่นรูปคลื่น (Run)';
+    }
+
+    function drawScope() {
+      if (!scopeCtx || !scopeCanvas) return;
+      const w = scopeCanvas.width;
+      const h = scopeCanvas.height;
+
+      if (w <= 10 || h <= 10) {
+        requestAnimationFrame(drawScope);
+        return;
+      }
+
+      // Clear & Background
+      scopeCtx.fillStyle = '#040810';
+      scopeCtx.fillRect(0, 0, w, h);
+
+      // Draw Grid
+      scopeCtx.strokeStyle = '#0f2238';
+      scopeCtx.lineWidth = 1;
+      
+      const gridX = Math.max(20, w / 10);
+      const gridY = Math.max(15, h / 8);
+
+      for (let x = 0; x <= w; x += gridX) {
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(x, 0);
+        scopeCtx.lineTo(x, h);
+        scopeCtx.stroke();
+      }
+
+      for (let y = 0; y <= h; y += gridY) {
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, y);
+        scopeCtx.lineTo(w, y);
+        scopeCtx.stroke();
+      }
+
+      // Center Axes
+      scopeCtx.strokeStyle = '#1e3a5f';
+      scopeCtx.lineWidth = 1.5;
+      scopeCtx.beginPath();
+      scopeCtx.moveTo(0, h/2);
+      scopeCtx.lineTo(w, h/2);
+      scopeCtx.moveTo(w/2, 0);
+      scopeCtx.lineTo(w/2, h);
+      scopeCtx.stroke();
+
+      // Waveform parameters
+      const cycles = 3;
+      const freq = (2 * Math.PI * cycles) / w;
+      if (STATE.scopeRunning) {
+        STATE.time += 0.04;
+      }
+
+      // CH1 (Vin - Yellow Sine): Normalized to clear ~25% amplitude
+      const ch1Amp = Math.min(h * 0.28, Math.max(18, (STATE.vi_mv / 100) * (h * 0.28)));
+      
+      // Clipping boundary limit on oscilloscope screen (40% of canvas height from center)
+      const clipLimit = h * 0.40;
+
+      // CH2 (Vout - Cyan Inverted Sine): Scaled to show AC amplification with realistic clipping over-swing
+      let ch2Amp;
+      if (STATE.hasBypass) {
+        // In bypassed mode (high gain ~185x): 20mV is near limit (82%), higher Vi severely clips
+        ch2Amp = (STATE.vi_mv / 20) * (clipLimit * 0.82);
+      } else {
+        ch2Amp = ch1Amp * 1.85;
+      }
+
+      const isClippedOnScope = STATE.hasBypass && (ch2Amp > clipLimit);
+
+      // --- CH1: Input Waveform (Yellow Sine) ---
+      scopeCtx.strokeStyle = '#facc15';
+      scopeCtx.lineWidth = 2;
+      scopeCtx.shadowColor = 'rgba(250, 204, 21, 0.6)';
+      scopeCtx.shadowBlur = 6;
+      scopeCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        // Positive sine goes UP (h/2 - value)
+        const y = h/2 - Math.sin(x * freq + STATE.time) * ch1Amp;
+        if (x === 0) scopeCtx.moveTo(x, y);
+        else scopeCtx.lineTo(x, y);
+      }
+      scopeCtx.stroke();
+
+      // --- CH2: Output Waveform (Cyan Inverted Sine: 180° out of phase, with flat clipping) ---
+      scopeCtx.strokeStyle = '#38bdf8';
+      scopeCtx.lineWidth = 2.5;
+      scopeCtx.shadowColor = isClippedOnScope ? 'rgba(239, 68, 68, 0.5)' : 'rgba(56, 189, 248, 0.7)';
+      scopeCtx.shadowBlur = 8;
+      scopeCtx.beginPath();
+      for (let x = 0; x < w; x++) {
+        // Inverted: When Vin goes UP, Vo goes DOWN (h/2 + value)
+        let rawY = Math.sin(x * freq + STATE.time) * ch2Amp;
+        
+        // Realistic flat clipping at saturation boundaries
+        if (rawY > clipLimit) rawY = clipLimit;
+        if (rawY < -clipLimit) rawY = -clipLimit;
+
+        const y = h/2 + rawY;
+        if (x === 0) scopeCtx.moveTo(x, y);
+        else scopeCtx.lineTo(x, y);
+      }
+      scopeCtx.stroke();
+      scopeCtx.shadowBlur = 0;
+
+      // --- Clipping Boundary Rails & Alert when saturated ---
+      if (isClippedOnScope) {
+        scopeCtx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+        scopeCtx.lineWidth = 1;
+        scopeCtx.setLineDash([5, 5]);
+        
+        // Top clipping limit line
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, h/2 - clipLimit);
+        scopeCtx.lineTo(w, h/2 - clipLimit);
+        scopeCtx.stroke();
+
+        // Bottom clipping limit line
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, h/2 + clipLimit);
+        scopeCtx.lineTo(w, h/2 + clipLimit);
+        scopeCtx.stroke();
+
+        scopeCtx.setLineDash([]); // Reset line dash
+
+        // On-screen warning tag
+        scopeCtx.fillStyle = '#ef4444';
+        scopeCtx.font = 'bold 11px Chakra Petch';
+        scopeCtx.fillText('⚠️ SATURATION CLIPPED (สัญญาณเอาต์พุตถูกขลิบตัดยอด)', 15, h/2 - clipLimit - 6);
+      }
+
+      requestAnimationFrame(drawScope);
+    }
+
+    // --- GOOGLE APPS SCRIPT SUBMISSION & AUTO-GRADING ---
+    function submitReportToGAS() {
+      const name = document.getElementById('student-name').value.trim();
+      const id = document.getElementById('student-id').value.trim();
+      const group = document.getElementById('student-group').value.trim();
+      const date = document.getElementById('lab-date').value;
+
+      if (!name || !id || !group || !date) {
+        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+        switchTab('worksheet');
+        return;
+      }
+
+      const q1Val = document.querySelector('input[name="q1"]:checked')?.value || '';
+      const q2Val = document.querySelector('input[name="q2"]:checked')?.value || '';
+      const q3Val = document.querySelector('input[name="q3"]:checked')?.value || '';
+      const q4Val = document.querySelector('input[name="q4"]:checked')?.value || '';
+
+      const data = {
+        studentName: name,
+        studentId: id,
+        studentGroup: group,
+        labDate: date,
+        dc_vb: document.getElementById('dc-vb').value.trim(),
+        dc_ve: document.getElementById('dc-ve').value.trim(),
+        dc_vc: document.getElementById('dc-vc').value.trim(),
+        dc_ie: document.getElementById('dc-ie').value.trim(),
+        h_fe: document.getElementById('h-fe').value.trim(),
+        h_ie: document.getElementById('h-ie').value.trim(),
+        ac_av: document.getElementById('ac-av').value.trim(),
+        ac_zi: document.getElementById('ac-zi').value.trim(),
+        ac_zo: document.getElementById('ac-zo').value.trim(),
+        ac_phase: document.getElementById('ac-phase').value,
+        q1_choice: q1Val,
+        q2_choice: q2Val,
+        q3_choice: q3Val,
+        q4_choice: q4Val,
+        labConclusion: document.getElementById('lab-conclusion').value.trim()
+      };
+
+      showGradingOverlay(true);
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onSuccessGrading)
+          .withFailureHandler(onFailureGrading)
+          .submitWorksheet(data);
+      } else {
+        // Local simulation fallback
+        setTimeout(() => {
+          onSuccessGrading({
+            status: 'success',
+            score: 10,
+            maxScore: 10,
+            comment: 'ผ่านเกณฑ์ดีเยี่ยม (Local Simulator Test)',
+            feedback: '[ตอนที่ 1] จุดทำงาน DC และการหาค่า h-Parameters: ได้ 3 / 3 คะแนน\n  ✓ จุดทำงานกระแสตรงถูกต้อง\n  ✓ ค่าอัตราขยายกระแส hfe ถูกต้อง (200)\n  ✓ ค่าความต้านทานอินพุต hie ถูกต้อง (~2.38 kΩ)\n[ตอนที่ 2] พารามิเตอร์วงจรขยายจาก h-Model: ได้ 3 / 3 คะแนน\n  ✓ อัตราขยายแรงดัน Av = (hfe*Rc)/hie ถูกต้อง (~185 เท่า)\n  ✓ ความต้านทานอินพุต Zi ถูกต้อง (~1.61 kΩ)\n  ✓ เฟสสัญญาณกลับ 180 องศา ถูกต้อง\n[ตอนที่ 3] คำถามวัดความเข้าใจ: ตอบถูก 4 จาก 4 ข้อ (ได้ 4 คะแนน)'
+          });
+        }, 1200);
+      }
+    }
+
+    function showGradingOverlay(show) {
+      const overlay = document.getElementById('grading-overlay');
+      overlay.style.display = show ? 'flex' : 'none';
+      if (show) {
+        document.getElementById('overlay-title').innerText = 'กำลังส่งข้อมูลใบงานและประมวลผล...';
+        document.getElementById('overlay-title').style.color = 'var(--accent-purple)';
+        document.getElementById('overlay-spinner').style.display = 'block';
+        document.getElementById('overlay-message').innerText = 'ระบบกำลังส่งผลการทดลองของคุณไปยัง Google Sheets ของผู้สอนเพื่อตรวจประเมินคะแนนสะสมอัตโนมัติ กรุณารอสักครู่...';
+        document.getElementById('overlay-close-btn').style.display = 'none';
+      }
+    }
+
+    function onSuccessGrading(res) {
+      showGradingOverlay(true);
+      const title = document.getElementById('overlay-title');
+      const spinner = document.getElementById('overlay-spinner');
+      const msg = document.getElementById('overlay-message');
+      const closeBtn = document.getElementById('overlay-close-btn');
+
+      if (res.status === 'success') {
+        title.innerText = '🎉 ตรวจใบงานและบันทึกคะแนนสำเร็จ!';
+        title.style.color = 'var(--accent-green)';
+        spinner.style.display = 'none';
+
+        const formattedFeedback = res.feedback.replace(/\n/g, '<br>');
+
+        msg.innerHTML = `
+          <div style="text-align: left; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin: 15px 0;">
+            <p style="font-size: 18px; font-weight: bold; margin-bottom: 8px; color: var(--text-main);">
+              คะแนนที่ได้: <span style="font-size: 24px; color: var(--accent-green);">${res.score}</span> / ${res.maxScore}
+            </p>
+            <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-purple);">
+              ผลการประเมิน: ${res.comment}
+            </p>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+            <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">รายละเอียดการตรวจ:</p>
+            <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main);">${formattedFeedback}</div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted);">ข้อมูลของคุณถูกบันทึกส่งเข้าแผ่นงาน Google Sheets เรียบร้อยแล้ว</p>
+        `;
+        closeBtn.style.display = 'inline-block';
+      } else {
+        onFailureGrading(res.message);
+      }
+    }
+
+    function onFailureGrading(error) {
+      showGradingOverlay(true);
+      const title = document.getElementById('overlay-title');
+      const spinner = document.getElementById('overlay-spinner');
+      const msg = document.getElementById('overlay-message');
+      const closeBtn = document.getElementById('overlay-close-btn');
+
+      title.innerText = '❌ ระบบส่งคะแนนล้มเหลว';
+      title.style.color = 'var(--accent-red)';
+      spinner.style.display = 'none';
+      msg.innerHTML = `
+        <p style="color: var(--accent-red); font-weight: bold; margin-bottom: 10px;">เกิดข้อผิดพลาดในการเชื่อมต่อ:</p>
+        <div style="font-family: monospace; font-size: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); padding: 10px; border-radius: 6px; color: var(--text-main); margin-bottom: 15px; text-align: left;">
+          ${error}
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted);">กรุณาตรวจสอบการตั้งค่าสิทธิ์ Deployment ของอาจารย์ผู้สอน</p>
+      `;
+      closeBtn.style.display = 'inline-block';
+    }
+  </script>
+</body>
+</html>
