@@ -808,10 +808,27 @@
               <input type="range" id="slider-vi" min="2" max="100" step="1" value="20" oninput="updateSim()">
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-              <button id="btn-ce-toggle" class="btn btn-toggle active" style="flex: 1;" onclick="toggleBypassCap()">
-                ⚡ ตัวเก็บประจุ C<sub>E</sub>: <strong id="lbl-ce-state">มี Bypass (ON)</strong>
-              </button>
+            <!-- CE Bypass Switch Control -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 15px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">
+                  🔌 ตัวเก็บประจุบายพาส C<sub>E</sub> (Bypass Capacitor):
+                </span>
+                <span id="badge-ce-status" class="badge" style="background: rgba(16, 185, 129, 0.2); border: 1px solid var(--accent-green); color: var(--accent-green); font-size: 11px; padding: 2px 8px;">
+                  🟢 ต่อวงจร (Bypassed)
+                </span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button id="btn-ce-on" class="btn btn-secondary active" style="font-size: 12px; padding: 8px 10px; border-color: var(--accent-green); background: rgba(16, 185, 129, 0.2); color: #34d399;" onclick="setBypassState(true)">
+                  ⚡ ต่อ C<sub>E</sub> (Bypassed)
+                </button>
+                <button id="btn-ce-off" class="btn btn-secondary" style="font-size: 12px; padding: 8px 10px;" onclick="setBypassState(false)">
+                  ❌ ถอด C<sub>E</sub> ออก (Unbypassed)
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 12px;">
               <button id="btn-model-view" class="btn btn-secondary" style="flex: 1;" onclick="toggleModelDiagram()">
                 🔄 สลับดูแบบจำลอง r<sub>e</sub>
               </button>
@@ -824,7 +841,7 @@
             
             <div class="schematic-box">
               <!-- Mode 1: Physical Circuit Schematic -->
-              <svg id="svg-schematic-physical" viewBox="0 0 450 250" style="width: 100%; height: auto; max-height: 220px; display: block;">
+              <svg id="svg-schematic-physical" viewBox="0 0 450 255" style="width: 100%; height: auto; max-height: 220px; display: block;">
                 <!-- Supply Rails -->
                 <line x1="50" y1="20" x2="400" y2="20" stroke="#38bdf8" stroke-width="2.5" />
                 <text x="405" y="24" fill="#38bdf8" font-size="12" font-family="Chakra Petch">+Vcc</text>
@@ -882,15 +899,23 @@
                 <text x="235" y="195" fill="#94a3b8" font-size="11" font-family="Fira Code">RE</text>
                 <line x1="270" y1="210" x2="270" y2="230" stroke="#94a3b8" stroke-width="2" />
 
-                <!-- CE Parallel Capacitor with active indicator -->
-                <g id="svg-ce-branch">
-                  <line x1="270" y1="168" x2="330" y2="168" stroke="#10b981" stroke-width="1.5" />
+                <!-- CE Parallel Capacitor with interactive Knife Switch SW1 -->
+                <g id="svg-ce-branch" style="cursor: pointer;" onclick="toggleBypassCap()" title="👉 คลิกตรงนี้เพื่อสับสวิตช์ ต่อ/ถอด ตัวเก็บประจุ CE">
+                  <line x1="270" y1="168" x2="305" y2="168" stroke="#10b981" stroke-width="1.5" />
+                  <circle cx="305" cy="168" r="2.5" fill="#10b981" />
+                  
+                  <!-- Switch SW1 Blade -->
+                  <line id="svg-sw-blade" x1="305" y1="168" x2="330" y2="168" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
+                  <circle cx="330" cy="168" r="2.5" fill="#10b981" />
+                  <text id="svg-sw-label" x="317" y="158" fill="#10b981" font-size="9" font-family="Chakra Petch" text-anchor="middle">SW1: ON (ต่อ CE)</text>
+
                   <line x1="330" y1="168" x2="330" y2="182" stroke="#10b981" stroke-width="1.5" />
                   <!-- CE Capacitor symbol -->
-                  <line x1="322" y1="182" x2="338" y2="182" stroke="#10b981" stroke-width="2" />
-                  <line x1="322" y1="188" x2="338" y2="188" stroke="#10b981" stroke-width="2" />
+                  <line id="svg-ce-plate1" x1="322" y1="182" x2="338" y2="182" stroke="#10b981" stroke-width="2" />
+                  <line id="svg-ce-plate2" x1="322" y1="188" x2="338" y2="188" stroke="#10b981" stroke-width="2" />
                   <line x1="330" y1="188" x2="330" y2="230" stroke="#10b981" stroke-width="1.5" />
-                  <text x="345" y="188" fill="#10b981" font-size="10" font-family="Fira Code">CE 100uF</text>
+                  <text id="svg-ce-text" x="345" y="188" fill="#10b981" font-size="10" font-family="Fira Code">CE 100uF</text>
+                  <text id="svg-ce-hint" x="330" y="246" fill="#94a3b8" font-size="9" font-family="Chakra Petch" text-anchor="middle">👆 คลิกสับสวิตช์</text>
                 </g>
               </svg>
 
@@ -1005,7 +1030,10 @@
             <h2 class="card-title" style="margin-bottom: 0;">
               <span>📺</span> ออสซิลโลสโคปเสมือนจริง 2 ช่อง (Dual-Channel Live Oscilloscope)
             </h2>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <span id="scope-ce-badge" class="badge" style="background: rgba(16, 185, 129, 0.2); border: 1px solid var(--accent-green); color: var(--accent-green); font-size: 11px; padding: 4px 10px;">
+                🟢 มี C<sub>E</sub> (Bypassed: เกนสูง)
+              </span>
               <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleScopeRun()">
                 <span id="btn-scope-state">⏸️ หยุดรูปคลื่น (Pause)</span>
               </button>
@@ -1490,22 +1518,127 @@
       };
     }
 
-    // Toggle Bypass Capacitor CE
+    // Bypass Capacitor CE State Management
+    function setBypassState(hasBypass) {
+      STATE.hasBypass = hasBypass;
+      updateBypassUI();
+      updateSim();
+    }
+
     function toggleBypassCap() {
-      STATE.hasBypass = !STATE.hasBypass;
-      const btn = document.getElementById('btn-ce-toggle');
-      const lbl = document.getElementById('lbl-ce-state');
-      const svgCe = document.getElementById('svg-ce-branch');
+      setBypassState(!STATE.hasBypass);
+    }
+
+    function updateBypassUI() {
+      const btnOn = document.getElementById('btn-ce-on');
+      const btnOff = document.getElementById('btn-ce-off');
+      const badge = document.getElementById('badge-ce-status');
+      const scopeBadge = document.getElementById('scope-ce-badge');
+      
+      const swBlade = document.getElementById('svg-sw-blade');
+      const swLabel = document.getElementById('svg-sw-label');
+      const cePlate1 = document.getElementById('svg-ce-plate1');
+      const cePlate2 = document.getElementById('svg-ce-plate2');
+      const ceText = document.getElementById('svg-ce-text');
+      const ceHint = document.getElementById('svg-ce-hint');
+      const svgCeBranch = document.getElementById('svg-ce-branch');
 
       if (STATE.hasBypass) {
-        btn.classList.add('active');
-        lbl.innerText = 'มี Bypass (ON)';
-        svgCe.style.opacity = '1';
+        if (btnOn) {
+          btnOn.classList.add('active');
+          btnOn.style.borderColor = 'var(--accent-green)';
+          btnOn.style.background = 'rgba(16, 185, 129, 0.2)';
+          btnOn.style.color = '#34d399';
+        }
+        if (btnOff) {
+          btnOff.classList.remove('active');
+          btnOff.style.borderColor = 'var(--border-color)';
+          btnOff.style.background = 'transparent';
+          btnOff.style.color = 'var(--text-muted)';
+        }
+        if (badge) {
+          badge.style.background = 'rgba(16, 185, 129, 0.2)';
+          badge.style.borderColor = 'var(--accent-green)';
+          badge.style.color = 'var(--accent-green)';
+          badge.innerHTML = '🟢 ต่อวงจร (Bypassed: มี CE)';
+        }
+        if (scopeBadge) {
+          scopeBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+          scopeBadge.style.borderColor = 'var(--accent-green)';
+          scopeBadge.style.color = 'var(--accent-green)';
+          scopeBadge.innerHTML = '🟢 มี C<sub>E</sub> (Bypassed: เกนสูง)';
+        }
+
+        // SVG Closed Switch
+        if (swBlade) {
+          swBlade.setAttribute('x2', '330');
+          swBlade.setAttribute('y2', '168');
+          swBlade.setAttribute('stroke', '#10b981');
+        }
+        if (swLabel) {
+          swLabel.textContent = 'SW1: ON (ต่อ CE)';
+          swLabel.setAttribute('fill', '#10b981');
+        }
+        if (cePlate1) cePlate1.setAttribute('stroke', '#10b981');
+        if (cePlate2) cePlate2.setAttribute('stroke', '#10b981');
+        if (ceText) {
+          ceText.textContent = 'CE 100uF';
+          ceText.setAttribute('fill', '#10b981');
+        }
+        if (ceHint) {
+          ceHint.textContent = '👆 คลิกถอด CE';
+          ceHint.setAttribute('fill', '#94a3b8');
+        }
+        if (svgCeBranch) svgCeBranch.style.opacity = '1';
       } else {
-        btn.classList.remove('active');
-        lbl.innerText = 'ไม่มี Bypass (OFF)';
-        svgCe.style.opacity = '0.25';
+        if (btnOff) {
+          btnOff.classList.add('active');
+          btnOff.style.borderColor = 'var(--accent-red)';
+          btnOff.style.background = 'rgba(239, 68, 68, 0.2)';
+          btnOff.style.color = '#fca5a5';
+        }
+        if (btnOn) {
+          btnOn.classList.remove('active');
+          btnOn.style.borderColor = 'var(--border-color)';
+          btnOn.style.background = 'transparent';
+          btnOn.style.color = 'var(--text-muted)';
+        }
+        if (badge) {
+          badge.style.background = 'rgba(239, 68, 68, 0.2)';
+          badge.style.borderColor = 'var(--accent-red)';
+          badge.style.color = 'var(--accent-red)';
+          badge.innerHTML = '🔴 ถอดออก (Unbypassed: ไม่มี CE)';
+        }
+        if (scopeBadge) {
+          scopeBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+          scopeBadge.style.borderColor = 'var(--accent-red)';
+          scopeBadge.style.color = 'var(--accent-red)';
+          scopeBadge.innerHTML = '🔴 ถอด C<sub>E</sub> (Unbypassed: เกนต่ำ)';
+        }
+
+        // SVG Open Switch (tilted open 35 degrees)
+        if (swBlade) {
+          swBlade.setAttribute('x2', '323');
+          swBlade.setAttribute('y2', '150');
+          swBlade.setAttribute('stroke', '#ef4444');
+        }
+        if (swLabel) {
+          swLabel.textContent = 'SW1: OFF (ถอด CE)';
+          swLabel.setAttribute('fill', '#ef4444');
+        }
+        if (cePlate1) cePlate1.setAttribute('stroke', '#64748b');
+        if (cePlate2) cePlate2.setAttribute('stroke', '#64748b');
+        if (ceText) {
+          ceText.textContent = '❌ ถอด CE ออก';
+          ceText.setAttribute('fill', '#ef4444');
+        }
+        if (ceHint) {
+          ceHint.textContent = '👆 คลิกต่อ CE';
+          ceHint.setAttribute('fill', '#facc15');
+        }
+        if (svgCeBranch) svgCeBranch.style.opacity = '0.75';
       }
+
       const txtZb = document.getElementById('svg-txt-zb');
       if (txtZb) {
         txtZb.innerHTML = STATE.hasBypass ? 'β &bull; re' : 'β &bull; (re+RE)';
@@ -1516,7 +1649,6 @@
           'vo = - (β &bull; ib) &bull; RC  ==>  Av = - RC / re' : 
           'vo = - (β &bull; ib) &bull; RC  ==>  Av = - RC / (re + RE) ≈ - RC / RE';
       }
-      updateSim();
     }
 
     // Toggle Diagram between Physical Schematic and AC Small-Signal re Model
