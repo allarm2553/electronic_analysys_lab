@@ -1,7 +1,7 @@
 /**
  * Google Apps Script Web App - Backend Controller (Code.gs)
  * Lab 10: BJT Small-Signal Analysis using Hybrid (h-Parameter) Model
- * Handles HTML page serving, form submissions, mathematical auto-grading, and Google Sheets DB logs.
+ * Handles HTML page serving, form submissions, dynamic mathematical auto-grading, and Google Sheets DB logs.
  */
 
 function doGet(e) {
@@ -35,44 +35,51 @@ function submitWorksheet(data) {
 }
 
 /**
- * BJT h-Parameter Small-Signal Mathematical Solver & Auto-Grading Engine
+ * BJT h-Parameter Dynamic Small-Signal Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
   let score = 0;
   const maxScore = 10;
   const feedback = [];
   
-  // Nominal Circuit Constants
-  const Vcc = 12.0;       // V
-  const R1 = 33000;       // 33k ohms
-  const R2 = 6800;        // 6.8k ohms
-  const Rc = 2200;        // 2.2k ohms
-  const Re = 560;         // 560 ohms
-  const Beta = 200;       // Nominal Beta / hfe
-  const Vbe = 0.70;       // V
+  // Parameter Mode and Values (Dynamic from client or Default Fixed)
+  const mode = data.param_mode || 'fixed';
+  const Vcc = parseFloat(data.param_vcc) || 12.0;       // V
+  const R1 = (parseFloat(data.param_r1) || 33.0) * 1000; // ohms
+  const R2 = (parseFloat(data.param_r2) || 6.8) * 1000;  // ohms
+  const Rc = (parseFloat(data.param_rc) || 2.2) * 1000;  // ohms
+  const Re = parseFloat(data.param_re) || 560;          // ohms
+  const Beta = parseFloat(data.param_beta) || 200;      // Nominal Beta / hfe
+  const Vbe = 0.70;                                      // V
   
   // Theoretical DC calculations (Voltage divider bias with exact Thevenin)
-  const Vth = Vcc * (R2 / (R1 + R2)); // ~2.05 V
-  const Rth = (R1 * R2) / (R1 + R2);  // ~5638 ohms
-  const Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re); // A
-  const Ie = (Beta + 1) * Ib;          // A
-  const Ic = Beta * Ib;                // A
-  const Ve = Ie * Re;                  // V (~1.22 V)
-  const Vb = Ve + Vbe;                 // V (~1.92 V)
-  const Vc = Vcc - Ic * Rc;            // V (~7.22 V)
-  const Vce = Vc - Ve;                 // V (~6.00 V)
-  const Ie_mA = Ie * 1000;             // mA (~2.18 mA)
-  const re_calc = 26.0 / Ie_mA;        // ohms (~11.9 ohms)
+  const Vth = Vcc * (R2 / (R1 + R2));
+  const Rth = (R1 * R2) / (R1 + R2);
+  let Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re);
+  if (Ib < 0) Ib = 0;
+  
+  const Ie = (Beta + 1) * Ib;
+  const Ic = Beta * Ib;
+  const Ve = Ie * Re;
+  const Vb = Ve + (Ib > 0 ? Vbe : 0);
+  const Vc = Math.max(0, Vcc - Ic * Rc);
+  const Vce = Vc - Ve;
+  const Ie_mA = Ie * 1000;
+  const re_calc = Ie_mA > 0 ? (26.0 / Ie_mA) : 9999;
   
   // Theoretical h-Parameters:
-  const hfe_calc = Beta;               // 200
-  const hie_calc = Beta * re_calc;     // ohms (~2380 ohms or 2.38 k-ohms)
-  const hie_k = hie_calc / 1000;       // k-ohms (~2.38 k-ohms)
+  const hfe_calc = Beta;
+  const hie_calc = Beta * re_calc;     // ohms
+  const hie_k = hie_calc / 1000;       // k-ohms
   
   // Theoretical AC calculations using Approximate h-Model (with CE Bypass):
-  const Zi_calc = 1 / (1/R1 + 1/R2 + 1/hie_calc); // ohms (~1.61k ohms)
-  const Zo_calc = Rc;                  // 2200 ohms (2.2k ohms)
-  const Av_calc = (hfe_calc * Rc) / hie_calc; // magnitude (~184.8)
+  const Zi_calc = 1 / (1/R1 + 1/R2 + 1/hie_calc); // ohms
+  const Zo_calc = Rc;                              // ohms
+  const Av_calc = hie_calc > 0 ? ((hfe_calc * Rc) / hie_calc) : 0; // magnitude
+  
+  const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)';
+  feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
+  feedback.push(`  (พารามิเตอร์: Vcc=${Vcc}V, R1=${(R1/1000).toFixed(1)}k, R2=${(R2/1000).toFixed(1)}k, Rc=${(Rc/1000).toFixed(1)}k, RE=${Re}Ω, hfe=${Beta})`);
   
   // --- PART 1: DC OPERATING POINT & h-PARAMETERS EXTRACTION (3 Points) ---
   const sVb = parseFloat(data.dc_vb) || 0;
@@ -80,20 +87,27 @@ function gradeWorksheet(data) {
   const sVc = parseFloat(data.dc_vc) || 0;
   const sIe = parseFloat(data.dc_ie) || 0;
   const sHfe = parseFloat(data.h_fe) || 0;
-  const sHie = parseFloat(data.h_ie) || 0; // could be entered in k-ohms or ohms
+  const sHie = parseFloat(data.h_ie) || 0;
   
   // Tolerances
-  const vbOk = Math.abs(sVb - Vb) <= 0.35 || Math.abs(sVb - Vth) <= 0.35;
-  const veOk = Math.abs(sVe - Ve) <= 0.35;
-  const vcOk = Math.abs(sVc - Vc) <= 0.6;
-  const ieOk = Math.abs(sIe - Ie_mA) <= 0.6;
+  const vbTol = Math.max(0.35, Vb * 0.15);
+  const veTol = Math.max(0.35, Ve * 0.15);
+  const vcTol = Math.max(0.60, Vc * 0.15);
+  const ieTol = Math.max(0.40, Ie_mA * 0.18);
+  
+  const vbOk = Math.abs(sVb - Vb) <= vbTol || Math.abs(sVb - Vth) <= vbTol;
+  const veOk = Math.abs(sVe - Ve) <= veTol;
+  const vcOk = Math.abs(sVc - Vc) <= vcTol;
+  const ieOk = Math.abs(sIe - Ie_mA) <= ieTol;
   
   // h-parameter checks
-  const hfeOk = Math.abs(sHfe - hfe_calc) <= 30;
+  const hfeOk = Math.abs(sHfe - hfe_calc) <= Math.max(30, hfe_calc * 0.20);
   
   // Normalize student hie to k-ohms
   const studentHie_k = sHie > 50 ? sHie / 1000 : sHie;
-  const hieOk = Math.abs(studentHie_k - hie_k) <= 0.5 || Math.abs(studentHie_k - (sHfe * 26 / sIe / 1000)) <= 0.4;
+  const studentCalculatedHie_k = (sIe > 0 && sHfe > 0) ? (sHfe * 26.0 / sIe / 1000) : hie_k;
+  const hieTol = Math.max(0.45, hie_k * 0.25);
+  const hieOk = Math.abs(studentHie_k - hie_k) <= hieTol || Math.abs(studentHie_k - studentCalculatedHie_k) <= Math.max(0.35, studentCalculatedHie_k * 0.20);
   
   let dcScore = (vbOk && veOk && vcOk && ieOk) ? 1 : (vbOk || veOk || vcOk ? 0.5 : 0);
   let hfeScore = hfeOk ? 1 : 0;
@@ -102,12 +116,12 @@ function gradeWorksheet(data) {
   let part1Score = Math.round(dcScore + hfeScore + hieScore);
   score += part1Score;
   
-  feedback.push(`[ตอนที่ 1] จุดทำงาน DC และการหาค่า h-Parameters: ได้ ${part1Score} / 3 คะแนน`);
+  feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และการหาค่า h-Parameters: ได้ ${part1Score} / 3 คะแนน`);
   if (dcScore >= 1) feedback.push(`  ✓ จุดทำงานกระแสตรง (Vb, Ve, Vc, Ie) ถูกต้อง`);
   else feedback.push(`  ✗ จุดทำงานกระแสตรงคลาดเคลื่อน (Vb ~${Vb.toFixed(2)}V, Ve ~${Ve.toFixed(2)}V, Vc ~${Vc.toFixed(2)}V, Ie ~${Ie_mA.toFixed(2)}mA)`);
   if (hfeScore) feedback.push(`  ✓ ค่าอัตราขยายกระแส hfe ถูกต้อง (~${hfe_calc})`);
   else feedback.push(`  ✗ ค่า hfe คลาดเคลื่อน (กรอก ${sHfe}, คาดหวัง ~${hfe_calc})`);
-  if (hieScore) feedback.push(`  ✓ ค่าความต้านทานอินพุต hie ถูกต้อง (~${hie_k.toFixed(2)} kΩ)`);
+  if (hieScore) feedback.push(`  ✓ ค่าความต้านทานอินพุต hie ถูกต้อง (~${studentHie_k.toFixed(2)} kΩ, คาดหวัง ~${hie_k.toFixed(2)} kΩ)`);
   else feedback.push(`  ✗ ค่า hie คลาดเคลื่อน (กรอก ${sHie}, คาดหวัง hie = hfe * re ≈ ${hie_k.toFixed(2)} kΩ)`);
   
   // --- PART 2: AC SMALL-SIGNAL PERFORMANCE VIA h-MODEL (3 Points) ---
@@ -116,11 +130,17 @@ function gradeWorksheet(data) {
   const sZo = parseFloat(data.ac_zo) || 0;
   const sPhase = parseInt(data.ac_phase) || 0;
   
-  const avOk = sAv >= 130 && sAv <= 240;
+  const avMin = Av_calc * 0.70;
+  const avMax = Av_calc * 1.30;
+  const avOk = sAv >= avMin && sAv <= avMax;
+  
   const studentZi_k = sZi > 50 ? sZi / 1000 : sZi;
-  const ziOk = studentZi_k >= 1.0 && studentZi_k <= 2.5;
+  const zi_k_expected = Zi_calc / 1000;
+  const ziOk = Math.abs(studentZi_k - zi_k_expected) <= Math.max(0.6, zi_k_expected * 0.40);
+  
   const studentZo_k = sZo > 50 ? sZo / 1000 : sZo;
-  const zoOk = studentZo_k >= 1.7 && studentZo_k <= 2.7;
+  const zo_k_expected = Zo_calc / 1000;
+  const zoOk = Math.abs(studentZo_k - zo_k_expected) <= Math.max(0.6, zo_k_expected * 0.35);
   const phaseOk = sPhase === 180;
   
   let part2Score = 0;
@@ -130,9 +150,9 @@ function gradeWorksheet(data) {
   if (phaseOk) part2Score += 1;
   
   score += Math.round(part2Score);
-  feedback.push(`[ตอนที่ 2] พารามิเตอร์วงจรขยายจากแบบจำลอง h-Model: ได้ ${Math.round(part2Score)} / 3 คะแนน`);
-  if (avOk) feedback.push(`  ✓ อัตราขยายแรงดัน Av = (hfe * Rc) / hie ถูกต้อง (~${sAv.toFixed(1)} เท่า)`);
-  else feedback.push(`  ✗ อัตราขยายแรงดัน Av คลาดเคลื่อน (กรอก ${sAv}, คาดหวัง ~${Av_calc.toFixed(1)} เท่า)`);
+  feedback.push(`\n[ตอนที่ 2] พารามิเตอร์วงจรขยายจากแบบจำลอง h-Model: ได้ ${Math.round(part2Score)} / 3 คะแนน`);
+  if (avOk) feedback.push(`  ✓ อัตราขยายแรงดัน Av = (hfe * Rc) / hie ถูกต้อง (~${sAv.toFixed(1)} เท่า, คาดหวัง ~${Av_calc.toFixed(1)})`);
+  else feedback.push(`  ✗ อัตราขยายแรงดัน Av คลาดเคลื่อน (กรอก ${sAv}, คาดหวัง Av ≈ ${Av_calc.toFixed(1)} เท่า)`);
   if (ziOk) feedback.push(`  ✓ ความต้านทานอินพุต Zi ถูกต้อง (~${(Zi_calc/1000).toFixed(2)} kΩ)`);
   if (phaseOk) feedback.push(`  ✓ เฟสสัญญาณกลับ 180 องศา ถูกต้อง`);
   
@@ -140,7 +160,7 @@ function gradeWorksheet(data) {
   const q1 = data.q1_choice; // Answer: 'b' (hie = beta * re)
   const q2 = data.q2_choice; // Answer: 'a' (hfe is forward current transfer ratio / Beta)
   const q3 = data.q3_choice; // Answer: 'c' (hoe is output admittance, 1/hoe is ro)
-  const q4 = data.q4_choice; // Answer: 'b' (Approximate model neglects hre and hoe because hre is very small and 1/hoe is very large)
+  const q4 = data.q4_choice; // Answer: 'b' (Approximate model neglects hre and hoe)
   
   let qScore = 0;
   if (q1 === 'b') qScore++;
@@ -149,7 +169,7 @@ function gradeWorksheet(data) {
   if (q4 === 'b') qScore++;
   
   score += qScore;
-  feedback.push(`[ตอนที่ 3] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} คะแนน)`);
+  feedback.push(`\n[ตอนที่ 3] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} คะแนน)`);
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
   if (score >= 9) {
@@ -179,7 +199,7 @@ function recordToSheet(data, grading) {
     sheet = ss.insertSheet("Submissions");
     const headers = [
       "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
-      "Auto Score", "Evaluation", 
+      "Auto Score", "Evaluation", "Circuit Mode", "Circuit Params",
       "DC Vb (V)", "DC Ve (V)", "DC Vc (V)", "DC Ie (mA)", 
       "Extracted hfe", "Extracted hie (kΩ)", 
       "Measured Av", "Measured Zi (kΩ)", "Measured Zo (kΩ)", "Phase (°)",
@@ -194,6 +214,7 @@ function recordToSheet(data, grading) {
   }
   
   const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / Local User";
+  const paramSummary = `Vcc=${data.param_vcc || 12}V, R1=${data.param_r1 || 33}k, R2=${data.param_r2 || 6.8}k, Rc=${data.param_rc || 2.2}k, RE=${data.param_re || 560}Ω, hfe=${data.param_beta || 200}`;
   
   const rowData = [
     new Date(),
@@ -204,6 +225,8 @@ function recordToSheet(data, grading) {
     data.labDate,
     grading.score + " / " + grading.maxScore,
     grading.comment,
+    data.param_mode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',
+    paramSummary,
     data.dc_vb,
     data.dc_ve,
     data.dc_vc,

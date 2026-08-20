@@ -1073,6 +1073,76 @@
           </div>
         </div>
 
+        <!-- Parameter Mode Selector Card -->
+        <div class="card" style="border: 1px solid rgba(168, 85, 247, 0.35); background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.6));">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h2 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                <span>⚙️</span> ระบบกำหนดค่าพารามิเตอร์วงจรสำหรับการทดลอง (h-Model)
+              </h2>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 0;">
+                เลือกรูปแบบการทำแล็บ: ใช้ชุดค่ามาตรฐานของใบงาน หรือป้อนกำหนดค่าพารามิเตอร์เองแบบ Dynamic
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-mode-fixed" class="btn btn-secondary active" style="font-size: 13px; padding: 8px 16px; transition: all 0.2s ease;" onclick="setWorksheetMode('fixed')">
+                📌 โหมดค่ามาตรฐาน (Fixed Preset)
+              </button>
+              <button id="btn-mode-custom" class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px; transition: all 0.2s ease;" onclick="setWorksheetMode('custom')">
+                🛠️ โหมดกำหนดค่าเอง (Custom Dynamic)
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Parameter Box (Visible when in Custom Mode) -->
+          <div id="custom-param-panel" style="display: none; background: rgba(11, 15, 25, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 13px; font-weight: bold; color: var(--accent-purple);">
+                🎛️ แผงปรับแต่งค่าพารามิเตอร์วงจร BJT (Circuit Parameters)
+              </span>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="syncWorksheetFromSim()" title="ดึงค่าจากหน้าห้องทดลองจำลองเสมือน">
+                  ⚡ ซิงค์จากแล็บเสมือน
+                </button>
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="randomizeWorksheetParams()" title="สุ่มค่าตัวต้านทานและแรงดันที่เหมาะสม">
+                  🎲 สุ่มโจทย์ใหม่
+                </button>
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="resetWorksheetToDefault()" title="คืนค่าพารามิเตอร์ตั้งต้น">
+                  ⏪ คืนค่ามาตรฐาน
+                </button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">V<sub>CC</sub> (V):</label>
+                <input type="number" id="ws-param-vcc" class="form-control" step="0.5" min="5" max="24" value="12.0" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>1</sub> (kΩ):</label>
+                <input type="number" id="ws-param-r1" class="form-control" step="0.1" min="1" max="100" value="33.0" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>2</sub> (kΩ):</label>
+                <input type="number" id="ws-param-r2" class="form-control" step="0.1" min="0.5" max="30" value="6.8" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>C</sub> (kΩ):</label>
+                <input type="number" id="ws-param-rc" class="form-control" step="0.1" min="0.5" max="10" value="2.2" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">R<sub>E</sub> (Ω):</label>
+                <input type="number" id="ws-param-re" class="form-control" step="10" min="100" max="2000" value="560" oninput="onWorksheetParamChange()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 12px;">h<sub>fe</sub> (β):</label>
+                <input type="number" id="ws-param-beta" class="form-control" step="10" min="50" max="500" value="200" oninput="onWorksheetParamChange()">
+              </div>
+            </div>
+            <div id="ws-param-alert" style="display: none; margin-top: 10px; font-size: 12px; padding: 6px 12px; border-radius: 6px; background: rgba(239, 68, 68, 0.2); border: 1px solid var(--accent-red); color: #fca5a5;"></div>
+          </div>
+        </div>
+
         <!-- Part 1: DC Operating Point & Extraction -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -1084,7 +1154,7 @@
             </button>
           </div>
           <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-            บันทึกค่าแรงดันไฟตรงที่จุดทำงาน และสกัดค่าพารามิเตอร์ไฮบริด: h<sub>fe</sub> = β และ h<sub>ie</sub> = β &bull; r<sub>e</sub> = h<sub>fe</sub> &bull; (26mV / I<sub>E</sub>)
+            บันทึกค่าแรงดันไฟตรงที่จุดทำงาน (<span id="txt-dc-params" style="color: var(--accent-purple); font-weight: 500;">V<sub>CC</sub> = 12 V, R<sub>1</sub> = 33 kΩ, R<sub>2</sub> = 6.8 kΩ, R<sub>C</sub> = 2.2 kΩ, R<sub>E</sub> = 560 Ω</span>) และสกัดค่าพารามิเตอร์ไฮบริด: h<sub>fe</sub> = β และ h<sub>ie</sub> = β &bull; r<sub>e</sub> = h<sub>fe</sub> &bull; (26mV / I<sub>E</sub>)
           </p>
 
           <table class="lab-table">
@@ -1122,7 +1192,7 @@
             </button>
           </div>
           <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-            คำนวณและวัดค่าอัตราขยายแรงดัน A<sub>v</sub> = (h<sub>fe</sub> &bull; R<sub>C</sub>) / h<sub>ie</sub>, ความต้านทานอินพุต Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || h<sub>ie</sub>, และความต้านทานเอาต์พุต Z<sub>o</sub>
+            คำนวณและวัดค่าอัตราขยายแรงดัน A<sub>v</sub> = (h<sub>fe</sub> &bull; R<sub>C</sub>) / h<sub>ie</sub>, ความต้านทานอินพุต Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || h<sub>ie</sub>, และความต้านทานเอาต์พุต Z<sub>o</sub> (<span id="txt-ac-params" style="color: var(--accent-purple); font-weight: 500;">R<sub>C</sub> = 2.2 kΩ, R<sub>E</sub> = 560 Ω, h<sub>fe</sub> = 200</span>)
           </p>
 
           <table class="lab-table">
@@ -1326,7 +1396,7 @@
     }
     window.switchTab = switchTab;
 
-    // Set Default Date
+    // Set Default Date and Init Display
     document.addEventListener('DOMContentLoaded', () => {
       const dateField = document.getElementById('lab-date');
       if (dateField) {
@@ -1335,6 +1405,9 @@
       }
       initScope();
       updateSim();
+      if (typeof updateWorksheetParamDisplay === 'function') {
+        updateWorksheetParamDisplay();
+      }
     });
 
     // Update Simulation Parameters
@@ -1476,24 +1549,223 @@
       }
     }
 
-    // Auto-Fill Buttons for Student Convenience
-    function autoFillDCFromSim() {
+    // --- WORKSHEET PARAMETERS & DYNAMIC AUTO-GRADING ENGINE ---
+    const WS_STATE = {
+      mode: 'fixed', // 'fixed' or 'custom'
+      defaultParams: {
+        vcc: 12.0,
+        r1: 33.0, // in kΩ
+        r2: 6.8,  // in kΩ
+        rc: 2.2,  // in kΩ
+        re: 560,  // in Ω
+        beta: 200 // hfe
+      },
+      customParams: {
+        vcc: 12.0,
+        r1: 33.0,
+        r2: 6.8,
+        rc: 2.2,
+        re: 560,
+        beta: 200
+      }
+    };
+
+    function getActiveWorksheetParams() {
+      return WS_STATE.mode === 'fixed' ? WS_STATE.defaultParams : WS_STATE.customParams;
+    }
+
+    function setWorksheetMode(mode) {
+      WS_STATE.mode = mode;
+      const btnFixed = document.getElementById('btn-mode-fixed');
+      const btnCustom = document.getElementById('btn-mode-custom');
+      const panel = document.getElementById('custom-param-panel');
+
+      if (mode === 'custom') {
+        btnCustom.classList.add('active');
+        btnFixed.classList.remove('active');
+        panel.style.display = 'block';
+      } else {
+        btnFixed.classList.add('active');
+        btnCustom.classList.remove('active');
+        panel.style.display = 'none';
+      }
+      updateWorksheetParamDisplay();
+    }
+
+    function onWorksheetParamChange() {
+      const vcc = parseFloat(document.getElementById('ws-param-vcc').value) || 12.0;
+      const r1 = parseFloat(document.getElementById('ws-param-r1').value) || 33.0;
+      const r2 = parseFloat(document.getElementById('ws-param-r2').value) || 6.8;
+      const rc = parseFloat(document.getElementById('ws-param-rc').value) || 2.2;
+      const re = parseFloat(document.getElementById('ws-param-re').value) || 560;
+      const beta = parseFloat(document.getElementById('ws-param-beta').value) || 200;
+
+      WS_STATE.customParams = { vcc, r1, r2, rc, re, beta };
+      updateWorksheetParamDisplay();
+    }
+
+    function syncWorksheetFromSim() {
       if (!STATE.currentSim) updateSim();
-      document.getElementById('dc-vb').value = STATE.currentSim.vb.toFixed(2);
-      document.getElementById('dc-ve').value = STATE.currentSim.ve.toFixed(2);
-      document.getElementById('dc-vc').value = STATE.currentSim.vc.toFixed(2);
-      document.getElementById('dc-ie').value = STATE.currentSim.ie_ma.toFixed(2);
-      document.getElementById('h-fe').value = STATE.hfe.toFixed(0);
-      document.getElementById('h-ie').value = STATE.currentSim.hie_k.toFixed(2);
+      document.getElementById('ws-param-vcc').value = STATE.vcc.toFixed(1);
+      document.getElementById('ws-param-r1').value = (STATE.r1 / 1000).toFixed(1);
+      document.getElementById('ws-param-r2').value = (STATE.r2 / 1000).toFixed(1);
+      document.getElementById('ws-param-rc').value = (STATE.rc / 1000).toFixed(1);
+      document.getElementById('ws-param-re').value = STATE.re.toFixed(0);
+      document.getElementById('ws-param-beta').value = STATE.hfe.toFixed(0);
+      onWorksheetParamChange();
+    }
+
+    function randomizeWorksheetParams() {
+      const vccChoices = [10, 12, 15, 18];
+      const r1Choices = [22, 27, 33, 39, 47, 56];
+      const r2Choices = [4.7, 5.6, 6.8, 8.2, 10];
+      const rcChoices = [1.5, 2.2, 2.7, 3.3, 4.7];
+      const reChoices = [330, 470, 560, 680, 820, 1000];
+      const betaChoices = [150, 180, 200, 250, 300];
+
+      const vcc = vccChoices[Math.floor(Math.random() * vccChoices.length)];
+      const r1 = r1Choices[Math.floor(Math.random() * r1Choices.length)];
+      const r2 = r2Choices[Math.floor(Math.random() * r2Choices.length)];
+      const rc = rcChoices[Math.floor(Math.random() * rcChoices.length)];
+      const re = reChoices[Math.floor(Math.random() * reChoices.length)];
+      const beta = betaChoices[Math.floor(Math.random() * betaChoices.length)];
+
+      document.getElementById('ws-param-vcc').value = vcc.toFixed(1);
+      document.getElementById('ws-param-r1').value = r1.toFixed(1);
+      document.getElementById('ws-param-r2').value = r2.toFixed(1);
+      document.getElementById('ws-param-rc').value = rc.toFixed(1);
+      document.getElementById('ws-param-re').value = re;
+      document.getElementById('ws-param-beta').value = beta;
+
+      onWorksheetParamChange();
+    }
+
+    function resetWorksheetToDefault() {
+      document.getElementById('ws-param-vcc').value = "12.0";
+      document.getElementById('ws-param-r1').value = "33.0";
+      document.getElementById('ws-param-r2').value = "6.8";
+      document.getElementById('ws-param-rc').value = "2.2";
+      document.getElementById('ws-param-re').value = "560";
+      document.getElementById('ws-param-beta').value = "200";
+      onWorksheetParamChange();
+    }
+
+    function calculateTheoreticalCircuit(p) {
+      const vcc = p.vcc;
+      const r1 = p.r1 * 1000;
+      const r2 = p.r2 * 1000;
+      const rc = p.rc * 1000;
+      const re = p.re;
+      const beta = p.beta; // hfe
+      const vbe = 0.70;
+
+      const vth = vcc * (r2 / (r1 + r2));
+      const rth = (r1 * r2) / (r1 + r2);
+      let ib = (vth - vbe) / (rth + (beta + 1) * re);
+      if (ib < 0) ib = 0;
+
+      const ie = (beta + 1) * ib;
+      const ic = beta * ib;
+      const ve = ie * re;
+      const vb = ve + (ib > 0 ? vbe : 0);
+      const vc = Math.max(0, vcc - ic * rc);
+      const vce = vc - ve;
+      const ie_ma = ie * 1000;
+      const re_dyn = ie_ma > 0 ? (26.0 / ie_ma) : 9999;
+
+      // Theoretical h-Parameters:
+      const hfe_val = beta;
+      const hie_val = beta * re_dyn; // ohms
+      const hie_k = hie_val / 1000;  // k-ohms
+
+      // AC calculations (Approximate h-Model with CE Bypass):
+      const zi_eff = 1 / (1/r1 + 1/r2 + 1/hie_val); // ohms
+      const zo_eff = rc;                            // ohms
+      const av_eff = hie_val > 0 ? ((hfe_val * rc) / hie_val) : 0;
+
+      return {
+        vcc, r1, r2, rc, re, beta, vth, rth, ib, ie, ic, ve, vb, vc, vce, ie_ma, re_dyn,
+        hfe_val, hie_val, hie_k, zi_eff, zo_eff, av_eff
+      };
+    }
+
+    function updateWorksheetParamDisplay() {
+      const p = getActiveWorksheetParams();
+      const txtDc = document.getElementById('txt-dc-params');
+      const txtAc = document.getElementById('txt-ac-params');
+
+      if (txtDc) {
+        txtDc.innerHTML = `V<sub>CC</sub> = ${p.vcc} V, R<sub>1</sub> = ${p.r1} kΩ, R<sub>2</sub> = ${p.r2} kΩ, R<sub>C</sub> = ${p.rc} kΩ, R<sub>E</sub> = ${p.re} Ω, h<sub>fe</sub> = ${p.beta}`;
+      }
+      if (txtAc) {
+        txtAc.innerHTML = `R<sub>C</sub> = ${p.rc} kΩ, R<sub>E</sub> = ${p.re} Ω, h<sub>fe</sub> = ${p.beta}`;
+      }
+
+      // Sanity Check Alert for Custom Mode
+      const alertBox = document.getElementById('ws-param-alert');
+      if (alertBox) {
+        if (WS_STATE.mode === 'custom') {
+          const calc = calculateTheoreticalCircuit(p);
+          if (calc.ib <= 0) {
+            alertBox.style.display = 'block';
+            alertBox.innerHTML = '⚠️ <strong>วงจรอยู่ในสภาวะ Cut-off:</strong> ค่า R1 สูงเกินไปหรือ R2 ต่ำเกินไป ทำให้ทรานซิสเตอร์ไม่นำกระแส (Ie ≈ 0)';
+          } else if (calc.vce < 0.5) {
+            alertBox.style.display = 'block';
+            alertBox.innerHTML = '⚠️ <strong>วงจรอยู่ในสภาวะ Saturation:</strong> จุดทำงานชิดกราวด์เกินไป (Vce < 0.5V) สัญญาณขยายจะเกิดการคลิบตัดยอดอย่างรุนแรง';
+          } else {
+            alertBox.style.display = 'none';
+          }
+        } else {
+          alertBox.style.display = 'none';
+        }
+      }
+
+      // Update placeholders in the input tables
+      const calc = calculateTheoreticalCircuit(p);
+      const phVb = document.getElementById('dc-vb');
+      const phVe = document.getElementById('dc-ve');
+      const phVc = document.getElementById('dc-vc');
+      const phIe = document.getElementById('dc-ie');
+      const phHfe = document.getElementById('h-fe');
+      const phHie = document.getElementById('h-ie');
+      if (phVb) phVb.placeholder = calc.vb.toFixed(2);
+      if (phVe) phVe.placeholder = calc.ve.toFixed(2);
+      if (phVc) phVc.placeholder = calc.vc.toFixed(2);
+      if (phIe) phIe.placeholder = calc.ie_ma.toFixed(2);
+      if (phHfe) phHfe.placeholder = calc.hfe_val.toFixed(0);
+      if (phHie) phHie.placeholder = calc.hie_k.toFixed(2);
+
+      const phVo = document.getElementById('ac-vo');
+      const phAv = document.getElementById('ac-av');
+      const phZi = document.getElementById('ac-zi');
+      const phZo = document.getElementById('ac-zo');
+      if (phVo) phVo.placeholder = ((20 / 1000) * calc.av_eff).toFixed(2);
+      if (phAv) phAv.placeholder = calc.av_eff.toFixed(1);
+      if (phZi) phZi.placeholder = (calc.zi_eff / 1000).toFixed(2);
+      if (phZo) phZo.placeholder = (calc.zo_eff / 1000).toFixed(2);
+    }
+
+    // Auto-Fill Buttons for Student Convenience (Calculated based on Active Mode Parameters)
+    function autoFillDCFromSim() {
+      const p = getActiveWorksheetParams();
+      const calc = calculateTheoreticalCircuit(p);
+      document.getElementById('dc-vb').value = calc.vb.toFixed(2);
+      document.getElementById('dc-ve').value = calc.ve.toFixed(2);
+      document.getElementById('dc-vc').value = calc.vc.toFixed(2);
+      document.getElementById('dc-ie').value = calc.ie_ma.toFixed(2);
+      document.getElementById('h-fe').value = calc.hfe_val.toFixed(0);
+      document.getElementById('h-ie').value = calc.hie_k.toFixed(2);
     }
 
     function autoFillACFromSim() {
-      if (!STATE.currentSim) updateSim();
-      document.getElementById('ac-vi').value = STATE.vi_mv.toFixed(0);
-      document.getElementById('ac-vo').value = ((STATE.vi_mv / 1000) * STATE.currentSim.av).toFixed(2);
-      document.getElementById('ac-av').value = STATE.currentSim.av.toFixed(1);
-      document.getElementById('ac-zi').value = STATE.currentSim.zi_k.toFixed(2);
-      document.getElementById('ac-zo').value = STATE.currentSim.zo_k.toFixed(2);
+      const p = getActiveWorksheetParams();
+      const calc = calculateTheoreticalCircuit(p);
+
+      document.getElementById('ac-vi').value = 20;
+      document.getElementById('ac-vo').value = ((20 / 1000) * calc.av_eff).toFixed(2);
+      document.getElementById('ac-av').value = calc.av_eff.toFixed(1);
+      document.getElementById('ac-zi').value = (calc.zi_eff / 1000).toFixed(2);
+      document.getElementById('ac-zo').value = (calc.zo_eff / 1000).toFixed(2);
       document.getElementById('ac-phase').value = "180";
     }
 
@@ -1657,6 +1929,128 @@
       requestAnimationFrame(drawScope);
     }
 
+    // --- CLIENT LOCAL GRADING SOLVER ENGINE ---
+    function gradeClientLocally(data) {
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [];
+
+      const mode = data.param_mode || 'fixed';
+      const Vcc = parseFloat(data.param_vcc) || 12.0;
+      const R1 = (parseFloat(data.param_r1) || 33.0) * 1000;
+      const R2 = (parseFloat(data.param_r2) || 6.8) * 1000;
+      const Rc = (parseFloat(data.param_rc) || 2.2) * 1000;
+      const Re = parseFloat(data.param_re) || 560;
+      const Beta = parseFloat(data.param_beta) || 200;
+      const Vbe = 0.70;
+
+      const Vth = Vcc * (R2 / (R1 + R2));
+      const Rth = (R1 * R2) / (R1 + R2);
+      let Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re);
+      if (Ib < 0) Ib = 0;
+
+      const Ie = (Beta + 1) * Ib;
+      const Ic = Beta * Ib;
+      const Ve = Ie * Re;
+      const Vb = Ve + (Ib > 0 ? Vbe : 0);
+      const Vc = Math.max(0, Vcc - Ic * Rc);
+      const Ie_mA = Ie * 1000;
+      const re_calc = Ie_mA > 0 ? (26.0 / Ie_mA) : 9999;
+
+      const hfe_calc = Beta;
+      const hie_calc = Beta * re_calc;
+      const hie_k = hie_calc / 1000;
+      const Zi_calc = 1 / (1/R1 + 1/R2 + 1/hie_calc);
+      const Zo_calc = Rc;
+      const Av_calc = hie_calc > 0 ? ((hfe_calc * Rc) / hie_calc) : 0;
+
+      const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)';
+      feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
+      feedback.push(`  (พารามิเตอร์: Vcc=${Vcc}V, R1=${(R1/1000).toFixed(1)}k, R2=${(R2/1000).toFixed(1)}k, Rc=${(Rc/1000).toFixed(1)}k, RE=${Re}Ω, hfe=${Beta})`);
+
+      // Part 1: DC & h-parameters
+      const sVb = parseFloat(data.dc_vb) || 0;
+      const sVe = parseFloat(data.dc_ve) || 0;
+      const sVc = parseFloat(data.dc_vc) || 0;
+      const sIe = parseFloat(data.dc_ie) || 0;
+      const sHfe = parseFloat(data.h_fe) || 0;
+      const sHie = parseFloat(data.h_ie) || 0;
+
+      const vbOk = Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15);
+      const veOk = Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
+      const vcOk = Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
+      const ieOk = Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+
+      const hfeOk = Math.abs(sHfe - hfe_calc) <= Math.max(30, hfe_calc * 0.20);
+      const studentHie_k = sHie > 50 ? sHie / 1000 : sHie;
+      const studentCalculatedHie_k = (sIe > 0 && sHfe > 0) ? (sHfe * 26.0 / sIe / 1000) : hie_k;
+      const hieOk = Math.abs(studentHie_k - hie_k) <= Math.max(0.45, hie_k * 0.25) || Math.abs(studentHie_k - studentCalculatedHie_k) <= Math.max(0.35, studentCalculatedHie_k * 0.20);
+
+      let dcScore = (vbOk && veOk && vcOk && ieOk) ? 1 : 0;
+      let hfeScore = hfeOk ? 1 : 0;
+      let hieScore = hieOk ? 1 : 0;
+      let part1Score = dcScore + hfeScore + hieScore;
+      score += part1Score;
+
+      feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และการหาค่า h-Parameters: ได้ ${part1Score} / 3 คะแนน`);
+      if (dcScore) feedback.push(`  ✓ จุดทำงานกระแสตรง (Vb, Ve, Vc, Ie) ถูกต้อง`);
+      else feedback.push(`  ✗ จุดทำงานกระแสตรงคลาดเคลื่อน (Vb ~${Vb.toFixed(2)}V, Ve ~${Ve.toFixed(2)}V, Vc ~${Vc.toFixed(2)}V, Ie ~${Ie_mA.toFixed(2)}mA)`);
+      if (hfeScore) feedback.push(`  ✓ ค่าอัตราขยายกระแส hfe ถูกต้อง (~${hfe_calc})`);
+      else feedback.push(`  ✗ ค่า hfe คลาดเคลื่อน (กรอก ${sHfe}, คาดหวัง ~${hfe_calc})`);
+      if (hieScore) feedback.push(`  ✓ ค่าความต้านทานอินพุต hie ถูกต้อง (~${studentHie_k.toFixed(2)} kΩ, คาดหวัง ~${hie_k.toFixed(2)} kΩ)`);
+      else feedback.push(`  ✗ ค่า hie คลาดเคลื่อน (กรอก ${sHie}, คาดหวัง hie = hfe * re ≈ ${hie_k.toFixed(2)} kΩ)`);
+
+      // Part 2: AC Performance via h-Model
+      const sAv = Math.abs(parseFloat(data.ac_av) || 0);
+      const sZi = parseFloat(data.ac_zi) || 0;
+      const sZo = parseFloat(data.ac_zo) || 0;
+      const sPhase = parseInt(data.ac_phase) || 0;
+
+      const avOk = sAv >= (Av_calc * 0.70) && sAv <= (Av_calc * 1.30);
+      const studentZi_k = sZi > 50 ? sZi / 1000 : sZi;
+      const zi_k_expected = Zi_calc / 1000;
+      const ziOk = Math.abs(studentZi_k - zi_k_expected) <= Math.max(0.6, zi_k_expected * 0.40);
+      const studentZo_k = sZo > 50 ? sZo / 1000 : sZo;
+      const zo_k_expected = Zo_calc / 1000;
+      const zoOk = Math.abs(studentZo_k - zo_k_expected) <= Math.max(0.6, zo_k_expected * 0.35);
+      const phaseOk = sPhase === 180;
+
+      let part2Score = 0;
+      if (avOk) part2Score += 1;
+      if (ziOk && zoOk) part2Score += 1;
+      else if (ziOk || zoOk) part2Score += 0.5;
+      if (phaseOk) part2Score += 1;
+      score += Math.round(part2Score);
+
+      feedback.push(`\n[ตอนที่ 2] พารามิเตอร์วงจรขยายจากแบบจำลอง h-Model: ได้ ${Math.round(part2Score)} / 3 คะแนน`);
+      if (avOk) feedback.push(`  ✓ อัตราขยายแรงดัน Av = (hfe * Rc) / hie ถูกต้อง (~${sAv.toFixed(1)} เท่า, คาดหวัง ~${Av_calc.toFixed(1)})`);
+      else feedback.push(`  ✗ อัตราขยายแรงดัน Av คลาดเคลื่อน (กรอก ${sAv}, คาดหวัง Av ≈ ${Av_calc.toFixed(1)} เท่า)`);
+      if (ziOk) feedback.push(`  ✓ ความต้านทานอินพุต Zi ถูกต้อง (~${(Zi_calc/1000).toFixed(2)} kΩ)`);
+      if (phaseOk) feedback.push(`  ✓ เฟสสัญญาณกลับ 180 องศา ถูกต้อง`);
+
+      // Part 3: Post-lab questions
+      let qScore = 0;
+      if (data.q1_choice === 'b') qScore++;
+      if (data.q2_choice === 'a') qScore++;
+      if (data.q3_choice === 'c') qScore++;
+      if (data.q4_choice === 'b') qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 3] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} คะแนน)`);
+
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+      return {
+        status: 'success',
+        score: score,
+        maxScore: maxScore,
+        comment: comment,
+        feedback: feedback.join('\n')
+      };
+    }
+
     // --- GOOGLE APPS SCRIPT SUBMISSION & AUTO-GRADING ---
     function submitReportToGAS() {
       const name = document.getElementById('student-name').value.trim();
@@ -1675,11 +2069,20 @@
       const q3Val = document.querySelector('input[name="q3"]:checked')?.value || '';
       const q4Val = document.querySelector('input[name="q4"]:checked')?.value || '';
 
+      const p = getActiveWorksheetParams();
+
       const data = {
         studentName: name,
         studentId: id,
         studentGroup: group,
         labDate: date,
+        param_mode: WS_STATE.mode,
+        param_vcc: p.vcc,
+        param_r1: p.r1,
+        param_r2: p.r2,
+        param_rc: p.rc,
+        param_re: p.re,
+        param_beta: p.beta,
         dc_vb: document.getElementById('dc-vb').value.trim(),
         dc_ve: document.getElementById('dc-ve').value.trim(),
         dc_vc: document.getElementById('dc-vc').value.trim(),
@@ -1705,16 +2108,11 @@
           .withFailureHandler(onFailureGrading)
           .submitWorksheet(data);
       } else {
-        // Local simulation fallback
+        // Local simulation fallback with dynamic solver
         setTimeout(() => {
-          onSuccessGrading({
-            status: 'success',
-            score: 10,
-            maxScore: 10,
-            comment: 'ผ่านเกณฑ์ดีเยี่ยม (Local Simulator Test)',
-            feedback: '[ตอนที่ 1] จุดทำงาน DC และการหาค่า h-Parameters: ได้ 3 / 3 คะแนน\n  ✓ จุดทำงานกระแสตรงถูกต้อง\n  ✓ ค่าอัตราขยายกระแส hfe ถูกต้อง (200)\n  ✓ ค่าความต้านทานอินพุต hie ถูกต้อง (~2.38 kΩ)\n[ตอนที่ 2] พารามิเตอร์วงจรขยายจาก h-Model: ได้ 3 / 3 คะแนน\n  ✓ อัตราขยายแรงดัน Av = (hfe*Rc)/hie ถูกต้อง (~185 เท่า)\n  ✓ ความต้านทานอินพุต Zi ถูกต้อง (~1.61 kΩ)\n  ✓ เฟสสัญญาณกลับ 180 องศา ถูกต้อง\n[ตอนที่ 3] คำถามวัดความเข้าใจ: ตอบถูก 4 จาก 4 ข้อ (ได้ 4 คะแนน)'
-          });
-        }, 1200);
+          const localRes = gradeClientLocally(data);
+          onSuccessGrading(localRes);
+        }, 800);
       }
     }
 
