@@ -1466,6 +1466,7 @@
 
       updateSim();
     }
+    window.selectTransistorModel = selectTransistorModel;
 
     function onCustomBetaChange() {
       const sliderBeta = document.getElementById('slider-beta');
@@ -1513,6 +1514,7 @@
 
       updateSim();
     }
+    window.onCustomBetaChange = onCustomBetaChange;
 
     function selectWorksheetTransistorModel(modelKey) {
       if (!BJT_MODELS[modelKey]) return;
@@ -1523,6 +1525,7 @@
         onWorksheetParamChange();
       }
     }
+    window.selectWorksheetTransistorModel = selectWorksheetTransistorModel;
 
     // Tab Switching
     function switchTab(tabId) {

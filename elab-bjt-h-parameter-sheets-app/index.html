@@ -1408,15 +1408,24 @@
        JAVASCRIPT SIMULATOR & CLIENT LOGIC
        =================================================================== -->
   <script>
+    // Transistor Model Presets
+    const BJT_MODELS = {
+      '2N2222': { name: '2N2222', type: 'NPN General Purpose / Switch', beta: 200, vbe: 0.70, hoe_us: 25, desc: '💡 2N2222: NPN สวิตชิ่งและขยายสัญญาณอเนกประสงค์ (h_fe = 200, V_BE = 0.70V, h_oe = 25µS)' },
+      'BC108':  { name: 'BC108',  type: 'NPN Low-Noise Audio / GP',      beta: 250, vbe: 0.68, hoe_us: 30, desc: '💡 BC108: สัญญาณรบกวนต่ำ เหมาะกับภาคปรีแอมป์ขยายเสียง (h_fe = 250, V_BE = 0.68V, h_oe = 30µS)' },
+      'BD137':  { name: 'BD137',  type: 'NPN Medium Power / Driver',     beta: 100, vbe: 0.75, hoe_us: 50, desc: '💡 BD137: ทรานซิสเตอร์กำลังปานกลาง ไดรเวอร์กระแสสูง (h_fe = 100, V_BE = 0.75V, h_oe = 50µS)' },
+      'BC547':  { name: 'BC547',  type: 'NPN General Purpose Amplifier', beta: 300, vbe: 0.68, hoe_us: 20, desc: '💡 BC547: เบอร์มาตรฐานยอดนิยมในห้องแล็บขยายสัญญาณ (h_fe = 300, V_BE = 0.68V, h_oe = 20µS)' }
+    };
+
     // State Object
     const STATE = {
+      selectedModel: '2N2222',
       vcc: 12.0,
       r1: 33000,
       r2: 6800,
       rc: 2200,
       re: 560,
       hfe: 200,
-      hoe_us: 20,
+      hoe_us: 25,
       vbe: 0.70,
       vi_mv: 20,
       hasBypass: true,
@@ -1424,6 +1433,112 @@
       scopeRunning: true,
       time: 0
     };
+
+    function selectTransistorModel(modelKey) {
+      if (!BJT_MODELS[modelKey]) return;
+      STATE.selectedModel = modelKey;
+      const m = BJT_MODELS[modelKey];
+      STATE.hfe = m.beta;
+      STATE.vbe = m.vbe;
+      STATE.hoe_us = m.hoe_us;
+
+      const sliderHfe = document.getElementById('slider-hfe');
+      if (sliderHfe) sliderHfe.value = m.beta;
+      const valHfe = document.getElementById('val-hfe');
+      if (valHfe) valHfe.innerText = m.beta;
+
+      const sliderHoe = document.getElementById('slider-hoe');
+      if (sliderHoe) sliderHoe.value = m.hoe_us;
+      const valHoe = document.getElementById('val-hoe');
+      if (valHoe) valHoe.innerText = m.hoe_us.toFixed(0) + ' µS';
+
+      ['2n2222', 'bc108', 'bd137', 'bc547'].forEach(key => {
+        const btn = document.getElementById('btn-model-' + key);
+        if (btn) {
+          if (key === modelKey.toLowerCase()) {
+            btn.classList.add('active');
+            btn.style.background = 'rgba(168, 85, 247, 0.25)';
+            btn.style.borderColor = 'var(--accent-purple)';
+            btn.style.color = '#d8b4fe';
+          } else {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'var(--border-color)';
+            btn.style.color = 'var(--text-muted)';
+          }
+        }
+      });
+
+      const badge = document.getElementById('txt-bjt-model-badge');
+      if (badge) badge.innerText = m.name + ' (hfe=' + m.beta + ')';
+      const desc = document.getElementById('txt-bjt-model-desc');
+      if (desc) desc.innerText = m.desc;
+      const svgPart = document.getElementById('svg-txt-q1-part');
+      if (svgPart) svgPart.textContent = 'Q1: ' + m.name;
+
+      updateSim();
+    }
+    window.selectTransistorModel = selectTransistorModel;
+
+    function onCustomHfeChange() {
+      const sliderHfe = document.getElementById('slider-hfe');
+      if (!sliderHfe) return;
+      const val = parseFloat(sliderHfe.value);
+      STATE.hfe = val;
+
+      let matchedModel = null;
+      for (const k in BJT_MODELS) {
+        if (BJT_MODELS[k].beta === val) {
+          matchedModel = k;
+          break;
+        }
+      }
+
+      ['2n2222', 'bc108', 'bd137', 'bc547'].forEach(key => {
+        const btn = document.getElementById('btn-model-' + key);
+        if (btn) {
+          if (matchedModel && key === matchedModel.toLowerCase()) {
+            btn.classList.add('active');
+            btn.style.background = 'rgba(168, 85, 247, 0.25)';
+            btn.style.borderColor = 'var(--accent-purple)';
+            btn.style.color = '#d8b4fe';
+          } else {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'var(--border-color)';
+            btn.style.color = 'var(--text-muted)';
+          }
+        }
+      });
+
+      const badge = document.getElementById('txt-bjt-model-badge');
+      const svgPart = document.getElementById('svg-txt-q1-part');
+      if (matchedModel) {
+        STATE.selectedModel = matchedModel;
+        STATE.vbe = BJT_MODELS[matchedModel].vbe;
+        STATE.hoe_us = BJT_MODELS[matchedModel].hoe_us;
+        if (badge) badge.innerText = matchedModel + ' (hfe=' + val + ')';
+        if (svgPart) svgPart.textContent = 'Q1: ' + matchedModel;
+      } else {
+        STATE.selectedModel = 'Custom';
+        if (badge) badge.innerText = 'Custom (hfe=' + val + ')';
+        if (svgPart) svgPart.textContent = 'Q1 (hfe=' + val + ')';
+      }
+
+      updateSim();
+    }
+    window.onCustomHfeChange = onCustomHfeChange;
+
+    function selectWorksheetTransistorModel(modelKey) {
+      if (!BJT_MODELS[modelKey]) return;
+      const m = BJT_MODELS[modelKey];
+      const betaInput = document.getElementById('ws-param-beta');
+      if (betaInput) {
+        betaInput.value = m.beta;
+        onWorksheetParamChange();
+      }
+    }
+    window.selectWorksheetTransistorModel = selectWorksheetTransistorModel;
 
     // Tab Switching
     function switchTab(tabId) {
