@@ -793,21 +793,40 @@
               </div>
             </div>
 
+            <!-- BJT Transistor Model Selection -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+              <div class="control-label" style="margin-bottom: 6px;">
+                <span style="font-size: 13px; font-weight: 600;">🏷️ เลือกรุ่นทรานซิสเตอร์ (BJT Model)</span>
+                <span id="txt-bjt-model-badge" class="badge" style="background: rgba(168, 85, 247, 0.2); border: 1px solid var(--accent-purple); color: #c084fc; font-size: 11px; padding: 2px 8px;">
+                  2N2222 (hfe=200)
+                </span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
+                <button type="button" class="btn btn-secondary active" id="btn-model-2n2222" onclick="selectTransistorModel('2N2222')" style="font-size: 11px; padding: 6px 2px; text-align: center; border-color: var(--accent-purple); background: rgba(168, 85, 247, 0.25); color: #d8b4fe;">2N2222</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bc108" onclick="selectTransistorModel('BC108')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BC108</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bd137" onclick="selectTransistorModel('BD137')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BD137</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bc547" onclick="selectTransistorModel('BC547')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BC547</button>
+              </div>
+              <p id="txt-bjt-model-desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 0;">
+                💡 2N2222: NPN สวิตชิ่งและขยายสัญญาณอเนกประสงค์ (h<sub>fe</sub> = 200, V<sub>BE</sub> = 0.70V, h<sub>oe</sub> = 25µS)
+              </p>
+            </div>
+
             <div class="grid-2">
               <div class="control-group">
                 <div class="control-label">
-                  <span>อัตราขยายกระแส h<sub>fe</sub> (β)</span>
+                  <span>อัตราขยายกระแส h<sub>fe</sub></span>
                   <span class="val" id="val-hfe">200</span>
                 </div>
-                <input type="range" id="slider-hfe" min="100" max="400" step="10" value="200" oninput="updateSim()">
+                <input type="range" id="slider-hfe" min="50" max="500" step="5" value="200" oninput="onCustomHfeChange()">
               </div>
 
               <div class="control-group">
                 <div class="control-label">
                   <span>ความนำเอาต์พุต h<sub>oe</sub></span>
-                  <span class="val" id="val-hoe">20 µS</span>
+                  <span class="val" id="val-hoe">25 µS</span>
                 </div>
-                <input type="range" id="slider-hoe" min="0" max="50" step="5" value="20" oninput="updateSim()">
+                <input type="range" id="slider-hoe" min="0" max="80" step="5" value="25" oninput="updateSim()">
               </div>
             </div>
 
@@ -1138,6 +1157,17 @@
                 <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="resetWorksheetToDefault()" title="คืนค่าพารามิเตอร์ตั้งต้น">
                   ⏪ คืนค่ามาตรฐาน
                 </button>
+              </div>
+            </div>
+
+            <!-- Transistor Quick Presets in Custom Panel -->
+            <div style="margin-bottom: 12px; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 12px; color: var(--text-muted);">เลือกเบอร์ทรานซิสเตอร์อ้างอิง:</span>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('2N2222')">2N2222 (hfe=200)</button>
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('BC108')">BC108 (hfe=250)</button>
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('BD137')">BD137 (hfe=100)</button>
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('BC547')">BC547 (hfe=300)</button>
               </div>
             </div>
 

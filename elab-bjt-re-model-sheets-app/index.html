@@ -790,12 +790,31 @@
               </div>
             </div>
 
+            <!-- BJT Transistor Model Selection -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+              <div class="control-label" style="margin-bottom: 6px;">
+                <span style="font-size: 13px; font-weight: 600;">🏷️ เลือกรุ่นทรานซิสเตอร์ (BJT Model)</span>
+                <span id="txt-bjt-model-badge" class="badge" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-size: 11px; padding: 2px 8px;">
+                  2N2222 (β=200)
+                </span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
+                <button type="button" class="btn btn-secondary active" id="btn-model-2n2222" onclick="selectTransistorModel('2N2222')" style="font-size: 11px; padding: 6px 2px; text-align: center; border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.25); color: #38bdf8;">2N2222</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bc108" onclick="selectTransistorModel('BC108')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BC108</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bd137" onclick="selectTransistorModel('BD137')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BD137</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bc547" onclick="selectTransistorModel('BC547')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BC547</button>
+              </div>
+              <p id="txt-bjt-model-desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 0;">
+                💡 2N2222: NPN สวิตชิ่งและขยายสัญญาณอเนกประสงค์ (β = 200, V<sub>BE</sub> = 0.70V)
+              </p>
+            </div>
+
             <div class="control-group">
               <div class="control-label">
                 <span>อัตราขยายกระแสไฟตรง (β or h<sub>FE</sub>)</span>
                 <span class="val" id="val-beta">200</span>
               </div>
-              <input type="range" id="slider-beta" min="100" max="400" step="10" value="200" oninput="updateSim()">
+              <input type="range" id="slider-beta" min="50" max="500" step="5" value="200" oninput="onCustomBetaChange()">
             </div>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
@@ -879,6 +898,8 @@
                 <line x1="240" y1="135" x2="270" y2="160" stroke="#94a3b8" stroke-width="2" />
                 <polygon points="268,158 255,148 262,143" fill="#10b981" />
                 <line x1="270" y1="160" x2="270" y2="175" stroke="#94a3b8" stroke-width="2" />
+                <!-- Q1 Model Label -->
+                <text id="svg-txt-q1-part" x="245" y="95" fill="#facc15" font-size="10" font-weight="bold" font-family="Chakra Petch">Q1: 2N2222</text>
 
                 <!-- Collector Branch (RC) -->
                 <rect x="260" y="25" width="20" height="35" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
@@ -1136,6 +1157,17 @@
               </div>
             </div>
 
+            <!-- Transistor Quick Presets in Custom Panel -->
+            <div style="margin-bottom: 12px; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 12px; color: var(--text-muted);">เลือกเบอร์ทรานซิสเตอร์อ้างอิง:</span>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('2N2222')">2N2222 (β=200)</button>
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('BC108')">BC108 (β=250)</button>
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('BD137')">BD137 (β=100)</button>
+                <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="selectWorksheetTransistorModel('BC547')">BC547 (β=300)</button>
+              </div>
+            </div>
+
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
               <div class="form-group" style="margin-bottom: 0;">
                 <label style="font-size: 12px;">V<sub>CC</sub> (V):</label>
@@ -1371,8 +1403,17 @@
        JAVASCRIPT SIMULATOR & CLIENT LOGIC
        =================================================================== -->
   <script>
+    // Transistor Model Presets
+    const BJT_MODELS = {
+      '2N2222': { name: '2N2222', type: 'NPN General Purpose / Switch', beta: 200, vbe: 0.70, desc: '💡 2N2222: NPN สวิตชิ่งและขยายสัญญาณอเนกประสงค์ (β = 200, V_BE = 0.70V)' },
+      'BC108':  { name: 'BC108',  type: 'NPN Low-Noise Audio / GP',      beta: 250, vbe: 0.68, desc: '💡 BC108: สัญญาณรบกวนต่ำ เหมาะกับภาคปรีแอมป์ขยายเสียง (β = 250, V_BE = 0.68V)' },
+      'BD137':  { name: 'BD137',  type: 'NPN Medium Power / Driver',     beta: 100, vbe: 0.75, desc: '💡 BD137: ทรานซิสเตอร์กำลังปานกลาง ไดรเวอร์กระแสสูง (β = 100, V_BE = 0.75V)' },
+      'BC547':  { name: 'BC547',  type: 'NPN General Purpose Amplifier', beta: 300, vbe: 0.68, desc: '💡 BC547: เบอร์มาตรฐานยอดนิยมในห้องแล็บขยายสัญญาณ (β = 300, V_BE = 0.68V)' }
+    };
+
     // State Object
     const STATE = {
+      selectedModel: '2N2222',
       vcc: 12.0,
       r1: 33000,
       r2: 6800,
@@ -1386,6 +1427,102 @@
       time: 0,
       animId: null
     };
+
+    function selectTransistorModel(modelKey) {
+      if (!BJT_MODELS[modelKey]) return;
+      STATE.selectedModel = modelKey;
+      const m = BJT_MODELS[modelKey];
+      STATE.beta = m.beta;
+      STATE.vbe = m.vbe;
+
+      const sliderBeta = document.getElementById('slider-beta');
+      if (sliderBeta) sliderBeta.value = m.beta;
+      const valBeta = document.getElementById('val-beta');
+      if (valBeta) valBeta.innerText = m.beta;
+
+      ['2n2222', 'bc108', 'bd137', 'bc547'].forEach(key => {
+        const btn = document.getElementById('btn-model-' + key);
+        if (btn) {
+          if (key === modelKey.toLowerCase()) {
+            btn.classList.add('active');
+            btn.style.background = 'rgba(56, 189, 248, 0.25)';
+            btn.style.borderColor = 'var(--accent-cyan)';
+            btn.style.color = '#38bdf8';
+          } else {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'var(--border-color)';
+            btn.style.color = 'var(--text-muted)';
+          }
+        }
+      });
+
+      const badge = document.getElementById('txt-bjt-model-badge');
+      if (badge) badge.innerText = m.name + ' (β=' + m.beta + ')';
+      const desc = document.getElementById('txt-bjt-model-desc');
+      if (desc) desc.innerText = m.desc;
+      const svgPart = document.getElementById('svg-txt-q1-part');
+      if (svgPart) svgPart.textContent = 'Q1: ' + m.name;
+
+      updateSim();
+    }
+
+    function onCustomBetaChange() {
+      const sliderBeta = document.getElementById('slider-beta');
+      if (!sliderBeta) return;
+      const val = parseFloat(sliderBeta.value);
+      STATE.beta = val;
+
+      let matchedModel = null;
+      for (const k in BJT_MODELS) {
+        if (BJT_MODELS[k].beta === val) {
+          matchedModel = k;
+          break;
+        }
+      }
+
+      ['2n2222', 'bc108', 'bd137', 'bc547'].forEach(key => {
+        const btn = document.getElementById('btn-model-' + key);
+        if (btn) {
+          if (matchedModel && key === matchedModel.toLowerCase()) {
+            btn.classList.add('active');
+            btn.style.background = 'rgba(56, 189, 248, 0.25)';
+            btn.style.borderColor = 'var(--accent-cyan)';
+            btn.style.color = '#38bdf8';
+          } else {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'var(--border-color)';
+            btn.style.color = 'var(--text-muted)';
+          }
+        }
+      });
+
+      const badge = document.getElementById('txt-bjt-model-badge');
+      const svgPart = document.getElementById('svg-txt-q1-part');
+      if (matchedModel) {
+        STATE.selectedModel = matchedModel;
+        STATE.vbe = BJT_MODELS[matchedModel].vbe;
+        if (badge) badge.innerText = matchedModel + ' (β=' + val + ')';
+        if (svgPart) svgPart.textContent = 'Q1: ' + matchedModel;
+      } else {
+        STATE.selectedModel = 'Custom';
+        if (badge) badge.innerText = 'Custom (β=' + val + ')';
+        if (svgPart) svgPart.textContent = 'Q1 (β=' + val + ')';
+      }
+
+      updateSim();
+    }
+
+    function selectWorksheetTransistorModel(modelKey) {
+      if (!BJT_MODELS[modelKey]) return;
+      const m = BJT_MODELS[modelKey];
+      const betaInput = document.getElementById('ws-param-beta');
+      if (betaInput) {
+        betaInput.value = m.beta;
+        onWorksheetParamChange();
+      }
+    }
 
     // Tab Switching
     function switchTab(tabId) {
