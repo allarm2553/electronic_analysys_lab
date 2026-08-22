@@ -201,14 +201,15 @@
       margin-bottom: 16px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 8px;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 10px;
     }
 
     .card-title .number {
       color: var(--accent-cyan);
-      margin-right: 6px;
+      margin-right: 4px;
     }
 
     /* Buttons */
@@ -587,7 +588,7 @@
         </header>
 
         <div class="card">
-          <h2 class="card-title"><span class="number">1.</span> วัตถุประสงค์การทดลอง (Objectives)</h2>
+          <h2 class="card-title"><span class="number">1.</span> <span>วัตถุประสงค์การทดลอง (Objectives)</span></h2>
           <ul style="margin-left: 20px; color: var(--text-main);">
             <li>เพื่อศึกษาจุดทำงานทางไฟฟ้ากระแสตรง (DC Operating Point: Q-Point) ของวงจรขยายสัญญาณขนาดเล็กที่ใช้ JFET และ MOSFET</li>
             <li>เพื่อคำนวณและวัดค่าความนำข้ามทางไฟฟ้า (Transconductance: <strong>g<sub>m</sub></strong>) ของ FET ในสภาวะสัญญาณขนาดเล็ก</li>
@@ -597,7 +598,7 @@
         </div>
 
         <div class="card">
-          <h2 class="card-title"><span class="number">2.</span> สมการและแบบจำลองสัญญาณขนาดเล็ก (FET Small-Signal Model)</h2>
+          <h2 class="card-title"><span class="number">2.</span> <span>สมการและแบบจำลองสัญญาณขนาดเล็ก (FET Small-Signal Model)</span></h2>
           
           <div class="grid-2">
             <div>
@@ -631,7 +632,7 @@
         </div>
 
         <div class="card">
-          <h2 class="card-title"><span class="number">3.</span> ตารางเปรียบเทียบคุณลักษณะระหว่างวงจรมีและไม่มี C<sub>S</sub></h2>
+          <h2 class="card-title"><span class="number">3.</span> <span>ตารางเปรียบเทียบคุณลักษณะระหว่างวงจรมีและไม่มี C<sub>S</sub></span></h2>
           <table class="lab-table">
             <thead>
               <tr>
@@ -688,9 +689,9 @@
         <!-- TOP CONTROLS: MODEL SELECTOR & SWITCHES -->
         <div class="card no-print" style="margin-bottom: 20px; border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.75);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-            <h2 class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan);">
-              🏷️ เลือกเบอร์อุปกรณ์ FET / MOSFET
-            </h2>
+            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
+              <span>🏷️</span> <span>เลือกเบอร์อุปกรณ์ FET / MOSFET</span>
+            </div>
             <span id="txt-sim-model-badge" class="badge badge-cyan" style="font-size: 12px; padding: 4px 10px;">
               เบอร์ปัจจุบัน: 2N5458 (JFET N-Ch, Idss=6mA, Vp=-3.5V)
             </span>
@@ -762,124 +763,124 @@
               </h3>
               
               <div style="background: #090d16; border-radius: 8px; border: 1px solid var(--border-color); padding: 10px; overflow-x: auto;">
-                <svg id="schematic-svg" viewBox="0 0 520 280" width="100%" height="240">
+                <svg id="schematic-svg" viewBox="0 0 540 280" width="100%" height="240" style="display: block; margin: 0 auto;">
                   <!-- Real Circuit Schematic -->
                   <g id="schematic-real">
                     <!-- Rails -->
-                    <line x1="60" y1="30" x2="460" y2="30" stroke="#ef4444" stroke-width="2.5"/>
-                    <text x="475" y="34" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold">+V<sub>DD</sub> (18V)</text>
-                    <line x1="60" y1="250" x2="460" y2="250" stroke="#3b82f6" stroke-width="2.5"/>
-                    <text x="475" y="254" fill="#3b82f6" font-family="Chakra Petch" font-size="12">GND</text>
+                    <line x1="50" y1="30" x2="450" y2="30" stroke="#ef4444" stroke-width="2.5"/>
+                    <text x="460" y="34" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold">+VDD (+18V)</text>
+                    <line x1="50" y1="250" x2="450" y2="250" stroke="#3b82f6" stroke-width="2.5"/>
+                    <text x="460" y="254" fill="#3b82f6" font-family="Chakra Petch" font-size="12">GND</text>
                     
-                    <!-- Resistors -->
-                    <!-- R1 -->
-                    <line x1="140" y1="30" x2="140" y2="80" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="130" y="80" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="105" y="105" fill="#f59e0b" font-family="Chakra Petch" font-size="11">R<sub>1</sub>=2.2M</text>
-                    <line x1="140" y1="120" x2="140" y2="160" stroke="#94a3b8" stroke-width="2"/>
+                    <!-- Resistor R1 -->
+                    <line x1="140" y1="30" x2="140" y2="70" stroke="#94a3b8" stroke-width="2"/>
+                    <rect x="130" y="70" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="140" y="60" fill="#f59e0b" font-family="Chakra Petch" font-size="11" text-anchor="middle">R1 = 2.2MΩ</text>
+                    <line x1="140" y1="110" x2="140" y2="170" stroke="#94a3b8" stroke-width="2"/>
                     
-                    <!-- R2 -->
-                    <rect x="130" y="160" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="105" y="185" fill="#f59e0b" font-family="Chakra Petch" font-size="11">R<sub>2</sub>=270k</text>
-                    <line x1="140" y1="200" x2="140" y2="250" stroke="#94a3b8" stroke-width="2"/>
+                    <!-- Resistor R2 -->
+                    <rect x="130" y="170" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="140" y="225" fill="#f59e0b" font-family="Chakra Petch" font-size="11" text-anchor="middle">R2 = 270kΩ</text>
+                    <line x1="140" y1="210" x2="140" y2="250" stroke="#94a3b8" stroke-width="2"/>
                     
-                    <!-- Gate input -->
-                    <line x1="60" y1="140" x2="140" y2="140" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="140" y1="140" x2="220" y2="140" stroke="#94a3b8" stroke-width="2"/>
-                    <!-- C1 -->
-                    <line x1="85" y1="130" x2="85" y2="150" stroke="#38bdf8" stroke-width="3"/>
-                    <line x1="95" y1="130" x2="95" y2="150" stroke="#38bdf8" stroke-width="3"/>
-                    <text x="90" y="120" fill="#38bdf8" font-family="Chakra Petch" font-size="10" text-anchor="middle">C<sub>1</sub>=0.1μF</text>
-                    <circle cx="60" cy="140" r="4" fill="#fbbf24"/>
-                    <text x="45" y="144" fill="#fbbf24" font-family="Chakra Petch" font-size="11" font-weight="bold">v<sub>i</sub></text>
+                    <!-- Input C1 branch -->
+                    <line x1="50" y1="140" x2="80" y2="140" stroke="#94a3b8" stroke-width="2"/>
+                    <line x1="80" y1="128" x2="80" y2="152" stroke="#38bdf8" stroke-width="3"/>
+                    <line x1="88" y1="128" x2="88" y2="152" stroke="#38bdf8" stroke-width="3"/>
+                    <text x="84" y="120" fill="#38bdf8" font-family="Chakra Petch" font-size="10" text-anchor="middle">C1 = 0.1μF</text>
+                    <line x1="88" y1="140" x2="140" y2="140" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="50" cy="140" r="5" fill="#fbbf24"/>
+                    <text x="35" y="144" fill="#fbbf24" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="end">vi</text>
+                    
+                    <!-- Gate connection to JFET -->
+                    <line x1="140" y1="140" x2="215" y2="140" stroke="#94a3b8" stroke-width="2"/>
                     
                     <!-- JFET Symbol -->
-                    <circle cx="250" cy="140" r="28" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
-                    <!-- Gate bar -->
-                    <line x1="240" y1="125" x2="240" y2="155" stroke="#cbd5e1" stroke-width="3"/>
+                    <circle cx="245" cy="140" r="28" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+                    <!-- Gate Bar -->
+                    <line x1="235" y1="125" x2="235" y2="155" stroke="#cbd5e1" stroke-width="3.5"/>
                     <!-- Gate terminal with arrow -->
-                    <line x1="220" y1="140" x2="240" y2="140" stroke="#cbd5e1" stroke-width="2"/>
-                    <polygon points="230,136 240,140 230,144" fill="#38bdf8"/>
+                    <line x1="215" y1="140" x2="235" y2="140" stroke="#cbd5e1" stroke-width="2"/>
+                    <polygon points="224,136 235,140 224,144" fill="#38bdf8"/>
                     <!-- Drain & Source lines -->
-                    <line x1="240" y1="130" x2="260" y2="130" stroke="#cbd5e1" stroke-width="2"/>
-                    <line x1="260" y1="130" x2="260" y2="90" stroke="#cbd5e1" stroke-width="2"/>
-                    <line x1="240" y1="150" x2="260" y2="150" stroke="#cbd5e1" stroke-width="2"/>
-                    <line x1="260" y1="150" x2="260" y2="190" stroke="#cbd5e1" stroke-width="2"/>
-                    <text id="svg-fet-tag" x="250" y="112" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="middle">Q1: 2N5458</text>
+                    <line x1="235" y1="130" x2="255" y2="130" stroke="#cbd5e1" stroke-width="2"/>
+                    <line x1="255" y1="130" x2="255" y2="90" stroke="#cbd5e1" stroke-width="2"/>
+                    <line x1="235" y1="150" x2="255" y2="150" stroke="#cbd5e1" stroke-width="2"/>
+                    <line x1="255" y1="150" x2="255" y2="190" stroke="#cbd5e1" stroke-width="2"/>
+                    <text id="svg-fet-tag" x="245" y="105" fill="#38bdf8" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">Q1: 2N5458</text>
                     
-                    <!-- RD -->
-                    <line x1="260" y1="30" x2="260" y2="50" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="250" y="50" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="280" y="75" fill="#f59e0b" font-family="Chakra Petch" font-size="11">R<sub>D</sub>=2.2k</text>
-                    <line x1="260" y1="90" x2="330" y2="90" stroke="#94a3b8" stroke-width="2"/>
+                    <!-- Resistor RD -->
+                    <line x1="255" y1="30" x2="255" y2="50" stroke="#94a3b8" stroke-width="2"/>
+                    <rect x="245" y="50" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="275" y="74" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RD = 2.2kΩ</text>
+                    <line x1="255" y1="90" x2="330" y2="90" stroke="#94a3b8" stroke-width="2"/>
                     
-                    <!-- RS and CS -->
-                    <rect x="250" y="190" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="215" y="215" fill="#f59e0b" font-family="Chakra Petch" font-size="11">R<sub>S</sub>=1.0k</text>
-                    <line x1="260" y1="230" x2="260" y2="250" stroke="#94a3b8" stroke-width="2"/>
+                    <!-- Resistor RS and CS branch -->
+                    <rect x="245" y="190" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="205" y="215" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RS = 1.0kΩ</text>
+                    <line x1="255" y1="230" x2="255" y2="250" stroke="#94a3b8" stroke-width="2"/>
                     
-                    <!-- CS branch -->
-                    <line x1="260" y1="170" x2="310" y2="170" stroke="#94a3b8" stroke-width="2"/>
+                    <!-- CS capacitor -->
+                    <line x1="255" y1="170" x2="310" y2="170" stroke="#94a3b8" stroke-width="2"/>
                     <line x1="310" y1="170" x2="310" y2="195" stroke="#94a3b8" stroke-width="2"/>
                     <line x1="300" y1="195" x2="320" y2="195" stroke="#34d399" stroke-width="3" id="svg-cs-plate1"/>
                     <line x1="300" y1="205" x2="320" y2="205" stroke="#34d399" stroke-width="3" id="svg-cs-plate2"/>
                     <line x1="310" y1="205" x2="310" y2="250" stroke="#94a3b8" stroke-width="2"/>
-                    <text id="svg-cs-label" x="330" y="204" fill="#34d399" font-family="Chakra Petch" font-size="11" font-weight="bold">C<sub>S</sub>=10μF (ON)</text>
+                    <text id="svg-cs-label" x="330" y="204" fill="#34d399" font-family="Chakra Petch" font-size="11" font-weight="bold">CS = 10μF (ON)</text>
                     
-                    <!-- Output C2 -->
-                    <!-- C2 -->
-                    <line x1="330" y1="80" x2="330" y2="100" stroke="#38bdf8" stroke-width="3"/>
-                    <line x1="340" y1="80" x2="340" y2="100" stroke="#38bdf8" stroke-width="3"/>
-                    <line x1="340" y1="90" x2="410" y2="90" stroke="#94a3b8" stroke-width="2"/>
-                    <text x="335" y="72" fill="#38bdf8" font-family="Chakra Petch" font-size="10" text-anchor="middle">C<sub>2</sub>=0.1μF</text>
-                    <circle cx="410" cy="90" r="4" fill="#38bdf8"/>
-                    <text x="425" y="94" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">v<sub>o</sub></text>
+                    <!-- Output C2 branch -->
+                    <line x1="330" y1="78" x2="330" y2="102" stroke="#38bdf8" stroke-width="3"/>
+                    <line x1="338" y1="78" x2="338" y2="102" stroke="#38bdf8" stroke-width="3"/>
+                    <line x1="338" y1="90" x2="410" y2="90" stroke="#94a3b8" stroke-width="2"/>
+                    <text x="334" y="70" fill="#38bdf8" font-family="Chakra Petch" font-size="10" text-anchor="middle">C2 = 0.1μF</text>
+                    <circle cx="410" cy="90" r="5" fill="#38bdf8"/>
+                    <text x="425" y="94" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">vo</text>
                   </g>
 
                   <!-- AC gm Model Schematic (Initially Hidden) -->
                   <g id="schematic-ac" style="display: none;">
-                    <rect x="20" y="20" width="480" height="240" rx="8" fill="#0b1329" stroke="#38bdf8" stroke-dasharray="4 4"/>
-                    <text x="260" y="45" fill="#38bdf8" font-family="Chakra Petch" font-size="13" font-weight="bold" text-anchor="middle">AC Small-Signal g<sub>m</sub> Equivalent Circuit Model</text>
+                    <rect x="20" y="20" width="500" height="240" rx="8" fill="#0b1329" stroke="#38bdf8" stroke-dasharray="4 4"/>
+                    <text x="270" y="45" fill="#38bdf8" font-family="Chakra Petch" font-size="13" font-weight="bold" text-anchor="middle">AC Small-Signal gm Equivalent Circuit Model</text>
                     
                     <!-- Gate Input & RG -->
-                    <circle cx="50" cy="130" r="4" fill="#fbbf24"/>
-                    <text x="40" y="134" fill="#fbbf24" font-family="Chakra Petch" font-size="11" font-weight="bold">v<sub>i</sub></text>
+                    <circle cx="50" cy="130" r="5" fill="#fbbf24"/>
+                    <text x="40" y="134" fill="#fbbf24" font-family="Chakra Petch" font-size="11" font-weight="bold">vi</text>
                     <line x1="50" y1="130" x2="120" y2="130" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="110" y="145" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="75" y="170" fill="#f59e0b" font-family="Chakra Petch" font-size="11">R<sub>G</sub>=R<sub>1</sub>∥R<sub>2</sub></text>
+                    <rect x="110" y="145" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="65" y="170" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RG = R1 || R2</text>
                     <line x1="120" y1="130" x2="120" y2="145" stroke="#94a3b8" stroke-width="2"/>
                     <line x1="120" y1="185" x2="120" y2="220" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="50" y1="220" x2="470" y2="220" stroke="#3b82f6" stroke-width="2"/>
+                    <line x1="50" y1="220" x2="480" y2="220" stroke="#3b82f6" stroke-width="2"/>
                     
                     <!-- Open Circuit Gate-Source (vgs) -->
                     <line x1="120" y1="130" x2="190" y2="130" stroke="#94a3b8" stroke-width="2"/>
-                    <circle cx="190" cy="130" r="3" fill="#cbd5e1"/>
-                    <text x="190" y="120" fill="#38bdf8" font-family="Chakra Petch" font-size="11" text-anchor="middle">Gate (G)</text>
-                    <text x="210" y="170" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold">+  v<sub>gs</sub>  −</text>
+                    <circle cx="190" cy="130" r="4" fill="#cbd5e1"/>
+                    <text x="190" y="118" fill="#38bdf8" font-family="Chakra Petch" font-size="11" text-anchor="middle">Gate (G)</text>
+                    <text x="210" y="170" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold">+  vgs  −</text>
                     
                     <!-- Dependent Current Source gm*vgs -->
-                    <circle cx="280" cy="150" r="22" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
-                    <polygon points="280,165 285,145 275,145" fill="#34d399"/>
-                    <line x1="280" y1="135" x2="280" y2="155" stroke="#34d399" stroke-width="2"/>
-                    <text x="280" y="120" fill="#34d399" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">g<sub>m</sub> · v<sub>gs</sub></text>
-                    <line x1="280" y1="172" x2="280" y2="220" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="280" y1="128" x2="280" y2="90" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="280" y1="90" x2="450" y2="90" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="290" cy="150" r="22" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+                    <polygon points="290,165 295,145 285,145" fill="#34d399"/>
+                    <line x1="290" y1="135" x2="290" y2="155" stroke="#34d399" stroke-width="2"/>
+                    <text x="290" y="120" fill="#34d399" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">gm · vgs</text>
+                    <line x1="290" y1="172" x2="290" y2="220" stroke="#94a3b8" stroke-width="2"/>
+                    <line x1="290" y1="128" x2="290" y2="90" stroke="#94a3b8" stroke-width="2"/>
+                    <line x1="290" y1="90" x2="450" y2="90" stroke="#94a3b8" stroke-width="2"/>
                     
                     <!-- rd and RD -->
-                    <line x1="360" y1="90" x2="360" y2="135" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="350" y="135" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="380" y="160" fill="#f59e0b" font-family="Chakra Petch" font-size="11">r<sub>d</sub>=40k</text>
-                    <line x1="360" y1="175" x2="360" y2="220" stroke="#94a3b8" stroke-width="2"/>
+                    <line x1="365" y1="90" x2="365" y2="135" stroke="#94a3b8" stroke-width="2"/>
+                    <rect x="355" y="135" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="385" y="160" fill="#f59e0b" font-family="Chakra Petch" font-size="11">rd = 40kΩ</text>
+                    <line x1="365" y1="175" x2="365" y2="220" stroke="#94a3b8" stroke-width="2"/>
                     
-                    <line x1="420" y1="90" x2="420" y2="135" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="410" y="135" width="20" height="40" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="440" y="160" fill="#f59e0b" font-family="Chakra Petch" font-size="11">R<sub>D</sub>=2.2k</text>
-                    <line x1="420" y1="175" x2="420" y2="220" stroke="#94a3b8" stroke-width="2"/>
+                    <line x1="425" y1="90" x2="425" y2="135" stroke="#94a3b8" stroke-width="2"/>
+                    <rect x="415" y="135" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="445" y="160" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RD = 2.2kΩ</text>
+                    <line x1="425" y1="175" x2="425" y2="220" stroke="#94a3b8" stroke-width="2"/>
                     
                     <!-- Output vo -->
-                    <circle cx="450" cy="90" r="4" fill="#38bdf8"/>
-                    <text x="465" y="94" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">v<sub>o</sub></text>
+                    <circle cx="450" cy="90" r="5" fill="#38bdf8"/>
+                    <text x="465" y="94" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">vo</text>
                   </g>
                 </svg>
               </div>
@@ -983,7 +984,7 @@
 
         <!-- STUDENT PROFILE CARD -->
         <div class="card">
-          <h2 class="card-title"><span class="number">👤</span> ข้อมูลผู้ทำการทดลอง</h2>
+          <h2 class="card-title"><span class="number">👤</span> <span>ข้อมูลผู้ทำการทดลอง</span></h2>
           <div class="grid-4">
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">ชื่อ-นามสกุล:</label>
@@ -1007,9 +1008,9 @@
         <!-- 2-MODE WORKSHEET SELECTOR PANEL -->
         <div class="card no-print" style="border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.85);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-            <h2 class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan);">
-              ⚙️ โหมดการทดลองของใบงาน (Worksheet Parameter Mode)
-            </h2>
+            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
+              <span>⚙️</span> <span>โหมดการทดลองของใบงาน (Worksheet Parameter Mode)</span>
+            </div>
             <div style="display: flex; gap: 8px;">
               <button type="button" class="btn btn-secondary btn-small active" id="btn-mode-fixed" onclick="setWorksheetMode('fixed')" style="border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.2);">
                 📌 โหมดค่ามาตรฐาน (Fixed Preset)
@@ -1072,9 +1073,9 @@
         <!-- PART 1: DC BIAS OPERATING POINT TABLE -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 class="card-title" style="margin-bottom: 0;">
-              <span class="number">ตอนที่ 1:</span> จุดทำงานทางไฟฟ้ากระแสตรง (DC Bias Operating Point)
-            </h2>
+            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span class="number">ตอนที่ 1:</span> <span>จุดทำงานทางไฟฟ้ากระแสตรง (DC Bias Operating Point)</span>
+            </div>
             <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart1()">⚡ เติมผลวัด DC อัตโนมัติ</button>
           </div>
 
@@ -1110,9 +1111,9 @@
         <!-- PART 2: SMALL-SIGNAL gm & IMPEDANCES -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 class="card-title" style="margin-bottom: 0;">
-              <span class="number">ตอนที่ 2:</span> การคำนวณ Transconductance (gm) และอิมพีแดนซ์ (Zi, Zo)
-            </h2>
+            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span class="number">ตอนที่ 2:</span> <span>การคำนวณ Transconductance (gm) และอิมพีแดนซ์ (Zi, Zo)</span>
+            </div>
             <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart2()">⚡ เติมผลคำนวณ gm อัตโนมัติ</button>
           </div>
 
@@ -1140,9 +1141,9 @@
         <!-- PART 3: AC VOLTAGE GAIN Av & PHASE (WITH/WITHOUT CS) -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 class="card-title" style="margin-bottom: 0;">
-              <span class="number">ตอนที่ 3:</span> อัตราขยายสัญญาณแรงดันไฟฟ้า (Av) และความต่างเฟส
-            </h2>
+            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span class="number">ตอนที่ 3:</span> <span>อัตราขยายสัญญาณแรงดันไฟฟ้า (Av) และความต่างเฟส</span>
+            </div>
             <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart3()">⚡ เติมผลวัด Av อัตโนมัติ</button>
           </div>
 
@@ -1187,7 +1188,7 @@
 
         <!-- POST-LAB QUESTIONS -->
         <div class="card">
-          <h2 class="card-title"><span class="number">4.</span> คำถามท้ายการทดลอง (Post-Lab Questions)</h2>
+          <h2 class="card-title"><span class="number">4.</span> <span>คำถามท้ายการทดลอง (Post-Lab Questions)</span></h2>
           
           <div style="margin-bottom: 16px;">
             <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">1. เพราะเหตุใดเมื่อต่อตัวเก็บประจุบายพาส C<sub>S</sub> ขนานกับ R<sub>S</sub> อัตราขยายแรงดัน (A<sub>v</sub>) จึงมีค่าสูงกว่ากรณีถอด C<sub>S</sub> ออกอย่างมีนัยสำคัญ?</label>
@@ -1207,7 +1208,7 @@
 
         <!-- CONCLUSION -->
         <div class="card">
-          <h2 class="card-title"><span class="number">5.</span> สรุปผลการทดลอง (Conclusion)</h2>
+          <h2 class="card-title"><span class="number">5.</span> <span>สรุปผลการทดลอง (Conclusion)</span></h2>
           <textarea id="lab-conclusion" rows="5" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่าง gm กับจุดทำงาน DC, ผลของการบายพาส CS ต่ออัตราขยายแรงดัน, คุณลักษณะความต่างเฟส 180°, และการนำแบบจำลอง gm ไปใช้ออกแบบวงจรขยาย..."></textarea>
         </div>
 
@@ -1404,7 +1405,7 @@
           tag.innerHTML = 'C<sub>S</sub> Bypassed: Gain สูงสุด (Inverting)';
         }
         if (csLabel) {
-          csLabel.innerHTML = 'C<sub>S</sub>=10μF (ON)';
+          csLabel.textContent = 'CS = 10μF (ON)';
           csLabel.setAttribute('fill', '#34d399');
         }
         if (csP1) csP1.setAttribute('stroke', '#34d399');
@@ -1419,7 +1420,7 @@
           tag.innerHTML = 'C<sub>S</sub> Unbypassed: Gain ลดลง (Negative Feedback)';
         }
         if (csLabel) {
-          csLabel.innerHTML = 'C<sub>S</sub> ถอดออก (OFF)';
+          csLabel.textContent = 'CS ถอดออก (OFF)';
           csLabel.setAttribute('fill', '#94a3b8');
         }
         if (csP1) csP1.setAttribute('stroke', '#475569');
