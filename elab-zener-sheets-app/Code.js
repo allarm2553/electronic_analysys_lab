@@ -100,7 +100,18 @@ function gradeWorksheet(data) {
   }
   
   // --- PART 2: ACTIVE CIRCUIT TESTING (12 Rows) ---
-  const vinList = [0.0, 2.0, 4.0, 5.0, 5.8, 6.0, 6.2, 6.4, 6.6, 7.0, 8.0, 10.0];
+  const zenerModelKey = data.zenerModel || '1N4735A';
+  const zenerMap = {
+    '1N4728A': { name: '1N4728A', vz: 3.3, vz_sim: 3.315, vinList: [0.0, 1.0, 2.0, 2.8, 3.0, 3.2, 3.3, 3.4, 3.6, 4.0, 5.0, 6.0] },
+    '1N4733A': { name: '1N4733A', vz: 5.1, vz_sim: 5.120, vinList: [0.0, 2.0, 3.5, 4.5, 4.8, 5.0, 5.1, 5.3, 5.5, 6.0, 7.0, 8.0] },
+    '1N4735A': { name: '1N4735A', vz: 6.2, vz_sim: 6.225, vinList: [0.0, 2.0, 4.0, 5.0, 5.8, 6.0, 6.2, 6.4, 6.6, 7.0, 8.0, 10.0] },
+    '1N4739A': { name: '1N4739A', vz: 9.1, vz_sim: 9.130, vinList: [0.0, 3.0, 6.0, 8.0, 8.6, 8.9, 9.1, 9.3, 9.6, 10.0, 12.0, 14.0] },
+    '1N4742A': { name: '1N4742A', vz: 12.0, vz_sim: 12.050, vinList: [0.0, 4.0, 8.0, 10.5, 11.4, 11.8, 12.0, 12.2, 12.6, 13.5, 15.0, 18.0] }
+  };
+  const activeZener = zenerMap[zenerModelKey] || zenerMap['1N4735A'];
+  const expectedVz = activeZener.vz;
+  const vinList = activeZener.vinList;
+  
   const submittedRows = data.part2Rows || [];
   let correctRowsCount = 0;
   
@@ -128,24 +139,24 @@ function gradeWorksheet(data) {
       expIz = vin; // since R = 1k, I = VR1/1k in mA
     } else {
       // cond === 'good'
-      if (vin <= 6.2) {
+      if (vin <= expectedVz) {
         expVR1 = 0.0;
         expVD1 = vin;
         expIz = 0.0;
       } else {
-        expVD1 = 6.22; // Zener Vz ~ 6.2V
+        expVD1 = activeZener.vz_sim || expectedVz;
         expVR1 = vin - expVD1;
         expIz = expVR1; // mA
       }
     }
     
     // Check tolerances (Simulation checking)
-    const tolV = 0.25; // ±0.25V
-    const tolI = 0.35; // ±0.35mA
+    const tolV = 0.35; // ±0.35V
+    const tolI = 0.45; // ±0.45mA
     
     const simVr1Ok = Math.abs(vr1 - expVR1) <= tolV;
-    const simVd1Ok = Math.abs(vd1 - expVD1) <= (cond === 'good' && vin > 5.8 && vin < 6.6 ? 0.45 : tolV);
-    const simICalcOk = Math.abs(iCalc - vr1) <= 0.15; // Icalc must match VR1/1k
+    const simVd1Ok = Math.abs(vd1 - expVD1) <= (cond === 'good' && Math.abs(vin - expectedVz) <= 0.6 ? 0.55 : tolV);
+    const simICalcOk = Math.abs(iCalc - vr1) <= 0.20; // Icalc must match VR1/1k
     const simIMeasOk = Math.abs(iMeas - expIz) <= tolI;
     
     const simRowOk = simVr1Ok && simVd1Ok && simICalcOk && simIMeasOk;
@@ -160,17 +171,17 @@ function gradeWorksheet(data) {
       const rcOk = impliedRc >= 600 && impliedRc <= 1300; // nominal 1k resistor
       
       const iCalcMeasDiff = Math.abs(iCalc - iMeas);
-      const currentOk = iCalcMeasDiff <= 0.4;
+      const currentOk = iCalcMeasDiff <= 0.5;
       
       let zenerBehaviorOk = false;
-      if (vin <= 5.0) {
+      if (vin < expectedVz * 0.85) {
         // Zener not in breakdown yet: Vr1 should be very small
         zenerBehaviorOk = vr1 <= 0.8 && vd1 >= vin - 0.8;
-      } else if (vin >= 8.0) {
-        // Zener in breakdown: Vd1 should stabilize in breakdown region (accept 4.8V to 7.5V)
-        zenerBehaviorOk = vd1 >= 4.8 && vd1 <= 7.5 && vr1 >= (vin - vd1 - 0.8);
+      } else if (vin >= expectedVz * 1.15) {
+        // Zener in breakdown: Vd1 should stabilize in breakdown region
+        zenerBehaviorOk = vd1 >= expectedVz * 0.85 && vd1 <= expectedVz * 1.25 && vr1 >= (vin - vd1 - 0.8);
       } else {
-        // Transition region: just accept it if KVL and current checks pass
+        // Transition region: accept if KVL and current checks pass
         zenerBehaviorOk = true;
       }
       
@@ -199,6 +210,7 @@ function gradeWorksheet(data) {
   }
   
   score += p2Score;
+  feedback.push(`[เบอร์ซีเนอร์ไดโอด]: ${activeZener.name} (Vz = ${expectedVz}V)`);
   feedback.push("ตอนที่ 2 ตารางการรักษาระดับแรงดัน: ถูกต้อง " + correctRowsCount + " จาก 12 ระดับแรงดัน (ได้ " + p2Score + " / 7 คะแนน)");
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
@@ -229,7 +241,7 @@ function recordToSheet(data, grading) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
       "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
-      "Zener Condition", "Auto Score", "Evaluation", 
+      "Zener Model", "Zener Condition", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
     sheet.appendRow(headers);
@@ -251,6 +263,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    (data.zenerModel || '1N4735A') + " (Vz=" + (data.zenerVz || 6.2) + "V)",
     data.diodeCondition,
     grading.score + " / " + grading.maxScore,
     grading.comment,

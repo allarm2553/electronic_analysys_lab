@@ -1441,75 +1441,52 @@ body {
             </ul>
           </div>
         </div>
-        
-        <div class="card">
-          <h2 class="card-title"><span class="number">3.</span> อุปกรณ์และเครื่องมือในการทดลอง</h2>
-          <table class="lab-table">
-            <thead>
-              <tr>
-                <th style="width: 80px">ลำดับที่</th>
-                <th>รายการอุปกรณ์ / เครื่องมือวัด</th>
-                <th>คุณลักษณะ (Specification)</th>
-                <th style="width: 100px">จำนวน</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="text-center">1</td>
-                <td>ซีเนอร์ไดโอด (Zener Diode)</td>
-                <td>เบอร์ 1N4735A (6.2V, 1W)</td>
-                <td class="text-center">1 ตัว</td>
-              </tr>
-              <tr>
-                <td class="text-center">2</td>
-                <td>ตัวต้านทาน (Resistor)</td>
-                <td>ขนาด 1 kΩ ขนาด 1/4 W ค่าความคลาดเคลื่อน 5%</td>
-                <td class="text-center">1 ตัว</td>
-              </tr>
-              <tr>
-                <td class="text-center">3</td>
-                <td>มัลติมิเตอร์อนาล็อก (Analog Multimeter)</td>
-                <td>แบบเข็มชี้วัดค่าความต้านทาน</td>
-                <td class="text-center">1 เครื่อง</td>
-              </tr>
-              <tr>
-                <td class="text-center">4</td>
-                <td>มัลติมิเตอร์ดิจิทัล (Digital Multimeter)</td>
-                <td>สำหรับวัดแรงดันไฟฟ้าและกระแสตรง</td>
-                <td class="text-center">1 เครื่อง</td>
-              </tr>
-              <tr>
-                <td class="text-center">5</td>
-                <td>แหล่งจ่ายแรงดันไฟฟ้ากระแสตรง (DC Power Supply)</td>
-                <td>ปรับค่าได้ละเอียดในช่วง 0-15 V</td>
-                <td class="text-center">1 เครื่อง</td>
-              </tr>
-              <tr>
-                <td class="text-center">6</td>
-                <td>แผงทดลองวงจร (Breadboard) และสายต่อ</td>
-                <td>สำหรับจัดวงจรเชื่อมต่อการทดลอง</td>
-                <td class="text-center">1 ชุด</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
+
         <div class="card-footer-action no-print">
           <button class="btn btn-primary" onclick="switchTab('simulator')">เข้าสู่การจำลองการทดลอง 🔬</button>
         </div>
       </section>
-      
-      
+
       <!-- TAB 2: VIRTUAL LAB SIMULATOR -->
       <section id="simulator" class="tab-content">
         <header class="content-header">
           <h1>เครื่องมือทดลองเสมือนจริง (Virtual Lab Simulator)</h1>
           <p class="subtitle">คลิกทำการทดลองเสมือนจริงและโอนข้อมูลไปยังรายงานผลการทดลอง</p>
         </header>
+        <div class="card no-print" style="margin-bottom: 20px; border: 1px solid var(--accent-color, #38bdf8); background: rgba(15, 23, 42, 0.75);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <h2 class="card-title" style="margin-bottom: 0; font-size: 16px; color: #38bdf8;">
+              🏷️ เลือกรุ่นและพิกัดแรงดันซีเนอร์ไดโอด (Zener Diode Model & V<sub>Z</sub> Selection)
+            </h2>
+            <span id="txt-zener-model-badge" class="badge" style="background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; color: #38bdf8; font-size: 12px; padding: 4px 10px;">
+              เบอร์ปัจจุบัน: 1N4735A (Vz = 6.2V, 1W)
+            </span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+            <button type="button" class="btn btn-secondary" id="btn-zener-1n4728a" onclick="selectZenerModel('1N4728A')">
+              <strong>1N4728A</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>Z</sub> = 3.3V (1W)</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-zener-1n4733a" onclick="selectZenerModel('1N4733A')">
+              <strong>1N4733A</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>Z</sub> = 5.1V (1W)</span>
+            </button>
+            <button type="button" class="btn btn-secondary active" id="btn-zener-1n4735a" onclick="selectZenerModel('1N4735A')" style="border-color: #38bdf8; background: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+              <strong>1N4735A ⭐</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>Z</sub> = 6.2V (1W)</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-zener-1n4739a" onclick="selectZenerModel('1N4739A')">
+              <strong>1N4739A</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>Z</sub> = 9.1V (1W)</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-zener-1n4742a" onclick="selectZenerModel('1N4742A')">
+              <strong>1N4742A</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>Z</sub> = 12.0V (1W)</span>
+            </button>
+          </div>
+          <p id="txt-zener-model-desc" style="font-size: 12px; color: #94a3b8; margin-top: 10px; margin-bottom: 0;">
+            💡 <strong>1N4735A:</strong> พิกัดแรงดันซีเนอร์พังทลายคงที่ V<sub>Z</sub> = 6.2V กำลังงาน 1W (เป็นค่าจุดศูนย์อุณหภูมิที่เสถียรที่สุด นิยมใช้เป็นมาตรฐานอ้างอิง)
+          </p>
+        </div>
         
         <!-- PART 1 SIMULATOR -->
         <div class="card">
-          <h2 class="card-title">ตอนที่ 1: การวัดระบุขั้วและการประเมินสภาพดี-เสียของซีเนอร์ไดโอด</h2>
+          <h2 class="card-title">ตอนที่ 1: การวัดระบุขั้วและการประเมินสภาพดี-เสียของซีเนอร์ไดโอด (<span id="txt-p1-model-title" style="color: #38bdf8;">1N4735A</span>)</h2>
           
           <div class="grid-simulator-p1">
             <div class="sim-pane pane-multimeter">
@@ -1812,7 +1789,25 @@ body {
         
         <!-- PART 2 REPORT -->
         <div class="card report-section">
-          <h3>ตอนที่ 2: ตารางบันทึกผลแรงดันและกระแสไฟฟ้าในวงจรคุมแรงดันไฟฟ้า</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <h3 style="margin-bottom: 0;">ตอนที่ 2: ตารางบันทึกผลแรงดันและกระแสไฟฟ้าในวงจรคุมแรงดันไฟฟ้า (<span id="txt-ws-zener-model-badge" style="color: #38bdf8;">1N4735A, Vz = 6.2V</span>)</h3>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;" class="no-print">
+              <button class="btn btn-primary btn-small" onclick="autoMeasureAllRows()" title="ดึงผลการทดลองทั้ง 12 ย่านแรงดันเข้ามาในตารางโดยอัตโนมัติ">⚡ วัดค่าอัตโนมัติครบ 12 จุด</button>
+            </div>
+          </div>
+          
+          <!-- Zener Quick Switch in Worksheet -->
+          <div class="no-print" style="margin-bottom: 15px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted);">เลือกเบอร์ซีเนอร์ไดโอดทดลอง:</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ws-zener-1n4728a" onclick="selectZenerModel('1N4728A')">1N4728A (3.3V)</button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ws-zener-1n4733a" onclick="selectZenerModel('1N4733A')">1N4733A (5.1V)</button>
+              <button type="button" class="btn btn-secondary btn-small active" id="btn-ws-zener-1n4735a" onclick="selectZenerModel('1N4735A')" style="border-color: #38bdf8; background: rgba(56, 189, 248, 0.25); color: #38bdf8;">1N4735A (6.2V)</button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ws-zener-1n4739a" onclick="selectZenerModel('1N4739A')">1N4739A (9.1V)</button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ws-zener-1n4742a" onclick="selectZenerModel('1N4742A')">1N4742A (12.0V)</button>
+            </div>
+          </div>
+
           <div class="post-instruction">
             คำนวณและวัดค่าแรงดันและกระแสไฟฟ้า เมื่อแรงดันแหล่งจ่ายอินพุต (V<sub>in</sub>) มีค่าต่าง ๆ กัน ดังนี้:
           </div>
@@ -1830,7 +1825,7 @@ body {
             </thead>
             <tbody>
               <tr>
-                <td class="text-center font-bold">0.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-0">0.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-0" step="0.001" placeholder="0.00" oninput="calculateRow(0)">
@@ -1860,7 +1855,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">2.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-1">2.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-1" step="0.001" placeholder="0.00" oninput="calculateRow(1)">
@@ -1890,7 +1885,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">4.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-2">4.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-2" step="0.001" placeholder="0.00" oninput="calculateRow(2)">
@@ -1920,7 +1915,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">5.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-3">5.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-3" step="0.001" placeholder="0.00" oninput="calculateRow(3)">
@@ -1950,7 +1945,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">5.8 V</td>
+                <td class="text-center font-bold" id="txt-vin-4">5.8 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-4" step="0.001" placeholder="0.00" oninput="calculateRow(4)">
@@ -1980,7 +1975,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">6.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-5">6.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-5" step="0.001" placeholder="0.00" oninput="calculateRow(5)">
@@ -2010,7 +2005,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">6.2 V</td>
+                <td class="text-center font-bold" id="txt-vin-6">6.2 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-6" step="0.001" placeholder="0.00" oninput="calculateRow(6)">
@@ -2040,7 +2035,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">6.4 V</td>
+                <td class="text-center font-bold" id="txt-vin-7">6.4 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-7" step="0.001" placeholder="0.00" oninput="calculateRow(7)">
@@ -2070,7 +2065,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">6.6 V</td>
+                <td class="text-center font-bold" id="txt-vin-8">6.6 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-8" step="0.001" placeholder="0.00" oninput="calculateRow(8)">
@@ -2100,7 +2095,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">7.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-9">7.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-9" step="0.001" placeholder="0.00" oninput="calculateRow(9)">
@@ -2130,7 +2125,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">8.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-10">8.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-10" step="0.001" placeholder="0.00" oninput="calculateRow(10)">
@@ -2160,7 +2155,7 @@ body {
                 </td>
               </tr>
               <tr>
-                <td class="text-center font-bold">10.0 V</td>
+                <td class="text-center font-bold" id="txt-vin-11">10.0 V</td>
                 <td>
                   <div class="input-unit-group-table">
                     <input type="number" id="v-r-val-11" step="0.001" placeholder="0.00" oninput="calculateRow(11)">
@@ -2199,7 +2194,7 @@ body {
           <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
           
           <div class="input-field">
-            <label class="q-label">1. จากผลการทดลอง ซีเนอร์ไดโอดเบอร์ 1N4735A เริ่มทำงานในย่านควบคุมแรงดันไฟฟ้าพังทลายคงที่ที่แรงดันอินพุต (V<sub>in</sub>) ตั้งแต่ประมาณกี่โวลต์ขึ้นไป และมีแรงดันตกคร่อมตัวมันคงที่อยู่ที่ช่วงประมาณกี่โวลต์?</label>
+            <label class="q-label">1. จากผลการทดลอง ซีเนอร์ไดโอดเบอร์ <span id="txt-q1-zener-name" style="color: #38bdf8;">1N4735A (Vz ≈ 6.2V)</span> เริ่มทำงานในย่านควบคุมแรงดันไฟฟ้าพังทลายคงที่ที่แรงดันอินพุต (V<sub>in</sub>) ตั้งแต่ประมาณกี่โวลต์ขึ้นไป และมีแรงดันตกคร่อมตัวมันคงที่อยู่ที่ช่วงประมาณกี่โวลต์?</label>
             <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
           </div>
           
@@ -2270,7 +2265,56 @@ body {
  * Zener Diode Characteristics Simulation Engine - Lab 2: Zener Diode
  */
 
+const ZENER_MODELS = {
+  '1N4728A': {
+    name: '1N4728A',
+    vz: 3.3,
+    vz_sim: 3.315,
+    power: '1W',
+    vinMax: 12,
+    vinList: [0.0, 1.0, 2.0, 2.8, 3.0, 3.2, 3.3, 3.4, 3.6, 4.0, 5.0, 6.0],
+    desc: '💡 1N4728A: พิกัดแรงดันซีเนอร์พังทลายคงที่ VZ = 3.3V กำลังงาน 1W — เหมาะสำหรับวงจรดิจิทัล 3.3V Microcontroller'
+  },
+  '1N4733A': {
+    name: '1N4733A',
+    vz: 5.1,
+    vz_sim: 5.120,
+    power: '1W',
+    vinMax: 12,
+    vinList: [0.0, 2.0, 3.5, 4.5, 4.8, 5.0, 5.1, 5.3, 5.5, 6.0, 7.0, 8.0],
+    desc: '💡 1N4733A: พิกัดแรงดันซีเนอร์พังทลายคงที่ VZ = 5.1V กำลังงาน 1W — เบอร์มาตรฐานยอดนิยมสำหรับวงจร TTL 5V Logic'
+  },
+  '1N4735A': {
+    name: '1N4735A',
+    vz: 6.2,
+    vz_sim: 6.225,
+    power: '1W',
+    vinMax: 12,
+    vinList: [0.0, 2.0, 4.0, 5.0, 5.8, 6.0, 6.2, 6.4, 6.6, 7.0, 8.0, 10.0],
+    desc: '💡 1N4735A: พิกัดแรงดันซีเนอร์พังทลายคงที่ VZ = 6.2V กำลังงาน 1W — เสถียรภาพอุณหภูมิสูงสุด (Zero-tempco crossover standard)'
+  },
+  '1N4739A': {
+    name: '1N4739A',
+    vz: 9.1,
+    vz_sim: 9.130,
+    power: '1W',
+    vinMax: 16,
+    vinList: [0.0, 3.0, 6.0, 8.0, 8.6, 8.9, 9.1, 9.3, 9.6, 10.0, 12.0, 14.0],
+    desc: '💡 1N4739A: พิกัดแรงดันซีเนอร์พังทลายคงที่ VZ = 9.1V กำลังงาน 1W — สำหรับวงจรสื่อสารและระบบไฟ 9V'
+  },
+  '1N4742A': {
+    name: '1N4742A',
+    vz: 12.0,
+    vz_sim: 12.050,
+    power: '1W',
+    vinMax: 20,
+    vinList: [0.0, 4.0, 8.0, 10.5, 11.4, 11.8, 12.0, 12.2, 12.6, 13.5, 15.0, 18.0],
+    desc: '💡 1N4742A: พิกัดแรงดันซีเนอร์พังทลายคงที่ VZ = 12.0V กำลังงาน 1W — สำหรับวงจรยานยนต์และระบบไฟอุตสาหกรรม 12V'
+  }
+};
+
 const STATE = {
+  selectedZenerModel: '1N4735A',
   multimeterMultiplier: 10,
   zeroOhmAdjusted: false,
   diodeCondition: 'good',
@@ -2284,6 +2328,83 @@ const STATE = {
     zenerLeakageResistance: 6.8e6
   }
 };
+
+function selectZenerModel(modelKey) {
+  if (!ZENER_MODELS[modelKey]) return;
+  STATE.selectedZenerModel = modelKey;
+  const m = ZENER_MODELS[modelKey];
+  STATE.variance.zenerVz = m.vz_sim;
+
+  // 1. Update buttons in Simulator Tab & Worksheet Tab
+  ['1n4728a', '1n4733a', '1n4735a', '1n4739a', '1n4742a'].forEach(k => {
+    const btnSim = document.getElementById('btn-zener-' + k);
+    if (btnSim) {
+      if (k === modelKey.toLowerCase()) {
+        btnSim.classList.add('active');
+        btnSim.style.borderColor = '#38bdf8';
+        btnSim.style.background = 'rgba(56, 189, 248, 0.25)';
+        btnSim.style.color = '#38bdf8';
+      } else {
+        btnSim.classList.remove('active');
+        btnSim.style.borderColor = '';
+        btnSim.style.background = '';
+        btnSim.style.color = '';
+      }
+    }
+    const btnWs = document.getElementById('btn-ws-zener-' + k);
+    if (btnWs) {
+      if (k === modelKey.toLowerCase()) {
+        btnWs.classList.add('active');
+        btnWs.style.borderColor = '#38bdf8';
+        btnWs.style.background = 'rgba(56, 189, 248, 0.25)';
+        btnWs.style.color = '#38bdf8';
+      } else {
+        btnWs.classList.remove('active');
+        btnWs.style.borderColor = '';
+        btnWs.style.background = '';
+        btnWs.style.color = '';
+      }
+    }
+  });
+
+  // 2. Update Badges & Descriptions
+  const badge = document.getElementById('txt-zener-model-badge');
+  if (badge) badge.innerText = `เบอร์ปัจจุบัน: ${m.name} (Vz = ${m.vz}V, ${m.power})`;
+  const desc = document.getElementById('txt-zener-model-desc');
+  if (desc) desc.innerText = m.desc;
+  const wsBadge = document.getElementById('txt-ws-zener-model-badge');
+  if (wsBadge) wsBadge.innerText = `${m.name}, Vz = ${m.vz}V`;
+
+  // 3. Update Titles & SVG labels
+  const p1Title = document.getElementById('txt-p1-model-title');
+  if (p1Title) p1Title.innerText = m.name;
+  const p1Pane = document.getElementById('txt-p1-model-pane');
+  if (p1Pane) p1Pane.innerText = m.name;
+  const p1Svg = document.getElementById('svg-diode-p1-label');
+  if (p1Svg) p1Svg.textContent = m.name;
+  const p2Svg = document.getElementById('svg-diode-p2-label');
+  if (p2Svg) p2Svg.textContent = m.name;
+  const q1Title = document.getElementById('txt-q1-zener-name');
+  if (q1Title) q1Title.innerText = `${m.name} (Vz ≈ ${m.vz}V)`;
+
+  // 4. Update Slider Vin max
+  const vinInput = document.getElementById('input-vin');
+  if (vinInput) {
+    vinInput.max = m.vinMax;
+  }
+
+  // 5. Update Table Column 1 Vin step text labels
+  for (let i = 0; i < m.vinList.length; i++) {
+    const tdVin = document.getElementById('txt-vin-' + i);
+    if (tdVin) {
+      tdVin.innerText = m.vinList[i].toFixed(1) + ' V';
+    }
+  }
+
+  // 6. Refresh simulation
+  updateCircuitSimulation();
+}
+window.selectZenerModel = selectZenerModel;
 
 function solveCircuit(V1) {
   if (V1 < 0.05) {
@@ -2352,6 +2473,7 @@ function getDiodeTestResistance() {
 }
 
 window.STATE = STATE;
+window.ZENER_MODELS = ZENER_MODELS;
 window.solveCircuit = solveCircuit;
 window.getDiodeTestResistance = getDiodeTestResistance;
 
@@ -2728,10 +2850,17 @@ function calculateRow(idx) {
 }
 window.calculateRow = calculateRow;
 
-const vinList = [0.0, 2.0, 4.0, 5.0, 5.8, 6.0, 6.2, 6.4, 6.6, 7.0, 8.0, 10.0];
+function autoMeasureAllRows() {
+  const m = ZENER_MODELS[STATE.selectedZenerModel || '1N4735A'];
+  for (let i = 0; i < m.vinList.length; i++) {
+    measureRow(i);
+  }
+}
+window.autoMeasureAllRows = autoMeasureAllRows;
 
 function measureRow(idx) {
-  const vin = vinList[idx];
+  const m = ZENER_MODELS[STATE.selectedZenerModel || '1N4735A'];
+  const vin = m.vinList[idx];
   
   // 1. Set Simulator to this vin
   const vinInput = document.getElementById('input-vin');
@@ -2758,12 +2887,12 @@ function measureRow(idx) {
   if (iMeasInput) iMeasInput.value = results.iz.toFixed(3);
   
   // Highlight the measured row momentarily
-  const row = vrInput.closest('tr');
+  const row = vrInput ? vrInput.closest('tr') : null;
   if (row) {
     row.style.backgroundColor = 'rgba(56, 189, 248, 0.15)';
     setTimeout(() => {
       row.style.backgroundColor = '';
-    }, 1000);
+    }, 800);
   }
 }
 window.measureRow = measureRow;
@@ -2789,7 +2918,8 @@ function recordPart2Data() {
   }
   
   const vin = STATE.vin;
-  const vinList = [0.0, 2.0, 4.0, 5.0, 5.8, 6.0, 6.2, 6.4, 6.6, 7.0, 8.0, 10.0];
+  const m = ZENER_MODELS[STATE.selectedZenerModel || '1N4735A'];
+  const vinList = m.vinList;
   
   // Find matching row in table
   let matchIdx = -1;
@@ -2801,7 +2931,7 @@ function recordPart2Data() {
   }
   
   if (matchIdx === -1) {
-    alert('⚠️ แรงดันแหล่งจ่ายปัจจุบัน (' + vin.toFixed(1) + ' V) ไม่ตรงกับค่าใดในตารางบันทึกผล\nกรุณาปรับแรงดันให้ตรงกับย่านในตาราง เช่น 1.0V, 2.0V, 3.2V, 5.0V เป็นต้น');
+    alert('⚠️ แรงดันแหล่งจ่ายปัจจุบัน (' + vin.toFixed(1) + ' V) ไม่ตรงกับค่าใดในตารางบันทึกผล\nกรุณาปรับแรงดันให้ตรงกับย่านในตาราง เช่น ' + vinList.slice(0, 4).join('V, ') + 'V เป็นต้น');
     return;
   }
   
@@ -2879,11 +3009,14 @@ function submitReportToGAS() {
     });
   }
   
+  const activeModel = ZENER_MODELS[STATE.selectedZenerModel || '1N4735A'];
   const data = {
     studentName: name,
     studentId: id,
     studentGroup: group,
     labDate: date,
+    zenerModel: STATE.selectedZenerModel || '1N4735A',
+    zenerVz: activeModel.vz,
     diodeCondition: STATE.diodeCondition,
     rForward: document.getElementById('r-forward').value.trim(),
     rReverse: document.getElementById('r-reverse').value.trim(),
