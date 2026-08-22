@@ -1626,7 +1626,7 @@
       const vi_amp = Math.min(H * 0.35, (STATE.vi_p_p / 250) * 80);
       const vo_amp = Math.min(H * 0.42, (STATE.vo_p_p / 1500) * 120);
 
-      // Draw CH1: Input vi (Yellow)
+      // Draw CH1: Input vi (Yellow, CH1)
       ctx.strokeStyle = '#fbbf24';
       ctx.lineWidth = 2;
       ctx.shadowColor = 'rgba(251, 191, 36, 0.5)';
@@ -1634,13 +1634,13 @@
       ctx.beginPath();
       for (let x = 0; x < W; x++) {
         const t = (x / divX) * Math.PI * 0.8 + animPhase;
-        const y = H / 2 - Math.sin(t) * vi_amp;
+        const y = H / 2 - Math.sin(t) * vi_amp; // goes UP on positive cycle
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
 
-      // Draw CH2: Output vo (Cyan, Inverted 180°)
+      // Draw CH2: Output vo (Cyan, CH2 - Inverted 180° Out-of-Phase)
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.5;
       ctx.shadowColor = 'rgba(56, 189, 248, 0.6)';
@@ -1648,12 +1648,12 @@
       ctx.beginPath();
       for (let x = 0; x < W; x++) {
         const t = (x / divX) * Math.PI * 0.8 + animPhase;
-        // Inverted: -Math.sin(t)
-        let wave = -Math.sin(t) * vo_amp;
+        // Inverted 180 deg out-of-phase: goes DOWN on screen when vi goes UP
+        let wave = Math.sin(t) * vo_amp;
         // Clipping simulation
         if (wave > H * 0.42) wave = H * 0.42;
         if (wave < -H * 0.42) wave = -H * 0.42;
-        const y = H / 2 + wave;
+        const y = H / 2 + wave; // positive wave draws downward on canvas (inverted)
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
