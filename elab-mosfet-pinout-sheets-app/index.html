@@ -2618,5 +2618,92 @@ function onFailureGrading(error) {
 window.onFailureGrading = onFailureGrading;
 
 </script>
+
+  <!-- Anti-Cheat & Plagiarism Prevention Toast -->
+  <div id="anti-cheat-toast" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(15px); background: linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(185, 28, 28, 0.96)); color: #ffffff; padding: 14px 24px; border-radius: 10px; font-family: 'Chakra Petch', sans-serif; font-size: 14px; font-weight: bold; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.45); z-index: 100000; border: 1px solid rgba(255, 255, 255, 0.35); pointer-events: none; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; backdrop-filter: blur(8px);">
+    🚫 ไม่อนุญาตให้คัดลอก/วางข้อความ (Anti-Cheat Protection)<br>
+    <span style="font-size: 12px; font-weight: normal; font-family: 'Sarabun', sans-serif; opacity: 0.95;">กรุณาคิด วิเคราะห์ และพิมพ์คำตอบสรุปผลด้วยตนเอง</span>
+  </div>
+
+  <script>
+  // ========================================================
+  // ANTI-CHEAT & PLAGIARISM PREVENTION SYSTEM
+  // Blocks Copy/Paste/Drop on questions & conclusion textareas
+  // ========================================================
+  (function initAntiCheatSystem() {
+    let pasteAttempts = 0;
+    let toastTimeout = null;
+
+    function showAntiCheatWarning(targetEl) {
+      pasteAttempts++;
+      const toast = document.getElementById('anti-cheat-toast');
+      if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateX(-50%) translateY(0)';
+        }, 10);
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(15px)';
+          setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 3000);
+      }
+
+      if (targetEl) {
+        const originalBorder = targetEl.style.borderColor;
+        const originalShadow = targetEl.style.boxShadow;
+        targetEl.style.borderColor = '#ef4444';
+        targetEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.6)';
+        setTimeout(() => {
+          targetEl.style.borderColor = originalBorder;
+          targetEl.style.boxShadow = originalShadow;
+        }, 1200);
+      }
+    }
+
+    function setupAntiCheatListeners() {
+      const protectedElements = document.querySelectorAll('textarea, input[type="text"].protected-answer');
+      protectedElements.forEach(el => {
+        // 1. Intercept Paste event (Right click / menu / hotkey)
+        el.addEventListener('paste', (e) => {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        });
+
+        // 2. Intercept Drag and Drop text
+        el.addEventListener('drop', (e) => {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        });
+
+        // 3. Intercept Hotkeys: Ctrl+V, Cmd+V, Shift+Insert
+        el.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V' || e.keyCode === 86)) {
+            e.preventDefault();
+            showAntiCheatWarning(el);
+          }
+          if (e.shiftKey && (e.key === 'Insert' || e.keyCode === 45)) {
+            e.preventDefault();
+            showAntiCheatWarning(el);
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAntiCheatListeners);
+    } else {
+      setupAntiCheatListeners();
+    }
+
+    window.getAntiCheatStats = function() {
+      return { pasteAttempts: pasteAttempts };
+    };
+  })();
+  </script>
+
 </body>
 </html>
