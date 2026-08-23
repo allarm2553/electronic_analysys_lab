@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -19,6 +19,7 @@
       --accent-cyan: #38bdf8;
       --accent-cyan-glow: rgba(56, 189, 248, 0.3);
       --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --transition-speed: 0.3s;
@@ -44,11 +45,11 @@
     }
 
     header {
-      padding: 50px 20px 30px 20px;
+      padding: 45px 20px 25px 20px;
       text-align: center;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(15, 23, 42, 0.3);
-      backdrop-filter: blur(10px);
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(12px);
     }
 
     .header-container {
@@ -57,10 +58,10 @@
     }
 
     .logo-glow {
-      font-size: 55px;
+      font-size: 50px;
       display: inline-block;
-      margin-bottom: 15px;
-      animation: pulse 2s infinite ease-in-out;
+      margin-bottom: 12px;
+      animation: pulse 2.5s infinite ease-in-out;
       filter: drop-shadow(0 0 15px var(--accent-cyan-glow));
     }
 
@@ -71,43 +72,98 @@
 
     h1 {
       font-family: 'Chakra Petch', sans-serif;
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 700;
       background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       letter-spacing: 0.5px;
     }
 
     .subtitle {
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text-muted);
-      max-width: 700px;
-      margin: 0 auto;
+      max-width: 750px;
+      margin: 0 auto 20px auto;
       line-height: 1.6;
+    }
+
+    /* Filter & Search Bar */
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .filter-btn {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+
+    .filter-btn:hover {
+      color: #fff;
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .filter-btn.active {
+      color: #fff;
+      border-color: var(--accent-cyan);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(2, 132, 199, 0.3) 100%);
+      box-shadow: 0 0 12px var(--accent-cyan-glow);
+    }
+
+    .search-input {
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 13px;
+      width: 240px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+      width: 280px;
     }
 
     main {
       flex-grow: 1;
-      padding: 50px 20px;
-      max-width: 1200px;
+      padding: 40px 20px;
+      max-width: 1350px;
       margin: 0 auto;
       width: 100%;
     }
 
     .grid-labs {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
     }
 
     .lab-card {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 30px;
+      border-radius: 14px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -132,28 +188,49 @@
     }
 
     .lab-card:hover {
-      transform: translateY(-8px);
+      transform: translateY(-6px);
       border-color: rgba(56, 189, 248, 0.5);
-      box-shadow: 0 12px 40px 0 rgba(56, 189, 248, 0.15);
-      background: rgba(30, 41, 59, 0.6);
+      box-shadow: 0 12px 35px 0 rgba(56, 189, 248, 0.18);
+      background: rgba(30, 41, 59, 0.65);
     }
 
     .lab-card:hover::before {
       opacity: 1;
     }
 
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
     .lab-icon {
-      font-size: 38px;
-      margin-bottom: 20px;
+      font-size: 32px;
       display: inline-block;
     }
 
+    .lab-badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .badge-diode { background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; }
+    .badge-bjt { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #34d399; }
+    .badge-mosfet { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #fbbf24; }
+    .badge-datasheet { background: rgba(168, 85, 247, 0.15); border-color: #a855f7; color: #c084fc; }
+
     .lab-title {
       font-family: 'Chakra Petch', sans-serif;
-      font-size: 20px;
-      font-weight: 600;
+      font-size: 17.5px;
+      font-weight: 700;
       color: #fff;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       line-height: 1.4;
       transition: color var(--transition-speed);
     }
@@ -166,7 +243,7 @@
       font-size: 13px;
       color: var(--text-muted);
       line-height: 1.6;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       flex-grow: 1;
     }
 
@@ -174,14 +251,14 @@
       align-self: flex-start;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: rgba(56, 189, 248, 0.1);
       color: var(--accent-cyan);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      padding: 10px 18px;
-      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 8px 16px;
+      border-radius: 6px;
       font-family: 'Chakra Petch', sans-serif;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       transition: all var(--transition-speed);
     }
@@ -194,17 +271,12 @@
     }
 
     footer {
-      padding: 30px 20px;
+      padding: 25px 20px;
       text-align: center;
       border-top: 1px solid var(--border-color);
       font-size: 12px;
       color: var(--text-muted);
-      background: rgba(15, 23, 42, 0.2);
-    }
-
-    footer a {
-      color: var(--accent-cyan);
-      text-decoration: none;
+      background: rgba(15, 23, 42, 0.3);
     }
   </style>
 </head>
@@ -214,90 +286,152 @@
     <div class="header-container">
       <div class="logo-glow">⚡</div>
       <h1>คลังจำลองปฏิบัติการวิเคราะห์วงจร E-Lab Portal</h1>
-      <p class="subtitle">ระบบจำลองการทำงานของวงจรอิเล็กทรอนิกส์เสมือนจริง ตรวจข้อผิดพลาดและวัดคำนวณคะแนนอัตโนมัติพร้อมบันทึกผลการเข้าเรียน</p>
+      <p class="subtitle">ระบบจำลองการทำงานของวงจรอิเล็กทรอนิกส์เสมือนจริง (Interactive Web Lab) ตรวจประเมินผลคะแนนอัตโนมัติ พร้อมบันทึกผลลง Google Sheets</p>
+      
+      <!-- Filter and Search -->
+      <div class="filter-container">
+        <button class="filter-btn active" onclick="filterCategory('all', event)">ทั้งหมด (12 แล็บ)</button>
+        <button class="filter-btn" onclick="filterCategory('diode', event)">⚡ ไดโอด (Diodes)</button>
+        <button class="filter-btn" onclick="filterCategory('bjt', event)">📻 ทรานซิสเตอร์ (BJT)</button>
+        <button class="filter-btn" onclick="filterCategory('mosfet', event)">🌊 มอสเฟต & FET</button>
+        <button class="filter-btn" onclick="filterCategory('datasheet', event)">📑 อ่าน Data Sheet</button>
+        <input type="text" class="search-input" id="search-box" placeholder="🔍 ค้นหาแล็บหรือหัวข้อ..." oninput="searchLabs()">
+      </div>
     </div>
   </header>
 
   <main>
-    <div class="grid-labs">
+    <div class="grid-labs" id="labs-grid">
       
       <!-- Lab 1: Diode Characteristics -->
-      <a href="/elab-diode-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">🔌</span>
-        <h3 class="lab-title">1. การทดลองหาลักษณะสมบัติของไดโอด (Diode Characteristics)</h3>
-        <p class="lab-desc">ศึกษารอยต่อ P-N ทดลองจำลองการวัดค่าแรงดันและกระแสไฟฟ้าเมื่อจ่ายไบอัสตรงและไบอัสกลับให้กับไดโอดทั่วไป</p>
+      <a href="./elab-diode-sheets-app/index.html" class="lab-card" data-category="diode">
+        <div class="card-top">
+          <span class="lab-icon">🔌</span>
+          <span class="lab-badge badge-diode">Diode</span>
+        </div>
+        <h3 class="lab-title">1. คุณสมบัติของไดโอด (Diode Characteristics)</h3>
+        <p class="lab-desc">ศึกษารอยต่อ P-N จำลองการวัดค่าแรงดันและกระแสไฟฟ้าเมื่อจ่ายไบแอสตรงและไบแอสกลับให้กับไดโอด พร้อมพล็อตกราฟ IV Curve</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
       <!-- Lab 2: Zener Diode Characteristics -->
-      <a href="/elab-zener-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">🛡️</span>
+      <a href="./elab-zener-sheets-app/index.html" class="lab-card" data-category="diode">
+        <div class="card-top">
+          <span class="lab-icon">🛡️</span>
+          <span class="lab-badge badge-diode">Zener</span>
+        </div>
         <h3 class="lab-title">2. วงจรรักษาระดับแรงดันด้วยซีเนอร์ไดโอด (Zener Regulator)</h3>
-        <p class="lab-desc">ศึกษาคุณลักษณะเฉพาะของซีเนอร์ไดโอดและการพังทลายแบบซีเนอร์เพื่อรักษาระดับแรงดันเอาต์พุตให้คงที่เมื่อโหลดเปลี่ยนไป</p>
+        <p class="lab-desc">ศึกษาการพังทลายแบบซีเนอร์เพื่อรักษาระดับแรงดันเอาต์พุตให้คงที่ รองรับตัวเลือกซีเนอร์ 5 พิกัด (3.3V, 5.1V, 6.2V, 9.1V, 12.0V)</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
-      <!-- Lab 3: BJT DC Fixed Bias -->
-      <a href="/elab-bjt-bias-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">📊</span>
-        <h3 class="lab-title">3. วงจรไบอัสกระแสตรงทรานซิสเตอร์ (BJT Fixed Bias - BC108)</h3>
-        <p class="lab-desc">วิเคราะห์แรงดันและกระแสประจำจุดทำงาน Q-point บนเส้นโหลดไลน์กระแสตรง พร้อมระบบจำลองกราฟ BJT แบบเรียลไทม์</p>
+      <!-- Lab 3: Half-Wave Rectifier -->
+      <a href="./elab-rectifier-sheets-app/index.html" class="lab-card" data-category="diode">
+        <div class="card-top">
+          <span class="lab-icon">〰️</span>
+          <span class="lab-badge badge-diode">Rectifier</span>
+        </div>
+        <h3 class="lab-title">3. วงจรเรียงกระแสแบบครึ่งคลื่นและเต็มคลื่น (Rectifiers)</h3>
+        <p class="lab-desc">จำลองและวิเคราะห์วงจรเรียงกระแส AC 12V เป็น DC ตกคร่อมโหลด 1kΩ พร้อมออสซิลโลสโคปเปรียบเทียบรูปคลื่นอินพุตและเอาต์พุต</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
-      <!-- Lab 4: BJT Output Characteristics -->
-      <a href="/elab-transistor-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">📈</span>
-        <h3 class="lab-title">4. การวัดหาลักษณะสมบัติเอาต์พุตของทรานซิสเตอร์ (BJT Curves)</h3>
-        <p class="lab-desc">ทดสอบความสัมพันธ์ของกระแส Ic และแรงดัน Vce ที่ระดับกระแสเบส Ib ต่าง ๆ เพื่อทำความเข้าใจพฤติกรรมของทรานซิสเตอร์แอกทีฟ</p>
+      <!-- Lab 4: Full-Wave Bridge Rectifier -->
+      <a href="./elab-bridge-rectifier-sheets-app/index.html" class="lab-card" data-category="diode">
+        <div class="card-top">
+          <span class="lab-icon">🌉</span>
+          <span class="lab-badge badge-diode">Bridge</span>
+        </div>
+        <h3 class="lab-title">4. วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier & Filter)</h3>
+        <p class="lab-desc">จำลองการทำงานของไดโอดบริดจ์ วิเคราะห์ความถี่ริปเปิล 100Hz พร้อมตัวเก็บประจุฟิลเตอร์กรองระลอกคลื่นให้เรียบ</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
-      <!-- Lab 5: MOSFET Pinout & Characteristics -->
-      <a href="/elab-mosfet-pinout-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">🎛️</span>
-        <h3 class="lab-title">5. การระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต (MOSFET)</h3>
+      <!-- Lab 5: BJT Transistor Pinout & Curves -->
+      <a href="./elab-transistor-sheets-app/index.html" class="lab-card" data-category="bjt">
+        <div class="card-top">
+          <span class="lab-icon">📈</span>
+          <span class="lab-badge badge-bjt">BJT Curves</span>
+        </div>
+        <h3 class="lab-title">5. การตรวจสอบขาและลักษณะสมบัติเอาต์พุต BJT (BJT Curves)</h3>
+        <p class="lab-desc">ทดสอบความสัมพันธ์ของกระแส Ic และแรงดัน Vce ที่ระดับกระแสเบส Ib ต่าง ๆ วิเคราะห์ย่าน Active, Saturation และ Cut-off</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 6: BJT DC Biasing -->
+      <a href="./elab-bjt-bias-sheets-app/index.html" class="lab-card" data-category="bjt">
+        <div class="card-top">
+          <span class="lab-icon">📊</span>
+          <span class="lab-badge badge-bjt">BJT Bias</span>
+        </div>
+        <h3 class="lab-title">6. การจัดไบแอสกระแสตรงทรานซิสเตอร์ (BJT DC Biasing & Load Line)</h3>
+        <p class="lab-desc">วิเคราะห์แรงดันและกระแสประจำจุดทำงาน Q-point บนเส้นโหลดไลน์กระแสตรง พร้อมตัวเลือกทรานซิสเตอร์ 4 รุ่น (2N2222, BC108, BD137, BC547)</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 7: BJT re Model Analysis -->
+      <a href="./elab-bjt-re-model-sheets-app/index.html" class="lab-card" data-category="bjt">
+        <div class="card-top">
+          <span class="lab-icon">📻</span>
+          <span class="lab-badge badge-bjt">BJT re Model</span>
+        </div>
+        <h3 class="lab-title">7. การวิเคราะห์วงจรขยายสัญญาณด้วยแบบจำลอง re (BJT re Model)</h3>
+        <p class="lab-desc">จำลองสัญญาณขนาดเล็ก AC วิเคราะห์อัตราขยาย Av, อิมพีแดนซ์ Zi/Zo, สวิตช์สลับ CE Bypass และ Dual-Trace Live Oscilloscope</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 8: BJT h-Parameter Analysis -->
+      <a href="./elab-bjt-h-parameter-sheets-app/index.html" class="lab-card" data-category="bjt">
+        <div class="card-top">
+          <span class="lab-icon">🎛️</span>
+          <span class="lab-badge badge-bjt">h-Parameter</span>
+        </div>
+        <h3 class="lab-title">8. การวิเคราะห์วงจรขยายด้วยแบบจำลอง h-Parameter ของ BJT</h3>
+        <p class="lab-desc">จำลองวิเคราะห์ Two-Port Hybrid Model สกัดค่า hie, hfe, hre, hoe คำนวณอัตราขยาย Av, อิมพีแดนซ์ และตรวจให้คะแนนอัตโนมัติ</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
+
+      <!-- Lab 9: MOSFET Pinout & Characteristics -->
+      <a href="./elab-mosfet-pinout-sheets-app/index.html" class="lab-card" data-category="mosfet">
+        <div class="card-top">
+          <span class="lab-icon">🔍</span>
+          <span class="lab-badge badge-mosfet">MOSFET Pinout</span>
+        </div>
+        <h3 class="lab-title">9. การระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต (MOSFET)</h3>
         <p class="lab-desc">ตรวจสอบการจัดขา (Pinout Identification) ของ N-Channel MOSFET และวิเคราะห์กระแสเดรนเปรียบเทียบกับแรงดันเกต</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
-      <!-- Lab 6: MOSFET Biasing -->
-      <a href="/elab-mosfet-bias-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">🌊</span>
-        <h3 class="lab-title">6. การจัดไบอัสกระแสตรงและคุณลักษณะถ่ายโอนของ MOSFET (IRF540 & IRF9540)</h3>
-        <p class="lab-desc">ศึกษาการควบคุมกระแสเดรน (Id) ด้วยศักย์แรงดันเกต (Vgs) ของ MOSFET ชนิด N-Channel และ P-Channel พร้อมกราฟถ่ายโอนแบบไดนามิก</p>
+      <!-- Lab 10: MOSFET Biasing & Transfer Curves -->
+      <a href="./elab-mosfet-bias-sheets-app/index.html" class="lab-card" data-category="mosfet">
+        <div class="card-top">
+          <span class="lab-icon">🌊</span>
+          <span class="lab-badge badge-mosfet">MOSFET Bias</span>
+        </div>
+        <h3 class="lab-title">10. การจัดไบแอสกระแสตรงและคุณลักษณะถ่ายโอนของ MOSFET</h3>
+        <p class="lab-desc">ศึกษาการควบคุมกระแสเดรน (Id) ด้วยศักย์แรงดันเกต (Vgs) ของ MOSFET ชนิด N-Channel และ P-Channel (IRF540 & IRF9540)</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
-      <!-- Lab 7: Half-Wave Rectifier -->
-      <a href="/elab-rectifier-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">〰️</span>
-        <h3 class="lab-title">7. วงจรเรียงกระแสแบบครึ่งคลื่น (Half-Wave Rectifier Circuit)</h3>
-        <p class="lab-desc">จำลองและวิเคราะห์วงจรเรียงกระแสกระแสสลับ AC 12V ให้เป็นกระแสตรงตกคร่อมโหลด 1k โดยผ่านไดโอด 1N4007</p>
+      <!-- Lab 11: FET/MOSFET Small-Signal gm Model -->
+      <a href="./elab-fet-small-signal-sheets-app/index.html" class="lab-card" data-category="mosfet">
+        <div class="card-top">
+          <span class="lab-icon">📡</span>
+          <span class="lab-badge badge-mosfet">FET Small-Signal</span>
+        </div>
+        <h3 class="lab-title">11. แบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET (gm Model)</h3>
+        <p class="lab-desc">วิเคราะห์ Transconductance (gm), อัตราขยาย Av, สวิตช์ CS Bypass, ออสซิลโลสโคปกลับเฟส 180° พร้อม FET 5 รุ่น (2N5458, 2N5484, BF245B, 2N7000, BS170)</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
-      <!-- Lab 8: Full-Wave Bridge Rectifier -->
-      <a href="/elab-bridge-rectifier-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">🌉</span>
-        <h3 class="lab-title">8. วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Full-Wave Bridge Rectifier)</h3>
-        <p class="lab-desc">จำลองการทำงานและวิเคราะห์ข้อดีการเรียงกระแสเต็มลูกคลื่นผ่านไดโอดบริดจ์ พร้อมความถี่ริปเปิลที่เพิ่มเป็น 2 เท่า (100 Hz)</p>
-        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
-      </a>
-
-      <!-- Lab 9: BJT re Model Analysis -->
-      <a href="/elab-bjt-re-model-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">📻</span>
-        <h3 class="lab-title">9. การวิเคราะห์วงจรขยายสัญญาณด้วยแบบจำลอง re ของ BJT (BJT re Model)</h3>
-        <p class="lab-desc">จำลองสัญญาณขนาดเล็ก AC วิเคราะห์อัตราขยาย Av, ความต้านทาน Zi/Zo, ผลของตัวเก็บประจุบายพาส CE และออสซิลโลสโคป 2 ช่องแบบเรียลไทม์</p>
-        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
-      </a>
-
-      <!-- Lab 10: BJT h-Parameter Analysis -->
-      <a href="/elab-bjt-h-parameter-sheets-app/index.html" class="lab-card">
-        <span class="lab-icon">🎛️</span>
-        <h3 class="lab-title">10. การวิเคราะห์วงจรขยายสัญญาณด้วยแบบจำลอง h-Parameter ของ BJT</h3>
-        <p class="lab-desc">จำลองวิเคราะห์ Two-Port Hybrid Model สกัดค่า hie, hfe, hoe คำนวณอัตราขยาย Av, ความต้านทาน Zi/Zo และตรวจให้คะแนนอัตโนมัติ</p>
+      <!-- Lab 12: Datasheet Reading & Parameter Extraction -->
+      <a href="./elab-datasheet-reading-sheets-app/index.html" class="lab-card" data-category="datasheet">
+        <div class="card-top">
+          <span class="lab-icon">📑</span>
+          <span class="lab-badge badge-datasheet">Data Sheet Lab</span>
+        </div>
+        <h3 class="lab-title">12. การอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์ (Datasheet Reading)</h3>
+        <p class="lab-desc">คลัง Data Sheet เสมือนจริง 10 เบอร์ (Diode, BJT, MOSFET) สกัดค่า Absolute Maximum Ratings, Electrical Specs, และตำแหน่งขา</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
 
@@ -305,8 +439,36 @@
   </main>
 
   <footer>
-    <p>ระบบพัฒนาโดยคณาจารย์ผู้สอนวิเคราะห์วงจรอิเล็กทรอนิกส์ | รองรับการรันจำลองภายในเครื่องแบบ Local Server</p>
+    <p>ระบบพัฒนาสำหรับการเรียนการสอนวิเคราะห์วงจรอิเล็กทรอนิกส์ | รองรับการรันจำลองภายในเครื่องแบบ Local Server และ Google Apps Script Web App</p>
   </footer>
 
+  <script>
+    function filterCategory(cat, e) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (e && e.target) e.target.classList.add('active');
+
+      const cards = document.querySelectorAll('.lab-card');
+      cards.forEach(c => {
+        if (cat === 'all' || c.getAttribute('data-category') === cat) {
+          c.style.display = 'flex';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+
+    function searchLabs() {
+      const q = document.getElementById('search-box').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.lab-card');
+      cards.forEach(c => {
+        const text = c.innerText.toLowerCase();
+        if (text.includes(q)) {
+          c.style.display = 'flex';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+  </script>
 </body>
 </html>
