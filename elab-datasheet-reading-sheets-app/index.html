@@ -308,6 +308,55 @@
       gap: 12px;
     }
 
+    /* Form Controls: Select & Input */
+    select, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%;
+      background-color: #0f172a !important;
+      border: 1px solid var(--border-color);
+      color: #ffffff !important;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13.5px;
+      outline: none;
+      transition: all var(--transition-speed);
+      box-sizing: border-box;
+    }
+
+    select {
+      cursor: pointer;
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    select option {
+      background-color: #0b1329 !important;
+      color: #ffffff !important;
+      padding: 8px 12px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13.5px;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--accent-cyan) !important;
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    }
+
+    select:disabled, input:disabled {
+      background-color: rgba(15, 23, 42, 0.6) !important;
+      color: #94a3b8 !important;
+      border-color: rgba(71, 85, 105, 0.4) !important;
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+
+    select:not(:disabled) {
+      border-color: var(--accent-cyan) !important;
+      color: #38bdf8 !important;
+      background-color: #091322 !important;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+    }
+
     /* Tables */
     .lab-table {
       width: 100%;
@@ -333,20 +382,14 @@
 
     .lab-table input[type="number"], .lab-table input[type="text"], .lab-table select {
       width: 100%;
-      background: #090d16;
+      background-color: #090d16 !important;
       border: 1px solid var(--border-color);
-      color: #fff;
+      color: #fff !important;
       padding: 6px 8px;
       border-radius: 4px;
       font-family: 'Fira Code', monospace;
       font-size: 12.5px;
       text-align: center;
-    }
-
-    .lab-table input:focus, .lab-table select:focus {
-      border-color: var(--accent-cyan);
-      outline: none;
-      box-shadow: 0 0 8px var(--accent-cyan-glow);
     }
 
     /* Datasheet Document View */
@@ -777,19 +820,19 @@
           <div class="grid-4">
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">ชื่อ-นามสกุล:</label>
-              <input type="text" id="student-name" placeholder="นายสมชาย ใจดี" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <input type="text" id="student-name" placeholder="นายสมชาย ใจดี">
             </div>
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">รหัสนักศึกษา:</label>
-              <input type="text" id="student-id" placeholder="66010001" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <input type="text" id="student-id" placeholder="66010001">
             </div>
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">กลุ่มเรียน (Group):</label>
-              <input type="text" id="student-group" placeholder="กลุ่ม 1" value="กลุ่ม 1" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <input type="text" id="student-group" placeholder="กลุ่ม 1" value="กลุ่ม 1">
             </div>
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">วันที่ทำการทดลอง:</label>
-              <input type="date" id="lab-date" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <input type="date" id="lab-date">
             </div>
           </div>
         </div>
@@ -813,16 +856,16 @@
           <!-- Device selectors in worksheet -->
           <div class="grid-3" id="panel-ws-devices">
             <div>
-              <label style="font-size: 12px; color: var(--text-muted);">1. อุปกรณ์ไดโอด (Diode):</label>
-              <select id="ws-sel-diode" onchange="onWorksheetDeviceChange()" disabled style="background:#0b0f19;">
+              <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block;">1. อุปกรณ์ไดโอด (Diode):</label>
+              <select id="ws-sel-diode" onchange="onWorksheetDeviceChange()" disabled>
                 <option value="1N4007">1N4007 (General Rectifier)</option>
                 <option value="1N4148">1N4148 (High-Speed Switching)</option>
                 <option value="1N4733A">1N4733A (Zener 5.1V)</option>
               </select>
             </div>
             <div>
-              <label style="font-size: 12px; color: var(--text-muted);">2. อุปกรณ์ทรานซิสเตอร์ (BJT):</label>
-              <select id="ws-sel-bjt" onchange="onWorksheetDeviceChange()" disabled style="background:#0b0f19;">
+              <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block;">2. อุปกรณ์ทรานซิสเตอร์ (BJT):</label>
+              <select id="ws-sel-bjt" onchange="onWorksheetDeviceChange()" disabled>
                 <option value="2N3904">2N3904 (NPN General)</option>
                 <option value="2N2222A">2N2222A (NPN High-Speed)</option>
                 <option value="BC547">BC547 (NPN Audio/Low Noise)</option>
@@ -830,8 +873,8 @@
               </select>
             </div>
             <div>
-              <label style="font-size: 12px; color: var(--text-muted);">3. อุปกรณ์มอสเฟต (MOSFET / FET):</label>
-              <select id="ws-sel-mosfet" onchange="onWorksheetDeviceChange()" disabled style="background:#0b0f19;">
+              <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block;">3. อุปกรณ์มอสเฟต (MOSFET / FET):</label>
+              <select id="ws-sel-mosfet" onchange="onWorksheetDeviceChange()" disabled>
                 <option value="2N7000">2N7000 (N-Ch Small Signal)</option>
                 <option value="IRF540N">IRF540N (N-Ch Power MOSFET)</option>
                 <option value="2N5458">2N5458 (N-Ch JFET)</option>
@@ -1515,7 +1558,6 @@
         customTools.style.display = 'none';
         selects.forEach(s => {
           s.disabled = true;
-          s.style.background = '#0b0f19';
         });
 
         resetWorksheetDevices();
@@ -1533,7 +1575,6 @@
         customTools.style.display = 'flex';
         selects.forEach(s => {
           s.disabled = false;
-          s.style.background = '#090d16';
         });
       }
     }
