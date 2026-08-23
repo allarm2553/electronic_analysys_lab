@@ -519,27 +519,99 @@
     }
 
     @media print {
-      .sidebar, .btn, .no-print, #anti-cheat-toast {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 12mm 12mm 12mm;
+      }
+
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+
+      .app-container, .main-content {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+
+      .sidebar, .btn, .no-print, #anti-cheat-toast, .overlay {
         display: none !important;
       }
-      .app-container {
-        display: block;
-      }
-      .main-content {
-        padding: 0;
-      }
+
+      /* Only print the active tab */
       .tab-content {
+        display: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+      }
+
+      .tab-content.active {
         display: block !important;
       }
-      body {
-        background: #fff !important;
-        color: #000 !important;
-      }
+
       .card, .datasheet-sheet {
-        border: 1px solid #000;
-        background: #fff;
-        color: #000;
-        box-shadow: none;
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        box-shadow: none !important;
+        padding: 14px 18px !important;
+        margin-bottom: 14px !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      .card-title {
+        color: #0f172a !important;
+        border-bottom: 1.5px solid #94a3b8 !important;
+        font-size: 13pt !important;
+        padding-bottom: 6px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .card-title .number {
+        color: #0284c7 !important;
+      }
+
+      .lab-table th, .ds-table th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #64748b !important;
+        font-weight: bold;
+      }
+
+      .lab-table td, .ds-table td {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+
+      .lab-table input, .lab-table select, select, input {
+        background: #f8fafc !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        font-weight: bold;
+      }
+
+      textarea {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+      }
+
+      .highlight-box {
+        background: #f8fafc !important;
+        border-left: 4px solid #0284c7 !important;
+        color: #000000 !important;
       }
     }
   </style>
