@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลอง: การอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์ (Datasheet Reading Lab)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.55);
+      --border-color: rgba(71, 85, 105, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.35);
+      --accent-yellow: #f59e0b;
+      --accent-yellow-glow: rgba(245, 158, 11, 0.35);
+      --accent-red: #ef4444;
+      --accent-red-glow: rgba(239, 68, 68, 0.35);
+      --transition-speed: 0.25s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    /* Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #0b0f19;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px var(--accent-cyan-glow));
+    }
+
+    .logo-text h2 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all var(--transition-speed);
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      color: var(--text-main);
+      background-color: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0.05) 100%);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+    }
+
+    .sidebar-footer {
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 30px 40px;
+      overflow-y: auto;
+      max-width: 1400px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .content-header {
+      margin-bottom: 25px;
+    }
+
+    .content-header h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .content-header .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .card-title .number {
+      color: var(--accent-cyan);
+      margin-right: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #fff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px var(--accent-cyan-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: #94a3b8;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+      color: #fff;
+      border-color: #34d399;
+      box-shadow: 0 0 12px var(--accent-green-glow);
+    }
+
+    .btn-small {
+      padding: 5px 12px;
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 600;
+    }
+
+    .badge-cyan {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .badge-green {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .badge-yellow {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--accent-yellow);
+      color: var(--accent-yellow);
+    }
+
+    /* Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    /* Tables */
+    .lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+
+    .lab-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--accent-cyan);
+      font-family: 'Chakra Petch', sans-serif;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .lab-table td {
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .lab-table input[type="number"], .lab-table input[type="text"], .lab-table select {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      text-align: center;
+    }
+
+    .lab-table input:focus, .lab-table select:focus {
+      border-color: var(--accent-cyan);
+      outline: none;
+      box-shadow: 0 0 8px var(--accent-cyan-glow);
+    }
+
+    /* Datasheet Document View */
+    .datasheet-sheet {
+      background: #0b111e;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Sarabun', sans-serif;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .ds-header {
+      border-bottom: 2px solid var(--accent-cyan);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .ds-header h2 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 22px;
+      color: #fff;
+    }
+
+    .ds-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      font-size: 12.5px;
+    }
+
+    .ds-table th {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 6px 10px;
+      border: 1px solid #334155;
+      text-align: left;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .ds-table td {
+      padding: 6px 10px;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+    }
+
+    .ds-table tr:nth-child(even) td {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .ds-param-name {
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      color: #f59e0b;
+    }
+
+    .ds-symbol {
+      font-family: 'Fira Code', monospace;
+      color: #38bdf8;
+    }
+
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+      font-size: 13.5px;
+    }
+
+    textarea {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 13.5px;
+      resize: vertical;
+      transition: all 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-cyan);
+      outline: none;
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    }
+
+    /* Modal / Overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 550px;
+      width: 90%;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.25);
+      text-align: center;
+    }
+
+    @media (max-width: 1024px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        height: auto;
+        position: relative;
+      }
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      .sidebar, .btn, .no-print, #anti-cheat-toast {
+        display: none !important;
+      }
+      .app-container {
+        display: block;
+      }
+      .main-content {
+        padding: 0;
+      }
+      .tab-content {
+        display: block !important;
+      }
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .card, .datasheet-sheet {
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">📑</div>
+        <div class="logo-text">
+          <h2>Datasheet Lab</h2>
+          <span>Component Spec Analysis</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="switchTab('theory')">
+          <span>📖</span> ทฤษฎีและคู่มืออ่านสเปก
+        </div>
+        <div class="nav-item" onclick="switchTab('explorer')">
+          <span>🔬</span> คลัง Data Sheet เสมือนจริง
+        </div>
+        <div class="nav-item" onclick="switchTab('worksheet')">
+          <span>📝</span> ใบงานสกัดค่าและรายงานผล
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <p>Lab: การอ่าน Data Sheet อุปกรณ์</p>
+        <p style="opacity: 0.6; margin-top: 4px;">วิชา: วิเคราะห์และทดสอบอุปกรณ์</p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      
+      <!-- ========================================== -->
+      <!-- TAB 1: THEORY -->
+      <!-- ========================================== -->
+      <section id="theory" class="tab-content active">
+        <header class="content-header">
+          <h1>📖 คู่มือและหลักการอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์</h1>
+          <p class="subtitle">ทำความเข้าใจโครงสร้างเอกสารข้อมูลทางเทคนิคของสารกึ่งตัวนำ (Diode, BJT, MOSFET) ตามมาตรฐานสากล</p>
+        </header>
+
+        <div class="card">
+          <h2 class="card-title"><span class="number">1.</span> <span>วัตถุประสงค์การเรียนรู้ (Objectives)</span></h2>
+          <ul style="margin-left: 20px; color: var(--text-main);">
+            <li>เพื่อศึกษาโครงสร้างและหมวดหมู่ข้อมูลสำคัญใน Data Sheet ของอุปกรณ์สารกึ่งตัวนำ (Diode, Transistor BJT, MOSFET)</li>
+            <li>เพื่อให้เข้าใจความแตกต่างระหว่างค่าพิกัดสูงสุด (<strong>Absolute Maximum Ratings</strong>) และค่าคุณลักษณะทางไฟฟ้า (<strong>Electrical Characteristics</strong>)</li>
+            <li>เพื่อสามารถสกัดค่าพารามิเตอร์วิกฤต เช่น <strong>V<sub>RRM</sub>, I<sub>F</sub>, V<sub>CEO</sub>, h<sub>FE</sub>, V<sub>CE(sat)</sub>, V<sub>DSS</sub>, V<sub>GS(th)</sub>, R<sub>DS(on)</sub></strong> เพื่อนำไปใช้คำนวณและออกแบบวงจร</li>
+            <li>เพื่อเรียนรู้การอ่านตำแหน่งขา (Pinout Configuration) และรหัสตัวถังมาตรฐาน (TO-92, TO-220, DO-41, DO-35)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title"><span class="number">2.</span> <span>โครงสร้าง 5 หมวดหมู่หลักใน Data Sheet สารกึ่งตัวนำ</span></h2>
+          
+          <div class="grid-2">
+            <div>
+              <h3 style="color: var(--accent-cyan); font-size: 15px; margin-bottom: 8px;">1. Absolute Maximum Ratings (พิกัดสูงสุดเด็ดขาด)</h3>
+              <p style="font-size: 13.5px; margin-bottom: 8px;">
+                คือระดับแรงดัน กระแส อุณหภูมิ และกำลังไฟฟ้าสูงสุดที่อุปกรณ์ทนทานได้ <strong>ห้ามใช้งานเกินกว่าค่านี้แม้แต่ชั่วขณะ</strong> เพราะจะทำให้อุปกรณ์ชำรุดเสียหายถาวร (ในการออกแบบจริงต้องเผื่อค่าความปลอดภัย Safety Factor 20-50%)
+              </p>
+              <div class="highlight-box">
+                • <strong>V<sub>RRM</sub> / PIV:</strong> แรงดันไบแอสกลับสูงสุดของไดโอด<br>
+                • <strong>V<sub>CEO</sub> / V<sub>CBO</sub>:</strong> แรงดันพังทลายระหว่างขา C-E และ C-B ของ BJT<br>
+                • <strong>V<sub>DSS</sub>:</strong> แรงดันพังทลายระหว่างขา Drain-Source ของ MOSFET<br>
+                • <strong>I<sub>C(max)</sub> / I<sub>D(max)</sub>:</strong> พิกัดกระแสไหลผ่านสูงสุดต่อเนื่อง<br>
+                • <strong>P<sub>D(max)</sub>:</strong> กำลังไฟฟ้าสูญเสียสูงสุดที่ตัวถังกระจายได้
+              </div>
+            </div>
+
+            <div>
+              <h3 style="color: var(--accent-cyan); font-size: 15px; margin-bottom: 8px;">2. Electrical Characteristics (คุณลักษณะเฉพาะทางไฟฟ้า)</h3>
+              <p style="font-size: 13.5px; margin-bottom: 8px;">
+                ระบุพฤติกรรมทางไฟฟ้าของอุปกรณ์ ณ สภาวะการทดสอบที่กำหนด (โดยทั่วไปทดสอบที่อุณหภูมิรอยต่อ T<sub>A</sub> = 25°C) แบ่งเป็นค่า Min, Typ, Max:
+              </p>
+              <div class="highlight-box">
+                • <strong>V<sub>F</sub> (Forward Voltage):</strong> แรงดันตกคร่อมขณะนำกระแสไปข้างหน้า<br>
+                • <strong>I<sub>R</sub> (Reverse Leakage Current):</strong> กระแสรั่วไหลขณะไบแอสกลับ<br>
+                • <strong>h<sub>FE</sub> หรือ β:</strong> อัตราขยายกระแสไฟตรง (DC Current Gain)<br>
+                • <strong>V<sub>CE(sat)</sub>:</strong> แรงดันตกคร่อมขา C-E ขณะ BJT อยู่ในสภาวะอิ่มตัว<br>
+                • <strong>V<sub>GS(th)</sub>:</strong> แรงดันเกต-ซอร์สเริ่มต้นที่ทำให้ MOSFET เริ่มนำกระแส<br>
+                • <strong>R<sub>DS(on)</sub>:</strong> ความต้านทานภายในขา D-S ขณะ MOSFET เปิดทำงานเต็มที่
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title"><span class="number">3.</span> <span>ตารางสรุปพารามิเตอร์หลักแยกตามชนิดอุปกรณ์</span></h2>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>ชนิดอุปกรณ์</th>
+                <th>พารามิเตอร์สำคัญ (Key Parameter)</th>
+                <th>ความหมายและการนำไปใช้</th>
+                <th>ตัวอย่างค่าทั่วไป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Diode</strong></td>
+                <td><span class="ds-symbol">V<sub>RRM</sub>, I<sub>F(avg)</sub>, V<sub>F</sub></span></td>
+                <td>กำหนดพิกัดแรงดันกระแสในวงจรเรียงกระแส (Rectifier) และคำนวณ Power Loss</td>
+                <td>1N4007: 1000V, 1A, V<sub>F</sub>=1.1V</td>
+              </tr>
+              <tr>
+                <td><strong>BJT</strong></td>
+                <td><span class="ds-symbol">V<sub>CEO</sub>, I<sub>C</sub>, h<sub>FE</sub>, V<sub>CE(sat)</sub></span></td>
+                <td>ใช้คำนวณจุดทำงาน DC (Q-Point), อัตราขยายสัญญาณ AC, และสถานะสวิตช์ ON/OFF</td>
+                <td>2N3904: 40V, 200mA, h<sub>FE</sub>=100-300</td>
+              </tr>
+              <tr>
+                <td><strong>MOSFET</strong></td>
+                <td><span class="ds-symbol">V<sub>DSS</sub>, I<sub>D</sub>, V<sub>GS(th)</sub>, R<sub>DS(on)</sub></span></td>
+                <td>ใช้ออกแบบวงจรสวิตชิ่งความเร็วสูง คำนวณ Conduction Loss: P = I<sub>D</sub><sup>2</sup>·R<sub>DS(on)</sub></td>
+                <td>IRF540N: 100V, 33A, R<sub>DS(on)</sub>=44mΩ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-footer-action no-print" style="text-align: right;">
+          <button class="btn btn-primary" onclick="switchTab('explorer')">เปิดคลัง Data Sheet เสมือนจริง 📑</button>
+        </div>
+      </section>
+
+
+      <!-- ========================================== -->
+      <!-- TAB 2: DATASHEET EXPLORER -->
+      <!-- ========================================== -->
+      <section id="explorer" class="tab-content">
+        <header class="content-header">
+          <h1>🔬 คลัง Data Sheet เสมือนจริง (Interactive Datasheet Explorer)</h1>
+          <p class="subtitle">เลือกดูเอกสารข้อมูลจำเพาะ ตำแหน่งขา และคุณลักษณะทางไฟฟ้าของอุปกรณ์สารกึ่งตัวนำ 10 เบอร์ยอดนิยม</p>
+        </header>
+
+        <!-- DEVICE SELECTOR BAR -->
+        <div class="card no-print" style="border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.75);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
+              <span>🏷️</span> <span>เลือกอุปกรณ์ที่ต้องการศึกษา Data Sheet</span>
+            </div>
+            <span id="txt-selected-category-badge" class="badge badge-cyan">หมวดหมู่: Diode (ไดโอด)</span>
+          </div>
+
+          <!-- Groups -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Diodes -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span style="font-size: 12px; color: var(--text-muted); width: 85px;">⚡ Diode:</span>
+              <button type="button" class="btn btn-secondary btn-small active" id="btn-ds-1N4007" onclick="showDatasheet('1N4007')" style="border-color:#38bdf8; color:#38bdf8; background:rgba(56,189,248,0.2);">
+                <strong>1N4007</strong> (Rectifier 1000V 1A)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-1N4148" onclick="showDatasheet('1N4148')">
+                <strong>1N4148</strong> (Switching 100V 4ns)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-1N4733A" onclick="showDatasheet('1N4733A')">
+                <strong>1N4733A</strong> (Zener 5.1V 1W)
+              </button>
+            </div>
+
+            <!-- BJTs -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span style="font-size: 12px; color: var(--text-muted); width: 85px;">⚡ BJT Transistor:</span>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-2N2222A" onclick="showDatasheet('2N2222A')">
+                <strong>2N2222A</strong> (NPN 40V 0.8A)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-2N3904" onclick="showDatasheet('2N3904')">
+                <strong>2N3904</strong> (NPN 40V 0.2A)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-BC547" onclick="showDatasheet('BC547')">
+                <strong>BC547</strong> (NPN 45V Low Noise)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-BD139" onclick="showDatasheet('BD139')">
+                <strong>BD139</strong> (NPN 80V 1.5A Power)
+              </button>
+            </div>
+
+            <!-- MOSFETs -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span style="font-size: 12px; color: var(--text-muted); width: 85px;">⚡ FET/MOSFET:</span>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-2N7000" onclick="showDatasheet('2N7000')">
+                <strong>2N7000</strong> (N-Ch E-MOSFET 60V)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-IRF540N" onclick="showDatasheet('IRF540N')">
+                <strong>IRF540N</strong> (N-Ch Power MOS 100V 33A)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ds-2N5458" onclick="showDatasheet('2N5458')">
+                <strong>2N5458</strong> (N-Ch JFET 25V)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE DATASHEET CONTAINER -->
+        <div class="grid-2">
+          <!-- LEFT: SPECIFICATION SHEET -->
+          <div class="datasheet-sheet" id="ds-sheet-view">
+            <!-- Header -->
+            <div class="ds-header">
+              <div>
+                <span style="font-size: 11px; color: var(--accent-cyan); font-weight: bold; letter-spacing: 1px;">SEMICONDUCTOR TECHNICAL DATA</span>
+                <h2 id="ds-title">1N4007</h2>
+                <span id="ds-subtitle" style="font-size: 13px; color: var(--text-muted);">1.0 AMP GENERAL PURPOSE SILICON RECTIFIERS</span>
+              </div>
+              <span id="ds-pkg-badge" class="badge badge-green" style="font-size: 12px;">Package: DO-41</span>
+            </div>
+
+            <!-- Absolute Maximum Ratings -->
+            <h3 style="font-size: 14px; color: #f59e0b; margin-bottom: 8px; font-family: 'Chakra Petch', sans-serif;">
+              ⚠️ ABSOLUTE MAXIMUM RATINGS (Ratings at 25°C ambient temperature unless otherwise specified)
+            </h3>
+            <table class="ds-table" id="ds-table-max">
+              <!-- Rendered dynamically -->
+            </table>
+
+            <!-- Electrical Characteristics -->
+            <h3 style="font-size: 14px; color: #38bdf8; margin-bottom: 8px; font-family: 'Chakra Petch', sans-serif;">
+              ⚡ ELECTRICAL CHARACTERISTICS (Ratings at 25°C ambient temperature unless otherwise specified)
+            </h3>
+            <table class="ds-table" id="ds-table-elec">
+              <!-- Rendered dynamically -->
+            </table>
+          </div>
+
+          <!-- RIGHT: PINOUT & PACKAGE VISUALIZER & QUICK GUIDE -->
+          <div>
+            <div class="card" style="padding: 16px; margin-bottom: 20px;">
+              <h3 style="font-size: 15px; color: #fff; margin-bottom: 12px; font-family: 'Chakra Petch', sans-serif;">
+                📐 ไดอะแกรมตัวถังและตำแหน่งขา (Package Pinout Diagram)
+              </h3>
+              
+              <div style="background: #090d16; border-radius: 8px; border: 1px solid var(--border-color); padding: 15px; text-align: center;">
+                <svg id="svg-pinout" viewBox="0 0 400 200" width="100%" height="180" style="display: block; margin: 0 auto;">
+                  <!-- Rendered dynamically -->
+                </svg>
+              </div>
+
+              <div id="ds-pinout-desc" style="margin-top: 12px; font-size: 13px; color: var(--text-muted); background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                <!-- Pinout Description text -->
+              </div>
+            </div>
+
+            <div class="card" style="padding: 16px;">
+              <h3 style="font-size: 15px; color: #fff; margin-bottom: 10px; font-family: 'Chakra Petch', sans-serif;">
+                💡 ข้อสังเกตสำคัญในการอ่านสเปกเบอร์นี้
+              </h3>
+              <div id="ds-tips-box" class="highlight-box" style="margin: 0;">
+                <!-- Tips text -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer-action no-print" style="text-align: right; margin-top: 20px;">
+          <button class="btn btn-primary" onclick="switchTab('worksheet')">ไปที่ใบงานสกัดค่าและตอบคำถาม 📝</button>
+        </div>
+      </section>
+
+
+      <!-- ========================================== -->
+      <!-- TAB 3: WORKSHEET -->
+      <!-- ========================================== -->
+      <section id="worksheet" class="tab-content">
+        <header class="content-header">
+          <h1>📝 ใบงานการทดลอง (Datasheet Parameter Extraction Worksheet)</h1>
+          <p class="subtitle">สกัดค่าพารามิเตอร์สำคัญของ Diode, BJT และ MOSFET จาก Data Sheet พร้อมวิเคราะห์และส่งตรวจประเมินผล</p>
+        </header>
+
+        <!-- STUDENT PROFILE CARD -->
+        <div class="card">
+          <h2 class="card-title"><span class="number">👤</span> <span>ข้อมูลผู้ทำการทดลอง</span></h2>
+          <div class="grid-4">
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">ชื่อ-นามสกุล:</label>
+              <input type="text" id="student-name" placeholder="นายสมชาย ใจดี" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">รหัสนักศึกษา:</label>
+              <input type="text" id="student-id" placeholder="66010001" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">กลุ่มเรียน (Group):</label>
+              <input type="text" id="student-group" placeholder="กลุ่ม 1" value="กลุ่ม 1" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-MODE WORKSHEET SELECTOR PANEL -->
+        <div class="card no-print" style="border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.85);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
+              <span>⚙️</span> <span>โหมดการทดลองของใบงาน (Assigned Device Set)</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-secondary btn-small active" id="btn-ws-mode-fixed" onclick="setWorksheetMode('fixed')" style="border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.2);">
+                📌 โหมดมาตรฐาน (Fixed: 1N4007, 2N3904, 2N7000)
+              </button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ws-mode-custom" onclick="setWorksheetMode('custom')">
+                🛠️ โหมดเลือกอุปกรณ์เอง (Custom Dynamic)
+              </button>
+            </div>
+          </div>
+
+          <!-- Device selectors in worksheet -->
+          <div class="grid-3" id="panel-ws-devices">
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">1. อุปกรณ์ไดโอด (Diode):</label>
+              <select id="ws-sel-diode" onchange="onWorksheetDeviceChange()" disabled style="background:#0b0f19;">
+                <option value="1N4007">1N4007 (General Rectifier)</option>
+                <option value="1N4148">1N4148 (High-Speed Switching)</option>
+                <option value="1N4733A">1N4733A (Zener 5.1V)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">2. อุปกรณ์ทรานซิสเตอร์ (BJT):</label>
+              <select id="ws-sel-bjt" onchange="onWorksheetDeviceChange()" disabled style="background:#0b0f19;">
+                <option value="2N3904">2N3904 (NPN General)</option>
+                <option value="2N2222A">2N2222A (NPN High-Speed)</option>
+                <option value="BC547">BC547 (NPN Audio/Low Noise)</option>
+                <option value="BD139">BD139 (NPN Power)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted);">3. อุปกรณ์มอสเฟต (MOSFET / FET):</label>
+              <select id="ws-sel-mosfet" onchange="onWorksheetDeviceChange()" disabled style="background:#0b0f19;">
+                <option value="2N7000">2N7000 (N-Ch Small Signal)</option>
+                <option value="IRF540N">IRF540N (N-Ch Power MOSFET)</option>
+                <option value="2N5458">2N5458 (N-Ch JFET)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ws-custom-tools" style="display: none; justify-content: flex-end; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+            <button type="button" class="btn btn-secondary btn-small" onclick="randomizeWorksheetDevices()">🎲 สุ่มชุดอุปกรณ์ใหม่</button>
+            <button type="button" class="btn btn-secondary btn-small" onclick="resetWorksheetDevices()">⏪ คืนค่าชุดมาตรฐาน</button>
+          </div>
+        </div>
+
+        <!-- PART 1: DIODE PARAMETER EXTRACTION TABLE -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span class="number">ตอนที่ 1:</span> <span>การสกัดค่าพารามิเตอร์ของไดโอด (<span id="lbl-ws-diode-name" style="color:var(--accent-cyan);">1N4007</span>)</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillDiode()">⚡ เติมค่าศึกษา Diode</button>
+          </div>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>รหัสตัวถัง (Package)</th>
+                <th>V<sub>RRM</sub> หรือ PIV (V)</th>
+                <th>I<sub>F(avg)</sub> (A หรือ mA)</th>
+                <th>V<sub>F(max)</sub> (V)</th>
+                <th>I<sub>R(max)</sub> (μA)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" id="d-pkg" placeholder="เช่น DO-41"></td>
+                <td><input type="number" id="d-vrrm" step="1" placeholder="เช่น 1000"></td>
+                <td><input type="number" id="d-if" step="0.01" placeholder="เช่น 1.0"></td>
+                <td><input type="number" id="d-vf" step="0.01" placeholder="เช่น 1.1"></td>
+                <td><input type="number" id="d-ir" step="0.001" placeholder="เช่น 5.0"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PART 2: BJT PARAMETER EXTRACTION TABLE -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span class="number">ตอนที่ 2:</span> <span>การสกัดค่าพารามิเตอร์ของทรานซิสเตอร์ BJT (<span id="lbl-ws-bjt-name" style="color:var(--accent-cyan);">2N3904</span>)</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillBJT()">⚡ เติมค่าศึกษา BJT</button>
+          </div>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>ชนิดทรานซิสเตอร์</th>
+                <th>V<sub>CEO</sub> สูงสุด (V)</th>
+                <th>I<sub>C(max)</sub> (A หรือ mA)</th>
+                <th>h<sub>FE</sub> หรือ β (Typ/Min)</th>
+                <th>V<sub>CE(sat)</sub> (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <select id="b-type">
+                    <option value="NPN">NPN</option>
+                    <option value="PNP">PNP</option>
+                  </select>
+                </td>
+                <td><input type="number" id="b-vceo" step="1" placeholder="เช่น 40"></td>
+                <td><input type="number" id="b-ic" step="0.01" placeholder="เช่น 0.2"></td>
+                <td><input type="number" id="b-hfe" step="1" placeholder="เช่น 100 ถึง 300"></td>
+                <td><input type="number" id="b-vcesat" step="0.01" placeholder="เช่น 0.2"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PART 3: MOSFET / FET PARAMETER EXTRACTION TABLE -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span class="number">ตอนที่ 3:</span> <span>การสกัดค่าพารามิเตอร์ของมอสเฟต (<span id="lbl-ws-mos-name" style="color:var(--accent-cyan);">2N7000</span>)</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillMOSFET()">⚡ เติมค่าศึกษา MOSFET</button>
+          </div>
+
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>ชนิดโครงสร้างและแชนแนล</th>
+                <th>V<sub>DSS</sub> สูงสุด (V)</th>
+                <th>I<sub>D(max)</sub> (A หรือ mA)</th>
+                <th>V<sub>GS(th)</sub> แรงดันเกตเริ่มทำงาน (V)</th>
+                <th>R<sub>DS(on)</sub> ความต้านทานภายใน (Ω)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <select id="m-type">
+                    <option value="N-Channel">N-Channel Enhancement MOSFET</option>
+                    <option value="P-Channel">P-Channel Enhancement MOSFET</option>
+                    <option value="N-JFET">N-Channel JFET</option>
+                  </select>
+                </td>
+                <td><input type="number" id="m-vdss" step="1" placeholder="เช่น 60"></td>
+                <td><input type="number" id="m-id" step="0.01" placeholder="เช่น 0.2"></td>
+                <td><input type="number" id="m-vgsth" step="0.1" placeholder="เช่น 2.1"></td>
+                <td><input type="number" id="m-rdson" step="0.001" placeholder="เช่น 5.0"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- POST-LAB QUESTIONS -->
+        <div class="card">
+          <h2 class="card-title"><span class="number">4.</span> <span>คำถามท้ายการทดลองเชิงวิเคราะห์ (Post-Lab Questions)</span></h2>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">1. เพราะเหตุใดในการออกแบบวงจรจริงทางวิศวกรรม จึงห้ามใช้งานอุปกรณ์ที่ระดับ Absolute Maximum Ratings และควรมีหลักการเผื่อค่าความปลอดภัย (Safety Derating) อย่างไร?</label>
+            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบอธิบายความเสี่ยงเมื่อเกิด Voltage Spike หรือความร้อนสะสม และการเผื่อค่าความปลอดภัย..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">2. ค่า h<sub>FE</sub> (β) ใน Data Sheet ของทรานซิสเตอร์ BJT ทำไมจึงระบุเป็นช่วงค่า (Min - Max) และค่านี้จะเปลี่ยนแปลงไปตามกระแสคอลเล็กเตอร์ (I<sub>C</sub>) และอุณหภูมิอย่างไร?</label>
+            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบอธิบายความแปรปรวนในกระบวนการผลิตเซมิคอนดักเตอร์ และผลของอุณหภูมิต่ออัตราขยาย..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">3. ในการเลือกใช้งาน MOSFET เป็นสวิตช์กำลัง (Power Switch) ค่า R<sub>DS(on)</sub> ส่งผลต่อการสูญเสียกำลังงาน (Conduction Loss) และความร้อนอย่างไรตามสูตร P = I<sub>D</sub><sup>2</sup>·R<sub>DS(on)</sub>?</label>
+            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบวิเคราะห์บทบาทของ RDS(on) ต่ำใน Power MOSFET เทียบกับ VCE(sat) ของ BJT..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">4. หากต้องการนำไดโอดไปใช้งานในวงจรเรียงกระแสบริดจ์ (Bridge Rectifier) ที่รับไฟกระแสสลับ 220V<sub>RMS</sub> ควรเลือกไดโอดที่มีพิกัด V<sub>RRM</sub> อย่างน้อยเท่าใดจึงจะปลอดภัย?</label>
+            <textarea id="q4-answer" rows="3" placeholder="พิมพ์คำตอบคำนวณหาค่า Vpeak = 220 * sqrt(2) ≈ 311V และการเลือกพิกัดไดโอดที่เหมาะสม เช่น 1N4007 (1000V)..."></textarea>
+          </div>
+        </div>
+
+        <!-- CONCLUSION -->
+        <div class="card">
+          <h2 class="card-title"><span class="number">5.</span> <span>สรุปผลการทดลอง (Conclusion)</span></h2>
+          <textarea id="lab-conclusion" rows="5" placeholder="เขียนสรุปประโยชน์ของการอ่าน Data Sheet, ข้อควรระวังในการเลือกใช้อุปกรณ์เซมิคอนดักเตอร์ให้ตรงกับพิกัดแรงดัน-กระแส, และทักษะการตรวจสอบตำแหน่งขาจากเอกสารข้อมูล..."></textarea>
+        </div>
+
+        <!-- SUBMIT BAR -->
+        <div class="card-footer-action no-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ พิมพ์รายงาน / บันทึก PDF</button>
+          <button type="button" class="btn btn-success" style="padding: 12px 28px; font-size: 15px;" onclick="submitReportToGAS()">
+            🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- OVERLAY / MODAL FOR SUBMISSION RESULTS -->
+  <div id="submission-overlay" class="overlay">
+    <div class="modal-card">
+      <div id="modal-spinner" style="font-size: 40px; margin-bottom: 15px; animation: spin 1s linear infinite;">⚙️</div>
+      <h2 id="modal-title" style="font-family: 'Chakra Petch', sans-serif; font-size: 20px; margin-bottom: 10px; color: #fff;">กำลังประมวลผลและส่งคะแนน...</h2>
+      <div id="modal-body" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px; max-height: 250px; overflow-y: auto; text-align: left; background: #090d16; padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+        ระบบกำลังตรวจคำตอบอัตโนมัติ กรุณารอสักครู่...
+      </div>
+      <button type="button" id="modal-close-btn" class="btn btn-primary" style="display: none;" onclick="closeModal()">ตกลง / ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <!-- Anti-Cheat & Plagiarism Prevention Toast -->
+  <div id="anti-cheat-toast" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(15px); background: linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(185, 28, 28, 0.96)); color: #ffffff; padding: 14px 24px; border-radius: 10px; font-family: 'Chakra Petch', sans-serif; font-size: 14px; font-weight: bold; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.45); z-index: 100000; border: 1px solid rgba(255, 255, 255, 0.35); pointer-events: none; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; backdrop-filter: blur(8px);">
+    🚫 ไม่อนุญาตให้คัดลอก/วางข้อความ (Anti-Cheat Protection)<br>
+    <span style="font-size: 12px; font-weight: normal; font-family: 'Sarabun', sans-serif; opacity: 0.95;">กรุณาคิด วิเคราะห์ และพิมพ์คำตอบสรุปผลด้วยตนเอง</span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC ENGINE -->
+  <!-- ========================================== -->
+  <script>
+    // --- 10 COMPLETE DATASHEET DATA OBJECTS ---
+    const DB = {
+      // --- DIODES ---
+      '1N4007': {
+        name: '1N4007',
+        category: 'Diode',
+        catTitle: 'หมวดหมู่: Diode (ไดโอด)',
+        subtitle: '1.0 AMP GENERAL PURPOSE SILICON RECTIFIER',
+        package: 'DO-41 (Axial Plastic)',
+        pkgCode: 'DO-41',
+        maxRatings: [
+          { symbol: 'V_RRM', name: 'Peak Repetitive Reverse Voltage', val: '1000', unit: 'V' },
+          { symbol: 'V_RMS', name: 'RMS Reverse Voltage', val: '700', unit: 'V' },
+          { symbol: 'I_F(AV)', name: 'Average Forward Rectified Current @ 75°C', val: '1.0', unit: 'A' },
+          { symbol: 'I_FSM', name: 'Non-Repetitive Peak Forward Surge Current (8.3ms)', val: '30', unit: 'A' },
+          { symbol: 'T_J, T_stg', name: 'Operating and Storage Junction Temperature Range', val: '-65 to +175', unit: '°C' }
+        ],
+        elecChar: [
+          { symbol: 'V_F', name: 'Maximum Instantaneous Forward Voltage @ 1.0A', typ: '0.8', max: '1.1', unit: 'V' },
+          { symbol: 'I_R', name: 'Maximum Reverse Leakage Current @ Rated V_RRM, 25°C', typ: '0.05', max: '5.0', unit: 'μA' },
+          { symbol: 'I_R(100°C)', name: 'Maximum Reverse Leakage Current @ 100°C', typ: '1.0', max: '50.0', unit: 'μA' },
+          { symbol: 'C_J', name: 'Typical Junction Capacitance @ 4.0V, 1.0MHz', typ: '15', max: '-', unit: 'pF' }
+        ],
+        svgType: 'diode-axial',
+        pinDesc: '📌 ตัวถัง DO-41: แถบสีเงิน (Cathode Band) บ่งบอกขั้วแคโทด (Cathode: K) ฝั่งตรงข้ามคือขั้วแอโนด (Anode: A)',
+        tips: '1N4007 เหมาะอย่างยิ่งสำหรับวงจรแปลงไฟ AC 220V เป็น DC (50/60Hz) แต่ไม่เหมาะกับความถี่สูงเกิน 1kHz เนื่องจากไม่มีคุณสมบัติ Fast Recovery'
+      },
+      '1N4148': {
+        name: '1N4148',
+        category: 'Diode',
+        catTitle: 'หมวดหมู่: Diode (ไดโอด)',
+        subtitle: 'HIGH-SPEED SILICON SWITCHING DIODE',
+        package: 'DO-35 (Glass Axial)',
+        pkgCode: 'DO-35',
+        maxRatings: [
+          { symbol: 'V_RRM', name: 'Peak Repetitive Reverse Voltage', val: '100', unit: 'V' },
+          { symbol: 'I_F(AV)', name: 'Continuous Forward Current', val: '200', unit: 'mA' },
+          { symbol: 'I_FSM', name: 'Non-Repetitive Peak Forward Surge Current (1.0μs)', val: '2.0', unit: 'A' },
+          { symbol: 'P_D', name: 'Power Dissipation @ 25°C', val: '500', unit: 'mW' },
+          { symbol: 'T_J', name: 'Maximum Junction Temperature', val: '+175', unit: '°C' }
+        ],
+        elecChar: [
+          { symbol: 'V_F', name: 'Maximum Forward Voltage @ 10mA', typ: '0.67', max: '1.0', unit: 'V' },
+          { symbol: 'I_R', name: 'Maximum Reverse Leakage Current @ 20V', typ: '0.005', max: '0.025', unit: 'μA' },
+          { symbol: 't_rr', name: 'Reverse Recovery Time (I_F=10mA, V_R=6V, R_L=100Ω)', typ: '2.0', max: '4.0', unit: 'ns' },
+          { symbol: 'C_D', name: 'Diode Capacitance @ V_R=0, f=1.0MHz', typ: '1.5', max: '4.0', unit: 'pF' }
+        ],
+        svgType: 'diode-axial',
+        pinDesc: '📌 ตัวถัง DO-35 (แก้วใส): แถบสีดำ (Black Ring) บ่งบอกขั้วแคโทด (Cathode: K) ขั้วอีกฝั่งคือแอโนด (Anode: A)',
+        tips: '1N4148 มีจุดเด่นคือ Reverse Recovery Time (t_rr) สั้นเพียง 4ns เหมาะสำหรับวงจรดิจิทัลและสวิตชิ่งความถี่สูงมาก'
+      },
+      '1N4733A': {
+        name: '1N4733A',
+        category: 'Diode',
+        catTitle: 'หมวดหมู่: Diode (ไดโอด)',
+        subtitle: '1.0 WATT SILICON ZENER REGULATOR DIODE (5.1V)',
+        package: 'DO-41 (Glass/Plastic)',
+        pkgCode: 'DO-41',
+        maxRatings: [
+          { symbol: 'V_Z', name: 'Nominal Zener Voltage @ I_ZT=49mA', val: '5.1', unit: 'V' },
+          { symbol: 'P_D', name: 'Power Dissipation @ 50°C', val: '1.0', unit: 'W' },
+          { symbol: 'I_ZM', name: 'Maximum Zener Current Continuous', val: '178', unit: 'mA' },
+          { symbol: 'T_J', name: 'Operating Junction Temperature Range', val: '-65 to +200', unit: '°C' }
+        ],
+        elecChar: [
+          { symbol: 'V_Z', name: 'Zener Voltage Range (Min - Max) @ 49mA', typ: '5.10', max: '5.36 (Min: 4.84)', unit: 'V' },
+          { symbol: 'Z_ZT', name: 'Maximum Zener Impedance @ I_ZT=49mA', typ: '4.0', max: '7.0', unit: 'Ω' },
+          { symbol: 'I_R', name: 'Maximum Reverse Leakage Current @ 1.0V', typ: '0.1', max: '10.0', unit: 'μA' },
+          { symbol: 'V_F', name: 'Forward Voltage @ I_F=200mA', typ: '0.9', max: '1.2', unit: 'V' }
+        ],
+        svgType: 'diode-axial',
+        pinDesc: '📌 ซีเนอร์ไดโอด: แถบสีบ่งบอกขั้วแคโทด (K) ในการใช้งานรักษาระดับแรงดัน ให้ต่อไบแอสกลับ (Reverse Bias) แคโทดรับไฟบวก',
+        tips: '1N4733A ให้แรงดันคงที่ 5.1V เหมาะสำหรับใช้อ้างอิงแรงดันให้กับระบบไมโครคอนโทรลเลอร์ 5V'
+      },
+
+      // --- BJT TRANSISTORS ---
+      '2N2222A': {
+        name: '2N2222A',
+        category: 'BJT',
+        catTitle: 'หมวดหมู่: BJT Transistor (ทรานซิสเตอร์)',
+        subtitle: 'NPN HIGH-SPEED SWITCHING AND AMPLIFIER TRANSISTOR',
+        package: 'TO-92 / TO-18',
+        pkgCode: 'TO-92',
+        maxRatings: [
+          { symbol: 'V_CEO', name: 'Collector-Emitter Breakdown Voltage (I_B=0)', val: '40', unit: 'V' },
+          { symbol: 'V_CBO', name: 'Collector-Base Breakdown Voltage (I_E=0)', val: '75', unit: 'V' },
+          { symbol: 'V_EBO', name: 'Emitter-Base Breakdown Voltage (I_C=0)', val: '6.0', unit: 'V' },
+          { symbol: 'I_C', name: 'Collector Current Continuous', val: '0.8 (800mA)', unit: 'A' },
+          { symbol: 'P_D', name: 'Total Device Dissipation @ 25°C', val: '625', unit: 'mW' }
+        ],
+        elecChar: [
+          { symbol: 'h_FE', name: 'DC Current Gain @ I_C=150mA, V_CE=10V', typ: '160', max: '300 (Min: 100)', unit: '-' },
+          { symbol: 'h_FE(low)', name: 'DC Current Gain @ I_C=10mA, V_CE=10V', typ: '120', max: 'Min: 75', unit: '-' },
+          { symbol: 'V_CE(sat)', name: 'Collector-Emitter Saturation Voltage @ 150mA', typ: '0.15', max: '0.30', unit: 'V' },
+          { symbol: 'f_T', name: 'Current Gain-Bandwidth Product @ 20mA', typ: '300', max: 'Min: 300', unit: 'MHz' }
+        ],
+        svgType: 'to-92-ebc',
+        pinDesc: '📌 ตัวถัง TO-92: เมื่อหันหน้าเรียบเข้าหาตัว ขาเรียงจากซ้ายไปขวาคือ 1: E (Emitter), 2: B (Base), 3: C (Collector)',
+        tips: '2N2222A ทนกระแสได้สูงถึง 800mA จึงนิยมใช้ขับรีเลย์ มอเตอร์ขนาดเล็ก และเป็นวงจรสวิตช์ความเร็วสูง'
+      },
+      '2N3904': {
+        name: '2N3904',
+        category: 'BJT',
+        catTitle: 'หมวดหมู่: BJT Transistor (ทรานซิสเตอร์)',
+        subtitle: 'NPN GENERAL PURPOSE AUDIO AND SWITCHING TRANSISTOR',
+        package: 'TO-92 Plastic',
+        pkgCode: 'TO-92',
+        maxRatings: [
+          { symbol: 'V_CEO', name: 'Collector-Emitter Voltage (I_B=0)', val: '40', unit: 'V' },
+          { symbol: 'V_CBO', name: 'Collector-Base Voltage (I_E=0)', val: '60', unit: 'V' },
+          { symbol: 'V_EBO', name: 'Emitter-Base Voltage (I_C=0)', val: '6.0', unit: 'V' },
+          { symbol: 'I_C', name: 'Collector Current Continuous', val: '0.2 (200mA)', unit: 'A' },
+          { symbol: 'P_D', name: 'Total Device Dissipation @ 25°C', val: '625', unit: 'mW' }
+        ],
+        elecChar: [
+          { symbol: 'h_FE', name: 'DC Current Gain @ I_C=10mA, V_CE=1.0V', typ: '180', max: '300 (Min: 100)', unit: '-' },
+          { symbol: 'V_CE(sat)', name: 'Collector-Emitter Saturation Voltage @ 10mA, I_B=1mA', typ: '0.09', max: '0.20', unit: 'V' },
+          { symbol: 'V_BE(sat)', name: 'Base-Emitter Saturation Voltage @ 10mA, I_B=1mA', typ: '0.75', max: '0.85', unit: 'V' },
+          { symbol: 'f_T', name: 'Current Gain-Bandwidth Product @ 10mA, 20MHz', typ: '300', max: 'Min: 300', unit: 'MHz' }
+        ],
+        svgType: 'to-92-ebc',
+        pinDesc: '📌 ตัวถัง TO-92: เมื่อหันหน้าเรียบเข้าหาตัว ขาเรียงจากซ้ายไปขวาคือ 1: Emitter (E), 2: Base (B), 3: Collector (C)',
+        tips: '2N3904 เป็นทรานซิสเตอร์สัญญาณขนาดเล็กที่ได้รับความนิยมสูงสุดในห้องปฏิบัติการ เหมาะสำหรับวงจรขยายสัญญาณเสียง'
+      },
+      'BC547': {
+        name: 'BC547',
+        category: 'BJT',
+        catTitle: 'หมวดหมู่: BJT Transistor (ทรานซิสเตอร์)',
+        subtitle: 'NPN EPITAXIAL SILICON LOW-NOISE AUDIO TRANSISTOR',
+        package: 'TO-92 Plastic',
+        pkgCode: 'TO-92',
+        maxRatings: [
+          { symbol: 'V_CEO', name: 'Collector-Emitter Voltage', val: '45', unit: 'V' },
+          { symbol: 'V_CBO', name: 'Collector-Base Voltage', val: '50', unit: 'V' },
+          { symbol: 'V_EBO', name: 'Emitter-Base Voltage', val: '6.0', unit: 'V' },
+          { symbol: 'I_C', name: 'Collector Current Continuous', val: '0.1 (100mA)', unit: 'A' },
+          { symbol: 'P_D', name: 'Total Power Dissipation @ 25°C', val: '500', unit: 'mW' }
+        ],
+        elecChar: [
+          { symbol: 'h_FE', name: 'DC Current Gain @ 2mA, 5V (BC547B group)', typ: '290', max: '450 (Min: 200)', unit: '-' },
+          { symbol: 'V_CE(sat)', name: 'Collector-Emitter Saturation Voltage @ 10mA, 0.5mA', typ: '0.09', max: '0.25', unit: 'V' },
+          { symbol: 'NF', name: 'Noise Figure @ 1kHz, 200μA', typ: '2.0', max: '10.0', unit: 'dB' },
+          { symbol: 'f_T', name: 'Transition Frequency @ 10mA, 5V', typ: '300', max: 'Min: 100', unit: 'MHz' }
+        ],
+        svgType: 'to-92-cbe',
+        pinDesc: '⚠️ ข้อควรระวัง (European Pinout): ขา BC547 เรียงจากซ้ายไปขวาคือ 1: Collector (C), 2: Base (B), 3: Emitter (E) สลับกับตระกูล 2N!',
+        tips: 'BC547 มีค่า Noise Figure ต่ำมาก จึงนิยมใช้เป็น Preamplifier ในวงจรไมโครโฟนและเครื่องเสียง Hi-Fi'
+      },
+      'BD139': {
+        name: 'BD139',
+        category: 'BJT',
+        catTitle: 'หมวดหมู่: BJT Transistor (ทรานซิสเตอร์)',
+        subtitle: 'NPN MEDIUM POWER DRIVER AND OUTPUT TRANSISTOR',
+        package: 'TO-126 (SOT-32)',
+        pkgCode: 'TO-126',
+        maxRatings: [
+          { symbol: 'V_CEO', name: 'Collector-Emitter Breakdown Voltage', val: '80', unit: 'V' },
+          { symbol: 'V_CBO', name: 'Collector-Base Breakdown Voltage', val: '80', unit: 'V' },
+          { symbol: 'I_C', name: 'Collector Current Continuous', val: '1.5 (1500mA)', unit: 'A' },
+          { symbol: 'P_D(TC=25°C)', name: 'Total Dissipation with Heatsink @ 25°C', val: '12.5', unit: 'W' },
+          { symbol: 'P_D(TA=25°C)', name: 'Total Dissipation Ambient (No Heatsink)', val: '1.25', unit: 'W' }
+        ],
+        elecChar: [
+          { symbol: 'h_FE', name: 'DC Current Gain @ I_C=150mA, V_CE=2V', typ: '100', max: '250 (Min: 40)', unit: '-' },
+          { symbol: 'V_CE(sat)', name: 'Collector-Emitter Saturation Voltage @ 500mA', typ: '0.2', max: '0.5', unit: 'V' },
+          { symbol: 'f_T', name: 'Transition Frequency @ 50mA', typ: '190', max: 'Min: 75', unit: 'MHz' }
+        ],
+        svgType: 'to-126-ecb',
+        pinDesc: '📌 ตัวถัง TO-126: เมื่อหันหน้าพิมพ์เบอร์เข้าหาตัว ขาเรียงคือ 1: Emitter (E), 2: Collector (C), 3: Base (B)',
+        tips: 'BD139 เป็นทรานซิสเตอร์กำลังปานกลาง นิยมใช้เป็นภาคขับ (Driver Stage) หรือภาคขยายคลาส AB คู่กับ BD140 (PNP)'
+      },
+
+      // --- MOSFET / FET ---
+      '2N7000': {
+        name: '2N7000',
+        category: 'MOSFET',
+        catTitle: 'หมวดหมู่: MOSFET (มอสเฟต)',
+        subtitle: 'N-CHANNEL ENHANCEMENT MODE FIELD EFFECT TRANSISTOR',
+        package: 'TO-92 Plastic',
+        pkgCode: 'TO-92',
+        maxRatings: [
+          { symbol: 'V_DSS', name: 'Drain-to-Source Breakdown Voltage', val: '60', unit: 'V' },
+          { symbol: 'V_DGR', name: 'Drain-to-Gate Breakdown Voltage (R_GS=1MΩ)', val: '60', unit: 'V' },
+          { symbol: 'V_GS', name: 'Gate-to-Source Voltage Continuous', val: '±20', unit: 'V' },
+          { symbol: 'I_D', name: 'Drain Current Continuous @ 25°C', val: '0.2 (200mA)', unit: 'A' },
+          { symbol: 'P_D', name: 'Power Dissipation @ 25°C', val: '400', unit: 'mW' }
+        ],
+        elecChar: [
+          { symbol: 'V_GS(th)', name: 'Gate Threshold Voltage @ I_D=1.0mA, V_DS=V_GS', typ: '2.1', max: '3.0 (Min: 0.8)', unit: 'V' },
+          { symbol: 'R_DS(on)', name: 'Static Drain-Source On-Resistance @ V_GS=10V, 0.5A', typ: '1.8', max: '5.0', unit: 'Ω' },
+          { symbol: 'g_fs', name: 'Forward Transconductance @ V_DS=10V, I_D=0.2A', typ: '320', max: 'Min: 100', unit: 'mS' },
+          { symbol: 't_on', name: 'Turn-On Time @ V_DD=25V, R_L=25Ω', typ: '10', max: '15', unit: 'ns' }
+        ],
+        svgType: 'to-92-sgd',
+        pinDesc: '📌 ตัวถัง TO-92 (2N7000): เมื่อหันหน้าเรียบเข้าหาตัว ขาเรียงคือ 1: Source (S), 2: Gate (G), 3: Drain (D)',
+        tips: '2N7000 ควบคุมการเปิดปิดด้วยแรงดันเกต (V_GS) โดยไม่มีกระแสไหลเข้าเกต (I_G ≈ 0) เหมาะสำหรับเชื่อมต่อ logic MCU 5V'
+      },
+      'IRF540N': {
+        name: 'IRF540N',
+        category: 'MOSFET',
+        catTitle: 'หมวดหมู่: MOSFET (มอสเฟต)',
+        subtitle: 'HEXFET POWER MOSFET (100V, 33A, 44mΩ)',
+        package: 'TO-220AB',
+        pkgCode: 'TO-220AB',
+        maxRatings: [
+          { symbol: 'V_DSS', name: 'Drain-to-Source Breakdown Voltage', val: '100', unit: 'V' },
+          { symbol: 'I_D @ 25°C', name: 'Continuous Drain Current @ V_GS=10V', val: '33', unit: 'A' },
+          { symbol: 'I_D @ 100°C', name: 'Continuous Drain Current @ 100°C', val: '23', unit: 'A' },
+          { symbol: 'I_DM', name: 'Pulsed Drain Current (Peak)', val: '110', unit: 'A' },
+          { symbol: 'P_D @ 25°C', name: 'Maximum Power Dissipation (with Heatsink)', val: '130', unit: 'W' }
+        ],
+        elecChar: [
+          { symbol: 'V_GS(th)', name: 'Gate Threshold Voltage @ V_DS=V_GS, I_D=250μA', typ: '3.0', max: '4.0 (Min: 2.0)', unit: 'V' },
+          { symbol: 'R_DS(on)', name: 'Static Drain-to-Source On-Resistance @ 16A, 10V', typ: '0.038', max: '0.044', unit: 'Ω' },
+          { symbol: 'g_fs', name: 'Forward Transconductance @ 16A, 50V', typ: '21', max: 'Min: 11', unit: 'S' },
+          { symbol: 'Q_g', name: 'Total Gate Charge @ V_GS=10V', typ: '47', max: '71', unit: 'nC' }
+        ],
+        svgType: 'to-220-gds',
+        pinDesc: '📌 ตัวถัง TO-220AB: ขา 1: Gate (G), ขา 2: Drain (D), ขา 3: Source (S) และแถบระบายความร้อนด้านหลัง (Tab) ต่อเชื่อมกับขา Drain',
+        tips: 'IRF540N มี R_DS(on) ต่ำเพียง 44mΩ ทำให้สูญเสียกำลังงานต่ำมาก นิยมใช้ในวงจรขับมอเตอร์ DC, อินเวอร์เตอร์ และ SMPS'
+      },
+      '2N5458': {
+        name: '2N5458',
+        category: 'JFET',
+        catTitle: 'หมวดหมู่: FET / JFET',
+        subtitle: 'N-CHANNEL SILICON GENERAL PURPOSE JUNCTION FET',
+        package: 'TO-92 Plastic',
+        pkgCode: 'TO-92',
+        maxRatings: [
+          { symbol: 'V_DS', name: 'Drain-Source Voltage', val: '25', unit: 'V' },
+          { symbol: 'V_DG', name: 'Drain-Gate Voltage', val: '25', unit: 'V' },
+          { symbol: 'V_GS', name: 'Reverse Gate-Source Voltage', val: '-25', unit: 'V' },
+          { symbol: 'I_GF', name: 'Forward Gate Current', val: '10', unit: 'mA' },
+          { symbol: 'P_D', name: 'Continuous Device Dissipation @ 25°C', val: '310', unit: 'mW' }
+        ],
+        elecChar: [
+          { symbol: 'V_GS(off) / V_P', name: 'Gate-Source Cutoff Voltage @ V_DS=15V, I_D=10nA', typ: '-3.5', max: '-7.0 (Min: -1.0)', unit: 'V' },
+          { symbol: 'I_DSS', name: 'Zero-Gate-Voltage Drain Current @ 15V, V_GS=0', typ: '6.0', max: '9.0 (Min: 2.0)', unit: 'mA' },
+          { symbol: 'g_fs / g_m', name: 'Forward Transfer Admittance @ 1kHz, 15V, 0V', typ: '3000', max: '5500 (Min: 1500)', unit: 'μS' },
+          { symbol: 'r_ds(on)', name: 'Drain-Source ON Resistance @ V_GS=0', typ: '400', max: '600', unit: 'Ω' }
+        ],
+        svgType: 'to-92-dsg',
+        pinDesc: '📌 ตัวถัง TO-92 (2N5458): เมื่อหันหน้าเรียบเข้าหาตัว ขาเรียงคือ 1: Drain (D), 2: Source (S), 3: Gate (G)',
+        tips: '2N5458 เป็น JFET ชนิด Depletion ที่นำกระแสได้เองเมื่อ V_GS=0 และหยุดนำกระแสเมื่อ V_GS เป็นลบต่ำกว่า Pinch-off Voltage (V_P)'
+      }
+    };
+
+    // --- APPLICATION STATE ---
+    const STATE = {
+      activeTab: 'theory',
+      currentDsKey: '1N4007',
+      wsMode: 'fixed',
+      wsDiode: '1N4007',
+      wsBjt: '2N3904',
+      wsMosfet: '2N7000'
+    };
+
+    // --- TAB SWITCHING ---
+    function switchTab(tabId) {
+      STATE.activeTab = tabId;
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      const tabEl = document.getElementById(tabId);
+      if (tabEl) tabEl.classList.add('active');
+
+      const navItems = document.querySelectorAll('.nav-item');
+      if (tabId === 'theory' && navItems[0]) navItems[0].classList.add('active');
+      if (tabId === 'explorer' && navItems[1]) navItems[1].classList.add('active');
+      if (tabId === 'worksheet' && navItems[2]) navItems[2].classList.add('active');
+
+      if (tabId === 'explorer') {
+        showDatasheet(STATE.currentDsKey);
+      }
+    }
+
+    // --- DATASHEET RENDERER ---
+    function showDatasheet(key) {
+      if (!DB[key]) return;
+      STATE.currentDsKey = key;
+      const d = DB[key];
+
+      // Update Button active states
+      Object.keys(DB).forEach(k => {
+        const btn = document.getElementById('btn-ds-' + k);
+        if (btn) {
+          if (k === key) {
+            btn.classList.add('active');
+            btn.style.borderColor = '#38bdf8';
+            btn.style.color = '#38bdf8';
+            btn.style.background = 'rgba(56, 189, 248, 0.2)';
+          } else {
+            btn.classList.remove('active');
+            btn.style.borderColor = '';
+            btn.style.color = '';
+            btn.style.background = '';
+          }
+        }
+      });
+
+      // Update Headers
+      document.getElementById('txt-selected-category-badge').innerText = d.catTitle;
+      document.getElementById('ds-title').innerText = d.name;
+      document.getElementById('ds-subtitle').innerText = d.subtitle;
+      document.getElementById('ds-pkg-badge').innerText = 'Package: ' + d.package;
+
+      // Render Absolute Maximum Ratings Table
+      let maxHtml = '<thead><tr><th>Parameter</th><th>Symbol</th><th>Value</th><th>Unit</th></tr></thead><tbody>';
+      d.maxRatings.forEach(r => {
+        maxHtml += `<tr>
+          <td class="ds-param-name">${r.name}</td>
+          <td class="ds-symbol">${r.symbol}</td>
+          <td style="color:#f8fafc; font-weight:bold; font-family:'Fira Code', monospace;">${r.val}</td>
+          <td style="color:var(--accent-cyan);">${r.unit}</td>
+        </tr>`;
+      });
+      maxHtml += '</tbody>';
+      document.getElementById('ds-table-max').innerHTML = maxHtml;
+
+      // Render Electrical Characteristics Table
+      let elecHtml = '<thead><tr><th>Characteristic</th><th>Symbol</th><th>Typ</th><th>Max</th><th>Unit</th></tr></thead><tbody>';
+      d.elecChar.forEach(e => {
+        elecHtml += `<tr>
+          <td class="ds-param-name">${e.name}</td>
+          <td class="ds-symbol">${e.symbol}</td>
+          <td style="font-family:'Fira Code', monospace; color:#cbd5e1;">${e.typ}</td>
+          <td style="font-family:'Fira Code', monospace; color:#34d399; font-weight:bold;">${e.max}</td>
+          <td style="color:var(--accent-cyan);">${e.unit}</td>
+        </tr>`;
+      });
+      elecHtml += '</tbody>';
+      document.getElementById('ds-table-elec').innerHTML = elecHtml;
+
+      // Render SVG Pinout
+      renderPinoutSVG(d.svgType, d.name);
+
+      // Render Descriptions
+      document.getElementById('ds-pinout-desc').innerHTML = d.pinDesc;
+      document.getElementById('ds-tips-box').innerHTML = '<strong>' + d.name + ':</strong> ' + d.tips;
+    }
+
+    // --- SVG PINOUT VISUALIZER ---
+    function renderPinoutSVG(type, name) {
+      const svg = document.getElementById('svg-pinout');
+      if (!svg) return;
+
+      let content = '';
+
+      if (type === 'diode-axial') {
+        content = `
+          <!-- DO-41 / DO-35 Axial Diode -->
+          <line x1="40" y1="100" x2="130" y2="100" stroke="#94a3b8" stroke-width="4"/>
+          <line x1="270" y1="100" x2="360" y2="100" stroke="#94a3b8" stroke-width="4"/>
+          <rect x="130" y="65" width="140" height="70" rx="10" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <!-- Cathode Silver Band -->
+          <rect x="235" y="65" width="22" height="70" fill="#cbd5e1"/>
+          <!-- Part Name -->
+          <text x="180" y="106" fill="#38bdf8" font-family="Chakra Petch" font-size="16" font-weight="bold" text-anchor="middle">${name}</text>
+          <!-- Terminals -->
+          <circle cx="40" cy="100" r="6" fill="#fbbf24"/>
+          <text x="40" y="135" fill="#fbbf24" font-family="Chakra Petch" font-size="14" font-weight="bold" text-anchor="middle">Anode (A)</text>
+          <circle cx="360" cy="100" r="6" fill="#38bdf8"/>
+          <text x="360" y="135" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold" text-anchor="middle">Cathode (K)</text>
+        `;
+      } else if (type === 'to-92-ebc') {
+        content = `
+          <!-- TO-92 (1:E, 2:B, 3:C) -->
+          <path d="M 140 60 Q 200 20 260 60 L 260 110 L 140 110 Z" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <rect x="140" y="105" width="120" height="15" fill="#1e293b" stroke="#475569"/>
+          <text x="200" y="85" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold" text-anchor="middle">${name} (TO-92)</text>
+          <text x="200" y="102" fill="#94a3b8" font-family="Sarabun" font-size="10" text-anchor="middle">(มุมมองหน้าเรียบ)</text>
+          <!-- Pins -->
+          <line x1="160" y1="120" x2="160" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="200" y1="120" x2="200" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="240" y1="120" x2="240" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <circle cx="160" cy="165" r="5" fill="#10b981"/>
+          <circle cx="200" cy="165" r="5" fill="#fbbf24"/>
+          <circle cx="240" cy="165" r="5" fill="#ef4444"/>
+          <text x="160" y="188" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">1: E</text>
+          <text x="200" y="188" fill="#fbbf24" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">2: B</text>
+          <text x="240" y="188" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">3: C</text>
+        `;
+      } else if (type === 'to-92-cbe') {
+        content = `
+          <!-- TO-92 (1:C, 2:B, 3:E - BC547) -->
+          <path d="M 140 60 Q 200 20 260 60 L 260 110 L 140 110 Z" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <rect x="140" y="105" width="120" height="15" fill="#1e293b" stroke="#475569"/>
+          <text x="200" y="85" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold" text-anchor="middle">${name} (TO-92)</text>
+          <text x="200" y="102" fill="#94a3b8" font-family="Sarabun" font-size="10" text-anchor="middle">(มุมมองหน้าเรียบ - ขา European)</text>
+          <!-- Pins -->
+          <line x1="160" y1="120" x2="160" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="200" y1="120" x2="200" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="240" y1="120" x2="240" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <circle cx="160" cy="165" r="5" fill="#ef4444"/>
+          <circle cx="200" cy="165" r="5" fill="#fbbf24"/>
+          <circle cx="240" cy="165" r="5" fill="#10b981"/>
+          <text x="160" y="188" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">1: C</text>
+          <text x="200" y="188" fill="#fbbf24" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">2: B</text>
+          <text x="240" y="188" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">3: E</text>
+        `;
+      } else if (type === 'to-126-ecb') {
+        content = `
+          <!-- TO-126 (1:E, 2:C, 3:B - BD139) -->
+          <rect x="130" y="40" width="140" height="85" rx="4" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <circle cx="200" cy="65" r="14" fill="#1e293b" stroke="#cbd5e1" stroke-width="2"/>
+          <text x="200" y="105" fill="#38bdf8" font-family="Chakra Petch" font-size="15" font-weight="bold" text-anchor="middle">${name} (TO-126)</text>
+          <!-- Pins -->
+          <line x1="155" y1="125" x2="155" y2="165" stroke="#cbd5e1" stroke-width="4"/>
+          <line x1="200" y1="125" x2="200" y2="165" stroke="#cbd5e1" stroke-width="4"/>
+          <line x1="245" y1="125" x2="245" y2="165" stroke="#cbd5e1" stroke-width="4"/>
+          <circle cx="155" cy="165" r="5" fill="#10b981"/>
+          <circle cx="200" cy="165" r="5" fill="#ef4444"/>
+          <circle cx="245" cy="165" r="5" fill="#fbbf24"/>
+          <text x="155" y="188" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">1: E</text>
+          <text x="200" y="188" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">2: C</text>
+          <text x="245" y="188" fill="#fbbf24" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">3: B</text>
+        `;
+      } else if (type === 'to-92-sgd') {
+        content = `
+          <!-- TO-92 (1:S, 2:G, 3:D - 2N7000) -->
+          <path d="M 140 60 Q 200 20 260 60 L 260 110 L 140 110 Z" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <rect x="140" y="105" width="120" height="15" fill="#1e293b" stroke="#475569"/>
+          <text x="200" y="85" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold" text-anchor="middle">${name} (TO-92)</text>
+          <text x="200" y="102" fill="#94a3b8" font-family="Sarabun" font-size="10" text-anchor="middle">(มุมมองหน้าเรียบ)</text>
+          <!-- Pins -->
+          <line x1="160" y1="120" x2="160" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="200" y1="120" x2="200" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="240" y1="120" x2="240" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <circle cx="160" cy="165" r="5" fill="#10b981"/>
+          <circle cx="200" cy="165" r="5" fill="#fbbf24"/>
+          <circle cx="240" cy="165" r="5" fill="#38bdf8"/>
+          <text x="160" y="188" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">1: S</text>
+          <text x="200" y="188" fill="#fbbf24" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">2: G</text>
+          <text x="240" y="188" fill="#38bdf8" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">3: D</text>
+        `;
+      } else if (type === 'to-220-gds') {
+        content = `
+          <!-- TO-220AB (1:G, 2:D, 3:S, Tab:D - IRF540N) -->
+          <!-- Tab -->
+          <rect x="145" y="25" width="110" height="40" rx="3" fill="#64748b" stroke="#94a3b8"/>
+          <circle cx="200" cy="45" r="10" fill="#0f172a" stroke="#cbd5e1"/>
+          <text x="235" y="42" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">Tab: Drain</text>
+          <!-- Body -->
+          <rect x="135" y="60" width="130" height="65" rx="3" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <text x="200" y="96" fill="#38bdf8" font-family="Chakra Petch" font-size="15" font-weight="bold" text-anchor="middle">${name} (TO-220)</text>
+          <!-- Pins -->
+          <line x1="155" y1="125" x2="155" y2="165" stroke="#cbd5e1" stroke-width="4"/>
+          <line x1="200" y1="125" x2="200" y2="165" stroke="#cbd5e1" stroke-width="4"/>
+          <line x1="245" y1="125" x2="245" y2="165" stroke="#cbd5e1" stroke-width="4"/>
+          <circle cx="155" cy="165" r="5" fill="#fbbf24"/>
+          <circle cx="200" cy="165" r="5" fill="#38bdf8"/>
+          <circle cx="245" cy="165" r="5" fill="#10b981"/>
+          <text x="155" y="188" fill="#fbbf24" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">1: G</text>
+          <text x="200" y="188" fill="#38bdf8" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">2: D</text>
+          <text x="245" y="188" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">3: S</text>
+        `;
+      } else if (type === 'to-92-dsg') {
+        content = `
+          <!-- TO-92 (1:D, 2:S, 3:G - 2N5458 JFET) -->
+          <path d="M 140 60 Q 200 20 260 60 L 260 110 L 140 110 Z" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <rect x="140" y="105" width="120" height="15" fill="#1e293b" stroke="#475569"/>
+          <text x="200" y="85" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold" text-anchor="middle">${name} (JFET)</text>
+          <text x="200" y="102" fill="#94a3b8" font-family="Sarabun" font-size="10" text-anchor="middle">(มุมมองหน้าเรียบ)</text>
+          <!-- Pins -->
+          <line x1="160" y1="120" x2="160" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="200" y1="120" x2="200" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <line x1="240" y1="120" x2="240" y2="165" stroke="#cbd5e1" stroke-width="3.5"/>
+          <circle cx="160" cy="165" r="5" fill="#38bdf8"/>
+          <circle cx="200" cy="165" r="5" fill="#10b981"/>
+          <circle cx="240" cy="165" r="5" fill="#fbbf24"/>
+          <text x="160" y="188" fill="#38bdf8" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">1: D</text>
+          <text x="200" y="188" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">2: S</text>
+          <text x="240" y="188" fill="#fbbf24" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">3: G</text>
+        `;
+      }
+
+      svg.innerHTML = content;
+    }
+
+    // --- WORKSHEET LOGIC ---
+    function setWorksheetMode(mode) {
+      STATE.wsMode = mode;
+      const btnFixed = document.getElementById('btn-ws-mode-fixed');
+      const btnCustom = document.getElementById('btn-ws-mode-custom');
+      const customTools = document.getElementById('ws-custom-tools');
+      const selects = document.querySelectorAll('#panel-ws-devices select');
+
+      if (mode === 'fixed') {
+        btnFixed.classList.add('active');
+        btnFixed.style.borderColor = '#38bdf8';
+        btnFixed.style.color = '#38bdf8';
+        btnFixed.style.background = 'rgba(56, 189, 248, 0.2)';
+
+        btnCustom.classList.remove('active');
+        btnCustom.style.borderColor = '';
+        btnCustom.style.color = '';
+        btnCustom.style.background = '';
+
+        customTools.style.display = 'none';
+        selects.forEach(s => {
+          s.disabled = true;
+          s.style.background = '#0b0f19';
+        });
+
+        resetWorksheetDevices();
+      } else {
+        btnCustom.classList.add('active');
+        btnCustom.style.borderColor = '#38bdf8';
+        btnCustom.style.color = '#38bdf8';
+        btnCustom.style.background = 'rgba(56, 189, 248, 0.2)';
+
+        btnFixed.classList.remove('active');
+        btnFixed.style.borderColor = '';
+        btnFixed.style.color = '';
+        btnFixed.style.background = '';
+
+        customTools.style.display = 'flex';
+        selects.forEach(s => {
+          s.disabled = false;
+          s.style.background = '#090d16';
+        });
+      }
+    }
+
+    function resetWorksheetDevices() {
+      document.getElementById('ws-sel-diode').value = '1N4007';
+      document.getElementById('ws-sel-bjt').value = '2N3904';
+      document.getElementById('ws-sel-mosfet').value = '2N7000';
+      onWorksheetDeviceChange();
+    }
+
+    function randomizeWorksheetDevices() {
+      const diodes = ['1N4007', '1N4148', '1N4733A'];
+      const bjts = ['2N2222A', '2N3904', 'BC547', 'BD139'];
+      const mosfets = ['2N7000', 'IRF540N', '2N5458'];
+
+      const d = diodes[Math.floor(Math.random() * diodes.length)];
+      const b = bjts[Math.floor(Math.random() * bjts.length)];
+      const m = mosfets[Math.floor(Math.random() * mosfets.length)];
+
+      document.getElementById('ws-sel-diode').value = d;
+      document.getElementById('ws-sel-bjt').value = b;
+      document.getElementById('ws-sel-mosfet').value = m;
+      onWorksheetDeviceChange();
+      alert('🎲 สุ่มชุดอุปกรณ์ใหม่: ' + d + ', ' + b + ', ' + m);
+    }
+
+    function onWorksheetDeviceChange() {
+      STATE.wsDiode = document.getElementById('ws-sel-diode').value;
+      STATE.wsBjt = document.getElementById('ws-sel-bjt').value;
+      STATE.wsMosfet = document.getElementById('ws-sel-mosfet').value;
+
+      document.getElementById('lbl-ws-diode-name').innerText = STATE.wsDiode;
+      document.getElementById('lbl-ws-bjt-name').innerText = STATE.wsBjt;
+      document.getElementById('lbl-ws-mos-name').innerText = STATE.wsMosfet;
+    }
+
+    // --- AUTO-FILL ACTIONS ---
+    function autoFillDiode() {
+      const d = DB[STATE.wsDiode];
+      if (!d) return;
+      document.getElementById('d-pkg').value = d.pkgCode;
+      document.getElementById('d-vrrm').value = d.maxRatings[0].val;
+      document.getElementById('d-if').value = d.maxRatings[2] ? d.maxRatings[2].val.split(' ')[0] : '1.0';
+      document.getElementById('d-vf').value = d.elecChar[0].max;
+      document.getElementById('d-ir').value = d.elecChar[1].max;
+    }
+
+    function autoFillBJT() {
+      const b = DB[STATE.wsBjt];
+      if (!b) return;
+      document.getElementById('b-type').value = b.name === 'BC547' || b.name === 'BD139' || b.name === '2N2222A' || b.name === '2N3904' ? 'NPN' : 'PNP';
+      document.getElementById('b-vceo').value = b.maxRatings[0].val;
+      document.getElementById('b-ic').value = b.maxRatings[3].val.split(' ')[0];
+      document.getElementById('b-hfe').value = b.elecChar[0].typ;
+      document.getElementById('b-vcesat').value = b.elecChar[1].max;
+    }
+
+    function autoFillMOSFET() {
+      const m = DB[STATE.wsMosfet];
+      if (!m) return;
+      if (m.name === '2N5458') document.getElementById('m-type').value = 'N-JFET';
+      else document.getElementById('m-type').value = 'N-Channel';
+
+      document.getElementById('m-vdss').value = m.maxRatings[0].val;
+      document.getElementById('m-id').value = m.maxRatings[3] ? m.maxRatings[3].val.split(' ')[0] : '0.2';
+      document.getElementById('m-vgsth').value = m.elecChar[0].typ;
+      document.getElementById('m-rdson').value = m.elecChar[1].max;
+    }
+
+    // --- SUBMISSION TO GOOGLE APPS SCRIPT ---
+    function submitReportToGAS() {
+      const name = document.getElementById('student-name').value.trim();
+      const id = document.getElementById('student-id').value.trim();
+      const group = document.getElementById('student-group').value.trim();
+      const date = document.getElementById('lab-date').value;
+
+      if (!name || !id || !group || !date) {
+        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่ม และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+        return;
+      }
+
+      const payload = {
+        studentName: name,
+        studentId: id,
+        studentGroup: group,
+        labDate: date,
+        worksheetMode: STATE.wsMode,
+        diodeModel: STATE.wsDiode,
+        bjtModel: STATE.wsBjt,
+        mosfetModel: STATE.wsMosfet,
+
+        d_pkg: document.getElementById('d-pkg').value,
+        d_vrrm: document.getElementById('d-vrrm').value,
+        d_if: document.getElementById('d-if').value,
+        d_vf: document.getElementById('d-vf').value,
+        d_ir: document.getElementById('d-ir').value,
+
+        b_type: document.getElementById('b-type').value,
+        b_vceo: document.getElementById('b-vceo').value,
+        b_ic: document.getElementById('b-ic').value,
+        b_hfe: document.getElementById('b-hfe').value,
+        b_vcesat: document.getElementById('b-vcesat').value,
+
+        m_type: document.getElementById('m-type').value,
+        m_vdss: document.getElementById('m-vdss').value,
+        m_id: document.getElementById('m-id').value,
+        m_vgsth: document.getElementById('m-vgsth').value,
+        m_rdson: document.getElementById('m-rdson').value,
+
+        q1Answer: document.getElementById('q1-answer').value,
+        q2Answer: document.getElementById('q2-answer').value,
+        q3Answer: document.getElementById('q3-answer').value,
+        q4Answer: document.getElementById('q4-answer').value,
+        labConclusion: document.getElementById('lab-conclusion').value
+      };
+
+      // Show Loading Modal
+      const overlay = document.getElementById('submission-overlay');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+
+      overlay.style.display = 'flex';
+      spinner.style.display = 'block';
+      title.innerText = '🚀 กำลังส่งใบงานและตรวจคำตอบ...';
+      body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...';
+      closeBtn.style.display = 'none';
+
+      // Check if running inside Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onSuccessGrading)
+          .withFailureHandler(onFailureGrading)
+          .submitWorksheet(payload);
+      } else {
+        // Local Simulation Fallback
+        setTimeout(() => {
+          const localRes = localGradeSimulator(payload);
+          onSuccessGrading(localRes);
+        }, 1200);
+      }
+    }
+
+    function localGradeSimulator(data) {
+      return {
+        status: 'success',
+        score: 10,
+        maxScore: 10,
+        feedback: '[จำลองตรวจคะแนนในเครื่อง]: สกัดค่าพารามิเตอร์ Data Sheet ของ ' + data.diodeModel + ', ' + data.bjtModel + ', ' + data.mosfetModel + ' ได้อย่างถูกต้องสมบูรณ์ (10/10 คะแนน)',
+        comment: 'ผ่านเกณฑ์ดีมาก (Excellent) — พร้อมสำหรับการบันทึกลงชีตจริงเมื่อ Deploy บน Google Sheets'
+      };
+    }
+
+    function onSuccessGrading(res) {
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+
+      spinner.style.display = 'none';
+      if (res.status === 'success') {
+        title.innerHTML = '🎉 ผลการตรวจคะแนน: <span style="color:#34d399;">' + res.score + ' / ' + res.maxScore + ' คะแนน</span>';
+        body.innerHTML = '<strong>การประเมิน:</strong> ' + res.comment + '<br><br><pre style="white-space: pre-wrap; font-family: monospace; font-size: 12px; color:#cbd5e1;">' + res.feedback + '</pre>';
+      } else {
+        title.innerText = '❌ เกิดข้อผิดพลาด';
+        body.innerText = res.message || 'ไม่สามารถประมวลผลคะแนนได้';
+      }
+      closeBtn.style.display = 'inline-block';
+    }
+
+    function onFailureGrading(err) {
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+
+      spinner.style.display = 'none';
+      title.innerText = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อ';
+      body.innerText = err.toString();
+      closeBtn.style.display = 'inline-block';
+    }
+
+    function closeModal() {
+      document.getElementById('submission-overlay').style.display = 'none';
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateInput = document.getElementById('lab-date');
+      if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+      showDatasheet('1N4007');
+    });
+  </script>
+
+  <!-- ======================================================== -->
+  <!-- ANTI-CHEAT & PLAGIARISM PREVENTION SYSTEM -->
+  <!-- ======================================================== -->
+  <script>
+  (function initAntiCheatSystem() {
+    let pasteAttempts = 0;
+    let toastTimeout = null;
+
+    function showAntiCheatWarning(targetEl) {
+      pasteAttempts++;
+      const toast = document.getElementById('anti-cheat-toast');
+      if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateX(-50%) translateY(0)';
+        }, 10);
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(15px)';
+          setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 3000);
+      }
+
+      if (targetEl) {
+        const originalBorder = targetEl.style.borderColor;
+        const originalShadow = targetEl.style.boxShadow;
+        targetEl.style.borderColor = '#ef4444';
+        targetEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.6)';
+        setTimeout(() => {
+          targetEl.style.borderColor = originalBorder;
+          targetEl.style.boxShadow = originalShadow;
+        }, 1200);
+      }
+    }
+
+    function setupAntiCheatListeners() {
+      const protectedElements = document.querySelectorAll('textarea, input[type="text"].protected-answer');
+      protectedElements.forEach(el => {
+        el.addEventListener('paste', (e) => {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        });
+        el.addEventListener('drop', (e) => {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        });
+        el.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V' || e.keyCode === 86)) {
+            e.preventDefault();
+            showAntiCheatWarning(el);
+          }
+          if (e.shiftKey && (e.key === 'Insert' || e.keyCode === 45)) {
+            e.preventDefault();
+            showAntiCheatWarning(el);
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAntiCheatListeners);
+    } else {
+      setupAntiCheatListeners();
+    }
+
+    window.getAntiCheatStats = function() {
+      return { pasteAttempts: pasteAttempts };
+    };
+  })();
+  </script>
+</body>
+</html>
