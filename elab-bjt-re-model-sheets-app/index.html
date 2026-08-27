@@ -1434,11 +1434,14 @@
         </div>
 
         <!-- Submission Actions -->
-        <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;">
-          <button class="btn btn-secondary" onclick="window.print()">
+        <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">
             🖨️ พิมพ์รายงาน / บันทึก PDF
           </button>
-          <button class="btn btn-primary" onclick="submitReportToGAS()">
+          <button type="button" class="btn btn-secondary" style="border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); font-weight: bold;" onclick="previewScoreBeforeSubmit()">
+            🔍 ตรวจสอบคะแนนก่อนส่ง
+          </button>
+          <button type="button" class="btn btn-primary" onclick="submitReportToGAS()">
             🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ
           </button>
         </div>
@@ -1449,12 +1452,15 @@
   </div>
 
   <!-- Grading Overlay Modal -->
-  <div id="submission-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(9, 13, 22, 0.92); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: #f8fafc; font-family: 'Chakra Petch', sans-serif;">
-    <div class="card" style="width: 90%; max-width: 520px; text-align: center; border: 2px solid var(--accent-cyan); background-color: #0f172a; padding: 30px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);">
-      <h2 id="modal-title" style="margin-bottom: 20px; font-size: 22px; color: var(--accent-cyan);">🚀 กำลังส่งใบงานและตรวจคำตอบ...</h2>
-      <div id="modal-spinner" class="logo-icon" style="font-size: 45px; animation: spin 2s linear infinite; margin-bottom: 20px;">⚡</div>
+  <div id="submission-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(9, 13, 22, 0.92); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: #f8fafc; font-family: 'Chakra Petch', sans-serif; padding: 20px;">
+    <div class="card" style="width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; text-align: center; border: 2px solid var(--accent-cyan); background-color: #0f172a; padding: 26px; box-shadow: 0 0 35px rgba(56, 189, 248, 0.35);">
+      <h2 id="modal-title" style="margin-bottom: 16px; font-size: 22px; color: var(--accent-cyan);">🚀 กำลังส่งใบงานและตรวจคำตอบ...</h2>
+      <div id="modal-spinner" class="logo-icon" style="font-size: 45px; animation: spin 2s linear infinite; margin-bottom: 16px;">⚡</div>
       <div id="modal-body" style="font-size: 14px; font-family: 'Sarabun', sans-serif; color: var(--text-muted); line-height: 1.6;">ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...</div>
-      <button id="modal-close-btn" class="btn btn-primary" style="margin-top: 25px; display: none;" onclick="closeModal()">ปิดหน้าต่างนี้ ❌</button>
+      <div id="modal-actions" style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button id="modal-close-btn" class="btn btn-secondary" style="display: none;" onclick="closeModal()">ปิดหน้าต่างนี้ ❌</button>
+        <button id="modal-confirm-submit-btn" class="btn btn-primary" style="display: none;" onclick="confirmSubmitFromPreview()">🚀 ยืนยันส่งใบงานจริง</button>
+      </div>
     </div>
   </div>
 
@@ -2047,55 +2053,42 @@
     function autoFillPart1() { autoFillDCFromSim(); }
     function autoFillPart2() { autoFillACFromSim(); }
 
-    // --- SUBMISSION & AUTO-GRADING HANDLER ---
-    function submitReportToGAS() {
-      // Validate student profile
-      const name = document.getElementById('student-name').value.trim();
-      const id = document.getElementById('student-id').value.trim();
-
-      if (!name || !id) {
-        alert('⚠️ กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษา ในแท็บตารางบันทึกผลการทดลองก่อนส่งรายงาน');
-        switchTab('tab-worksheet');
-        document.getElementById('student-name').focus();
-        return;
-      }
-
-      // Check Q1-Q4 answers
+    // --- WORKSPACE DATA HELPER ---
+    function getWorksheetPayload() {
       const q1 = document.querySelector('input[name="q1"]:checked')?.value || '';
       const q2 = document.querySelector('input[name="q2"]:checked')?.value || '';
       const q3 = document.querySelector('input[name="q3"]:checked')?.value || '';
       const q4 = document.querySelector('input[name="q4"]:checked')?.value || '';
+      const conclusion = document.getElementById('lab-conclusion')?.value.trim() || '';
 
-      const conclusion = document.getElementById('lab-conclusion').value.trim();
-
-      const payload = {
-        studentName: name,
-        studentId: id,
-        studentGroup: document.getElementById('student-group').value.trim(),
-        labDate: document.getElementById('lab-date').value,
+      return {
+        studentName: document.getElementById('student-name')?.value.trim() || '',
+        studentId: document.getElementById('student-id')?.value.trim() || '',
+        studentGroup: document.getElementById('student-group')?.value.trim() || '',
+        labDate: document.getElementById('lab-date')?.value || '',
         circuitMode: STATE.wsMode,
-        bjtModel: document.getElementById('ws-sel-model').value,
-        param_vcc: document.getElementById('ws-param-vcc').value,
-        param_r1: document.getElementById('ws-param-r1').value,
-        param_r2: document.getElementById('ws-param-r2').value,
-        param_rc: document.getElementById('ws-param-rc').value,
-        param_re: document.getElementById('ws-param-re').value,
-        param_beta: document.getElementById('ws-param-beta').value,
+        bjtModel: document.getElementById('ws-sel-model')?.value || '2N2222',
+        param_vcc: document.getElementById('ws-param-vcc')?.value || '12',
+        param_r1: document.getElementById('ws-param-r1')?.value || '33',
+        param_r2: document.getElementById('ws-param-r2')?.value || '6.8',
+        param_rc: document.getElementById('ws-param-rc')?.value || '2.2',
+        param_re: document.getElementById('ws-param-re')?.value || '560',
+        param_beta: document.getElementById('ws-param-beta')?.value || '200',
 
-        dc_vb: document.getElementById('dc-vb').value,
-        dc_ve: document.getElementById('dc-ve').value,
-        dc_vc: document.getElementById('dc-vc').value,
-        dc_vce: document.getElementById('dc-vce').value,
-        dc_ie: document.getElementById('dc-ie').value,
-        dc_re: document.getElementById('dc-re').value,
+        dc_vb: document.getElementById('dc-vb')?.value || '',
+        dc_ve: document.getElementById('dc-ve')?.value || '',
+        dc_vc: document.getElementById('dc-vc')?.value || '',
+        dc_vce: document.getElementById('dc-vce')?.value || '',
+        dc_ie: document.getElementById('dc-ie')?.value || '',
+        dc_re: document.getElementById('dc-re')?.value || '',
 
-        ac_av_bypassed: document.getElementById('ac-av-bypassed') ? document.getElementById('ac-av-bypassed').value : document.getElementById('ac-av-byp').value,
-        ac_zi_bypassed: document.getElementById('ac-zi-bypassed') ? document.getElementById('ac-zi-bypassed').value : document.getElementById('ac-zi-byp').value,
-        ac_phase_bypassed: document.getElementById('ac-phase-bypassed') ? document.getElementById('ac-phase-bypassed').value : document.getElementById('ac-phase-byp').value,
+        ac_av_bypassed: document.getElementById('ac-av-bypassed') ? document.getElementById('ac-av-bypassed').value : (document.getElementById('ac-av-byp')?.value || ''),
+        ac_zi_bypassed: document.getElementById('ac-zi-bypassed') ? document.getElementById('ac-zi-bypassed').value : (document.getElementById('ac-zi-byp')?.value || ''),
+        ac_phase_bypassed: document.getElementById('ac-phase-bypassed') ? document.getElementById('ac-phase-bypassed').value : (document.getElementById('ac-phase-byp')?.value || ''),
 
-        ac_av_unbypassed: document.getElementById('ac-av-unbypassed') ? document.getElementById('ac-av-unbypassed').value : document.getElementById('ac-av-unbyp').value,
-        ac_zi_unbypassed: document.getElementById('ac-zi-unbypassed') ? document.getElementById('ac-zi-unbypassed').value : document.getElementById('ac-zi-unbyp').value,
-        ac_phase_unbypassed: document.getElementById('ac-phase-unbypassed') ? document.getElementById('ac-phase-unbypassed').value : document.getElementById('ac-phase-unbyp').value,
+        ac_av_unbypassed: document.getElementById('ac-av-unbypassed') ? document.getElementById('ac-av-unbypassed').value : (document.getElementById('ac-av-unbyp')?.value || ''),
+        ac_zi_unbypassed: document.getElementById('ac-zi-unbypassed') ? document.getElementById('ac-zi-unbypassed').value : (document.getElementById('ac-zi-unbyp')?.value || ''),
+        ac_phase_unbypassed: document.getElementById('ac-phase-unbypassed') ? document.getElementById('ac-phase-unbypassed').value : (document.getElementById('ac-phase-unbyp')?.value || ''),
 
         q1Answer: q1,
         q2Answer: q2,
@@ -2107,19 +2100,96 @@
         q4_choice: q4,
         labConclusion: conclusion
       };
+    }
 
-      // Show Loading Modal
+    // --- PREVIEW SCORE BEFORE SUBMISSION ---
+    function previewScoreBeforeSubmit() {
+      const payload = getWorksheetPayload();
+      const res = localGradeSimulator(payload);
+
       const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.card');
       const spinner = document.getElementById('modal-spinner');
       const title = document.getElementById('modal-title');
       const body = document.getElementById('modal-body');
       const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
 
+      card.style.borderColor = 'var(--accent-cyan)';
+      card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
+      spinner.style.display = 'none';
+      title.innerText = '🔍 ตรวจสอบคะแนนก่อนส่ง (Score Preview)';
+      title.style.color = 'var(--accent-cyan)';
+
+      let scoreColor = 'var(--accent-green)';
+      if (res.score < 5) scoreColor = 'var(--accent-red)';
+      else if (res.score < 7) scoreColor = 'var(--accent-yellow)';
+      else if (res.score < 9) scoreColor = 'var(--accent-cyan)';
+
+      const formattedFeedback = res.feedback.replace(/\n/g, '<br>');
+
+      body.innerHTML = `
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px dashed var(--accent-cyan); border-radius: 8px; padding: 10px 14px; margin-bottom: 15px; color: var(--accent-cyan); font-size: 13px; text-align: left;">
+          ℹ️ <strong>โหมดทดลองตรวจคำตอบ:</strong> รายละเอียดคะแนนด้านล่างเป็นผลประเมินเบื้องต้น <u>ยังไม่ได้บันทึกส่ง</u> ข้อมูลเข้า Google Sheets ของผู้สอน
+        </div>
+        <div style="text-align: left; background: rgba(15,23,42,0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin: 12px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: bold; color: var(--text-main);">คะแนนประเมินที่ได้:</span>
+            <span style="font-size: 24px; font-weight: bold; color: ${scoreColor};">${res.score} / ${res.maxScore}</span>
+          </div>
+          <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-cyan);">
+            ระดับผลการประเมิน: ${res.comment}
+          </p>
+          <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+          <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</p>
+          <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${formattedFeedback}</div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+          💡 หากต้องการแก้ไข สามารถกด <strong>"✏️ กลับไปแก้ไขคำตอบ"</strong> หรือกด <strong>"🚀 ยืนยันส่งใบงานจริง"</strong> ได้ทันที
+        </p>
+      `;
+
+      closeBtn.innerText = '✏️ กลับไปแก้ไขคำตอบ';
+      closeBtn.style.display = 'inline-block';
+      confirmBtn.style.display = 'inline-block';
+
+      overlay.style.display = 'flex';
+    }
+
+    function confirmSubmitFromPreview() {
+      closeModal();
+      submitReportToGAS();
+    }
+
+    // --- SUBMISSION & AUTO-GRADING HANDLER ---
+    function submitReportToGAS() {
+      const payload = getWorksheetPayload();
+
+      if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
+        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+        switchTab('tab-worksheet');
+        document.getElementById('student-name')?.focus();
+        return;
+      }
+
+      // Show Loading Modal
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
+
+      card.style.borderColor = 'var(--accent-cyan)';
+      card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
       overlay.style.display = 'flex';
       spinner.style.display = 'block';
       title.innerText = '🚀 กำลังส่งใบงานและตรวจคำตอบ...';
+      title.style.color = 'var(--accent-cyan)';
       body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...';
       closeBtn.style.display = 'none';
+      if (confirmBtn) confirmBtn.style.display = 'none';
 
       // Check if running inside Google Apps Script
       if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -2132,47 +2202,170 @@
         setTimeout(() => {
           const localRes = localGradeSimulator(payload);
           onSuccessGrading(localRes);
-        }, 1200);
+        }, 1000);
       }
     }
 
     function localGradeSimulator(data) {
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [];
+
+      const mode = data.circuitMode || 'fixed';
+      const Vcc = parseFloat(data.param_vcc) || 12.0;
+      const R1 = (parseFloat(data.param_r1) || 33.0) * 1000;
+      const R2 = (parseFloat(data.param_r2) || 6.8) * 1000;
+      const Rc = (parseFloat(data.param_rc) || 2.2) * 1000;
+      const Re = parseFloat(data.param_re) || 560;
+      const Beta = parseFloat(data.param_beta) || 200;
+      const Vbe = 0.70;
+
+      const Vth = Vcc * (R2 / (R1 + R2));
+      const Rth = (R1 * R2) / (R1 + R2);
+      let Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re);
+      if (Ib < 0) Ib = 0;
+      const Ie = (Beta + 1) * Ib;
+      const Ic = Beta * Ib;
+      const Ve = Ie * Re;
+      const Vb = Ve + (Ib > 0 ? Vbe : 0);
+      const Vc = Math.max(0, Vcc - Ic * Rc);
+      const Vce = Vc - Ve;
+      const Ie_mA = Ie * 1000;
+      const re_calc = Ie_mA > 0 ? (26.0 / Ie_mA) : 9999;
+
+      const Zb_bypassed = Beta * re_calc;
+      const Zi_bypassed = 1 / (1/R1 + 1/R2 + 1/Zb_bypassed);
+      const Av_bypassed = re_calc > 0 ? (Rc / re_calc) : 0;
+
+      const Zb_unbypassed = Beta * (re_calc + Re);
+      const Zi_unbypassed = 1 / (1/R1 + 1/R2 + 1/Zb_unbypassed);
+      const Av_unbypassed = Rc / (re_calc + Re);
+
+      feedback.push(`[โหมดการทดลอง]: ${mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)'}`);
+
+      // Part 1: DC & re
+      const sVb = parseFloat(data.dc_vb) || 0;
+      const sVe = parseFloat(data.dc_ve) || 0;
+      const sVc = parseFloat(data.dc_vc) || 0;
+      const sVce = parseFloat(data.dc_vce) || 0;
+      const sIe = parseFloat(data.dc_ie) || 0;
+      const sRe = parseFloat(data.dc_re) || 0;
+
+      const vbOk = Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15);
+      const veOk = Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
+      const vcOk = Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
+      const vceOk = Math.abs(sVce - Vce) <= Math.max(0.70, Math.abs(Vce) * 0.15) || Math.abs(sVce - (sVc - sVe)) <= 0.35;
+      const ieOk = Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+
+      let studentImpliedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
+      const reOk = Math.abs(sRe - re_calc) <= Math.max(3.0, re_calc * 0.20) || Math.abs(sRe - studentImpliedRe) <= Math.max(2.5, studentImpliedRe * 0.18);
+
+      let dcVoltagesScore = (vbOk && veOk && vcOk && vceOk) ? 1 : 0;
+      let dcCurrentScore = ieOk ? 1 : 0;
+      let reScore = reOk ? 1 : 0;
+      let part1Score = dcVoltagesScore + dcCurrentScore + reScore;
+      score += part1Score;
+
+      feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่า re: ได้ ${part1Score} / 3 คะแนน`);
+      if (dcVoltagesScore) feedback.push(`  ✓ แรงดันไฟตรง (Vb, Ve, Vc, Vce): ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ แรงดันไฟตรง: ค่าอยู่นอกเกณฑ์ความถูกต้อง`);
+      if (dcCurrentScore) feedback.push(`  ✓ กระแสอิมิตเตอร์ Ie: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ กระแสอิมิตเตอร์ Ie: คลาดเคลื่อนจากเกณฑ์`);
+      if (reScore) feedback.push(`  ✓ ค่าความต้านทานไดนามิก re: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ ค่าความต้านทานไดนามิก re: คลาดเคลื่อนจากเกณฑ์`);
+
+      // Part 2: AC Performance (Bypassed & Unbypassed)
+      const sAv_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
+      const sZi_byp = parseFloat(data.ac_zi_bypassed) || 0;
+      const sPhase_byp = parseInt(data.ac_phase_bypassed) || 0;
+      const avBypOk = sAv_byp >= (Av_bypassed * 0.70) && sAv_byp <= (Av_bypassed * 1.30);
+      const ziByp_k = sZi_byp > 50 ? sZi_byp / 1000 : sZi_byp;
+      const ziBypOk = Math.abs(ziByp_k - (Zi_bypassed/1000)) <= Math.max(0.6, (Zi_bypassed/1000) * 0.40);
+      const phaseBypOk = sPhase_byp === 180;
+
+      const sAv_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
+      const sZi_unbyp = parseFloat(data.ac_zi_unbypassed) || 0;
+      const sPhase_unbyp = parseInt(data.ac_phase_unbypassed) || 0;
+      const avUnbypOk = sAv_unbyp >= (Av_unbypassed * 0.70) && sAv_unbyp <= (Av_unbypassed * 1.30);
+      const ziUnbyp_k = sZi_unbyp > 50 ? sZi_unbyp / 1000 : sZi_unbyp;
+      const ziUnbypOk = Math.abs(ziUnbyp_k - (Zi_unbypassed/1000)) <= Math.max(0.6, (Zi_unbypassed/1000) * 0.40);
+      const phaseUnbypOk = sPhase_unbyp === 180;
+
+      let bypScore = (avBypOk ? 0.5 : 0) + (ziBypOk ? 0.5 : 0) + (phaseBypOk ? 0.5 : 0);
+      let unbypScore = (avUnbypOk ? 0.5 : 0) + (ziUnbypOk ? 0.5 : 0) + (phaseUnbypOk ? 0.5 : 0);
+      let part2Score = bypScore + unbypScore;
+      score += Math.round(part2Score);
+
+      feedback.push(`\n[ตอนที่ 2] พารามิเตอร์สัญญาณ AC (มี/ไม่มี CE): ได้ ${Math.round(part2Score)} / 3 คะแนน`);
+      if (avBypOk) feedback.push(`  ✓ อัตราขยายกรณีมี CE: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ อัตราขยายกรณีมี CE: คลาดเคลื่อนจากเกณฑ์`);
+      if (avUnbypOk) feedback.push(`  ✓ อัตราขยายกรณีไม่มี CE: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ อัตราขยายกรณีไม่มี CE: คลาดเคลื่อนจากเกณฑ์`);
+
+      // Part 3: Questions
+      let qScore = 0;
+      if (data.q1_choice === 'c' || data.q1Answer === 'c') qScore++;
+      if (data.q2_choice === 'b' || data.q2Answer === 'b') qScore++;
+      if (data.q3_choice === 'c' || data.q3Answer === 'c') qScore++;
+      if (data.q4_choice === 'b' || data.q4Answer === 'b') qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 3] คำถามท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} คะแนน)`);
+
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
       return {
         status: 'success',
-        score: 10,
-        maxScore: 10,
-        feedback: '[จำลองตรวจคะแนนในเครื่อง]: ทำการทดลองและคำนวณแบบจำลอง re Model ได้อย่างถูกต้องสมบูรณ์ (10/10 คะแนน)',
-        comment: 'ผ่านเกณฑ์ดีมาก (Excellent) — พร้อมสำหรับการบันทึกลงชีตจริงเมื่อ Deploy บน Google Sheets'
+        score: score,
+        maxScore: maxScore,
+        feedback: feedback.join('\n'),
+        comment: comment
       };
     }
 
     function onSuccessGrading(res) {
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.card');
       const spinner = document.getElementById('modal-spinner');
       const title = document.getElementById('modal-title');
       const body = document.getElementById('modal-body');
       const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
 
       spinner.style.display = 'none';
       if (res.status === 'success') {
+        card.style.borderColor = 'var(--accent-green)';
+        card.style.boxShadow = '0 0 35px rgba(16, 185, 129, 0.35)';
         title.innerHTML = '🎉 ผลการตรวจคะแนน: <span style="color:#34d399;">' + res.score + ' / ' + res.maxScore + ' คะแนน</span>';
-        body.innerHTML = '<strong>การประเมิน:</strong> ' + res.comment + '<br><br><pre style="white-space: pre-wrap; font-family: monospace; font-size: 12px; color:#cbd5e1;">' + res.feedback + '</pre>';
+        body.innerHTML = '<strong>ระดับผลการประเมิน:</strong> ' + res.comment + '<br><br><div style="text-align: left; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; max-height: 220px; overflow-y: auto; font-family: Sarabun, sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-main);">' + res.feedback.replace(/\n/g, '<br>') + '</div><p style="font-size: 12px; color: var(--accent-green); font-weight: bold; margin-top: 10px;">✓ บันทึกข้อมูลเข้าแผ่นงาน Google Sheets เรียบร้อยแล้ว</p>';
       } else {
+        card.style.borderColor = 'var(--accent-red)';
         title.innerText = '❌ เกิดข้อผิดพลาด';
         body.innerText = res.message || 'ไม่สามารถประมวลผลคะแนนได้';
       }
+      closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
       closeBtn.style.display = 'inline-block';
+      if (confirmBtn) confirmBtn.style.display = 'none';
     }
 
     function onFailureGrading(err) {
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.card');
       const spinner = document.getElementById('modal-spinner');
       const title = document.getElementById('modal-title');
       const body = document.getElementById('modal-body');
       const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
 
+      card.style.borderColor = 'var(--accent-red)';
       spinner.style.display = 'none';
       title.innerText = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อ';
       body.innerText = err.toString();
+      closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
       closeBtn.style.display = 'inline-block';
+      if (confirmBtn) confirmBtn.style.display = 'none';
     }
 
     function closeModal() {

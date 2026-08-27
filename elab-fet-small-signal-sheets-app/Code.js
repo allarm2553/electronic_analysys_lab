@@ -121,7 +121,6 @@ function gradeWorksheet(data) {
   const th = solveFetCircuit(params);
 
   feedback.push(`[ระบบโหมดการทดลอง]: ${mode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset'} (เบอร์ FET: ${fetModel})`);
-  feedback.push(`  (พารามิเตอร์: VDD=${params.vdd}V, R1=${params.r1}k, R2=${params.r2}k, RD=${params.rd}k, RS=${params.rs}k, IDSS=${params.idss}mA, VP=${params.vp}V)`);
 
   // --- PART 1: DC OPERATING POINT & gm EXTRACTION ---
   const s_vg = parseFloat(data.dc_vg) || 0;
@@ -153,7 +152,6 @@ function gradeWorksheet(data) {
 
   score += p1Score;
   feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่าความนำข้าม gm: ได้ ${p1Score} / 3 คะแนน (ถูกต้อง ${dcPassCount}/8 ค่า)`);
-  feedback.push(`  (ทฤษฎี: VG=${th.VG.toFixed(2)}V, VS=${th.VS.toFixed(2)}V, VGS=${th.VGS.toFixed(2)}V, ID=${th.ID.toFixed(2)}mA, VDS=${th.VDS.toFixed(2)}V, gm0=${th.gm0.toFixed(2)}mS, gm=${th.gm.toFixed(2)}mS)`);
 
   // --- PART 2: AC SMALL-SIGNAL PERFORMANCE (3 Points) ---
   const s_av_bypassed = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
@@ -181,7 +179,6 @@ function gradeWorksheet(data) {
 
   score += p2Score;
   feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรขยายสัญญาณ AC: ได้ ${p2Score} / 3 คะแนน (ถูกต้อง ${acPassCount}/6 ค่า)`);
-  feedback.push(`  (ทฤษฎี: Av(มี CS)=${expAvBypassed.toFixed(2)}, Av(ไม่มี CS)=${expAvUnbypassed.toFixed(2)}, Zi=${th.Zi_k.toFixed(1)}kΩ, Zo=${th.Zo_k.toFixed(2)}kΩ, เฟสกลับ 180°)`);
 
   // --- PART 3: POST-LAB CONCEPTUAL ASSESSMENT (4 Points) ---
   const q1 = (data.q1Answer || '').trim().toLowerCase();

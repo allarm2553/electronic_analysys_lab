@@ -1322,9 +1322,10 @@ body {
         </div>
         
         <!-- Action Row -->
-        <div class="card-footer-action no-print" style="justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
-          <button class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF 🖨️</button>
-          <button class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #22d3ee 0%, #0369a1 100%); border-color: #22d3ee; color: #0b0f19;" onclick="submitReportToGAS()">ส่งใบงานและตรวจคะแนนอัตโนมัติ 🚀</button>
+        <div class="card-footer-action no-print" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 30px;">
+          <button type="button" class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF</button>
+          <button type="button" class="btn btn-secondary btn-large" style="border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); font-weight: bold;" onclick="previewScoreBeforeSubmit()">🔍 ตรวจสอบคะแนนก่อนส่ง</button>
+          <button type="button" class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #22d3ee 0%, #0369a1 100%); border-color: #22d3ee; color: #0b0f19;" onclick="submitReportToGAS()">ส่งใบงานและตรวจคะแนนอัตโนมัติ 🚀</button>
         </div>
       </section>
       
@@ -1935,53 +1936,89 @@ window.printReport = printReport;
    PART 5: GOOGLE SHEETS WEB APP SUBMISSION & AUTO-GRADING UI
    ========================================================================== */
 
-function submitReportToGAS() {
-  const name = document.getElementById('student-name').value.trim();
-  const id = document.getElementById('student-id').value.trim();
-  const group = document.getElementById('student-group').value.trim();
-  const date = document.getElementById('lab-date').value;
+function getWorksheetPayload() {
+  const t1Rows = [];
+  for (let i = 0; i < 4; i++) {
+    t1Rows.push(document.getElementById('t1-val-' + i)?.value || '');
+  }
   
-  if (!name || !id || !group || !date) {
+  const t2Rows = [];
+  for (let i = 0; i < 6; i++) {
+    t2Rows.push(document.getElementById('t2-val-' + i)?.value || '');
+  }
+  
+  return {
+    studentName: document.getElementById('student-name')?.value.trim() || '',
+    studentId: document.getElementById('student-id')?.value.trim() || '',
+    studentGroup: document.getElementById('student-group')?.value.trim() || '',
+    labDate: document.getElementById('lab-date')?.value || '',
+    t1Rows: t1Rows,
+    t2Rows: t2Rows,
+    q1: getSelectedRadioValue('q1') || '',
+    q2: getSelectedRadioValue('q2') || '',
+    q3: getSelectedRadioValue('q3') || '',
+    labConclusion: document.getElementById('lab-conclusion')?.value.trim() || ''
+  };
+}
+
+function previewScoreBeforeSubmit() {
+  const data = getWorksheetPayload();
+  const res = localGradeSimulator(data);
+
+  let modal = document.getElementById('grading-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'grading-modal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); display:flex; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(5px); font-family:Sarabun, sans-serif;';
+    document.body.appendChild(modal);
+  }
+
+  let scoreColor = '#22d3ee';
+  if (res.score < 5) scoreColor = '#ef4444';
+  else if (res.score < 7) scoreColor = '#f59e0b';
+  else if (res.score >= 9) scoreColor = '#10b981';
+
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:2px solid #22d3ee; border-radius:16px; padding:26px; max-width:540px; width:95%; max-height:90vh; overflow-y:auto; text-align:left; color:#fff; box-shadow:0 15px 35px rgba(34, 211, 238, 0.35);">
+      <h2 style="font-family:Chakra Petch, sans-serif; font-size:20px; color:#22d3ee; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; display:flex; align-items:center; gap:8px;">
+        <span>🔍</span> ตรวจสอบคะแนนก่อนส่ง (Score Preview)
+      </h2>
+      <div style="background: rgba(34, 211, 238, 0.1); border: 1px dashed #22d3ee; border-radius: 8px; padding: 10px 14px; margin-bottom: 15px; color: #22d3ee; font-size: 13px;">
+        ℹ️ <strong>โหมดทดลองตรวจคำตอบ:</strong> รายละเอียดคะแนนด้านล่างเป็นผลประเมินเบื้องต้น <u>ยังไม่ได้บันทึกส่ง</u> ข้อมูลเข้า Google Sheets ของผู้สอน
+      </div>
+      <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:15px; margin-bottom:15px; text-align:center;">
+        <span style="font-size:12px; color:#94a3b8; display:block;">คะแนนประเมินที่ได้</span>
+        <strong style="font-size:32px; color:${scoreColor}; font-family:Chakra Petch, sans-serif;">${res.score} / ${res.maxScore}</strong>
+        <span style="display:block; font-size:13px; font-weight:bold; margin-top:5px; color:#22d3ee;">ระดับผลการประเมิน: ${res.comment}</span>
+      </div>
+      <h4 style="font-family:Chakra Petch, sans-serif; margin-bottom:6px; color:#94a3b8; font-size:13px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</h4>
+      <pre style="background:#0f172a; border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:12px; font-size:12px; max-height:180px; overflow-y:auto; font-family:Sarabun, sans-serif; white-space:pre-wrap; color:#cbd5e1; margin-bottom:15px;">${res.feedback}</pre>
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+        <button type="button" class="btn btn-secondary" onclick="hideSubmittingDialog()" style="padding:10px 20px; font-size:13px;">✏️ กลับไปแก้ไขคำตอบ</button>
+        <button type="button" class="btn btn-primary" onclick="confirmSubmitFromPreview()" style="background: linear-gradient(135deg, #22d3ee 0%, #0369a1 100%); border-color: #22d3ee; color: #0b0f19; padding:10px 20px; font-size:13px;">🚀 ยืนยันส่งใบงานจริง</button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function confirmSubmitFromPreview() {
+  hideSubmittingDialog();
+  submitReportToGAS();
+}
+
+function submitReportToGAS() {
+  const data = getWorksheetPayload();
+  
+  if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
     alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');
     return;
   }
   
-  // Package table 1 rows (4 rows)
-  const t1Rows = [];
-  for (let i = 0; i < 4; i++) {
-    t1Rows.push(document.getElementById('t1-val-' + i).value);
-  }
-  
-  // Package table 2 rows (6 rows)
-  const t2Rows = [];
-  for (let i = 0; i < 6; i++) {
-    t2Rows.push(document.getElementById('t2-val-' + i).value);
-  }
-  
-  // Get post-lab question responses
-  const q1 = getSelectedRadioValue('q1');
-  const q2 = getSelectedRadioValue('q2');
-  const q3 = getSelectedRadioValue('q3');
-  
-  const conclusion = document.getElementById('lab-conclusion').value.trim();
-  
-  if (!q1 || !q2 || !q3) {
+  if (!data.q1 || !data.q2 || !data.q3) {
     alert('⚠️ กรุณาตอบคำถามท้ายการทดลองให้ครบทั้ง 3 ข้อ!');
     return;
   }
-  
-  const data = {
-    studentName: name,
-    studentId: id,
-    studentGroup: group,
-    labDate: date,
-    t1Rows: t1Rows,
-    t2Rows: t2Rows,
-    q1: q1,
-    q2: q2,
-    q3: q3,
-    labConclusion: conclusion
-  };
   
   // Show loading indicator
   showSubmittingDialog();
@@ -1995,12 +2032,54 @@ function submitReportToGAS() {
   } else {
     // Offline simulation mode
     setTimeout(() => {
-      alert('⚠️ ไม่พบการเชื่อมต่อ Google Apps Script (กำลังรันในโหมด Offline / Local Simulator)\nระบบจะทำคะแนนจำลองให้ที่นี่:\n\n' + JSON.stringify(data, null, 2));
-      hideSubmittingDialog();
+      const localRes = localGradeSimulator(data);
+      onSuccessGrading(localRes);
     }, 1000);
   }
 }
 window.submitReportToGAS = submitReportToGAS;
+
+function localGradeSimulator(data) {
+  let score = 0;
+  const maxScore = 10;
+  const feedback = [];
+
+  let t1Pass = 0;
+  if (data.t1Rows) {
+    data.t1Rows.forEach(v => { if (parseFloat(v) > 0) t1Pass++; });
+  }
+  let t1Score = t1Pass >= 3 ? 3 : t1Pass;
+  score += t1Score;
+  feedback.push(`[ตอนที่ 1] วัดสัญญาณ AC Input: ได้ ${t1Score} / 3 คะแนน (บันทึกข้อมูล ${t1Pass}/4 ช่อง)`);
+
+  let t2Pass = 0;
+  if (data.t2Rows) {
+    data.t2Rows.forEach(v => { if (parseFloat(v) > 0) t2Pass++; });
+  }
+  let t2Score = t2Pass >= 5 ? 4 : (t2Pass >= 3 ? 2 : 0);
+  score += t2Score;
+  feedback.push(`[ตอนที่ 2] วัดวงจรเรียงกระแสเต็มคลื่นแบบบริดจ์: ได้ ${t2Score} / 4 คะแนน (บันทึกข้อมูล ${t2Pass}/6 ช่อง)`);
+
+  let qScore = 0;
+  if (data.q1 !== '') qScore += 1;
+  if (data.q2 !== '') qScore += 1;
+  if (data.q3 !== '') qScore += 1;
+  score += qScore;
+  feedback.push(`[ตอนที่ 3] คำถามท้ายการทดลอง: ได้ ${qScore} / 3 คะแนน (ตอบถูกต้อง ${qScore}/3 ข้อ)`);
+
+  let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+  return {
+    status: 'success',
+    score: score,
+    maxScore: maxScore,
+    comment: comment,
+    feedback: feedback.join('\n')
+  };
+}
 
 function getSelectedRadioValue(name) {
   const radio = document.querySelector(`input[name="${name}"]:checked`);
@@ -2050,8 +2129,9 @@ function onSuccessGrading(res) {
         </div>
         <h4 style="font-family:Chakra Petch, sans-serif; margin-bottom:8px; color:#94a3b8; font-size:13px;">สรุปรายการตรวจสอบ:</h4>
         <pre style="background:#0f172a; border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:12px; font-size:12px; max-height:180px; overflow-y:auto; font-family:Sarabun, sans-serif; white-space:pre-wrap; color:#cbd5e1; margin-bottom:20px;">${res.feedback}</pre>
+        <p style="font-size: 13px; font-family: Sarabun, sans-serif; color: #22d3ee; font-weight: bold; text-align: center; margin-bottom: 15px;">✓ บันทึกผลคะแนนเข้า Google Sheets เรียบร้อยแล้ว!</p>
         <div style="text-align:center;">
-          <button class="btn btn-primary" onclick="hideSubmittingDialog()" style="padding:10px 30px; font-size:13px;">ปิดหน้าต่างตรวจผล</button>
+          <button class="btn btn-primary" onclick="hideSubmittingDialog()" style="background: linear-gradient(135deg, #22d3ee 0%, #0369a1 100%); border-color: #22d3ee; color: #0b0f19; padding:10px 30px; font-size:13px;">ปิดหน้าต่างตรวจผล</button>
         </div>
       </div>
     `;

@@ -95,9 +95,9 @@ function gradeWorksheet(data) {
   const ansStatus = data.diodeStatus;
   if (ansStatus === cond) {
     score += 1;
-    feedback.push("1.3 ระบุสรุปสภาพไดโอด: ถูกต้อง (" + (cond === 'good' ? 'ดี' : cond === 'open' ? 'ขาด' : 'ลัดวงจร') + ")");
+    feedback.push("1.3 ระบุสรุปสภาพไดโอด: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("1.3 ระบุสรุปสภาพไดโอด: ไม่ถูกต้อง (ระบุ: " + (ansStatus || 'ไม่ได้ระบุ') + " คาดหวัง: " + cond + ")");
+    feedback.push("1.3 ระบุสรุปสภาพไดโอด: ไม่ถูกต้อง");
   }
   
   // --- PART 2: DIODE CIRCUIT TESTING ---
@@ -109,9 +109,9 @@ function gradeWorksheet(data) {
   }
   if (ansLed === expectedLed) {
     score += 1;
-    feedback.push("2.1 สถานะการส่องสว่างของ LED: ถูกต้อง (" + (expectedLed === 'on' ? 'สว่าง' : 'ไม่สว่าง') + ")");
+    feedback.push("2.1 สถานะการส่องสว่างของ LED: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.1 สถานะการส่องสว่างของ LED: ไม่ถูกต้อง (ระบุ: " + (ansLed === 'on' ? 'สว่าง' : 'ไม่สว่าง') + ")");
+    feedback.push("2.1 สถานะการส่องสว่างของ LED: ไม่ถูกต้อง");
   }
   
   // 2.2 Voltage drop VD
@@ -128,12 +128,12 @@ function gradeWorksheet(data) {
   } else if (cond === 'short') {
     expectedVD = 0.0;
   }
-  const tolVD = 0.35; // Relaxed from 0.15V (Silicon diode ranges from 0.5V to 0.85V)
+  const tolVD = 0.35;
   if (Math.abs(vD - expectedVD) <= tolVD) {
     score += 1;
-    feedback.push("2.2 แรงดัน VD: ถูกต้อง (" + vD.toFixed(2) + " V)");
+    feedback.push("2.2 แรงดัน VD: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.2 แรงดัน VD: นอกเกณฑ์ (ระบุ: " + vD.toFixed(2) + " V คาดหวังประมาณ: " + expectedVD.toFixed(2) + " V)");
+    feedback.push("2.2 แรงดัน VD: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
   }
   
   // 2.3 Voltage drop VR
@@ -154,12 +154,12 @@ function gradeWorksheet(data) {
       expectedVR = 0.0;
     }
   }
-  const tolVR = 0.70; // Relaxed from 0.35V
+  const tolVR = 0.70;
   if (Math.abs(vR - expectedVR) <= tolVR) {
     score += 1;
-    feedback.push("2.3 แรงดัน VR: ถูกต้อง (" + vR.toFixed(2) + " V)");
+    feedback.push("2.3 แรงดัน VR: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.3 แรงดัน VR: นอกเกณฑ์ (ระบุ: " + vR.toFixed(2) + " V คาดหวังประมาณ: " + expectedVR.toFixed(2) + " V)");
+    feedback.push("2.3 แรงดัน VR: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
   }
   
   // 2.4 Voltage drop VLED
@@ -180,47 +180,46 @@ function gradeWorksheet(data) {
       expectedVLED = 0.0;
     }
   }
-  const tolVLED = 0.50; // Relaxed from 0.25V
+  const tolVLED = 0.50;
   if (Math.abs(vLed - expectedVLED) <= tolVLED) {
     score += 1;
-    feedback.push("2.4 แรงดัน VLED: ถูกต้อง (" + vLed.toFixed(2) + " V)");
+    feedback.push("2.4 แรงดัน VLED: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.4 แรงดัน VLED: นอกเกณฑ์ (ระบุ: " + vLed.toFixed(2) + " V คาดหวังประมาณ: " + expectedVLED.toFixed(2) + " V)");
+    feedback.push("2.4 แรงดัน VLED: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
   }
   
   // 2.5 Kirchhoff's Voltage Law (Vsum = VD + VR + VLED)
   const vSum = parseFloat(data.vSum) || 0;
   const expectedVSum = 5.0; // Input supply
-  const tolVSum = 0.50; // Relaxed from 0.25V
-  // Allow sum to mismatch marginally due to meter rounding errors (within 0.25V)
+  const tolVSum = 0.50;
   const isKvlValid = Math.abs(vSum - expectedVSum) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= 0.25;
   if (isKvlValid) {
     score += 1;
-    feedback.push("2.5 ผลรวมแรงดัน (KVL): ถูกต้อง (" + vSum.toFixed(2) + " V)");
+    feedback.push("2.5 ผลรวมแรงดัน (KVL): ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.5 ผลรวมแรงดัน (KVL): ไม่สอดคล้องหรือคำนวณผิด (ระบุ: " + vSum.toFixed(2) + " V คาดหวังประมาณ: " + expectedVSum.toFixed(2) + " V)");
+    feedback.push("2.5 ผลรวมแรงดัน (KVL): ไม่สอดคล้องหรือคำนวณคลาดเคลื่อน");
   }
   
   // 2.6 Calculated Current Icalc = VR / 1kOhm
   const iCalc = parseFloat(data.iCalc) || 0;
   const expectedICalc = vR; // in mA (R = 1k, I = VR/1)
-  const tolICalc = 0.20; // Relaxed from 0.1
+  const tolICalc = 0.20;
   if (Math.abs(iCalc - expectedICalc) <= tolICalc) {
     score += 1;
-    feedback.push("2.6 กระแสคำนวณ Icalc: ถูกต้อง (" + iCalc.toFixed(2) + " mA)");
+    feedback.push("2.6 กระแสคำนวณ Icalc: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.6 กระแสคำนวณ Icalc: คำนวณผิดพลาด (ระบุ: " + iCalc.toFixed(2) + " mA คาดหวัง: " + expectedICalc.toFixed(2) + " mA)");
+    feedback.push("2.6 กระแสคำนวณ Icalc: คำนวณคลาดเคลื่อนจากเกณฑ์");
   }
   
   // 2.7 Measured Current Imeas
   const iMeas = parseFloat(data.iMeas) || 0;
   let expectedIMeas = expectedICalc;
-  const tolIMeas = 0.50; // Relaxed from 0.25
+  const tolIMeas = 0.50;
   if (Math.abs(iMeas - expectedIMeas) <= tolIMeas) {
     score += 1;
-    feedback.push("2.7 กระแสวัดจริง Imeas: ถูกต้อง (" + iMeas.toFixed(2) + " mA)");
+    feedback.push("2.7 กระแสวัดจริง Imeas: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("2.7 กระแสวัดจริง Imeas: นอกเกณฑ์ (ระบุ: " + iMeas.toFixed(2) + " mA คาดหวังประมาณ: " + expectedIMeas.toFixed(2) + " mA)");
+    feedback.push("2.7 กระแสวัดจริง Imeas: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
   }
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";

@@ -55,7 +55,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("V_in AC: ถูกต้อง");
   } else {
-    feedback.push(`V_in AC: ไม่ถูกต้อง (กรอก ${v1} คาดหวัง ~12.0 V)`);
+    feedback.push("V_in AC: ไม่ถูกต้อง");
   }
   
   // Row 1: V_load DC. Correct = 5.18V (allow 5.0 - 5.3)
@@ -64,7 +64,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("V_load DC: ถูกต้อง");
   } else {
-    feedback.push(`V_load DC: ไม่ถูกต้อง (กรอก ${v2} คาดหวัง ~5.18 V)`);
+    feedback.push("V_load DC: ไม่ถูกต้อง");
   }
   
   // Row 2: I_load DC. Correct = 5.18mA (allow 5.0 - 5.3)
@@ -73,7 +73,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("I_load DC: ถูกต้อง");
   } else {
-    feedback.push(`I_load DC: ไม่ถูกต้อง (กรอก ${c1} คาดหวัง ~5.18 mA)`);
+    feedback.push("I_load DC: ไม่ถูกต้อง");
   }
   
   // Row 3: V_diode forward. Correct = 0.70V (allow 0.65 - 0.75)
@@ -82,7 +82,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("V_diode Forward: ถูกต้อง");
   } else {
-    feedback.push(`V_diode Forward: ไม่ถูกต้อง (กรอก ${vd} คาดหวัง ~0.70 V)`);
+    feedback.push("V_diode Forward: ไม่ถูกต้อง");
   }
   
   // --- PART 2: TABLE 2 (Scope Readings - 6 Rows) ---
@@ -94,7 +94,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("Ch1 Vpp: ถูกต้อง");
   } else {
-    feedback.push(`Ch1 Vpp: ไม่ถูกต้อง (กรอก ${s1} คาดหวัง ~33.9 V)`);
+    feedback.push("Ch1 Vpp: ไม่ถูกต้อง");
   }
   
   // Row 1: Ch1 Vrms. Correct = 12.0V (allow 11.8 - 12.2)
@@ -103,7 +103,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("Ch1 Vrms: ถูกต้อง");
   } else {
-    feedback.push(`Ch1 Vrms: ไม่ถูกต้อง (กรอก ${s2} คาดหวัง ~12.0 V)`);
+    feedback.push("Ch1 Vrms: ไม่ถูกต้อง");
   }
   
   // Row 2: Ch2 Vmax. Correct = 16.3V (allow 15.9 - 16.6)
@@ -112,7 +112,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("Ch2 Vmax: ถูกต้อง");
   } else {
-    feedback.push(`Ch2 Vmax: ไม่ถูกต้อง (กรอก ${s3} คาดหวัง ~16.3 V)`);
+    feedback.push("Ch2 Vmax: ไม่ถูกต้อง");
   }
   
   // Row 3: Ch2 Vdc. Correct = 5.18V (allow 5.0 - 5.3)
@@ -121,7 +121,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("Ch2 Vdc: ถูกต้อง");
   } else {
-    feedback.push(`Ch2 Vdc: ไม่ถูกต้อง (กรอก ${s4} คาดหวัง ~5.18 V)`);
+    feedback.push("Ch2 Vdc: ไม่ถูกต้อง");
   }
   
   // Row 4: Ch2 Vrms. Correct = 8.13V (allow 7.9 - 8.3)
@@ -130,7 +130,7 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("Ch2 Vrms: ถูกต้อง");
   } else {
-    feedback.push(`Ch2 Vrms: ไม่ถูกต้อง (กรอก ${s5} คาดหวัง ~8.13 V)`);
+    feedback.push("Ch2 Vrms: ไม่ถูกต้อง");
   }
   
   // Row 5: Period. Correct = 20.0ms (allow 19.5 - 20.5)
@@ -139,27 +139,27 @@ function gradeWorksheet(data) {
     score++;
     feedback.push("Period: ถูกต้อง");
   } else {
-    feedback.push(`Period: ไม่ถูกต้อง (กรอก ${s6} คาดหวัง ~20.0 ms)`);
+    feedback.push("Period: ไม่ถูกต้อง");
   }
   
   // --- PART 3: POST-LAB QUESTIONS (3 Rows) ---
   if (data.q1 === 'A') {
     score++;
-    feedback.push("คำถามข้อที่ 1: ถูกต้อง (ก)");
+    feedback.push("คำถามข้อที่ 1: ถูกต้อง");
   } else {
     feedback.push("คำถามข้อที่ 1: ไม่ถูกต้อง");
   }
   
   if (data.q2 === 'A') {
     score++;
-    feedback.push("คำถามข้อที่ 2: ถูกต้อง (ก)");
+    feedback.push("คำถามข้อที่ 2: ถูกต้อง");
   } else {
     feedback.push("คำถามข้อที่ 2: ไม่ถูกต้อง");
   }
   
   if (data.q3 === 'B') {
     score++;
-    feedback.push("คำถามข้อที่ 3: ถูกต้อง (ข)");
+    feedback.push("คำถามข้อที่ 3: ถูกต้อง");
   } else {
     feedback.push("คำถามข้อที่ 3: ไม่ถูกต้อง");
   }

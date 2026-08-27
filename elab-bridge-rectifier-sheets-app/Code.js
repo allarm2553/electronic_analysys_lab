@@ -39,45 +39,45 @@ function submitWorksheet(data) {
     
     // Grading Part 1: DMM Readings
     if (t1_0 >= 11.8 && t1_0 <= 12.2) { score++; feedback.push("ตารางที่ 1 ข้อ 1 (AC Input): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 1 ข้อ 1 (AC Input): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 12.0 V AC)"); }
+    else { feedback.push("ตารางที่ 1 ข้อ 1 (AC Input): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t1_1 >= 9.6 && t1_1 <= 10.2) { score++; feedback.push("ตารางที่ 1 ข้อ 2 (Load DCV): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 1 ข้อ 2 (Load DCV): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 9.91 V DC)"); }
+    else { feedback.push("ตารางที่ 1 ข้อ 2 (Load DCV): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t1_2 >= 9.6 && t1_2 <= 10.2) { score++; feedback.push("ตารางที่ 1 ข้อ 3 (Load DCA): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 1 ข้อ 3 (Load DCA): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 9.91 mA DC)"); }
+    else { feedback.push("ตารางที่ 1 ข้อ 3 (Load DCA): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t1_3 >= 0.65 && t1_3 <= 0.75) { score++; feedback.push("ตารางที่ 1 ข้อ 4 (Diode D1 DC drop): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 1 ข้อ 4 (Diode D1 DC drop): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 0.70 V DC)"); }
+    else { feedback.push("ตารางที่ 1 ข้อ 4 (Diode D1 DC drop): คลาดเคลื่อนจากเกณฑ์"); }
     
     // Grading Part 2: Scope Readings
     if (t2_0 >= 33.0 && t2_0 <= 34.8) { score++; feedback.push("ตารางที่ 2 ข้อ 1 (Scope CH1 Vpp): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 2 ข้อ 1 (Scope CH1 Vpp): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 33.9 V)"); }
+    else { feedback.push("ตารางที่ 2 ข้อ 1 (Scope CH1 Vpp): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t2_1 >= 11.8 && t2_1 <= 12.2) { score++; feedback.push("ตารางที่ 2 ข้อ 2 (Scope CH1 Vrms): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 2 ข้อ 2 (Scope CH1 Vrms): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 12.0 V)"); }
+    else { feedback.push("ตารางที่ 2 ข้อ 2 (Scope CH1 Vrms): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t2_2 >= 15.1 && t2_2 <= 16.0) { score++; feedback.push("ตารางที่ 2 ข้อ 3 (Scope CH2 Vmax): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 2 ข้อ 3 (Scope CH2 Vmax): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 15.6 V)"); }
+    else { feedback.push("ตารางที่ 2 ข้อ 3 (Scope CH2 Vmax): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t2_3 >= 9.6 && t2_3 <= 10.2) { score++; feedback.push("ตารางที่ 2 ข้อ 4 (Scope CH2 Vdc): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 2 ข้อ 4 (Scope CH2 Vdc): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 9.91 V)"); }
+    else { feedback.push("ตารางที่ 2 ข้อ 4 (Scope CH2 Vdc): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t2_4 >= 10.7 && t2_4 <= 11.3) { score++; feedback.push("ตารางที่ 2 ข้อ 5 (Scope CH2 Vrms): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 2 ข้อ 5 (Scope CH2 Vrms): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 11.0 V)"); }
+    else { feedback.push("ตารางที่ 2 ข้อ 5 (Scope CH2 Vrms): คลาดเคลื่อนจากเกณฑ์"); }
     
     if (t2_5 >= 9.5 && t2_5 <= 10.5) { score++; feedback.push("ตารางที่ 2 ข้อ 6 (Scope CH2 Period): ถูกต้อง"); }
-    else { feedback.push("ตารางที่ 2 ข้อ 6 (Scope CH2 Period): คลาดเคลื่อน (ควรอยู่ที่ประมาณ 10.0 ms เนื่องจากเป็นแบบเต็มคลื่น)"); }
+    else { feedback.push("ตารางที่ 2 ข้อ 6 (Scope CH2 Period): คลาดเคลื่อนจากเกณฑ์"); }
     
     // Grading Part 3: Post-lab Questions
     if (data.q1 === 'B') { score++; feedback.push("คำถามข้อที่ 1 (ความถี่ริปเปิล): ถูกต้อง"); }
-    else { feedback.push("คำถามข้อที่ 1 (ความถี่ริปเปิล): ไม่ถูกต้อง (ความถี่ของเต็มคลื่นต้องเป็น 2 เท่า หรือ 100Hz)"); }
+    else { feedback.push("คำถามข้อที่ 1 (ความถี่ริปเปิล): ไม่ถูกต้อง"); }
     
     if (data.q2 === 'A') { score++; feedback.push("คำถามข้อที่ 2 (การตกคร่อมไดโอด): ถูกต้อง"); }
-    else { feedback.push("คำถามข้อที่ 2 (การตกคร่อมไดโอด): ไม่ถูกต้อง (ช่วงนำกระแสจะมีกระแสไหลผ่านไดโอด 2 ตัวอนุกรมกัน)"); }
+    else { feedback.push("คำถามข้อที่ 2 (การตกคร่อมไดโอด): ไม่ถูกต้อง"); }
     
     if (data.q3 === 'B') { score++; feedback.push("คำถามข้อที่ 3 (ความสัมพันธ์ Vdc): ถูกต้อง"); }
-    else { feedback.push("คำถามข้อที่ 3 (ความสัมพันธ์ Vdc): ไม่ถูกต้อง (วงจรแบบเต็มคลื่น Vdc = 2 * Vp / pi)"); }
+    else { feedback.push("คำถามข้อที่ 3 (ความสัมพันธ์ Vdc): ไม่ถูกต้อง"); }
     
     // 3. Write data to Google Sheets database
     let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Submissions");

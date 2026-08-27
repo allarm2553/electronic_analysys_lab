@@ -164,16 +164,16 @@ function gradeWorksheet(data) {
   
   if (vthOk) {
     score += 1;
-    feedback.push(`แรงดันขีดเริ่ม Vth: ถูกต้อง (${ansVth} V)`);
+    feedback.push(`แรงดันขีดเริ่ม Vth: ถูกต้องตามเกณฑ์`);
   } else {
-    feedback.push(`แรงดันขีดเริ่ม Vth: ไม่ถูกต้อง (กรอก ${ansVth} V คาดหวังช่วง 2.0 - 4.0 V)`);
+    feedback.push(`แรงดันขีดเริ่ม Vth: คลาดเคลื่อนจากเกณฑ์`);
   }
   
   if (kOk) {
     score += 1;
-    feedback.push(`ค่าคงที่การนำกระแส K: ถูกต้อง (${ansK} mA/V^2)`);
+    feedback.push(`ค่าคงที่การนำกระแส K: ถูกต้องตามเกณฑ์`);
   } else {
-    feedback.push(`ค่าคงที่การนำกระแส K: ไม่ถูกต้อง (กรอก ${ansK} mA/V^2 คาดหวังช่วง 0.8 - 1.8)`);
+    feedback.push(`ค่าคงที่การนำกระแส K: คลาดเคลื่อนจากเกณฑ์`);
   }
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";

@@ -94,9 +94,9 @@ function gradeWorksheet(data) {
   const ansStatus = data.diodeStatus;
   if (ansStatus === cond) {
     score += 1;
-    feedback.push("1.3 ระบุสรุปสภาพซีเนอร์ไดโอด: ถูกต้อง (" + (cond === 'good' ? 'ดี' : cond === 'open' ? 'ขาด' : 'ลัดวงจร') + ")");
+    feedback.push("1.3 ระบุสรุปสภาพซีเนอร์ไดโอด: ถูกต้องตามเกณฑ์");
   } else {
-    feedback.push("1.3 ระบุสรุปสภาพซีเนอร์ไดโอด: ไม่ถูกต้อง (ระบุ: " + (ansStatus || 'ไม่ได้ระบุ') + " คาดหวัง: " + cond + ")");
+    feedback.push("1.3 ระบุสรุปสภาพซีเนอร์ไดโอด: ไม่ถูกต้อง");
   }
   
   // --- PART 2: ACTIVE CIRCUIT TESTING (12 Rows) ---
@@ -210,7 +210,7 @@ function gradeWorksheet(data) {
   }
   
   score += p2Score;
-  feedback.push(`[เบอร์ซีเนอร์ไดโอด]: ${activeZener.name} (Vz = ${expectedVz}V)`);
+  feedback.push(`[เบอร์ซีเนอร์ไดโอด]: ${activeZener.name}`);
   feedback.push("ตอนที่ 2 ตารางการรักษาระดับแรงดัน: ถูกต้อง " + correctRowsCount + " จาก 12 ระดับแรงดัน (ได้ " + p2Score + " / 7 คะแนน)");
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";

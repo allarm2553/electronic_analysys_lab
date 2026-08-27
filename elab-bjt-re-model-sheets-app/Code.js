@@ -82,7 +82,6 @@ function gradeWorksheet(data) {
   
   const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom Dynamic)' : 'โหมดค่ามาตรฐาน (Fixed Preset)';
   feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
-  feedback.push(`  (พารามิเตอร์: Vcc=${Vcc}V, R1=${(R1/1000).toFixed(1)}k, R2=${(R2/1000).toFixed(1)}k, Rc=${(Rc/1000).toFixed(1)}k, RE=${Re}Ω, β=${Beta})`);
   
   // --- PART 1: DC OPERATING POINT & re CALCULATION (3 Points) ---
   const sVb = parseFloat(data.dc_vb) || 0;
@@ -102,13 +101,12 @@ function gradeWorksheet(data) {
   const vbOk = Math.abs(sVb - Vb) <= vbTol || Math.abs(sVb - Vth) <= vbTol;
   const veOk = Math.abs(sVe - Ve) <= veTol;
   const vcOk = Math.abs(sVc - Vc) <= vcTol;
-  const vceOk = Math.abs(sVce - Vce) <= vceTol;
+  const vceOk = Math.abs(sVce - Vce) <= vceTol || Math.abs(sVce - (sVc - sVe)) <= 0.35;
   const ieOk = Math.abs(sIe - Ie_mA) <= ieTol;
   
-  // Check student re calculation
-  let studentImpliedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
-  const reTol = Math.max(2.5, re_calc * 0.20);
-  const reOk = Math.abs(sRe - re_calc) <= reTol || Math.abs(sRe - studentImpliedRe) <= Math.max(1.5, studentImpliedRe * 0.15);
+  const studentCalculatedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
+  const reTol = Math.max(3.0, re_calc * 0.20);
+  const reOk = Math.abs(sRe - re_calc) <= reTol || Math.abs(sRe - studentCalculatedRe) <= Math.max(2.5, studentCalculatedRe * 0.18);
   
   let dcVoltagesScore = (vbOk && veOk && vcOk && vceOk) ? 1 : 0;
   let dcCurrentScore = ieOk ? 1 : 0;
@@ -119,19 +117,19 @@ function gradeWorksheet(data) {
   
   feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่า re: ได้ ${part1Score} / 3 คะแนน`);
   if (dcVoltagesScore) {
-    feedback.push(`  ✓ แรงดันไฟตรง (Vb, Ve, Vc, Vce) ถูกต้อง`);
+    feedback.push(`  ✓ แรงดันไฟตรง (Vb, Ve, Vc, Vce): ถูกต้องตามเกณฑ์`);
   } else {
-    feedback.push(`  ✗ แรงดันไฟตรงคลาดเคลื่อน (Vb ~${Vb.toFixed(2)}V, Ve ~${Ve.toFixed(2)}V, Vc ~${Vc.toFixed(2)}V, Vce ~${Vce.toFixed(2)}V)`);
+    feedback.push(`  ✗ แรงดันไฟตรง: ค่าอยู่นอกเกณฑ์ความถูกต้อง`);
   }
   if (dcCurrentScore) {
-    feedback.push(`  ✓ กระแสอิมิตเตอร์ Ie ถูกต้อง (${sIe.toFixed(2)} mA, คาดหวัง ~${Ie_mA.toFixed(2)} mA)`);
+    feedback.push(`  ✓ กระแสอิมิตเตอร์ Ie: ถูกต้องตามเกณฑ์`);
   } else {
-    feedback.push(`  ✗ กระแสอิมิตเตอร์ Ie คลาดเคลื่อน (กรอก ${sIe} mA, คาดหวัง ~${Ie_mA.toFixed(2)} mA)`);
+    feedback.push(`  ✗ กระแสอิมิตเตอร์ Ie: คลาดเคลื่อนจากเกณฑ์`);
   }
   if (reScore) {
-    feedback.push(`  ✓ ค่าความต้านทานไดนามิก re ถูกต้อง (${sRe.toFixed(1)} Ω, คาดหวัง ~${re_calc.toFixed(1)} Ω)`);
+    feedback.push(`  ✓ ค่าความต้านทานไดนามิก re: ถูกต้องตามเกณฑ์`);
   } else {
-    feedback.push(`  ✗ ค่า re คลาดเคลื่อน (กรอก ${sRe} Ω, คาดหวัง re = 26mV/Ie ≈ ${re_calc.toFixed(1)} Ω)`);
+    feedback.push(`  ✗ ค่าความต้านทานไดนามิก re: คลาดเคลื่อนจากเกณฑ์`);
   }
   
   // --- PART 2: AC PERFORMANCE COMPARISON (3 Points Total) ---
@@ -177,11 +175,11 @@ function gradeWorksheet(data) {
   score += part2Total;
   
   feedback.push(`\n[ตอนที่ 2] การทดสอบวงจร AC (มี CE vs ไม่มี CE): ได้ ${part2Total} / 3 คะแนน`);
-  if (avBypOk) feedback.push(`  ✓ อัตราขยาย Av (มี CE) ถูกต้อง (~${sAv_byp.toFixed(1)} เท่า, คาดหวัง ~${Av_bypassed.toFixed(1)})`);
-  else feedback.push(`  ✗ อัตราขยาย Av (มี CE) คลาดเคลื่อน (กรอก ${sAv_byp}, คาดหวัง Av = Rc/re ≈ ${Av_bypassed.toFixed(1)} เท่า)`);
-  if (avUnbypOk) feedback.push(`  ✓ อัตราขยาย Av (ไม่มี CE) ถูกต้อง (~${sAv_unbyp.toFixed(2)} เท่า, คาดหวัง ~${Av_unbypassed.toFixed(2)})`);
-  else feedback.push(`  ✗ อัตราขยาย Av (ไม่มี CE) คลาดเคลื่อน (กรอก ${sAv_unbyp}, คาดหวัง Av ≈ Rc/(re+RE) ≈ ${Av_unbypassed.toFixed(2)} เท่า)`);
-  if (phaseBypOk && phaseUnbypOk) feedback.push(`  ✓ เฟสสัญญาณถูกต้องทั้งสองสภาวะ (กลับเฟส 180°)`);
+  if (avBypOk) feedback.push(`  ✓ อัตราขยาย Av (มี CE): ถูกต้องตามเกณฑ์`);
+  else feedback.push(`  ✗ อัตราขยาย Av (มี CE): คลาดเคลื่อนจากเกณฑ์`);
+  if (avUnbypOk) feedback.push(`  ✓ อัตราขยาย Av (ไม่มี CE): ถูกต้องตามเกณฑ์`);
+  else feedback.push(`  ✗ อัตราขยาย Av (ไม่มี CE): คลาดเคลื่อนจากเกณฑ์`);
+  if (phaseBypOk && phaseUnbypOk) feedback.push(`  ✓ เฟสสัญญาณ: ถูกต้องทั้งสองสภาวะ (กลับเฟส 180°)`);
   
   // --- PART 3: POST-LAB QUESTIONS & CONCEPTUAL ASSESSMENT (4 Points) ---
   const q1 = data.q1Answer || data.q1_choice; // Answer key: 'b'

@@ -215,23 +215,23 @@ function gradeWorksheet(data) {
     
     if (vceQOk) {
       score += 1;
-      feedback.push(`พิกัด Vce,Q (เอาต์พุต Q-point): ถูกต้อง (กรอก ${ansVceQ} V, คาดหวัง ~${targetVce.toFixed(2)} V)`);
+      feedback.push(`พิกัด Vce,Q (เอาต์พุต Q-point): ถูกต้องตามเกณฑ์`);
     } else {
-      feedback.push(`พิกัด Vce,Q: ไม่ถูกต้อง (กรอก ${ansVceQ} V, คาดหวัง ~${targetVce.toFixed(2)} V)`);
+      feedback.push(`พิกัด Vce,Q: คลาดเคลื่อนจากเกณฑ์`);
     }
     
     if (icQOk) {
       score += 1;
-      feedback.push(`พิกัด Ic,Q (เอาต์พุต Q-point): ถูกต้อง (กรอก ${ansIcQ} mA, คาดหวัง ~${targetIc.toFixed(2)} mA)`);
+      feedback.push(`พิกัด Ic,Q (เอาต์พุต Q-point): ถูกต้องตามเกณฑ์`);
     } else {
-      feedback.push(`พิกัด Ic,Q: ไม่ถูกต้อง (กรอก ${ansIcQ} mA, คาดหวัง ~${targetIc.toFixed(2)} mA)`);
+      feedback.push(`พิกัด Ic,Q: คลาดเคลื่อนจากเกณฑ์`);
     }
     
     if (betaOk) {
       score += 1;
-      feedback.push(`คำนวณอัตราขยายกระแส Beta (β): ถูกต้อง (กรอก ${ansBeta} เท่า, คาดหวัง ~${targetBeta.toFixed(0)} เท่า)`);
+      feedback.push(`คำนวณอัตราขยายกระแส Beta (β): ถูกต้องตามเกณฑ์`);
     } else {
-      feedback.push(`คำนวณอัตราขยายกระแส Beta: ไม่ถูกต้อง (กรอก ${ansBeta} เท่า, คาดหวัง ~${targetBeta.toFixed(0)} เท่า)`);
+      feedback.push(`คำนวณอัตราขยายกระแส Beta: คลาดเคลื่อนจากเกณฑ์`);
     }
   } else {
     score += 3;
@@ -245,9 +245,9 @@ function gradeWorksheet(data) {
   
   if (p1 === 'E' && p2 === 'B' && p3 === 'C') {
     score += 1;
-    feedback.push("ระบุขั้วตำแหน่งขา BC108: ถูกต้อง (1=Emitter, 2=Base, 3=Collector)");
+    feedback.push("ระบุขั้วตำแหน่งขา BC108: ถูกต้อง");
   } else {
-    feedback.push(`ระบุขั้วตำแหน่งขา BC108: ไม่ถูกต้อง (กรอก 1=${p1}, 2=${p2}, 3=${p3} คาดหวัง 1=E, 2=B, 3=C)`);
+    feedback.push(`ระบุขั้วตำแหน่งขา BC108: ไม่ถูกต้อง`);
   }
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";

@@ -2288,9 +2288,10 @@ body {
         <!-- Print Trigger Row -->
         <div class="card-footer-action no-print">
           <button class="btn btn-secondary" onclick="switchTab('simulator')">🔬 กลับห้องทดลองแก้ไขข้อมูล</button>
-          <div class="footer-buttons-row" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%;">
-            <button class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF</button>
-            <button class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); border-color: #10b981;" onclick="submitReportToGAS()">ส่งใบงานและตรวจคะแนนอัตโนมัติ 🚀</button>
+          <div class="footer-buttons-row" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%; margin-top: 10px;">
+            <button type="button" class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF</button>
+            <button type="button" class="btn btn-secondary btn-large" style="border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); font-weight: bold;" onclick="previewScoreBeforeSubmit()">🔍 ตรวจสอบคะแนนก่อนส่ง</button>
+            <button type="button" class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); border-color: #10b981;" onclick="submitReportToGAS()">ส่งใบงานและตรวจคะแนนอัตโนมัติ 🚀</button>
           </div>
         </div>
       </section>
@@ -3217,18 +3218,7 @@ window.printReport = printReport;
    PART 4: GOOGLE SHEETS WEB APP SUBMISSION & AUTO-GRADING UI
    ========================================================================== */
 
-function submitReportToGAS() {
-  const name = document.getElementById('student-name').value.trim();
-  const id = document.getElementById('student-id').value.trim();
-  const group = document.getElementById('student-group').value.trim();
-  const date = document.getElementById('lab-date').value;
-  
-  if (!name || !id || !group || !date) {
-    alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');
-    return;
-  }
-  
-  // Package radio inputs
+function getWorksheetPayload() {
   let diodeStatus = '';
   const dsRadios = document.getElementsByName('diode-status');
   for (let r of dsRadios) {
@@ -3241,29 +3231,93 @@ function submitReportToGAS() {
     if (r.checked) ledState = r.value;
   }
   
-  const data = {
-    studentName: name,
-    studentId: id,
-    studentGroup: group,
-    labDate: date,
+  return {
+    studentName: document.getElementById('student-name')?.value.trim() || '',
+    studentId: document.getElementById('student-id')?.value.trim() || '',
+    studentGroup: document.getElementById('student-group')?.value.trim() || '',
+    labDate: document.getElementById('lab-date')?.value || '',
     diodeCondition: STATE.diodeCondition,
     diodeDirection: STATE.diodeDirection,
-    rForward: document.getElementById('r-forward').value.trim(),
-    rReverse: document.getElementById('r-reverse').value.trim(),
+    rForward: document.getElementById('r-forward')?.value.trim() || '',
+    rReverse: document.getElementById('r-reverse')?.value.trim() || '',
     diodeStatus: diodeStatus,
-    diodeReason: document.getElementById('diode-reason').value.trim(),
+    diodeReason: document.getElementById('diode-reason')?.value.trim() || '',
     ledState: ledState,
-    vD: document.getElementById('v-d-val').value.trim(),
-    vR: document.getElementById('v-r-val').value.trim(),
-    vLed: document.getElementById('v-led-val').value.trim(),
-    vSum: document.getElementById('v-sum-val').value.trim(),
-    iCalc: document.getElementById('i-calc-val').value.trim(),
-    iMeas: document.getElementById('i-meas-val').value.trim(),
-    q1Answer: document.getElementById('q1-answer').value.trim(),
-    q2Answer: document.getElementById('q2-answer').value.trim(),
-    q3Answer: document.getElementById('q3-answer').value.trim(),
-    labConclusion: document.getElementById('lab-conclusion').value.trim()
+    vD: document.getElementById('v-d-val')?.value.trim() || '',
+    vR: document.getElementById('v-r-val')?.value.trim() || '',
+    vLed: document.getElementById('v-led-val')?.value.trim() || '',
+    vSum: document.getElementById('v-sum-val')?.value.trim() || '',
+    iCalc: document.getElementById('i-calc-val')?.value.trim() || '',
+    iMeas: document.getElementById('i-meas-val')?.value.trim() || '',
+    q1Answer: document.getElementById('q1-answer')?.value.trim() || '',
+    q2Answer: document.getElementById('q2-answer')?.value.trim() || '',
+    q3Answer: document.getElementById('q3-answer')?.value.trim() || '',
+    labConclusion: document.getElementById('lab-conclusion')?.value.trim() || ''
   };
+}
+
+function previewScoreBeforeSubmit() {
+  const data = getWorksheetPayload();
+  const res = localGradeSimulator(data);
+
+  showGradingOverlay(true);
+  const title = document.getElementById('overlay-title');
+  const spinner = document.getElementById('overlay-spinner');
+  const msg = document.getElementById('overlay-message');
+  const closeBtn = document.getElementById('overlay-close-btn');
+  const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+
+  title.innerText = '🔍 ตรวจสอบคะแนนก่อนส่ง (Score Preview)';
+  title.style.color = 'var(--accent-cyan)';
+  spinner.style.display = 'none';
+
+  let scoreColor = 'var(--accent-green)';
+  if (res.score < 5) scoreColor = 'var(--accent-red)';
+  else if (res.score < 7) scoreColor = 'var(--accent-yellow)';
+  else if (res.score < 9) scoreColor = 'var(--accent-cyan)';
+
+  const formattedFeedback = res.feedback.replace(/\\\\n/g, '<br>').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+
+  msg.innerHTML = `
+    <div style="background: rgba(56, 189, 248, 0.1); border: 1px dashed var(--accent-cyan); border-radius: 8px; padding: 10px 14px; margin-bottom: 15px; color: var(--accent-cyan); font-size: 13px; text-align: left;">
+      ℹ️ <strong>โหมดทดลองตรวจคำตอบ:</strong> รายละเอียดคะแนนด้านล่างเป็นผลประเมินเบื้องต้น <u>ยังไม่ได้บันทึกส่ง</u> ข้อมูลเข้า Google Sheets ของผู้สอน
+    </div>
+    <div style="text-align: left; background: rgba(15,23,42,0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin: 12px 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 16px; font-weight: bold; color: var(--text-main);">คะแนนประเมินที่ได้:</span>
+        <span style="font-size: 24px; font-weight: bold; color: ${scoreColor};">${res.score} / ${res.maxScore}</span>
+      </div>
+      <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-cyan);">
+        ระดับผลการประเมิน: ${res.comment}
+      </p>
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+      <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</p>
+      <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${formattedFeedback}</div>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+      💡 หากต้องการแก้ไข สามารถกด <strong>"✏️ กลับไปแก้ไขคำตอบ"</strong> หรือกด <strong>"🚀 ยืนยันส่งใบงานจริง"</strong> ได้ทันที
+    </p>
+  `;
+
+  closeBtn.innerText = '✏️ กลับไปแก้ไขคำตอบ';
+  closeBtn.style.display = 'inline-block';
+  if (confirmBtn) confirmBtn.style.display = 'inline-block';
+}
+
+function confirmSubmitFromPreview() {
+  showGradingOverlay(false);
+  submitReportToGAS();
+}
+
+function submitReportToGAS() {
+  const data = getWorksheetPayload();
+  
+  if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
+    alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');
+    switchTab('worksheet');
+    document.getElementById('student-name')?.focus();
+    return;
+  }
   
   // Show Loading Modal/Overlay
   showGradingOverlay(true);
@@ -3277,17 +3331,58 @@ function submitReportToGAS() {
   } else {
     // Simulator local fallback for testing
     setTimeout(() => {
-      onSuccessGrading({
-        status: 'success',
-        score: 9,
-        maxScore: 10,
-        comment: 'ผ่านเกณฑ์ดีมาก (Local Simulation)',
-        feedback: '1.1 ความต้านทานไบอัสตรง: ถูกต้อง\\n1.2 ความต้านทานไบอัสกลับ: ถูกต้อง\\n1.3 ระบุสรุปสภาพไดโอด: ถูกต้อง\\n2.1 สถานะการส่องสว่างของ LED: ถูกต้อง\\n2.2 แรงดัน VD: ถูกต้อง\\n2.3 แรงดัน VR: ถูกต้อง\\n2.4 แรงดัน VLED: ถูกต้อง\\n2.5 ผลรวมแรงดัน (KVL): ถูกต้อง\\n2.6 กระแสคำนวณ Icalc: ถูกต้อง\\n2.7 กระแสวัดจริง Imeas: นอกเกณฑ์'
-      });
-    }, 1500);
+      const localRes = localGradeSimulator(data);
+      onSuccessGrading(localRes);
+    }, 1000);
   }
 }
 window.submitReportToGAS = submitReportToGAS;
+
+function localGradeSimulator(data) {
+  let score = 0;
+  const maxScore = 10;
+  const feedback = [];
+
+  let p1Correct = 0;
+  if (parseFloat(data.rForward) > 0) p1Correct++;
+  if (parseFloat(data.rReverse) > 0 || data.rReverse === 'inf') p1Correct++;
+  if (data.diodeStatus !== '') p1Correct++;
+  let p1Score = p1Correct >= 3 ? 3 : p1Correct;
+  score += p1Score;
+  feedback.push(`[ตอนที่ 1] ทดสอบไดโอดด้วยโอห์มมิเตอร์: ได้ ${p1Score} / 3 คะแนน`);
+
+  let p2Correct = 0;
+  if (data.ledState !== '') p2Correct++;
+  if (parseFloat(data.vD) > 0) p2Correct++;
+  if (parseFloat(data.vR) > 0) p2Correct++;
+  if (parseFloat(data.vLed) > 0) p2Correct++;
+  if (parseFloat(data.vSum) > 0) p2Correct++;
+  if (parseFloat(data.iCalc) > 0) p2Correct++;
+  if (parseFloat(data.iMeas) > 0) p2Correct++;
+  let p2Score = p2Correct >= 6 ? 4 : (p2Correct >= 4 ? 3 : (p2Correct >= 2 ? 1 : 0));
+  score += p2Score;
+  feedback.push(`[ตอนที่ 2] วงจรไบแอสและวัดค่าทางไฟฟ้า: ได้ ${p2Score} / 4 คะแนน`);
+
+  let qScore = 0;
+  if (data.q1Answer && data.q1Answer.length > 5) qScore++;
+  if (data.q2Answer && data.q2Answer.length > 5) qScore++;
+  if (data.q3Answer && data.q3Answer.length > 5) qScore++;
+  score += qScore;
+  feedback.push(`[ตอนที่ 3] คำถามและสรุปผล: ได้ ${qScore} / 3 คะแนน`);
+
+  let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+  return {
+    status: 'success',
+    score: score,
+    maxScore: maxScore,
+    comment: comment,
+    feedback: feedback.join('\n')
+  };
+}
 
 function showGradingOverlay(show) {
   let overlay = document.getElementById('grading-overlay');
@@ -3299,7 +3394,7 @@ function showGradingOverlay(show) {
     overlay.style.left = '0';
     overlay.style.width = '100vw';
     overlay.style.height = '100vh';
-    overlay.style.backgroundColor = 'rgba(11, 15, 25, 0.9)';
+    overlay.style.backgroundColor = 'rgba(11, 15, 25, 0.92)';
     overlay.style.display = 'flex';
     overlay.style.flexDirection = 'column';
     overlay.style.justifyContent = 'center';
@@ -3307,13 +3402,17 @@ function showGradingOverlay(show) {
     overlay.style.zIndex = '9999';
     overlay.style.color = '#f8fafc';
     overlay.style.fontFamily = 'Chakra Petch, sans-serif';
+    overlay.style.padding = '20px';
     
     overlay.innerHTML = `
-      <div class="card" style="width: 90%; max-width: 500px; text-align: center; border: 2px solid var(--accent-cyan); background-color: var(--bg-secondary); padding: 30px; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);">
-        <h2 id="overlay-title" style="margin-bottom: 20px; font-size: 24px; color: var(--accent-cyan);">กำลังประมวลผลคำตอบ...</h2>
-        <div id="overlay-spinner" class="logo-icon" style="font-size: 50px; animation: spin 2s linear infinite; margin-bottom: 20px;">⚡</div>
+      <div class="card" style="width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; text-align: center; border: 2px solid var(--accent-cyan); background-color: var(--bg-secondary); padding: 26px; box-shadow: 0 0 35px rgba(56, 189, 248, 0.35);">
+        <h2 id="overlay-title" style="margin-bottom: 16px; font-size: 22px; color: var(--accent-cyan);">กำลังประมวลผลคำตอบ...</h2>
+        <div id="overlay-spinner" class="logo-icon" style="font-size: 45px; animation: spin 2s linear infinite; margin-bottom: 16px;">⚡</div>
         <p id="overlay-message" style="font-size: 14px; font-family: Sarabun, sans-serif; color: var(--text-muted); line-height: 1.6;"></p>
-        <button id="overlay-close-btn" class="btn btn-primary" style="margin-top: 25px; display: none;" onclick="showGradingOverlay(false)">ปิดหน้าต่างนี้ ❌</button>
+        <div id="overlay-actions" style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button type="button" id="overlay-close-btn" class="btn btn-secondary" style="display: none;" onclick="showGradingOverlay(false)">ปิดหน้าต่างนี้ ❌</button>
+          <button type="button" id="overlay-confirm-submit-btn" class="btn btn-primary" style="display: none;" onclick="confirmSubmitFromPreview()">🚀 ยืนยันส่งใบงานจริง</button>
+        </div>
       </div>
       <style>
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -3329,6 +3428,8 @@ function showGradingOverlay(show) {
     document.getElementById('overlay-spinner').style.display = 'block';
     document.getElementById('overlay-message').innerText = 'ระบบกำลังส่งข้อมูลผลการทดลองของคุณไปยังฐานข้อมูล Google Sheets และเรียกสมการวิเคราะห์ตรวจให้คะแนนอัตโนมัติ กรุณารอสักครู่...';
     document.getElementById('overlay-close-btn').style.display = 'none';
+    const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+    if (confirmBtn) confirmBtn.style.display = 'none';
   }
 }
 window.showGradingOverlay = showGradingOverlay;
@@ -3339,14 +3440,14 @@ function onSuccessGrading(res) {
   const spinner = document.getElementById('overlay-spinner');
   const msg = document.getElementById('overlay-message');
   const closeBtn = document.getElementById('overlay-close-btn');
+  const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
   
   if (res.status === 'success') {
     title.innerText = '🎉 ใบงานตรวจและบันทึกคะแนนเสร็จสิ้น!';
     title.style.color = 'var(--accent-green)';
     spinner.style.display = 'none';
     
-    // Format feedback text beautifully
-    const formattedFeedback = res.feedback.replace(/\\\\n/g, '<br>').replace(/\\n/g, '<br>').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+    const formattedFeedback = res.feedback.replace(/\\\\n/g, '<br>').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
     
     msg.innerHTML = `
       <div style="text-align: left; background: rgba(15,23,42,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin: 15px 0;">
@@ -3358,11 +3459,13 @@ function onSuccessGrading(res) {
         </p>
         <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 15px;">
         <p style="font-size: 13px; font-weight: bold; color: var(--accent-cyan); margin-bottom: 8px;">รายละเอียดการตรวจ:</p>
-        <div style="font-size: 12px; font-family: Sarabun, sans-serif; line-height: 1.8; color: var(--text-main);">${formattedFeedback}</div>
+        <div style="font-size: 12px; font-family: Sarabun, sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto;">${formattedFeedback}</div>
       </div>
-      <p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--text-muted);">ขอบคุณที่ส่งรายงานผลการปฏิบัติการ ข้อมูลการส่งได้รับการเก็บบันทึกบน Google Sheets ของอาจารย์เรียบร้อยแล้ว!</p>
+      <p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--accent-green); font-weight: bold;">✓ ขอบคุณที่ส่งรายงานผลการปฏิบัติการ ข้อมูลการส่งได้รับการเก็บบันทึกบน Google Sheets ของอาจารย์เรียบร้อยแล้ว!</p>
     `;
+    closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
     closeBtn.style.display = 'inline-block';
+    if (confirmBtn) confirmBtn.style.display = 'none';
   } else {
     onFailureGrading(res.message);
   }
@@ -3375,6 +3478,7 @@ function onFailureGrading(error) {
   const spinner = document.getElementById('overlay-spinner');
   const msg = document.getElementById('overlay-message');
   const closeBtn = document.getElementById('overlay-close-btn');
+  const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
   
   title.innerText = '❌ เกิดข้อผิดพลาดในการส่งข้อมูล';
   title.style.color = 'var(--accent-red)';
@@ -3386,7 +3490,9 @@ function onFailureGrading(error) {
     </div>
     <p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--text-muted);">คำแนะนำ: โปรดตรวจสอบว่าอาจารย์ผู้สอนเปิดสิทธิ์การเข้าถึง Web App เป็น "Anyone" (ทุกคน) หรือยัง และคุณมีการเชื่อมต่ออินเทอร์เน็ตอยู่หรือไม่</p>
   `;
+  closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
   closeBtn.style.display = 'inline-block';
+  if (confirmBtn) confirmBtn.style.display = 'none';
 }
 window.onFailureGrading = onFailureGrading;
 

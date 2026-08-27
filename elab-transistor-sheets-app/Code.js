@@ -102,9 +102,9 @@ function gradeWorksheet(data) {
   const ansBase = parseInt(data.ansBasePin) || 0;
   if (ansBase === 3) {
     score += 1;
-    feedback.push("ระบุขาเบส: ถูกต้อง (ขา 3)");
+    feedback.push("ระบุขาเบส: ถูกต้อง");
   } else {
-    feedback.push(`ระบุขาเบส: ไม่ถูกต้อง (ระบุขา ${ansBase} คาดหวังขา 3)`);
+    feedback.push("ระบุขาเบส: ไม่ถูกต้อง");
   }
   
   const ansType = data.ansType;
@@ -113,9 +113,9 @@ function gradeWorksheet(data) {
   if (cond === 'good') {
     if (ansType === expectedType) {
       score += 1;
-      feedback.push(`ระบุชนิดสาร: ถูกต้อง (${ansType})`);
+      feedback.push("ระบุชนิดสาร: ถูกต้อง");
     } else {
-      feedback.push(`ระบุชนิดสาร: ไม่ถูกต้อง (ระบุ ${ansType} คาดหวัง ${expectedType})`);
+      feedback.push("ระบุชนิดสาร: ไม่ถูกต้อง");
     }
   } else {
     // For faulty transistors, type check is marked correct automatically if base search matches

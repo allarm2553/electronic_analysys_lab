@@ -79,9 +79,8 @@ function gradeWorksheet(data) {
   
   const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)';
   feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
-  feedback.push(`  (พารามิเตอร์: Vcc=${Vcc}V, R1=${(R1/1000).toFixed(1)}k, R2=${(R2/1000).toFixed(1)}k, Rc=${(Rc/1000).toFixed(1)}k, RE=${Re}Ω, hfe=${Beta})`);
   
-  // --- PART 1: DC OPERATING POINT & h-PARAMETERS EXTRACTION (3 Points) ---
+  // --- PART 1: DC BIAS POINT & h-PARAMETERS (3 Points) ---
   const sVb = parseFloat(data.dc_vb) || 0;
   const sVe = parseFloat(data.dc_ve) || 0;
   const sVc = parseFloat(data.dc_vc) || 0;
@@ -101,7 +100,8 @@ function gradeWorksheet(data) {
   const ieOk = Math.abs(sIe - Ie_mA) <= ieTol;
   
   // h-parameter checks
-  const hfeOk = Math.abs(sHfe - hfe_calc) <= Math.max(30, hfe_calc * 0.20);
+  const hfeTol = Math.max(30, hfe_calc * 0.20);
+  const hfeOk = Math.abs(sHfe - hfe_calc) <= hfeTol;
   
   // Normalize student hie to k-ohms
   const studentHie_k = sHie > 50 ? sHie / 1000 : sHie;
@@ -117,12 +117,12 @@ function gradeWorksheet(data) {
   score += part1Score;
   
   feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และการหาค่า h-Parameters: ได้ ${part1Score} / 3 คะแนน`);
-  if (dcScore >= 1) feedback.push(`  ✓ จุดทำงานกระแสตรง (Vb, Ve, Vc, Ie) ถูกต้อง`);
-  else feedback.push(`  ✗ จุดทำงานกระแสตรงคลาดเคลื่อน (Vb ~${Vb.toFixed(2)}V, Ve ~${Ve.toFixed(2)}V, Vc ~${Vc.toFixed(2)}V, Ie ~${Ie_mA.toFixed(2)}mA)`);
-  if (hfeScore) feedback.push(`  ✓ ค่าอัตราขยายกระแส hfe ถูกต้อง (~${hfe_calc})`);
-  else feedback.push(`  ✗ ค่า hfe คลาดเคลื่อน (กรอก ${sHfe}, คาดหวัง ~${hfe_calc})`);
-  if (hieScore) feedback.push(`  ✓ ค่าความต้านทานอินพุต hie ถูกต้อง (~${studentHie_k.toFixed(2)} kΩ, คาดหวัง ~${hie_k.toFixed(2)} kΩ)`);
-  else feedback.push(`  ✗ ค่า hie คลาดเคลื่อน (กรอก ${sHie}, คาดหวัง hie = hfe * re ≈ ${hie_k.toFixed(2)} kΩ)`);
+  if (dcScore >= 1) feedback.push(`  ✓ จุดทำงานกระแสตรง (Vb, Ve, Vc, Ie): ถูกต้องตามเกณฑ์`);
+  else feedback.push(`  ✗ จุดทำงานกระแสตรง: ค่าอยู่นอกเกณฑ์ความถูกต้อง`);
+  if (hfeScore) feedback.push(`  ✓ ค่าอัตราขยายกระแส hfe: ถูกต้องตามเกณฑ์`);
+  else feedback.push(`  ✗ ค่าอัตราขยายกระแส hfe: คลาดเคลื่อนจากเกณฑ์`);
+  if (hieScore) feedback.push(`  ✓ ค่าความต้านทานอินพุต hie: ถูกต้องตามเกณฑ์`);
+  else feedback.push(`  ✗ ค่าความต้านทานอินพุต hie: คลาดเคลื่อนจากเกณฑ์`);
   
   // --- PART 2: AC SMALL-SIGNAL PERFORMANCE VIA h-MODEL (3 Points) ---
   const sAv = Math.abs(parseFloat(data.ac_av) || 0);
@@ -151,10 +151,10 @@ function gradeWorksheet(data) {
   
   score += Math.round(part2Score);
   feedback.push(`\n[ตอนที่ 2] พารามิเตอร์วงจรขยายจากแบบจำลอง h-Model: ได้ ${Math.round(part2Score)} / 3 คะแนน`);
-  if (avOk) feedback.push(`  ✓ อัตราขยายแรงดัน Av = (hfe * Rc) / hie ถูกต้อง (~${sAv.toFixed(1)} เท่า, คาดหวัง ~${Av_calc.toFixed(1)})`);
-  else feedback.push(`  ✗ อัตราขยายแรงดัน Av คลาดเคลื่อน (กรอก ${sAv}, คาดหวัง Av ≈ ${Av_calc.toFixed(1)} เท่า)`);
-  if (ziOk) feedback.push(`  ✓ ความต้านทานอินพุต Zi ถูกต้อง (~${(Zi_calc/1000).toFixed(2)} kΩ)`);
-  if (phaseOk) feedback.push(`  ✓ เฟสสัญญาณกลับ 180 องศา ถูกต้อง`);
+  if (avOk) feedback.push(`  ✓ อัตราขยายแรงดัน Av: ถูกต้องตามเกณฑ์`);
+  else feedback.push(`  ✗ อัตราขยายแรงดัน Av: คลาดเคลื่อนจากเกณฑ์`);
+  if (ziOk) feedback.push(`  ✓ ความต้านทานอินพุต Zi: ถูกต้องตามเกณฑ์`);
+  if (phaseOk) feedback.push(`  ✓ เฟสสัญญาณกลับ 180 องศา: ถูกต้อง`);
   
   // --- PART 3: POST-LAB CONCEPTUAL ASSESSMENT (4 Points) ---
   const q1 = data.q1_choice; // Answer: 'b' (hie = beta * re)
