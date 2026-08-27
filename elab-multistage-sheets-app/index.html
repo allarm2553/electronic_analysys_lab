@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 11: วงจรขยายสัญญาณแบบหลายภาค (Multi-Stage BJT Amplifier)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.5);
+      --border-color: rgba(71, 85, 105, 0.38);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.35);
+      --accent-yellow: #f59e0b;
+      --accent-yellow-glow: rgba(245, 158, 11, 0.35);
+      --accent-red: #ef4444;
+      --accent-red-glow: rgba(239, 68, 68, 0.35);
+      --accent-purple: #a855f7;
+      --scope-bg: #050b14;
+      --scope-grid: #132338;
+      --transition-speed: 0.25s;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 55%), radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0, transparent 55%);
+      background-attachment: fixed;
+    }
+    .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    .sidebar {
+      background: #0b0f19;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+    .logo-icon { font-size: 28px; filter: drop-shadow(0 0 10px var(--accent-cyan-glow)); }
+    .logo-text h2 { font-family: 'Chakra Petch', sans-serif; font-size: 16px; font-weight: 700; color: #fff; }
+    .logo-text span { font-size: 11px; color: var(--accent-cyan); }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 12px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      transition: all var(--transition-speed);
+      text-align: left;
+      width: 100%;
+    }
+    .nav-btn:hover { background: rgba(56, 189, 248, 0.08); color: #fff; border-color: rgba(56, 189, 248, 0.2); }
+    .nav-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border-color: rgba(56, 189, 248, 0.4);
+      font-weight: 600;
+    }
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .main-content { padding: 0; overflow-x: hidden; }
+    .header-bar {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .header-title h1 { font-family: 'Chakra Petch', sans-serif; font-size: 20px; color: #fff; }
+    .header-title p { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent-cyan);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tab-pane { display: none; padding: 25px 30px; animation: fadeIn 0.3s ease; }
+    .tab-pane.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 16px;
+      color: var(--accent-cyan);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .sim-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+    .formula-box {
+      background: rgba(15, 23, 42, 0.8);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 10px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--accent-cyan);
+    }
+    .formula-purple { border-left-color: var(--accent-purple); color: var(--accent-purple); }
+    .formula-green { border-left-color: var(--accent-green); color: #34d399; }
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--text-main);
+      margin-top: 10px;
+    }
+    .lab-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .lab-table th {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-cyan);
+      padding: 10px 12px;
+      text-align: center;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      font-weight: 600;
+    }
+    .lab-table td {
+      padding: 9px 12px;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      text-align: center;
+    }
+    .lab-table tr:hover td { background: rgba(56, 189, 248, 0.04); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+    .form-control {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 9px 12px;
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition-speed);
+    }
+    .form-control:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1); }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      transition: all var(--transition-speed);
+      font-weight: 600;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%); border-color: var(--accent-cyan); color: #0f172a; }
+    .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 16px var(--accent-cyan-glow); transform: translateY(-1px); }
+    .btn-secondary { background: rgba(30, 41, 59, 0.7); color: var(--text-main); }
+    .btn-secondary:hover { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); color: var(--accent-cyan); }
+    .btn-secondary.active { background: rgba(56, 189, 248, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .card-footer-action { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color); }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+      transition: transform 0.15s ease;
+      border: 2px solid #0f172a;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+    .control-group { margin-bottom: 12px; }
+    .control-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .val { color: var(--accent-cyan); font-family: 'Fira Code', monospace; font-weight: 600; }
+    .probe-card { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; text-align: center; }
+    .readout-label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 3px; }
+    .readout-val { display: block; font-family: 'Fira Code', monospace; font-size: 18px; font-weight: 700; color: var(--accent-cyan); }
+    .readout-val.green { color: #34d399; }
+    .readout-val.yellow { color: #fbbf24; }
+    .readout-val.purple { color: #c084fc; }
+    .schematic-box { background: var(--scope-bg); border-radius: 10px; overflow: hidden; min-height: 280px; }
+    .question-card { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+    .question-title { font-weight: 600; font-size: 14px; color: #fff; margin-bottom: 12px; }
+    .options-grid { display: flex; flex-direction: column; gap: 8px; }
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      color: var(--text-main);
+    }
+    .option-label:hover { background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.25); }
+    .option-label:has(input:checked) { background: rgba(56, 189, 248, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600; }
+    .option-label input[type="radio"] { accent-color: var(--accent-cyan); width: 16px; height: 16px; flex-shrink: 0; }
+    #submission-overlay { display: none; position: fixed; inset: 0; background: rgba(5, 11, 20, 0.92); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+    #submission-overlay .card { max-width: 580px; width: 100%; text-align: center; padding: 30px; }
+    #modal-spinner { width: 42px; height: 42px; border: 4px solid rgba(56, 189, 248, 0.2); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 10px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #anti-cheat-toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(15px); background: rgba(239, 68, 68, 0.95); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 10000; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4); }
+    .stage-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .stage1 { background: rgba(56, 189, 248, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
+    .stage2 { background: rgba(168, 85, 247, 0.15); border: 1px solid var(--accent-purple); color: var(--accent-purple); }
+    @media print {
+      .sidebar, .nav-btn, .btn, .no-print, #submission-overlay, #anti-cheat-toast { display: none !important; }
+      .app-container { grid-template-columns: 1fr !important; }
+      .tab-pane { display: none !important; }
+      .tab-pane.active { display: block !important; }
+      body { background: #fff !important; color: #000 !important; }
+      .card { border: 1px solid #ccc !important; background: none !important; color: #000 !important; box-shadow: none !important; page-break-inside: avoid; }
+      .lab-table th { background: #eee !important; color: #000 !important; }
+      .lab-table th, .lab-table td { border: 1px solid #999 !important; color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><h2>E-Lab Simulator</h2><span>Multi-Stage Amp Lab</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" onclick="switchTab('theory')"><span>📖</span> ทฤษฎีและคู่มือแล็บ</button>
+      <button class="nav-btn" onclick="switchTab('simulator')"><span>🔬</span> ห้องทดลองจำลองเสมือน</button>
+      <button class="nav-btn" onclick="switchTab('worksheet')"><span>📝</span> ตารางบันทึกผลการทดลอง</button>
+      <button class="nav-btn" onclick="switchTab('assessment')"><span>❓</span> คำถามและสรุปผล</button>
+    </nav>
+    <div class="sidebar-footer">
+      <p>วิชา วิเคราะห์วงจรอิเล็กทรอนิกส์</p>
+      <p style="font-size:10px;margin-top:4px;color:var(--accent-cyan);">Lab 11: Multi-Stage CE Amp V1.0</p>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="header-bar">
+      <div class="header-title">
+        <h1>วงจรขยายสัญญาณหลายภาค (Multi-Stage BJT Amplifier)</h1>
+        <p>2-Stage Common-Emitter RC-Coupled Cascade · A<sub>v(total)</sub> = A<sub>v1</sub> × A<sub>v2</sub></p>
+      </div>
+      <div class="badge"><span>🟢 สถานะ:</span> ออนไลน์พร้อมจำลอง</div>
+    </div>
+
+    <!-- TAB 1: THEORY -->
+    <section id="tab-theory" class="tab-pane active">
+      <div class="card">
+        <h2 class="card-title">📌 วัตถุประสงค์การทดลอง</h2>
+        <ul style="padding-left:20px;color:var(--text-muted);font-size:14px;line-height:2;">
+          <li>เพื่อศึกษาหลักการต่อวงจรขยายสัญญาณแบบหลายภาค <strong>(Cascaded Multi-Stage Amplifier)</strong> ชนิด Common-Emitter 2 ภาค ด้วย RC-Coupling</li>
+          <li>เพื่อวิเคราะห์จุดทำงาน DC (Q-point) ของ <strong>ภาคที่ 1 (Stage 1)</strong> และ <strong>ภาคที่ 2 (Stage 2)</strong> แยกกัน</li>
+          <li>เพื่อคำนวณอัตราขยายรวม <strong>A<sub>v(total)</sub> = A<sub>v1</sub> × A<sub>v2</sub></strong></li>
+          <li>เพื่อสังเกตการกลับเฟส 180° × 2 ทำให้สัญญาณเอาต์พุต <strong>มีเฟสเดิม (0° In-Phase)</strong></li>
+          <li>เพื่อวิเคราะห์ผลกระทบของโหลด R<sub>L</sub> และตัวเก็บประจุบายพาส C<sub>E2</sub> ต่ออัตราขยายรวม</li>
+        </ul>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-title">📐 ทฤษฎี: อัตราขยายรวมแบบหลายภาค</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">เมื่อต่อวงจรขยายหลายภาคเรียงกัน อัตราขยายรวมเท่ากับ <strong>ผลคูณ</strong> ของอัตราขยายแต่ละภาค:</p>
+          <div class="formula-box">A<sub>v(total)</sub> = A<sub>v1</sub> × A<sub>v2</sub></div>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:10px;">ในหน่วยเดซิเบล (dB): A<sub>v(dB)</sub> = A<sub>v1(dB)</sub> + A<sub>v2(dB)</sub></p>
+          <div class="formula-box formula-purple" style="margin-top:10px;">เฟสรวม = 180° + 180° = 360° ≡ 0° (In-Phase)</div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">⚠️ สัญญาณ V<sub>out</sub> ของวงจร 2-Stage CE <strong>มีเฟสตรงกัน (0°)</strong> กับ V<sub>in</sub></p>
+        </div>
+        <div class="card">
+          <h2 class="card-title">🔗 ตัวเก็บประจุคัปปลิ้ง (RC Coupling)</h2>
+          <ul style="padding-left:18px;color:var(--text-muted);font-size:13px;line-height:1.9;margin-bottom:12px;">
+            <li><strong style="color:var(--accent-cyan);">บล็อกไฟตรง (DC Block):</strong> ป้องกันไม่ให้แรงดัน DC Bias ของภาคที่ 1 รบกวนภาคที่ 2</li>
+            <li><strong style="color:var(--accent-cyan);">ผ่านสัญญาณ AC:</strong> ยอมให้สัญญาณ AC ไหลผ่านได้โดยไม่มีการสูญเสีย (X<sub>C</sub> ≈ 0)</li>
+          </ul>
+          <div class="formula-box formula-green">
+            R'<sub>C1</sub> = R<sub>C1</sub> ‖ Z<sub>in(Stage2)</sub><br>
+            Z<sub>in(Stage2)</sub> = R<sub>5</sub> ‖ R<sub>6</sub> ‖ β(r<sub>e2</sub> + R<sub>E2</sub>)
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">💡 โหลดจากอินพุตภาค 2 ทำให้ R'<sub>C1</sub> &lt; R<sub>C1</sub> ส่งผลให้ A<sub>v1</sub> ลดลงเมื่อเทียบกับตอนไม่มีโหลด</p>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card-title">📊 สูตรคำนวณ r<sub>e</sub> Model สำหรับ 2-Stage CE</h2>
+        <div class="grid-2" style="gap:16px;">
+          <div>
+            <div style="margin-bottom:10px;"><span class="stage-badge stage1">Stage 1 — CE Unbypassed (ไม่มี C<sub>E1</sub>)</span></div>
+            <div class="formula-box" style="font-size:12px;line-height:2;">
+              V<sub>th1</sub> = V<sub>CC</sub>·R<sub>2</sub> / (R<sub>1</sub>+R<sub>2</sub>)<br>
+              I<sub>E1</sub> = (V<sub>th1</sub> − V<sub>BE</sub>) / (R<sub>th1</sub>/(β+1) + R<sub>E1</sub>)<br>
+              r<sub>e1</sub> = 26mV / I<sub>E1</sub>(mA)<br>
+              A<sub>v1</sub> = −R'<sub>C1</sub> / (r<sub>e1</sub> + R<sub>E1</sub>)<br>
+              Z<sub>i</sub> = R<sub>1</sub> ‖ R<sub>2</sub> ‖ β(r<sub>e1</sub> + R<sub>E1</sub>)
+            </div>
+          </div>
+          <div>
+            <div style="margin-bottom:10px;"><span class="stage-badge stage2">Stage 2 — CE Bypassed (มี C<sub>E2</sub>)</span></div>
+            <div class="formula-box formula-purple" style="font-size:12px;line-height:2;">
+              V<sub>th2</sub> = V<sub>CC</sub>·R<sub>6</sub> / (R<sub>5</sub>+R<sub>6</sub>)<br>
+              I<sub>E2</sub> = (V<sub>th2</sub> − V<sub>BE</sub>) / (R<sub>th2</sub>/(β+1) + R<sub>E2</sub>)<br>
+              r<sub>e2</sub> = 26mV / I<sub>E2</sub>(mA)<br>
+              R'<sub>C2</sub> = R<sub>C2</sub> ‖ R<sub>L</sub><br>
+              A<sub>v2</sub> = −R'<sub>C2</sub> / r<sub>e2</sub>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card-title">📋 ตารางเปรียบเทียบพารามิเตอร์ทั้ง 2 ภาค</h2>
+        <table class="lab-table">
+          <thead><tr><th>พารามิเตอร์</th><th><span class="stage-badge stage1">Stage 1 (Unbypassed)</span></th><th><span class="stage-badge stage2">Stage 2 (Bypassed)</span></th><th>หมายเหตุ</th></tr></thead>
+          <tbody>
+            <tr><td>อัตราขยาย A<sub>v</sub></td><td>−R'<sub>C1</sub>/(r<sub>e1</sub>+R<sub>E1</sub>) <small>(ต่ำ, เสถียรสูง)</small></td><td>−R'<sub>C2</sub>/r<sub>e2</sub> <small>(สูง)</small></td><td>Total = A<sub>v1</sub> × A<sub>v2</sub></td></tr>
+            <tr><td>อิมพีแดนซ์อินพุต Z<sub>i</sub></td><td>R<sub>1</sub>‖R<sub>2</sub>‖β(r<sub>e1</sub>+R<sub>E1</sub>) <small>(สูง)</small></td><td>R<sub>5</sub>‖R<sub>6</sub>‖βr<sub>e2</sub> <small>(ต่ำกว่า)</small></td><td>Z<sub>i2</sub> เป็นโหลดของ Stage 1</td></tr>
+            <tr><td>อิมพีแดนซ์เอาต์พุต Z<sub>o</sub></td><td>≈ R<sub>C1</sub></td><td>≈ R<sub>C2</sub> ‖ R<sub>L</sub></td><td>Z<sub>o</sub> รวม = Z<sub>o(Stage2)</sub></td></tr>
+            <tr><td>การกลับเฟส</td><td>180°</td><td>180°</td><td><strong>รวม 0° (In-Phase)</strong></td></tr>
+            <tr><td>เสถียรภาพต่ออุณหภูมิ</td><td>สูงมาก (R<sub>E1</sub> ช่วยป้อนกลับลบ)</td><td>ปานกลาง (ขึ้นกับ r<sub>e2</sub>)</td><td>Stage 1 ช่วยรักษาความเสถียรของระบบ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: SIMULATOR -->
+    <section id="tab-simulator" class="tab-pane">
+      <div class="sim-layout">
+        <div>
+          <div class="card" style="padding:18px;">
+            <h2 class="card-title" style="margin-bottom:16px;">⚙️ ตั้งค่าวงจร</h2>
+            <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">🔋 แหล่งจ่าย</div>
+            <div class="control-group"><div class="control-label"><span>V<sub>CC</sub></span><span class="val" id="val-vcc">12.0 V</span></div><input type="range" id="sl-vcc" min="6" max="18" step="0.5" value="12" oninput="updateSim()"></div>
+            
+            <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);letter-spacing:1px;margin-bottom:8px;margin-top:14px;text-transform:uppercase;">📡 Stage 1 (Unbypassed)</div>
+            <div class="control-group"><div class="control-label"><span>R<sub>1</sub></span><span class="val" id="val-r1">33.0 kΩ</span></div><input type="range" id="sl-r1" min="5" max="100" step="1" value="33" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>2</sub></span><span class="val" id="val-r2">6.8 kΩ</span></div><input type="range" id="sl-r2" min="1" max="30" step="0.1" value="6.8" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>C1</sub></span><span class="val" id="val-rc1">3.3 kΩ</span></div><input type="range" id="sl-rc1" min="0.5" max="10" step="0.1" value="3.3" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>E1</sub></span><span class="val" id="val-re1">680 Ω</span></div><input type="range" id="sl-re1" min="100" max="2000" step="20" value="680" oninput="updateSim()"></div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--accent-purple);letter-spacing:1px;margin-bottom:8px;margin-top:14px;text-transform:uppercase;">📡 Stage 2 (Bypassed)</div>
+            <div class="control-group"><div class="control-label"><span>R<sub>5</sub> (bias)</span><span class="val" id="val-r5">33.0 kΩ</span></div><input type="range" id="sl-r5" min="5" max="100" step="1" value="33" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>6</sub> (bias)</span><span class="val" id="val-r6">6.8 kΩ</span></div><input type="range" id="sl-r6" min="1" max="30" step="0.1" value="6.8" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>C2</sub></span><span class="val" id="val-rc2">2.2 kΩ</span></div><input type="range" id="sl-rc2" min="0.5" max="8" step="0.1" value="2.2" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>E2</sub></span><span class="val" id="val-re2">560 Ω</span></div><input type="range" id="sl-re2" min="100" max="2000" step="20" value="560" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>R<sub>L</sub> (Load)</span><span class="val" id="val-rl">10.0 kΩ</span></div><input type="range" id="sl-rl" min="1" max="47" step="0.5" value="10" oninput="updateSim()"></div>
+            
+            <hr style="border:0;border-top:1px solid var(--border-color);margin:14px 0;">
+            <div style="background:rgba(15,23,42,.5);padding:10px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:12px;">
+              <div class="control-label" style="margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">🏷️ BJT Model</span><span id="badge-model" class="badge" style="font-size:11px;padding:2px 8px;">2N2222 (β=200)</span></div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+                <button class="btn btn-secondary active" id="btn-m-2n2222" onclick="selectModel('2N2222')" style="font-size:10px;padding:5px 2px;border-color:var(--accent-cyan);background:rgba(56,189,248,.2);color:var(--accent-cyan);">2N2222</button>
+                <button class="btn btn-secondary" id="btn-m-bc108" onclick="selectModel('BC108')" style="font-size:10px;padding:5px 2px;">BC108</button>
+                <button class="btn btn-secondary" id="btn-m-bd137" onclick="selectModel('BD137')" style="font-size:10px;padding:5px 2px;">BD137</button>
+                <button class="btn btn-secondary" id="btn-m-bc547" onclick="selectModel('BC547')" style="font-size:10px;padding:5px 2px;">BC547</button>
+              </div>
+              <p id="txt-model-desc" style="font-size:10px;color:var(--text-muted);margin-top:6px;">💡 2N2222: NPN อเนกประสงค์ (β=200, V<sub>BE</sub>=0.70V)</p>
+            </div>
+            <div class="control-group"><div class="control-label"><span>β (h<sub>fe</sub>)</span><span class="val" id="val-beta">200</span></div><input type="range" id="sl-beta" min="50" max="500" step="5" value="200" oninput="onBetaChange()"></div>
+            <div class="control-group"><div class="control-label"><span>V<sub>i(p-p)</sub></span><span class="val" id="val-vi">20 mV</span></div><input type="range" id="sl-vi" min="2" max="100" step="1" value="20" oninput="updateSim()"></div>
+            <div style="background:rgba(15,23,42,.6);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-top:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:12px;font-weight:600;">🔌 C<sub>E2</sub> Bypass (Stage 2):</span>
+                <span id="badge-ce" class="badge" style="background:rgba(16,185,129,.2);border-color:var(--accent-green);color:var(--accent-green);font-size:11px;padding:2px 8px;">🟢 ต่อวงจร</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button id="btn-ce-on" class="btn btn-secondary active" style="font-size:11px;padding:7px;border-color:var(--accent-green);background:rgba(16,185,129,.15);color:#34d399;" onclick="setBypass(true)">⚡ Bypassed</button>
+                <button id="btn-ce-off" class="btn btn-secondary" style="font-size:11px;padding:7px;" onclick="setBypass(false)">❌ Unbypassed</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+              <h2 class="card-title" style="margin-bottom:0;">📐 แผนภาพวงจรและออสซิลโลสโคป</h2>
+              <div style="display:flex;gap:6px;background:rgba(15,23,42,.8);padding:4px;border-radius:8px;border:1px solid var(--border-color);">
+                <button id="tbtn-phys" class="btn btn-secondary active" style="padding:6px 12px;font-size:11px;background:rgba(56,189,248,.25);border-color:var(--accent-cyan);color:#fff;" onclick="switchView('phys')">⚡ วงจรจริง</button>
+                <button id="tbtn-acmodel" class="btn btn-secondary" style="padding:6px 12px;font-size:11px;color:var(--text-muted);" onclick="switchView('acmodel')">📐 สมมูล AC</button>
+                <button id="tbtn-scope" class="btn btn-secondary" style="padding:6px 12px;font-size:11px;color:var(--text-muted);" onclick="switchView('scope')">📡 Oscilloscope</button>
+              </div>
+            </div>
+            <div class="schematic-box">
+              <!-- PHYSICAL SVG -->
+              <svg id="svg-phys" viewBox="0 0 720 280" style="width:100%;height:auto;max-height:275px;display:block;">
+                <line x1="100" y1="18" x2="620" y2="18" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="635" y="22" fill="#38bdf8" font-size="10" font-family="Fira Code">+Vcc</text>
+                <!-- Stage 1 R1 -->
+                <line x1="120" y1="18" x2="120" y2="43" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="105" y="43" width="30" height="48" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="120" y="72" fill="#f8fafc" font-size="9" text-anchor="middle" font-family="Sarabun">R1</text>
+                <line x1="120" y1="91" x2="120" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- R2 -->
+                <rect x="105" y="115" width="30" height="48" rx="4" fill="none" stroke="#64748b" stroke-width="1.5"/>
+                <text x="120" y="144" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Sarabun">R2</text>
+                <line x1="120" y1="163" x2="120" y2="260" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- RC1 -->
+                <line x1="215" y1="18" x2="215" y2="43" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="200" y="43" width="30" height="48" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="215" y="72" fill="#f8fafc" font-size="9" text-anchor="middle" font-family="Sarabun">RC1</text>
+                <line x1="215" y1="91" x2="215" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- Q1 BJT -->
+                <line x1="120" y1="115" x2="180" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="180" y1="96" x2="180" y2="146" stroke="#fbbf24" stroke-width="3"/>
+                <line x1="180" y1="115" x2="210" y2="100" stroke="#fbbf24" stroke-width="1.5"/>
+                <polygon points="210,97 210,103 204,100" fill="#fbbf24"/>
+                <line x1="180" y1="115" x2="210" y2="132" stroke="#fbbf24" stroke-width="1.5"/>
+                <polygon points="207,127 213,133 207,136" fill="#fbbf24"/>
+                <text x="188" y="113" fill="#fbbf24" font-size="9" font-family="Sarabun">Q1</text>
+                <line x1="210" y1="132" x2="210" y2="160" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- RE1 -->
+                <rect x="195" y="160" width="30" height="42" rx="4" fill="none" stroke="#64748b" stroke-width="1.5"/>
+                <text x="210" y="185" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Sarabun">RE1</text>
+                <line x1="210" y1="202" x2="210" y2="260" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- GND rail -->
+                <line x1="100" y1="260" x2="620" y2="260" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3"/>
+                <line x1="200" y1="260" x2="200" y2="270" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="193" y1="270" x2="207" y2="270" stroke="#64748b" stroke-width="2"/>
+                <line x1="197" y1="274" x2="203" y2="274" stroke="#64748b" stroke-width="1.5"/>
+                <!-- C1 input -->
+                <line x1="40" y1="115" x2="60" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="60" y1="105" x2="60" y2="125" stroke="#38bdf8" stroke-width="2.5"/>
+                <line x1="65" y1="105" x2="65" y2="125" stroke="#38bdf8" stroke-width="2.5"/>
+                <line x1="65" y1="115" x2="88" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="52" y="102" fill="#38bdf8" font-size="8" font-family="Sarabun">C1</text>
+                <!-- VS -->
+                <circle cx="20" cy="115" r="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="20" y="119" fill="#f59e0b" font-size="9" text-anchor="middle">VS</text>
+                <line x1="35" y1="115" x2="40" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="20" y1="130" x2="20" y2="260" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="20" y1="260" x2="100" y2="260" stroke="#64748b" stroke-width="1.5"/>
+                <!-- C3 coupling -->
+                <line x1="215" y1="112" x2="285" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="285" y1="101" x2="285" y2="123" stroke="#10b981" stroke-width="2.5"/>
+                <line x1="291" y1="101" x2="291" y2="123" stroke="#10b981" stroke-width="2.5"/>
+                <line x1="291" y1="112" x2="325" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="280" y="98" fill="#10b981" font-size="8" font-family="Sarabun">C3</text>
+                <text x="228" y="106" fill="#fbbf24" font-size="8" font-family="Fira Code">Vc1</text>
+                <!-- Stage 2 R5 -->
+                <line x1="385" y1="18" x2="385" y2="43" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="370" y="43" width="30" height="48" rx="4" fill="none" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="385" y="72" fill="#c084fc" font-size="9" text-anchor="middle" font-family="Sarabun">R5</text>
+                <line x1="385" y1="91" x2="385" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- R6 -->
+                <rect x="370" y="115" width="30" height="48" rx="4" fill="none" stroke="#64748b" stroke-width="1.5"/>
+                <text x="385" y="144" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Sarabun">R6</text>
+                <line x1="385" y1="163" x2="385" y2="260" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- RC2 -->
+                <line x1="480" y1="18" x2="480" y2="43" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="465" y="43" width="30" height="48" rx="4" fill="none" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="480" y="72" fill="#c084fc" font-size="9" text-anchor="middle" font-family="Sarabun">RC2</text>
+                <line x1="480" y1="91" x2="480" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- Q2 BJT -->
+                <line x1="325" y1="112" x2="325" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="325" y1="115" x2="448" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="448" y1="96" x2="448" y2="146" stroke="#a855f7" stroke-width="3"/>
+                <line x1="448" y1="115" x2="478" y2="100" stroke="#a855f7" stroke-width="1.5"/>
+                <polygon points="478,97 478,103 472,100" fill="#a855f7"/>
+                <line x1="448" y1="115" x2="478" y2="132" stroke="#a855f7" stroke-width="1.5"/>
+                <polygon points="475,127 481,133 475,136" fill="#a855f7"/>
+                <text x="456" y="113" fill="#a855f7" font-size="9" font-family="Sarabun">Q2</text>
+                <line x1="478" y1="132" x2="478" y2="160" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- RE2 -->
+                <rect x="463" y="160" width="30" height="42" rx="4" fill="none" stroke="#64748b" stroke-width="1.5"/>
+                <text x="478" y="185" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Sarabun">RE2</text>
+                <line x1="478" y1="202" x2="478" y2="260" stroke="#94a3b8" stroke-width="1.5"/>
+                <!-- CE2 -->
+                <line x1="478" y1="202" x2="525" y2="202" stroke="#10b981" stroke-width="1.5"/>
+                <line x1="525" y1="192" x2="525" y2="212" stroke="#10b981" stroke-width="2.5"/>
+                <line x1="531" y1="192" x2="531" y2="212" stroke="#10b981" stroke-width="2.5"/>
+                <line x1="531" y1="202" x2="531" y2="260" stroke="#10b981" stroke-width="1.5"/>
+                <text x="520" y="188" fill="#10b981" font-size="8" font-family="Sarabun">Ce2</text>
+                <!-- C5 output -->
+                <line x1="480" y1="112" x2="550" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="550" y1="101" x2="550" y2="123" stroke="#38bdf8" stroke-width="2.5"/>
+                <line x1="556" y1="101" x2="556" y2="123" stroke="#38bdf8" stroke-width="2.5"/>
+                <line x1="556" y1="112" x2="585" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="543" y="98" fill="#38bdf8" font-size="8" font-family="Sarabun">C5</text>
+                <text x="492" y="107" fill="#a855f7" font-size="8" font-family="Fira Code">Vc2</text>
+                <!-- RL -->
+                <rect x="575" y="93" width="30" height="44" rx="4" fill="none" stroke="#10b981" stroke-width="1.5"/>
+                <text x="590" y="119" fill="#10b981" font-size="9" text-anchor="middle" font-family="Sarabun">RL</text>
+                <line x1="590" y1="91" x2="590" y2="18" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="590" y1="137" x2="590" y2="260" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="608" y="116" fill="#34d399" font-size="11" font-family="Fira Code" font-weight="bold">Vo</text>
+                <!-- Labels -->
+                <text x="155" y="272" fill="#38bdf8" font-size="10" text-anchor="middle" font-family="Chakra Petch" font-weight="700">-- STAGE 1 --</text>
+                <text x="465" y="272" fill="#a855f7" font-size="10" text-anchor="middle" font-family="Chakra Petch" font-weight="700">-- STAGE 2 --</text>
+                <text x="308" y="100" fill="#10b981" font-size="8" text-anchor="middle" font-family="Sarabun">RC-Coupling</text>
+                <line x1="460" y1="260" x2="460" y2="270" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="453" y1="270" x2="467" y2="270" stroke="#64748b" stroke-width="2"/>
+                <line x1="457" y1="274" x2="463" y2="274" stroke="#64748b" stroke-width="1.5"/>
+              </svg>
+              <!-- AC Model SVG -->
+              <svg id="svg-acmodel" viewBox="0 0 720 220" style="width:100%;height:auto;max-height:220px;display:none;">
+                <text x="360" y="16" fill="#38bdf8" font-size="11" text-anchor="middle" font-family="Chakra Petch" font-weight="700">AC Equivalent (re Model) — 2-Stage CE Cascade</text>
+                <ellipse cx="30" cy="110" rx="12" ry="20" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="30" y="114" fill="#f59e0b" font-size="9" text-anchor="middle">~</text>
+                <line x1="42" y1="95" x2="80" y2="95" stroke="#f59e0b" stroke-width="1.5"/>
+                <line x1="30" y1="130" x2="30" y2="150" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="22" y1="150" x2="38" y2="150" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="25" y1="154" x2="35" y2="154" stroke="#64748b" stroke-width="1.5"/>
+                <rect x="80" y="82" width="52" height="26" rx="4" fill="rgba(56,189,248,.1)" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="106" y="93" fill="#38bdf8" font-size="9" text-anchor="middle" font-family="Fira Code">Zi1</text>
+                <text x="106" y="103" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="Fira Code">R1||R2||bZe1</text>
+                <line x1="132" y1="95" x2="158" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="158" y="82" width="52" height="26" rx="4" fill="rgba(56,189,248,.08)" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="184" y="95" fill="#38bdf8" font-size="8" text-anchor="middle" font-family="Fira Code">re1+RE1</text>
+                <line x1="210" y1="95" x2="242" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+                <ellipse cx="242" cy="100" rx="13" ry="15" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+                <text x="242" y="103" fill="#fbbf24" font-size="7" text-anchor="middle">bib1</text>
+                <line x1="242" y1="68" x2="242" y2="85" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="242" y1="115" x2="242" y2="135" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="242" y1="68" x2="292" y2="68" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="292" y="56" width="28" height="46" rx="3" fill="rgba(56,189,248,.08)" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="306" y="78" fill="#38bdf8" font-size="8" text-anchor="middle" font-family="Fira Code">R'C1</text>
+                <line x1="306" y1="102" x2="306" y2="135" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="242" y1="135" x2="306" y2="135" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="274" y1="135" x2="274" y2="155" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="267" y1="155" x2="281" y2="155" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="270" y1="159" x2="278" y2="159" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="320" y1="68" x2="355" y2="68" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <text x="337" y="62" fill="#10b981" font-size="7" text-anchor="middle">C3</text>
+                <rect x="355" y="56" width="52" height="26" rx="4" fill="rgba(168,85,247,.1)" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="381" y="67" fill="#a855f7" font-size="9" text-anchor="middle" font-family="Fira Code">Zi2</text>
+                <text x="381" y="77" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="Fira Code">R5||R6||bre2</text>
+                <line x1="407" y1="68" x2="438" y2="68" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="438" y="56" width="30" height="26" rx="3" fill="rgba(168,85,247,.08)" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="453" y="72" fill="#a855f7" font-size="9" text-anchor="middle" font-family="Fira Code">re2</text>
+                <line x1="468" y1="68" x2="498" y2="68" stroke="#94a3b8" stroke-width="1.5"/>
+                <ellipse cx="498" cy="73" rx="13" ry="15" fill="none" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="498" y="76" fill="#a855f7" font-size="7" text-anchor="middle">bib2</text>
+                <line x1="498" y1="42" x2="498" y2="58" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="498" y1="88" x2="498" y2="108" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="498" y1="42" x2="550" y2="42" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="540" y="30" width="28" height="46" rx="3" fill="rgba(168,85,247,.08)" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="554" y="50" fill="#a855f7" font-size="8" text-anchor="middle" font-family="Fira Code">R'C2</text>
+                <text x="554" y="62" fill="#94a3b8" font-size="7" text-anchor="middle" font-family="Fira Code">RC2||RL</text>
+                <line x1="554" y1="76" x2="554" y2="108" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="498" y1="108" x2="554" y2="108" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="526" y1="108" x2="526" y2="128" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="519" y1="128" x2="533" y2="128" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="522" y1="132" x2="530" y2="132" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="568" y1="42" x2="640" y2="42" stroke="#34d399" stroke-width="2"/>
+                <text x="645" y="46" fill="#34d399" font-size="11" font-family="Fira Code" font-weight="bold">Vo</text>
+                <line x1="640" y1="42" x2="640" y2="128" stroke="#34d399" stroke-width="1.5"/>
+                <line x1="633" y1="128" x2="647" y2="128" stroke="#64748b" stroke-width="1.5"/>
+                <text x="60" y="180" fill="#38bdf8" font-size="10" font-family="Fira Code">Av_total = Av1 x Av2</text>
+                <text x="60" y="195" fill="#94a3b8" font-size="9" font-family="Fira Code">Av1=-RC1eff/(re1+RE1)    Av2=-RC2eff/re2</text>
+                <text x="60" y="210" fill="#a855f7" font-size="9" font-family="Fira Code">Phase: 180+180=0 degrees (In-Phase Output)</text>
+              </svg>
+              <canvas id="canvas-scope" width="700" height="275" style="width:100%;display:none;background:var(--scope-bg);"></canvas>
+            </div>
+            <!-- Probe cards -->
+            <div style="margin-top:14px;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">📡 Stage 1 Q-point</div>
+              <div class="grid-4" style="margin-bottom:12px;">
+                <div class="probe-card"><span class="readout-label">V<sub>B1</sub></span><span class="readout-val" id="rd-vb1">---</span></div>
+                <div class="probe-card"><span class="readout-label">V<sub>E1</sub></span><span class="readout-val" id="rd-ve1">---</span></div>
+                <div class="probe-card"><span class="readout-label">V<sub>C1</sub></span><span class="readout-val" id="rd-vc1">---</span></div>
+                <div class="probe-card"><span class="readout-label">I<sub>E1</sub></span><span class="readout-val green" id="rd-ie1">---</span></div>
+              </div>
+              <div class="grid-3" style="margin-bottom:14px;">
+                <div class="probe-card" style="border-color:var(--accent-yellow);"><span class="readout-label">r<sub>e1</sub></span><span class="readout-val yellow" id="rd-re1">---</span></div>
+                <div class="probe-card" style="border-color:var(--accent-cyan);"><span class="readout-label">A<sub>v1</sub></span><span class="readout-val" id="rd-av1">---</span></div>
+                <div class="probe-card" style="border-color:var(--accent-cyan);"><span class="readout-label">Z<sub>i</sub></span><span class="readout-val" id="rd-zi">---</span></div>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:var(--accent-purple);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">📡 Stage 2 Q-point</div>
+              <div class="grid-4" style="margin-bottom:12px;">
+                <div class="probe-card"><span class="readout-label">V<sub>B2</sub></span><span class="readout-val purple" id="rd-vb2">---</span></div>
+                <div class="probe-card"><span class="readout-label">V<sub>E2</sub></span><span class="readout-val purple" id="rd-ve2">---</span></div>
+                <div class="probe-card"><span class="readout-label">V<sub>C2</sub></span><span class="readout-val purple" id="rd-vc2">---</span></div>
+                <div class="probe-card"><span class="readout-label">I<sub>E2</sub></span><span class="readout-val green" id="rd-ie2">---</span></div>
+              </div>
+              <div class="grid-3">
+                <div class="probe-card" style="border-color:var(--accent-yellow);"><span class="readout-label">r<sub>e2</sub></span><span class="readout-val yellow" id="rd-re2">---</span></div>
+                <div class="probe-card" style="border-color:var(--accent-purple);"><span class="readout-label">A<sub>v2</sub></span><span class="readout-val purple" id="rd-av2">---</span></div>
+                <div class="probe-card" style="border-color:var(--accent-green);"><span class="readout-label">A<sub>v(total)</sub></span><span class="readout-val green" id="rd-avtotal">---</span></div>
+              </div>
+              <div id="scope-readout" style="display:none;background:rgba(15,23,42,.9);border:1px solid var(--border-color);border-radius:8px;padding:10px 14px;margin-top:12px;">
+                <div class="grid-4">
+                  <div><span style="font-size:11px;color:#fbbf24;">CH1 Vi(p-p):</span><br><span id="scope-vi" style="font-family:'Fira Code',monospace;color:#fbbf24;font-size:14px;font-weight:700;">20 mV</span></div>
+                  <div><span style="font-size:11px;color:var(--accent-cyan);">CH2 Vo(p-p):</span><br><span id="scope-vo" style="font-family:'Fira Code',monospace;color:var(--accent-cyan);font-size:14px;font-weight:700;">---</span></div>
+                  <div><span style="font-size:11px;color:var(--accent-green);">|Av_total|:</span><br><span id="scope-av" style="font-family:'Fira Code',monospace;color:var(--accent-green);font-size:14px;font-weight:700;">---</span></div>
+                  <div><span style="font-size:11px;color:var(--text-muted);">Phase:</span><br><span id="scope-phase" style="font-family:'Fira Code',monospace;color:#34d399;font-size:14px;font-weight:700;">0° In-Phase</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: WORKSHEET -->
+    <section id="tab-worksheet" class="tab-pane">
+      <div class="card">
+        <h2 class="card-title">👤 ข้อมูลผู้ทำปฏิบัติการ</h2>
+        <div class="grid-4">
+          <div class="form-group"><label>ชื่อ-นามสกุล:</label><input type="text" id="student-name" class="form-control" placeholder="เช่น นายวิศวกรรม นามสมมุติ"></div>
+          <div class="form-group"><label>รหัสนักศึกษา:</label><input type="text" id="student-id" class="form-control" placeholder="เช่น 66010001"></div>
+          <div class="form-group"><label>กลุ่มเรียน:</label><input type="text" id="student-group" class="form-control" placeholder="เช่น กลุ่ม 1 / Sec 01"></div>
+          <div class="form-group"><label>วันที่ทำการทดลอง:</label><input type="date" id="lab-date" class="form-control"></div>
+        </div>
+      </div>
+      <div class="card" style="border:1px solid rgba(56,189,248,.35);background:linear-gradient(135deg,rgba(15,23,42,.85),rgba(30,41,59,.6));">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div><h2 class="card-title" style="margin-bottom:4px;">⚙️ ระบบกำหนดค่าพารามิเตอร์</h2><p style="font-size:12px;color:var(--text-muted);">เลือกโหมดการทำแล็บ</p></div>
+          <div style="display:flex;gap:8px;">
+            <button id="btn-ws-fixed" class="btn btn-secondary active" style="font-size:13px;padding:8px 16px;" onclick="setWsMode('fixed')">📌 โหมดค่ามาตรฐาน</button>
+            <button id="btn-ws-custom" class="btn btn-secondary" style="font-size:13px;padding:8px 16px;" onclick="setWsMode('custom')">🛠️ โหมดกำหนดค่าเอง</button>
+          </div>
+        </div>
+        <div id="ws-alert" class="highlight-box" style="margin-top:14px;">📌 <strong>โหมดค่ามาตรฐาน:</strong> V<sub>CC</sub>=12V, Stage1: R<sub>1</sub>=33kΩ, R<sub>2</sub>=6.8kΩ, R<sub>C1</sub>=3.3kΩ, R<sub>E1</sub>=680Ω | Stage2: R<sub>5</sub>=33kΩ, R<sub>6</sub>=6.8kΩ, R<sub>C2</sub>=2.2kΩ, R<sub>E2</sub>=560Ω, R<sub>L</sub>=10kΩ, β=200</div>
+        <div id="ws-custom-bar" style="display:none;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap;" class="no-print">
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="syncFromSim()">⚡ ซิงค์จากแล็บเสมือน</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="randomizeParams()">🎲 สุ่มโจทย์ใหม่</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="resetToDefault()">⏪ คืนค่ามาตรฐาน</button>
+        </div>
+        <div id="panel-params" style="margin-top:14px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;">
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">V<sub>CC</sub> (V):</label><input type="number" id="ws-vcc" class="form-control" value="12" step="0.5" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>1</sub> (kΩ):</label><input type="number" id="ws-r1" class="form-control" value="33" step="1" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>2</sub> (kΩ):</label><input type="number" id="ws-r2" class="form-control" value="6.8" step="0.1" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>C1</sub> (kΩ):</label><input type="number" id="ws-rc1" class="form-control" value="3.3" step="0.1" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>E1</sub> (Ω):</label><input type="number" id="ws-re1" class="form-control" value="680" step="20" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>5</sub> (kΩ):</label><input type="number" id="ws-r5" class="form-control" value="33" step="1" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>6</sub> (kΩ):</label><input type="number" id="ws-r6" class="form-control" value="6.8" step="0.1" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>C2</sub> (kΩ):</label><input type="number" id="ws-rc2" class="form-control" value="2.2" step="0.1" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>E2</sub> (Ω):</label><input type="number" id="ws-re2" class="form-control" value="560" step="20" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">R<sub>L</sub> (kΩ):</label><input type="number" id="ws-rl" class="form-control" value="10" step="0.5" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">β (h<sub>fe</sub>):</label><input type="number" id="ws-beta" class="form-control" value="200" step="10" disabled oninput="onWsParamChange()" style="background:#090d16;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Part 1 -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+          <h2 class="card-title" style="margin-bottom:0;">1️⃣ ตอนที่ 1: จุดทำงาน DC ของแต่ละภาค (3 คะแนน)</h2>
+          <button class="btn btn-secondary no-print" style="font-size:12px;padding:7px 14px;" onclick="autoFillDC()">⚡ ดึงค่าจากการจำลองอัตโนมัติ</button>
+        </div>
+        <div style="margin-bottom:10px;"><span class="stage-badge stage1">Stage 1 — CE ไม่มี C<sub>E1</sub> Bypass</span></div>
+        <table class="lab-table" style="margin-bottom:20px;">
+          <thead><tr><th>พารามิเตอร์ DC</th><th>สูตรคำนวณ</th><th>ค่าที่บันทึก</th><th>หน่วย</th></tr></thead>
+          <tbody>
+            <tr><td>แรงดันเบส V<sub>B1</sub></td><td>V<sub>CC</sub>·R<sub>2</sub>/(R<sub>1</sub>+R<sub>2</sub>)</td><td><input type="number" id="ws-vb1" class="form-control" step="0.01" placeholder="เช่น 1.92" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>แรงดันอิมิตเตอร์ V<sub>E1</sub></td><td>V<sub>B1</sub>−V<sub>BE</sub></td><td><input type="number" id="ws-ve1" class="form-control" step="0.01" placeholder="เช่น 1.22" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>แรงดันคอลเลคเตอร์ V<sub>C1</sub></td><td>V<sub>CC</sub>−I<sub>C1</sub>·R<sub>C1</sub></td><td><input type="number" id="ws-vc1" class="form-control" step="0.01" placeholder="เช่น 8.15" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>แรงดัน V<sub>CE1</sub></td><td>V<sub>C1</sub>−V<sub>E1</sub></td><td><input type="number" id="ws-vce1" class="form-control" step="0.01" placeholder="เช่น 6.93" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>กระแสอิมิตเตอร์ I<sub>E1</sub></td><td>V<sub>E1</sub>/R<sub>E1</sub></td><td><input type="number" id="ws-ie1" class="form-control" step="0.01" placeholder="เช่น 1.79" style="width:110px;"></td><td>mA</td></tr>
+            <tr><td>ความต้านทานไดนามิก r<sub>e1</sub></td><td>26mV/I<sub>E1</sub>(mA)</td><td><input type="number" id="ws-re1v" class="form-control" step="0.1" placeholder="เช่น 14.5" style="width:110px;"></td><td>Ω</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-bottom:10px;"><span class="stage-badge stage2">Stage 2 — CE มี C<sub>E2</sub> Bypass</span></div>
+        <table class="lab-table">
+          <thead><tr><th>พารามิเตอร์ DC</th><th>สูตรคำนวณ</th><th>ค่าที่บันทึก</th><th>หน่วย</th></tr></thead>
+          <tbody>
+            <tr><td>แรงดันเบส V<sub>B2</sub></td><td>V<sub>CC</sub>·R<sub>6</sub>/(R<sub>5</sub>+R<sub>6</sub>)</td><td><input type="number" id="ws-vb2" class="form-control" step="0.01" placeholder="เช่น 1.92" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>แรงดันอิมิตเตอร์ V<sub>E2</sub></td><td>V<sub>B2</sub>−V<sub>BE</sub></td><td><input type="number" id="ws-ve2" class="form-control" step="0.01" placeholder="เช่น 1.22" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>แรงดันคอลเลคเตอร์ V<sub>C2</sub></td><td>V<sub>CC</sub>−I<sub>C2</sub>·R<sub>C2</sub></td><td><input type="number" id="ws-vc2" class="form-control" step="0.01" placeholder="เช่น 9.43" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>แรงดัน V<sub>CE2</sub></td><td>V<sub>C2</sub>−V<sub>E2</sub></td><td><input type="number" id="ws-vce2" class="form-control" step="0.01" placeholder="เช่น 8.21" style="width:110px;"></td><td>V</td></tr>
+            <tr><td>กระแสอิมิตเตอร์ I<sub>E2</sub></td><td>V<sub>E2</sub>/R<sub>E2</sub></td><td><input type="number" id="ws-ie2" class="form-control" step="0.01" placeholder="เช่น 1.79" style="width:110px;"></td><td>mA</td></tr>
+            <tr><td>ความต้านทานไดนามิก r<sub>e2</sub></td><td>26mV/I<sub>E2</sub>(mA)</td><td><input type="number" id="ws-re2v" class="form-control" step="0.1" placeholder="เช่น 14.5" style="width:110px;"></td><td>Ω</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Part 2 -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+          <h2 class="card-title" style="margin-bottom:0;">2️⃣ ตอนที่ 2: พารามิเตอร์สัญญาณ AC (3 คะแนน)</h2>
+          <button class="btn btn-secondary no-print" style="font-size:12px;padding:7px 14px;" onclick="autoFillAC()">⚡ ดึงค่าจากการจำลองอัตโนมัติ</button>
+        </div>
+        <table class="lab-table">
+          <thead><tr><th>พารามิเตอร์ AC</th><th>สูตรคำนวณ</th><th>ค่าที่บันทึก</th><th>หน่วย</th></tr></thead>
+          <tbody>
+            <tr><td><span class="stage-badge stage1" style="font-size:9px;">Stage 1</span> A<sub>v1</sub></td><td>−R'<sub>C1</sub>/(r<sub>e1</sub>+R<sub>E1</sub>)</td><td><input type="number" id="ws-av1" class="form-control" step="0.1" placeholder="เช่น −4.73" style="width:110px;"></td><td>—</td></tr>
+            <tr><td><span class="stage-badge stage2" style="font-size:9px;">Stage 2</span> A<sub>v2</sub></td><td>−R'<sub>C2</sub>/r<sub>e2</sub></td><td><input type="number" id="ws-av2" class="form-control" step="0.1" placeholder="เช่น −111.2" style="width:110px;"></td><td>—</td></tr>
+            <tr><td>A<sub>v(total)</sub></td><td>A<sub>v1</sub> × A<sub>v2</sub></td><td><input type="number" id="ws-avtotal" class="form-control" step="1" placeholder="เช่น +526" style="width:110px;"></td><td>—</td></tr>
+            <tr><td>Z<sub>i</sub> (อิมพีแดนซ์อินพุต)</td><td>R<sub>1</sub>‖R<sub>2</sub>‖β(r<sub>e1</sub>+R<sub>E1</sub>)</td><td><input type="number" id="ws-zi" class="form-control" step="0.01" placeholder="เช่น 4.21" style="width:110px;"></td><td>kΩ</td></tr>
+            <tr><td>เฟสสัญญาณเอาต์พุต</td><td>180° + 180° = 0°</td><td><select id="ws-phase" class="form-control" style="width:150px;background:#0f172a;color:#fff;"><option value="">-- เลือก --</option><option value="0">0° (In-Phase)</option><option value="180">180° (Inverted)</option><option value="90">90° (Leading)</option><option value="270">270° (Lagging)</option></select></td><td>°</td></tr>
+          </tbody>
+        </table>
+        <div class="highlight-box" style="margin-top:14px;border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.07);">
+          <strong style="color:var(--accent-purple);">🔑 จุดสำคัญ:</strong> Stage 1 (CE) กลับเฟส 180° + Stage 2 (CE) กลับเฟสอีก 180° → รวม 360° ≡ <strong>0° (In-Phase)</strong> — ค่า A<sub>v(total)</sub> เป็นค่า <strong>บวก</strong>
+        </div>
+      </div>
+      <div class="card-footer-action no-print">
+        <button class="btn btn-secondary" onclick="window.print()">🖨️ พิมพ์ใบงาน</button>
+        <button class="btn btn-secondary" style="border-color:var(--accent-yellow);color:var(--accent-yellow);" onclick="previewScore()">🔍 ตรวจคะแนนก่อนส่ง</button>
+        <button class="btn btn-primary" onclick="previewScore()">🚀 ส่งใบงานและตรวจคะแนน</button>
+      </div>
+    </section>
+
+    <!-- TAB 4: ASSESSMENT -->
+    <section id="tab-assessment" class="tab-pane">
+      <div class="card">
+        <h2 class="card-title">❓ ตอนที่ 3: คำถามท้ายการทดลอง (4 คะแนน)</h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">เลือกคำตอบที่ถูกต้องที่สุด (1 คะแนนต่อข้อ)</p>
+        <div class="question-card">
+          <div class="question-title">ข้อ 1: วงจรขยาย CE 2 ภาคต่อ Cascade อัตราขยายรวม A<sub>v(total)</sub> คำนวณอย่างไร?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q1" value="a"> A<sub>v(total)</sub> = A<sub>v1</sub> + A<sub>v2</sub></label>
+            <label class="option-label"><input type="radio" name="q1" value="b"> A<sub>v(total)</sub> = A<sub>v1</sub> / A<sub>v2</sub></label>
+            <label class="option-label"><input type="radio" name="q1" value="c"> A<sub>v(total)</sub> = A<sub>v1</sub> × A<sub>v2</sub></label>
+            <label class="option-label"><input type="radio" name="q1" value="d"> A<sub>v(total)</sub> = A<sub>v1</sub> − A<sub>v2</sub></label>
+          </div>
+        </div>
+        <div class="question-card">
+          <div class="question-title">ข้อ 2: วงจร CE-CE 2 ภาค สัญญาณ V<sub>out</sub> มีเฟสอย่างไรเทียบกับ V<sub>in</sub>?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q2" value="a"> กลับเฟส 180° เสมอ</label>
+            <label class="option-label"><input type="radio" name="q2" value="b"> มีเฟสเดิม 0° เพราะเกิดการกลับเฟส 2 ครั้ง (180° + 180°)</label>
+            <label class="option-label"><input type="radio" name="q2" value="c"> มีเฟสนำ 90°</label>
+            <label class="option-label"><input type="radio" name="q2" value="d"> ขึ้นอยู่กับค่า R<sub>C</sub> เท่านั้น</label>
+          </div>
+        </div>
+        <div class="question-card">
+          <div class="question-title">ข้อ 3: การต่อโหลด R<sub>L</sub> ที่เอาต์พุต Stage 2 ส่งผลต่อ A<sub>v(total)</sub> อย่างไร?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q3" value="a"> ไม่มีผลใดๆ</label>
+            <label class="option-label"><input type="radio" name="q3" value="b"> เพิ่ม A<sub>v(total)</sub></label>
+            <label class="option-label"><input type="radio" name="q3" value="c"> ลด A<sub>v(total)</sub> เพราะ R'<sub>C2</sub> = R<sub>C2</sub> ‖ R<sub>L</sub> มีค่าน้อยกว่า R<sub>C2</sub></label>
+            <label class="option-label"><input type="radio" name="q3" value="d"> ทำให้วงจรออสซิลเลต</label>
+          </div>
+        </div>
+        <div class="question-card">
+          <div class="question-title">ข้อ 4: C<sub>3</sub> (Coupling Capacitor) ระหว่าง Stage 1 และ Stage 2 มีหน้าที่หลักใด?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q4" value="a"> เพิ่มอัตราขยายให้สูงขึ้น</label>
+            <label class="option-label"><input type="radio" name="q4" value="b"> บล็อกสัญญาณ AC ไม่ให้ผ่าน</label>
+            <label class="option-label"><input type="radio" name="q4" value="c"> ป้องกันการออสซิลเลต</label>
+            <label class="option-label"><input type="radio" name="q4" value="d"> บล็อก DC และยอมให้ AC ผ่าน เพื่อรักษาจุดทำงาน DC (Bias) ของแต่ละภาคแยกจากกัน</label>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card-title">✍️ สรุปผลการทดลอง</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">เขียนสรุปด้วยคำพูดของตนเอง อธิบาย DC Q-point ของทั้ง 2 ภาค, อัตราขยายรวม และการกลับเฟส (ห้ามคัดลอก)</p>
+        <textarea id="conclusion-text" rows="5" class="form-control" style="resize:vertical;" placeholder="เช่น จากการทดลองวงจรขยาย 2 ภาค CE-CE พบว่า..."></textarea>
+      </div>
+      <div class="card-footer-action no-print">
+        <button class="btn btn-secondary" onclick="window.print()">🖨️ พิมพ์ใบงาน PDF</button>
+        <button class="btn btn-secondary" style="border-color:var(--accent-yellow);color:var(--accent-yellow);" onclick="previewScore()">🔍 ตรวจคะแนนก่อนส่ง</button>
+        <button class="btn btn-primary" onclick="previewScore()">🚀 ส่งใบงานและตรวจคะแนน</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="submission-overlay">
+  <div class="card" style="max-width:580px;width:100%;text-align:center;padding:30px;">
+    <div id="modal-spinner"></div>
+    <div id="modal-title" style="font-size:18px;font-weight:bold;margin-bottom:10px;color:var(--accent-cyan);"></div>
+    <div id="modal-body" style="font-size:14px;color:var(--text-muted);margin-bottom:18px;text-align:left;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button id="modal-close-btn" class="btn btn-secondary" onclick="closeModal()" style="display:none;">✏️ กลับไปแก้ไข</button>
+      <button id="modal-confirm-btn" class="btn btn-primary" onclick="confirmAndSubmit()" style="display:none;">🚀 ยืนยันส่งใบงานจริง</button>
+    </div>
+  </div>
+</div>
+<div id="anti-cheat-toast">🔒 ระบบป้องกันการคัดลอก: ห้ามวาง (Paste) กรุณาพิมพ์เอง</div>
+
+<script>
+const MODELS = {
+  '2N2222': { beta: 200, vbe: 0.70, desc: '💡 2N2222: NPN อเนกประสงค์ (β=200, V<sub>BE</sub>=0.70V)' },
+  'BC108':  { beta: 250, vbe: 0.70, desc: '💡 BC108: NPN ทั่วไป ความถี่สูง (β=250)' },
+  'BD137':  { beta: 100, vbe: 0.72, desc: '💡 BD137: NPN Medium Power (β=100)' },
+  'BC547':  { beta: 300, vbe: 0.70, desc: '💡 BC547: NPN Low Noise (β=300)' }
+};
+let currentModel = '2N2222', ceBypass = true, wsMode = 'fixed', scopeAnimId = null, simData = {};
+
+function switchTab(t) {
+  const tabs = ['theory', 'simulator', 'worksheet', 'assessment'];
+  document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', tabs[i] === t));
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === t));
+  if (t === 'simulator') updateSim();
+}
+
+function selectModel(m) {
+  currentModel = m;
+  const mod = MODELS[m];
+  document.getElementById('sl-beta').value = mod.beta;
+  document.getElementById('val-beta').textContent = mod.beta;
+  document.getElementById('badge-model').textContent = `${m} (β=${mod.beta})`;
+  document.getElementById('txt-model-desc').innerHTML = mod.desc;
+  document.querySelectorAll('[id^="btn-m-"]').forEach(b => {
+    b.classList.remove('active');
+    b.style.borderColor = '';
+    b.style.background = 'rgba(30,41,59,.7)';
+    b.style.color = '';
+  });
+  const btn = document.getElementById(`btn-m-${m.toLowerCase()}`);
+  if (btn) {
+    btn.classList.add('active');
+    btn.style.borderColor = 'var(--accent-cyan)';
+    btn.style.background = 'rgba(56,189,248,.2)';
+    btn.style.color = 'var(--accent-cyan)';
+  }
+  updateSim();
+}
+
+function onBetaChange() {
+  document.getElementById('val-beta').textContent = document.getElementById('sl-beta').value;
+  updateSim();
+}
+
+function setBypass(state) {
+  ceBypass = state;
+  const badge = document.getElementById('badge-ce');
+  const on = document.getElementById('btn-ce-on'), off = document.getElementById('btn-ce-off');
+  if (state) {
+    badge.textContent = '🟢 ต่อวงจร';
+    badge.style.background = 'rgba(16,185,129,.2)';
+    badge.style.borderColor = 'var(--accent-green)';
+    badge.style.color = 'var(--accent-green)';
+    on.classList.add('active');
+    on.style.borderColor = 'var(--accent-green)';
+    on.style.background = 'rgba(16,185,129,.15)';
+    on.style.color = '#34d399';
+    off.classList.remove('active');
+    off.style.borderColor = '';
+    off.style.background = 'rgba(30,41,59,.7)';
+    off.style.color = '';
+  } else {
+    badge.textContent = '❌ ถอดออก';
+    badge.style.background = 'rgba(239,68,68,.15)';
+    badge.style.borderColor = 'var(--accent-red)';
+    badge.style.color = 'var(--accent-red)';
+    off.classList.add('active');
+    off.style.borderColor = 'var(--accent-red)';
+    off.style.background = 'rgba(239,68,68,.15)';
+    off.style.color = '#f87171';
+    on.classList.remove('active');
+    on.style.borderColor = '';
+    on.style.background = 'rgba(30,41,59,.7)';
+    on.style.color = '';
+  }
+  updateSim();
+}
+
+function switchView(mode) {
+  const views = ['phys', 'acmodel', 'scope'];
+  views.forEach(v => {
+    const svg = document.getElementById(`svg-${v}`);
+    const cvs = document.getElementById(`canvas-${v}`);
+    if (svg) svg.style.display = 'none';
+    if (cvs) cvs.style.display = 'none';
+    const btn = document.getElementById(`tbtn-${v}`);
+    if (btn) {
+      btn.classList.remove('active');
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = 'var(--text-muted)';
+    }
+  });
+  const sel = document.getElementById(`svg-${mode}`) || document.getElementById(`canvas-${mode}`);
+  if (sel) sel.style.display = 'block';
+  const btn = document.getElementById(`tbtn-${mode}`);
+  if (btn) {
+    btn.classList.add('active');
+    btn.style.background = 'rgba(56,189,248,.25)';
+    btn.style.borderColor = 'var(--accent-cyan)';
+    btn.style.color = '#fff';
+  }
+  const rd = document.getElementById('scope-readout');
+  if (rd) rd.style.display = (mode === 'scope') ? 'block' : 'none';
+  if (mode === 'scope') renderScope();
+}
+
+function gv(id) { return parseFloat(document.getElementById(id).value); }
+
+function calcCircuit(p) {
+  const { vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, ceBypass } = p;
+  const vbe = MODELS[currentModel]?.vbe || 0.70;
+  
+  // Stage 1 DC
+  const vth1 = vcc * r2 / (r1 + r2);
+  const rth1 = (r1 * r2) / (r1 + r2);
+  let ib1 = Math.max(0, (vth1 - vbe) / (rth1 + (beta + 1) * re1));
+  const ie1 = (beta + 1) * ib1, ic1 = beta * ib1;
+  const ve1 = ie1 * re1, vb1 = ve1 + (ib1 > 0 ? vbe : 0);
+  const vc1 = Math.max(0, vcc - ic1 * rc1), vce1 = vc1 - ve1;
+  const ie1mA = ie1 * 1000, re1c = ie1mA > 0 ? 26 / ie1mA : 9999;
+  
+  // Stage 2 DC
+  const vth2 = vcc * r6 / (r5 + r6);
+  const rth2 = (r5 * r6) / (r5 + r6);
+  let ib2 = Math.max(0, (vth2 - vbe) / (rth2 + (beta + 1) * re2));
+  const ie2 = (beta + 1) * ib2, ic2 = beta * ib2;
+  const ve2 = ie2 * re2, vb2 = ve2 + (ib2 > 0 ? vbe : 0);
+  const vc2 = Math.max(0, vcc - ic2 * rc2), vce2 = vc2 - ve2;
+  const ie2mA = ie2 * 1000, re2c = ie2mA > 0 ? 26 / ie2mA : 9999;
+  
+  // AC
+  const zb2 = ceBypass ? beta * re2c : beta * (re2c + re2);
+  const zi2 = 1 / (1 / r5 + 1 / r6 + 1 / zb2);
+  const rC1eff = (rc1 * zi2) / (rc1 + zi2);
+  const av1 = -(rC1eff / (re1c + re1));
+  const rC2eff = (rc2 * rl) / (rc2 + rl);
+  const av2 = ceBypass ? -(rC2eff / re2c) : -(rC2eff / (re2c + re2));
+  const av_total = av1 * av2;
+  const zb1 = beta * (re1c + re1);
+  const zi1 = 1 / (1 / r1 + 1 / r2 + 1 / zb1);
+  
+  return { vb1, ve1, vc1, vce1, ie1mA, re1c, vb2, ve2, vc2, vce2, ie2mA, re2c, av1, av2, av_total, zi: zi1 / 1000, rC1eff, rC2eff };
+}
+
+function updateSim() {
+  const vcc = gv('sl-vcc'), r1 = gv('sl-r1') * 1000, r2 = gv('sl-r2') * 1000;
+  const rc1 = gv('sl-rc1') * 1000, re1 = gv('sl-re1');
+  const r5 = gv('sl-r5') * 1000, r6 = gv('sl-r6') * 1000;
+  const rc2 = gv('sl-rc2') * 1000, re2 = gv('sl-re2'), rl = gv('sl-rl') * 1000;
+  const beta = parseInt(document.getElementById('sl-beta').value);
+  const vi = gv('sl-vi');
+  
+  document.getElementById('val-vcc').textContent = `${vcc.toFixed(1)} V`;
+  document.getElementById('val-r1').textContent = `${(r1 / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-r2').textContent = `${(r2 / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-rc1').textContent = `${(rc1 / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-re1').textContent = `${re1} Ω`;
+  document.getElementById('val-r5').textContent = `${(r5 / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-r6').textContent = `${(r6 / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-rc2').textContent = `${(rc2 / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-re2').textContent = `${re2} Ω`;
+  document.getElementById('val-rl').textContent = `${(rl / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-beta').textContent = beta;
+  document.getElementById('val-vi').textContent = `${vi} mV`;
+  
+  const res = calcCircuit({ vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, ceBypass });
+  simData = { ...res, vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, vi };
+  
+  const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '---';
+  document.getElementById('rd-vb1').textContent = `${f(res.vb1)} V`;
+  document.getElementById('rd-ve1').textContent = `${f(res.ve1)} V`;
+  document.getElementById('rd-vc1').textContent = `${f(res.vc1)} V`;
+  document.getElementById('rd-ie1').textContent = `${f(res.ie1mA)} mA`;
+  document.getElementById('rd-re1').textContent = `${f(res.re1c, 1)} Ω`;
+  document.getElementById('rd-av1').textContent = f(res.av1);
+  document.getElementById('rd-zi').textContent = `${f(res.zi, 2)} kΩ`;
+  
+  document.getElementById('rd-vb2').textContent = `${f(res.vb2)} V`;
+  document.getElementById('rd-ve2').textContent = `${f(res.ve2)} V`;
+  document.getElementById('rd-vc2').textContent = `${f(res.vc2)} V`;
+  document.getElementById('rd-ie2').textContent = `${f(res.ie2mA)} mA`;
+  document.getElementById('rd-re2').textContent = `${f(res.re2c, 1)} Ω`;
+  document.getElementById('rd-av2').textContent = f(res.av2, 1);
+  document.getElementById('rd-avtotal').textContent = f(res.av_total, 0);
+  
+  const vopp = Math.min(Math.abs(res.av_total) * vi, vcc * 900);
+  document.getElementById('scope-vi').textContent = `${vi} mV`;
+  document.getElementById('scope-vo').textContent = vopp < 1000 ? `${vopp.toFixed(1)} mV` : `${(vopp / 1000).toFixed(2)} V`;
+  document.getElementById('scope-av').textContent = Math.abs(res.av_total).toFixed(0);
+}
+
+function renderScope() {
+  const canvas = document.getElementById('canvas-scope');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  if (scopeAnimId) cancelAnimationFrame(scopeAnimId);
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#050b14';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#132338';
+    ctx.lineWidth = 0.5;
+    for (let gx = 0; gx <= W; gx += W / 10) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+    for (let gy = 0; gy <= H; gy += H / 8) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+    ctx.strokeStyle = '#1e3a5f';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+    
+    const vi = gv('sl-vi') || 20, vcc = gv('sl-vcc') || 12;
+    const avT = simData.av_total || 0;
+    const vopp = Math.min(Math.abs(avT) * vi, vcc * 900);
+    const viAmp = 35, maxVoAmp = H / 2 - 20;
+    const voAmpPx = Math.min(viAmp * (vopp / Math.max(vi, 1)), maxVoAmp);
+    const clip = voAmpPx >= maxVoAmp - 2;
+    
+    // CH1: Vi yellow at top half
+    ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let x = 0; x < W; x++) {
+      const ph = (x / W) * 4 * Math.PI + t;
+      const y = H / 4 + Math.sin(ph) * viAmp;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    
+    // CH2: Vo cyan at bottom half (0° In-Phase for 2-stage CE cascade)
+    ctx.strokeStyle = clip ? '#f87171' : '#38bdf8'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let x = 0; x < W; x++) {
+      const ph = (x / W) * 4 * Math.PI + t;
+      let raw = Math.sin(ph) * voAmpPx;
+      if (clip) raw = Math.max(-maxVoAmp, Math.min(maxVoAmp, raw));
+      const y = H * 3 / 4 + raw;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    
+    ctx.font = '11px Fira Code';
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillText(`CH1  Vi(p-p)=${vi}mV`, 10, 16);
+    ctx.fillStyle = clip ? '#f87171' : '#38bdf8';
+    const voL = vopp < 1000 ? `${vopp.toFixed(0)}mV` : `${(vopp / 1000).toFixed(2)}V`;
+    ctx.fillText(`CH2  Vo(p-p)=${voL}  Phase=0° (In-Phase)`, 10, H / 2 + 16);
+    if (clip) { ctx.fillStyle = '#f87171'; ctx.fillText('⚠ CLIPPING', W - 100, H / 2 + 16); }
+    t += 0.05;
+    scopeAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function setWsMode(mode) {
+  wsMode = mode;
+  const isC = mode === 'custom';
+  const alert = document.getElementById('ws-alert'), bar = document.getElementById('ws-custom-bar');
+  document.getElementById('btn-ws-fixed').classList.toggle('active', !isC);
+  document.getElementById('btn-ws-custom').classList.toggle('active', isC);
+  document.querySelectorAll('#panel-params input, #panel-params select').forEach(el => {
+    el.disabled = !isC;
+    el.style.background = isC ? '' : '#090d16';
+  });
+  bar.style.display = isC ? 'flex' : 'none';
+  if (isC) {
+    alert.innerHTML = '🛠️ <strong>โหมดกำหนดค่าเอง:</strong> ปรับค่าได้อิสระ หรือกด <strong>⚡ ซิงค์จากแล็บเสมือน</strong>';
+    alert.style.borderColor = 'rgba(245,158,11,.4)';
+    alert.style.background = 'rgba(245,158,11,.08)';
+  } else {
+    alert.innerHTML = '📌 <strong>โหมดค่ามาตรฐาน:</strong> V<sub>CC</sub>=12V, Stage1: R<sub>1</sub>=33kΩ, R<sub>2</sub>=6.8kΩ, R<sub>C1</sub>=3.3kΩ, R<sub>E1</sub>=680Ω | Stage2: R<sub>5</sub>=33kΩ, R<sub>6</sub>=6.8kΩ, R<sub>C2</sub>=2.2kΩ, R<sub>E2</sub>=560Ω, R<sub>L</sub>=10kΩ, β=200';
+    alert.style.borderColor = '';
+    alert.style.background = '';
+    resetToDefault();
+  }
+}
+
+function onWsParamChange() {}
+
+function getWsParams() {
+  if (wsMode === 'fixed') {
+    return { vcc: 12, r1: 33000, r2: 6800, rc1: 3300, re1: 680, r5: 33000, r6: 6800, rc2: 2200, re2: 560, rl: 10000, beta: 200 };
+  }
+  return {
+    vcc: parseFloat(document.getElementById('ws-vcc').value) || 12,
+    r1: (parseFloat(document.getElementById('ws-r1').value) || 33) * 1000,
+    r2: (parseFloat(document.getElementById('ws-r2').value) || 6.8) * 1000,
+    rc1: (parseFloat(document.getElementById('ws-rc1').value) || 3.3) * 1000,
+    re1: parseFloat(document.getElementById('ws-re1').value) || 680,
+    r5: (parseFloat(document.getElementById('ws-r5').value) || 33) * 1000,
+    r6: (parseFloat(document.getElementById('ws-r6').value) || 6.8) * 1000,
+    rc2: (parseFloat(document.getElementById('ws-rc2').value) || 2.2) * 1000,
+    re2: parseFloat(document.getElementById('ws-re2').value) || 560,
+    rl: (parseFloat(document.getElementById('ws-rl').value) || 10) * 1000,
+    beta: parseInt(document.getElementById('ws-beta').value) || 200
+  };
+}
+
+function autoFillDC() {
+  const p = getWsParams(), res = calcCircuit({ ...p, ceBypass: true });
+  const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '';
+  document.getElementById('ws-vb1').value = f(res.vb1);
+  document.getElementById('ws-ve1').value = f(res.ve1);
+  document.getElementById('ws-vc1').value = f(res.vc1);
+  document.getElementById('ws-vce1').value = f(res.vce1);
+  document.getElementById('ws-ie1').value = f(res.ie1mA);
+  document.getElementById('ws-re1v').value = f(res.re1c, 1);
+  
+  document.getElementById('ws-vb2').value = f(res.vb2);
+  document.getElementById('ws-ve2').value = f(res.ve2);
+  document.getElementById('ws-vc2').value = f(res.vc2);
+  document.getElementById('ws-vce2').value = f(res.vce2);
+  document.getElementById('ws-ie2').value = f(res.ie2mA);
+  document.getElementById('ws-re2v').value = f(res.re2c, 1);
+}
+
+function autoFillAC() {
+  const p = getWsParams(), res = calcCircuit({ ...p, ceBypass: true });
+  const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '';
+  document.getElementById('ws-av1').value = f(res.av1);
+  document.getElementById('ws-av2').value = f(res.av2, 1);
+  document.getElementById('ws-avtotal').value = f(res.av_total, 0);
+  document.getElementById('ws-zi').value = f(res.zi);
+  document.getElementById('ws-phase').value = '0';
+}
+
+function syncFromSim() {
+  ['vcc', 'r1', 'r2', 'rc1', 're1', 'r5', 'r6', 'rc2', 're2', 'rl'].forEach(k => {
+    document.getElementById(`ws-${k}`).value = document.getElementById(`sl-${k}`).value;
+  });
+  document.getElementById('ws-beta').value = document.getElementById('sl-beta').value;
+}
+
+function resetToDefault() {
+  const def = { vcc: 12, r1: 33, r2: 6.8, rc1: 3.3, re1: 680, r5: 33, r6: 6.8, rc2: 2.2, re2: 560, rl: 10, beta: 200 };
+  Object.entries(def).forEach(([k, v]) => {
+    const el = document.getElementById(`ws-${k}`);
+    if (el) el.value = v;
+  });
+}
+
+function randomizeParams() {
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  document.getElementById('ws-vcc').value = pick([9, 12, 15]);
+  document.getElementById('ws-r1').value = pick([22, 33, 47, 56]);
+  document.getElementById('ws-r2').value = pick([4.7, 5.6, 6.8, 8.2]);
+  document.getElementById('ws-rc1').value = pick([2.2, 3.3, 4.7]);
+  document.getElementById('ws-re1').value = pick([470, 560, 680, 820]);
+  document.getElementById('ws-r5').value = pick([22, 33, 47]);
+  document.getElementById('ws-r6').value = pick([4.7, 6.8, 8.2]);
+  document.getElementById('ws-rc2').value = pick([1.8, 2.2, 3.3]);
+  document.getElementById('ws-re2').value = pick([390, 470, 560]);
+  document.getElementById('ws-rl').value = pick([6.8, 10, 15]);
+  document.getElementById('ws-beta').value = pick([150, 200, 250, 300]);
+}
+
+function getPayload() {
+  const q1 = document.querySelector('input[name="q1"]:checked')?.value || '';
+  const q2 = document.querySelector('input[name="q2"]:checked')?.value || '';
+  const q3 = document.querySelector('input[name="q3"]:checked')?.value || '';
+  const q4 = document.querySelector('input[name="q4"]:checked')?.value || '';
+  const p = getWsParams();
+  return {
+    studentName: document.getElementById('student-name').value.trim(),
+    studentId: document.getElementById('student-id').value.trim(),
+    studentGroup: document.getElementById('student-group').value.trim(),
+    labDate: document.getElementById('lab-date').value,
+    circuitMode: wsMode,
+    param_vcc: p.vcc,
+    param_r1: p.r1 / 1000,
+    param_r2: p.r2 / 1000,
+    param_rc1: p.rc1 / 1000,
+    param_re1: p.re1,
+    param_r5: p.r5 / 1000,
+    param_r6: p.r6 / 1000,
+    param_rc2: p.rc2 / 1000,
+    param_re2: p.re2,
+    param_rl: p.rl / 1000,
+    param_beta: p.beta,
+    dc1_vb: document.getElementById('ws-vb1').value,
+    dc1_ve: document.getElementById('ws-ve1').value,
+    dc1_vc: document.getElementById('ws-vc1').value,
+    dc1_vce: document.getElementById('ws-vce1').value,
+    dc1_ie: document.getElementById('ws-ie1').value,
+    dc1_re: document.getElementById('ws-re1v').value,
+    dc2_vb: document.getElementById('ws-vb2').value,
+    dc2_ve: document.getElementById('ws-ve2').value,
+    dc2_vc: document.getElementById('ws-vc2').value,
+    dc2_vce: document.getElementById('ws-vce2').value,
+    dc2_ie: document.getElementById('ws-ie2').value,
+    dc2_re: document.getElementById('ws-re2v').value,
+    ac_av1: document.getElementById('ws-av1').value,
+    ac_av2: document.getElementById('ws-av2').value,
+    ac_avtotal: document.getElementById('ws-avtotal').value,
+    ac_zi: document.getElementById('ws-zi').value,
+    ac_phase: document.getElementById('ws-phase').value,
+    q1_choice: q1,
+    q2_choice: q2,
+    q3_choice: q3,
+    q4_choice: q4,
+    labConclusion: document.getElementById('conclusion-text').value.trim()
+  };
+}
+
+function localGrader(data) {
+  let score = 0;
+  const fb = [];
+  const tol = (v, ref, pct, abs) => Math.abs(v - ref) <= Math.max(abs, Math.abs(ref) * pct);
+  const p = getWsParams(), res = calcCircuit({ ...p, ceBypass: true });
+  
+  fb.push(`[โหมด]: ${data.circuitMode === 'custom' ? 'Custom' : 'Fixed'}`);
+  
+  // Part 1 Stage 1 (1.5 pts)
+  const vb1Ok = tol(+data.dc1_vb, res.vb1, 0.15, 0.35);
+  const ve1Ok = tol(+data.dc1_ve, res.ve1, 0.15, 0.35);
+  const vc1Ok = tol(+data.dc1_vc, res.vc1, 0.15, 0.6);
+  const ie1Ok = tol(+data.dc1_ie, res.ie1mA, 0.18, 0.4);
+  const re1Ok = tol(+data.dc1_re, res.re1c, 0.20, 3);
+  let s1 = 0;
+  if (vb1Ok && ve1Ok && vc1Ok) s1 += 0.5;
+  if (ie1Ok) s1 += 0.5;
+  if (re1Ok) s1 += 0.5;
+  score += s1;
+  fb.push(`\n[ตอนที่ 1] Stage 1 DC: ${s1} / 1.5 คะแนน`);
+  fb.push(`  ${vb1Ok && ve1Ok && vc1Ok ? '✓' : '✗'} VB1/VE1/VC1`);
+  fb.push(`  ${ie1Ok ? '✓' : '✗'} IE1`);
+  fb.push(`  ${re1Ok ? '✓' : '✗'} re1`);
+  
+  // Part 1 Stage 2 (1.5 pts)
+  const vb2Ok = tol(+data.dc2_vb, res.vb2, 0.15, 0.35);
+  const ve2Ok = tol(+data.dc2_ve, res.ve2, 0.15, 0.35);
+  const vc2Ok = tol(+data.dc2_vc, res.vc2, 0.15, 0.6);
+  const ie2Ok = tol(+data.dc2_ie, res.ie2mA, 0.18, 0.4);
+  const re2Ok = tol(+data.dc2_re, res.re2c, 0.20, 3);
+  let s2 = 0;
+  if (vb2Ok && ve2Ok && vc2Ok) s2 += 0.5;
+  if (ie2Ok) s2 += 0.5;
+  if (re2Ok) s2 += 0.5;
+  score += s2;
+  fb.push(`\n[ตอนที่ 1] Stage 2 DC: ${s2} / 1.5 คะแนน`);
+  fb.push(`  ${vb2Ok && ve2Ok && vc2Ok ? '✓' : '✗'} VB2/VE2/VC2`);
+  fb.push(`  ${ie2Ok ? '✓' : '✗'} IE2`);
+  fb.push(`  ${re2Ok ? '✓' : '✗'} re2`);
+  
+  // Part 2 AC (3 pts: 0.6 each)
+  const av1Ok = tol(Math.abs(+data.ac_av1), Math.abs(res.av1), 0.30, 0.5);
+  const av2Ok = tol(Math.abs(+data.ac_av2), Math.abs(res.av2), 0.30, 5);
+  const avtOk = tol(Math.abs(+data.ac_avtotal), Math.abs(res.av_total), 0.30, 20);
+  const ziOk = tol(+data.ac_zi, res.zi, 0.40, 0.5);
+  const phOk = data.ac_phase === '0';
+  let ac = 0;
+  if (av1Ok) ac += 0.6;
+  if (av2Ok) ac += 0.6;
+  if (avtOk) ac += 0.6;
+  if (ziOk) ac += 0.6;
+  if (phOk) ac += 0.6;
+  score += ac;
+  fb.push(`\n[ตอนที่ 2] AC: ${ac.toFixed(1)} / 3 คะแนน`);
+  fb.push(`  ${av1Ok ? '✓' : '✗'} Av1`);
+  fb.push(`  ${av2Ok ? '✓' : '✗'} Av2`);
+  fb.push(`  ${avtOk ? '✓' : '✗'} Av_total`);
+  fb.push(`  ${ziOk ? '✓' : '✗'} Zi`);
+  fb.push(`  ${phOk ? '✓' : '✗'} เฟส 0° (In-Phase)`);
+  
+  // Part 3 MCQ (4 pts: 1 each)
+  const ans = { q1: 'c', q2: 'b', q3: 'c', q4: 'd' };
+  let qs = 0;
+  ['q1', 'q2', 'q3', 'q4'].forEach(q => {
+    if (data[`${q}_choice`] === ans[q]) qs++;
+  });
+  score += qs;
+  fb.push(`\n[ตอนที่ 3] คำถาม: ตอบถูก ${qs}/4 ข้อ (${qs} คะแนน)`);
+  
+  score = Math.round(score * 10) / 10;
+  let comment = 'ต้องปรับปรุงแก้ไข';
+  if (score >= 9) comment = 'ผ่านเกณฑ์ดีเยี่ยม (Excellent)';
+  else if (score >= 7) comment = 'ผ่านเกณฑ์ดี (Good)';
+  else if (score >= 5) comment = 'ผ่านเกณฑ์พอใช้ (Fair)';
+  
+  return { status: 'success', score, maxScore: 10, feedback: fb.join('\n'), comment };
+}
+
+function previewScore() {
+  const payload = getPayload(), res = localGrader(payload);
+  const overlay = document.getElementById('submission-overlay');
+  const spinner = document.getElementById('modal-spinner'), title = document.getElementById('modal-title'), body = document.getElementById('modal-body');
+  const closeBtn = document.getElementById('modal-close-btn'), confirmBtn = document.getElementById('modal-confirm-btn');
+  
+  spinner.style.display = 'none';
+  title.innerText = '🔍 ตรวจสอบคะแนนก่อนส่ง (Score Preview)';
+  title.style.color = 'var(--accent-cyan)';
+  
+  let sc = 'var(--accent-green)';
+  if (res.score < 5) sc = 'var(--accent-red)';
+  else if (res.score < 7) sc = 'var(--accent-yellow)';
+  else if (res.score < 9) sc = 'var(--accent-cyan)';
+  
+  body.innerHTML = `<div style="background:rgba(56,189,248,.1);border:1px dashed var(--accent-cyan);border-radius:8px;padding:10px 14px;margin-bottom:15px;color:var(--accent-cyan);font-size:13px;">ℹ️ <strong>โหมดทดลองตรวจ:</strong> ยังไม่ได้บันทึกส่ง Google Sheets</div>
+  <div style="text-align:left;background:rgba(15,23,42,.7);border:1px solid var(--border-color);border-radius:8px;padding:16px;margin:12px 0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:16px;font-weight:bold;">คะแนน:</span>
+      <span style="font-size:24px;font-weight:bold;color:${sc};">${res.score} / 10</span>
+    </div>
+    <p style="font-size:13px;font-weight:bold;margin-bottom:12px;color:var(--accent-cyan);">ระดับ: ${res.comment}</p>
+    <hr style="border:0;border-top:1px solid var(--border-color);margin-bottom:12px;">
+    <div style="font-size:12px;line-height:1.8;color:var(--text-main);max-height:220px;overflow-y:auto;background:rgba(0,0,0,.3);padding:10px;border-radius:6px;">
+      ${res.feedback.replace(/\n/g, '<br>')}
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--text-muted);">กด <strong>✏️ กลับแก้ไข</strong> หรือ <strong>🚀 ยืนยันส่ง</strong></p>`;
+  
+  closeBtn.innerText = '✏️ กลับไปแก้ไขคำตอบ';
+  closeBtn.style.display = 'inline-block';
+  confirmBtn.style.display = 'inline-block';
+  overlay.style.display = 'flex';
+}
+
+function confirmAndSubmit() {
+  closeModal();
+  submitToGAS();
+}
+
+function submitToGAS() {
+  const payload = getPayload();
+  if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
+    alert('⚠️ กรุณากรอกข้อมูลส่วนตัวให้ครบก่อนส่ง!');
+    switchTab('worksheet');
+    document.getElementById('student-name')?.focus();
+    return;
+  }
+  const overlay = document.getElementById('submission-overlay');
+  const spinner = document.getElementById('modal-spinner'), title = document.getElementById('modal-title'), body = document.getElementById('modal-body'), closeBtn = document.getElementById('modal-close-btn'), confirmBtn = document.getElementById('modal-confirm-btn');
+  
+  overlay.style.display = 'flex';
+  spinner.style.display = 'block';
+  title.innerText = '🚀 กำลังส่งและตรวจคะแนน...';
+  title.style.color = 'var(--accent-cyan)';
+  body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script...';
+  closeBtn.style.display = 'none';
+  confirmBtn.style.display = 'none';
+  
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run.withSuccessHandler(onGradeSuccess).withFailureHandler(onGradeError).submitWorksheet(payload);
+  } else {
+    setTimeout(() => { onGradeSuccess(localGrader(payload)); }, 1200);
+  }
+}
+
+function onGradeSuccess(res) {
+  const overlay = document.getElementById('submission-overlay');
+  const card = overlay.querySelector('.card');
+  const spinner = document.getElementById('modal-spinner'), title = document.getElementById('modal-title'), body = document.getElementById('modal-body'), closeBtn = document.getElementById('modal-close-btn'), confirmBtn = document.getElementById('modal-confirm-btn');
+  
+  spinner.style.display = 'none';
+  card.style.borderColor = 'var(--accent-green)';
+  card.style.boxShadow = '0 0 35px rgba(16,185,129,.35)';
+  title.innerHTML = '🎉 ผลการตรวจ: <span style="color:#34d399;">' + res.score + ' / 10 คะแนน</span>';
+  body.innerHTML = '<strong>ระดับ:</strong> ' + res.comment + '<br><br><div style="text-align:left;background:rgba(0,0,0,.3);padding:12px;border-radius:8px;max-height:220px;overflow-y:auto;font-size:13px;line-height:1.7;">' + res.feedback.replace(/\n/g, '<br>') + '</div><p style="font-size:12px;color:var(--accent-green);font-weight:bold;margin-top:10px;">✓ บันทึกเข้า Google Sheets เรียบร้อย</p>';
+  closeBtn.innerText = 'ปิด ❌';
+  closeBtn.style.display = 'inline-block';
+  if (confirmBtn) confirmBtn.style.display = 'none';
+}
+
+function onGradeError(err) {
+  const overlay = document.getElementById('submission-overlay');
+  const card = overlay.querySelector('.card');
+  const spinner = document.getElementById('modal-spinner'), title = document.getElementById('modal-title'), body = document.getElementById('modal-body'), closeBtn = document.getElementById('modal-close-btn');
+  
+  card.style.borderColor = 'var(--accent-red)';
+  spinner.style.display = 'none';
+  title.innerText = '❌ เกิดข้อผิดพลาด';
+  body.innerText = err.toString();
+  closeBtn.innerText = 'ปิด ❌';
+  closeBtn.style.display = 'inline-block';
+}
+
+function closeModal() {
+  document.getElementById('submission-overlay').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const d = document.getElementById('lab-date');
+  if (d) d.value = new Date().toISOString().split('T')[0];
+  updateSim();
+});
+</script>
+
+<script>
+(function initAntiCheat() {
+  let attempts = 0, toastTimeout = null;
+  function showToast(el) {
+    attempts++;
+    const toast = document.getElementById('anti-cheat-toast');
+    if (toast) {
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+      }, 10);
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(15px)';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 3000);
+    }
+    if (el) {
+      const ob = el.style.borderColor, os = el.style.boxShadow;
+      el.style.borderColor = '#ef4444';
+      el.style.boxShadow = '0 0 12px rgba(239,68,68,.6)';
+      setTimeout(() => {
+        el.style.borderColor = ob;
+        el.style.boxShadow = os;
+      }, 1200);
+    }
+  }
+  function setup() {
+    document.querySelectorAll('textarea, input[type="text"].protected-answer').forEach(el => {
+      el.addEventListener('paste', e => { e.preventDefault(); showToast(el); });
+      el.addEventListener('drop', e => { e.preventDefault(); showToast(el); });
+      el.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V' || e.keyCode === 86)) {
+          e.preventDefault();
+          showToast(el);
+        }
+        if (e.shiftKey && (e.key === 'Insert' || e.keyCode === 45)) {
+          e.preventDefault();
+          showToast(el);
+        }
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();
+</script>
+</body>
+</html>
