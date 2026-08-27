@@ -1644,16 +1644,17 @@ body {
                   <!-- +Vin to R1 -->
                   <path d="M 40 130 L 100 130" fill="none" stroke="#ef4444" stroke-width="3"/>
                   <!-- R1 to Ammeter node -->
-                  <path d="M 200 130 L 200 130" fill="none" stroke="#cbd5e1" stroke-width="3"/>
                   <path id="ammeter-wire" d="M 200 130 L 260 130" fill="none" stroke="#cbd5e1" stroke-width="3"/>
-                  <!-- Zener to GND rail -->
-                  <path d="M 340 130 L 340 200 L 40 200 L 40 130" fill="none" stroke="#38bdf8" stroke-width="3"/>
+                  <!-- Zener to Ground Node Lead Wire -->
+                  <path d="M 340 130 L 400 130" fill="none" stroke="#cbd5e1" stroke-width="3"/>
+                  <!-- Ground Node to GND rail -->
+                  <path d="M 400 130 L 400 200 L 40 200 L 40 130" fill="none" stroke="#38bdf8" stroke-width="3"/>
                   
                   <!-- Nodes -->
                   <circle cx="100" cy="130" r="5" fill="#f8fafc"/>
                   <circle cx="200" cy="130" r="5" fill="#f8fafc"/>
                   <circle cx="260" cy="130" r="5" fill="#f8fafc"/>
-                  <circle cx="340" cy="130" r="5" fill="#f8fafc"/>
+                  <circle cx="400" cy="130" r="5" fill="#f8fafc"/>
 
                   <text x="40" y="110" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">+Vin</text>
                   <text id="lbl-vin-svg" x="40" y="95" fill="#ef4444" font-family="Chakra Petch" font-size="11" text-anchor="middle">5.0V</text>
@@ -2795,10 +2796,10 @@ function updateCircuitSimulation() {
       probeRedTip.setAttribute('opacity', '1');
       probeRedWire.setAttribute('d', 'M 250 20 C 230 40, 250 80, 260 130');
       
-      probeBlackTip.setAttribute('cx', '340');
+      probeBlackTip.setAttribute('cx', '400');
       probeBlackTip.setAttribute('cy', '130');
       probeBlackTip.setAttribute('opacity', '1');
-      probeBlackWire.setAttribute('d', 'M 210 20 C 240 40, 310 80, 340 130');
+      probeBlackWire.setAttribute('d', 'M 210 20 C 250 40, 360 80, 400 130');
     }
   } else if (STATE.measuringTarget === 'current') {
     // Measure series Current. Open the bridge wire.
