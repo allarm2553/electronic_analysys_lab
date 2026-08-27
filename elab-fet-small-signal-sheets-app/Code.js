@@ -5,7 +5,7 @@
 
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('ใบงานการทดลองที่ 10: แบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET')
+    .setTitle('ใบงานการทดลองที่ 10: แบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET (gm-Model)')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
 }
@@ -108,10 +108,11 @@ function gradeWorksheet(data) {
 
   const th = solveFetDCOperatingPoint(params);
 
-  feedback.push(`[โมเดล: ${fetModel} | โหมด: ${mode === 'fixed' ? 'Fixed Preset' : 'Custom Dynamic'}]`);
+  const modeLabel = mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom Dynamic)' : 'โหมดค่ามาตรฐาน (Fixed Preset)';
+  feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel} (เบอร์ FET: ${fetModel})`);
   feedback.push(`  (พารามิเตอร์: VDD=${params.vdd}V, R1=${params.r1}k, R2=${params.r2}k, RD=${params.rd}k, RS=${params.rs}k, IDSS=${params.idss}mA, VP=${params.vp}V)`);
 
-  // --- PART 1: DC BIAS & gm CALCULATION (3 Points) ---
+  // --- PART 1: DC BIAS & gm EXTRACTION (3 Points) ---
   const s_vg = parseFloat(data.dc_vg) || 0;
   const s_vs = parseFloat(data.dc_vs) || 0;
   const s_vgs = parseFloat(data.dc_vgs) || 0;
@@ -140,7 +141,7 @@ function gradeWorksheet(data) {
   else if (dcPassCount >= 2) p1Score = 1;
 
   score += p1Score;
-  feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่า gm: ได้ ${p1Score}/3 คะแนน (ถูกต้อง ${dcPassCount}/8 ค่า)`);
+  feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่าความนำข้าม gm: ได้ ${p1Score} / 3 คะแนน (ถูกต้อง ${dcPassCount}/8 ค่า)`);
   feedback.push(`  (ทฤษฎี: VG=${th.VG.toFixed(2)}V, VS=${th.VS.toFixed(2)}V, VGS=${th.VGS.toFixed(2)}V, ID=${th.ID.toFixed(2)}mA, VDS=${th.VDS.toFixed(2)}V, gm0=${th.gm0.toFixed(2)}mS, gm=${th.gm.toFixed(2)}mS)`);
 
   // --- PART 2: AC SMALL-SIGNAL PERFORMANCE (3 Points) ---
@@ -168,37 +169,36 @@ function gradeWorksheet(data) {
   else if (acPassCount >= 1) p2Score = 1;
 
   score += p2Score;
-  feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรขยายสัญญาณ AC: ได้ ${p2Score}/3 คะแนน (ถูกต้อง ${acPassCount}/6 ค่า)`);
+  feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรขยายสัญญาณ AC: ได้ ${p2Score} / 3 คะแนน (ถูกต้อง ${acPassCount}/6 ค่า)`);
   feedback.push(`  (ทฤษฎี: Av(มี CS)=${expAvBypassed.toFixed(2)}, Av(ไม่มี CS)=${expAvUnbypassed.toFixed(2)}, Zi=${th.Zi.toFixed(1)}kΩ, Zo=${th.Zo.toFixed(2)}kΩ, เฟสกลับ 180°)`);
 
-  // --- PART 3: POST-LAB ASSESSMENT QUESTIONS (3 Points) ---
+  // --- PART 3: POST-LAB CONCEPTUAL ASSESSMENT (4 Points) ---
   const q1 = (data.q1Answer || '').trim().toLowerCase();
   const q2 = (data.q2Answer || '').trim().toLowerCase();
   const q3 = (data.q3Answer || '').trim().toLowerCase();
+  const q4 = (data.q4Answer || '').trim().toLowerCase();
 
   let qScore = 0;
   const q1Correct = q1 === 'a';
   const q2Correct = q2 === 'b';
   const q3Correct = q3 === 'a';
+  const q4Correct = q4 === 'b';
 
-  if (q1Correct) qScore += 1;
-  if (q2Correct) qScore += 1;
-  if (q3Correct) qScore += 1;
+  if (q1Correct) qScore++;
+  if (q2Correct) qScore++;
+  if (q3Correct) qScore++;
+  if (q4Correct) qScore++;
 
   score += qScore;
-  feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ได้ ${qScore}/3 คะแนน`);
-  feedback.push(`  ข้อ 1 (ความสัมพันธ์ gm กับ VGS): ${q1Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
-  feedback.push(`  ข้อ 2 (ผลการบายพาส CS ขนาน RS): ${q2Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ข.)'}`);
-  feedback.push(`  ข้อ 3 (ข้อได้เปรียบ FET เทียบ BJT): ${q3Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
+  feedback.push(`\n[ตอนที่ 3] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} คะแนน)`);
+  feedback.push(`  ข้อ 1 (ความหมายและสูตรคำนวณ gm): ${q1Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
+  feedback.push(`  ข้อ 2 (ค่าความนำข้ามสูงสุด gm0): ${q2Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ข.)'}`);
+  feedback.push(`  ข้อ 3 (ผลของการบายพาส CS ขนาน RS): ${q3Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
+  feedback.push(`  ข้อ 4 (ข้อได้เปรียบเด่น FET ด้าน Zi เทียบ BJT): ${q4Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ข.)'}`);
 
-  // --- PART 4: CONCLUSION & DISCUSSION (1 Point) ---
-  const conc = (data.labConclusion || '').trim();
-  let concScore = conc.length >= 10 ? 1 : 0;
-  score += concScore;
-  feedback.push(`\n[สรุปและวิจารณ์ผลการทดลอง]: ได้ ${concScore}/1 คะแนน (${concScore ? '✓ ครบถ้วน' : '✗ สรุปสั้นเกินไป'})`);
-
+  // Evaluation Comment
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-  if (score >= 9) comment = "ผ่านเกณฑ์ดีมาก (Excellent)";
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
   else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
   else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
 
@@ -218,18 +218,22 @@ function recordToSheet(data, grading) {
     sheet = ss.insertSheet("Submissions");
     const headers = [
       "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
-      "FET Model", "Circuit Mode", "Vdd (V)", "R1 (kΩ)", "R2 (kΩ)", "RD (kΩ)", "RS (kΩ)", "IDSS (mA)", "Vp (V)",
-      "Auto Score", "Evaluation", "Feedback Summary",
-      "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
+      "Auto Score", "Evaluation", "Circuit Mode", "Circuit Params",
+      "DC VG (V)", "DC VS (V)", "DC VGS (V)", "DC ID (mA)", "DC VD (V)", "DC VDS (V)",
+      "Extracted gm0 (mS)", "Extracted gm (mS)",
+      "Av (Bypassed)", "Av (Unbypassed)", "Zi (kΩ)", "Zo (kΩ)", "Phase (°)",
+      "Q1 Ans", "Q2 Ans", "Q3 Ans", "Q4 Ans", "Feedback Summary", "Lab Conclusion"
     ];
     sheet.appendRow(headers);
     sheet.getRange(1, 1, 1, headers.length)
          .setFontWeight("bold")
-         .setBackground("#bae6fd") // sky blue accent for FET small-signal
+         .setBackground("#38bdf8")
+         .setFontColor("#000000")
          .setBorder(true, true, true, true, true, true);
   }
 
-  const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
+  const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / Local User";
+  const paramSummary = `VDD=${data.param_vdd}V, R1=${data.param_r1}k, R2=${data.param_r2}k, RD=${data.param_rd}k, RS=${data.param_rs}k, IDSS=${data.param_idss}mA, VP=${data.param_vp}V (Model: ${data.fetModel || '2N5458'})`;
 
   const rowData = [
     new Date(),
@@ -238,21 +242,28 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
-    data.fetModel || '2N5458',
-    data.circuitMode || 'fixed',
-    data.param_vdd,
-    data.param_r1,
-    data.param_r2,
-    data.param_rd,
-    data.param_rs,
-    data.param_idss,
-    data.param_vp,
     grading.score + " / " + grading.maxScore,
     grading.comment,
-    grading.feedback,
+    data.circuitMode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',
+    paramSummary,
+    data.dc_vg,
+    data.dc_vs,
+    data.dc_vgs,
+    data.dc_id,
+    data.dc_vd,
+    data.dc_vds,
+    data.ac_gm0,
+    data.ac_gm,
+    data.ac_av_bypassed,
+    data.ac_av_unbypassed,
+    data.ac_zi_bypassed,
+    data.ac_zo_bypassed,
+    data.ac_phase_bypassed,
     data.q1Answer,
     data.q2Answer,
     data.q3Answer,
+    data.q4Answer,
+    grading.feedback,
     data.labConclusion
   ];
 
