@@ -994,8 +994,11 @@
                 <button id="tab-btn-hmodel" class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; color: var(--text-muted);" onclick="switchSchematicMode('h-model')">
                   📐 วงจรสมมูล AC (h-Model)
                 </button>
+                <button id="tab-btn-scope" class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; color: var(--text-muted);" onclick="switchSchematicMode('scope')">
+                  📡 ออสซิลโลสโคปคู่ (Scope)
+                </button>
                 <button id="tab-btn-twoport" class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; color: var(--text-muted);" onclick="switchSchematicMode('twoport')">
-                  📦 ทูพอร์ตไฮบริด (2-Port)
+                  📦 ทูพอร์ต (2-Port)
                 </button>
               </div>
             </div>
@@ -1246,6 +1249,32 @@
                 <rect x="20" y="228" width="460" height="18" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="#a855f7" stroke-width="0.8" />
                 <text id="svg-twoport-live-params" x="250" y="241" fill="#facc15" font-size="9.5" font-family="Fira Code" text-anchor="middle">hie = 2.26 kΩ | hre ≈ 0.0001 | hfe = 200 | hoe = 25 µS (1/hoe ≈ 40 kΩ)</text>
               </svg>
+              <!-- Mode 3: Dual Trace Oscilloscope (Scope) -->
+              <div id="view-schematic-scope" style="display: none;">
+                <div class="scope-box" style="background: var(--scope-bg); border: 2px solid #1e293b; border-radius: 10px; padding: 12px; position: relative;">
+                  <div style="position: relative; width: 100%; height: 180px; background: #040810; border-radius: 6px; overflow: hidden;">
+                    <canvas id="scopeCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+                  </div>
+                  <div class="scope-readouts-bar" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="readout-item" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; text-align: center;">
+                      <span class="readout-label" style="font-size: 11px; color: var(--text-muted); display: block;">🟡 CH1 (Vin)</span>
+                      <span class="readout-val yellow" id="scope-ch1-vpp" style="font-family: 'Fira Code', monospace; font-size: 13px; font-weight: bold; color: #facc15;">20.0 mVpp</span>
+                    </div>
+                    <div class="readout-item" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; text-align: center;">
+                      <span class="readout-label" style="font-size: 11px; color: var(--text-muted); display: block;">🔵 CH2 (Vout)</span>
+                      <span class="readout-val" id="scope-ch2-vpp" style="font-family: 'Fira Code', monospace; font-size: 13px; font-weight: bold; color: var(--accent-cyan);">3.70 Vpp</span>
+                    </div>
+                    <div class="readout-item" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; text-align: center;">
+                      <span class="readout-label" style="font-size: 11px; color: var(--text-muted); display: block;">⚡ อัตราขยาย (|Av|)</span>
+                      <span class="readout-val green" id="scope-measured-av" style="font-family: 'Fira Code', monospace; font-size: 13px; font-weight: bold; color: var(--accent-green);">184.8 เท่า</span>
+                    </div>
+                    <div class="readout-item" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; text-align: center;">
+                      <span class="readout-label" style="font-size: 11px; color: var(--text-muted); display: block;">🔄 เฟสสัมพันธ์</span>
+                      <span class="readout-val red" id="scope-phase" style="font-family: 'Fira Code', monospace; font-size: 13px; font-weight: bold; color: var(--accent-red);">180° Inverted</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Probe Readout Badges -->
@@ -1286,48 +1315,7 @@
 
         </div>
 
-        <!-- Real-Time Dual Channel Oscilloscope -->
-        <div class="card" style="margin-top: 20px;">
-          <div class="scope-header">
-            <h2 class="card-title" style="margin-bottom: 0;">
-              <span>📺</span> ออสซิลโลสโคปเสมือนจริง 2 ช่อง (Dual-Channel Live Oscilloscope)
-            </h2>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-              <span id="scope-ce-badge" class="badge" style="background: rgba(168, 85, 247, 0.2); border: 1px solid var(--accent-purple); color: #d8b4fe; font-size: 11px; padding: 4px 10px;">
-                🟢 มี C<sub>E</sub> (Bypassed: เกนสูง)
-              </span>
-              <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleScopeRun()">
-                <span id="btn-scope-state">⏸️ หยุดรูปคลื่น (Pause)</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="scope-container">
-            <div class="scope-canvas-wrapper">
-              <canvas id="scopeCanvas"></canvas>
-            </div>
-
-            <div class="scope-readouts">
-              <div class="readout-item">
-                <span class="readout-label">🟡 CH1 (Vin)</span>
-                <span class="readout-val yellow" id="scope-ch1-vpp">20.0 mVpp</span>
-              </div>
-              <div class="readout-item">
-                <span class="readout-label">🔵 CH2 (Vout)</span>
-                <span class="readout-val cyan" id="scope-ch2-vpp">3.70 Vpp</span>
-              </div>
-              <div class="readout-item">
-                <span class="readout-label">⚡ อัตราขยายจริง (|Av|)</span>
-                <span class="readout-val green" id="scope-measured-av">185.0 เท่า</span>
-              </div>
-              <div class="readout-item">
-                <span class="readout-label">🔄 เฟสสัมพันธ์</span>
-                <span class="readout-val red" id="scope-phase">180° Inverted</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        
       </section>
 
       <!-- ===================================================================
@@ -2095,19 +2083,21 @@
       }
     }
 
-    // Switch Schematic Mode (physical, h-model, twoport)
+    // Switch Schematic Mode (physical, h-model, scope, twoport)
     function switchSchematicMode(mode) {
       STATE.schematicMode = mode;
       const svgPhys = document.getElementById('svg-schematic-physical');
       const svgModel = document.getElementById('svg-schematic-h-model');
       const svgTwoPort = document.getElementById('svg-schematic-h-twoport');
+      const viewScope = document.getElementById('view-schematic-scope');
 
       const tabPhys = document.getElementById('tab-btn-phys');
       const tabModel = document.getElementById('tab-btn-hmodel');
+      const tabScope = document.getElementById('tab-btn-scope');
       const tabTwoPort = document.getElementById('tab-btn-twoport');
       const btnSide = document.getElementById('btn-model-view');
 
-      [tabPhys, tabModel, tabTwoPort].forEach(t => {
+      [tabPhys, tabModel, tabScope, tabTwoPort].forEach(t => {
         if (t) {
           t.classList.remove('active');
           t.style.background = 'transparent';
@@ -2119,6 +2109,7 @@
       if (svgPhys) svgPhys.style.display = 'none';
       if (svgModel) svgModel.style.display = 'none';
       if (svgTwoPort) svgTwoPort.style.display = 'none';
+      if (viewScope) viewScope.style.display = 'none';
 
       if (mode === 'physical') {
         if (svgPhys) svgPhys.style.display = 'block';
@@ -2137,7 +2128,19 @@
           tabModel.style.borderColor = 'var(--accent-purple)';
           tabModel.style.color = '#fff';
         }
+        if (btnSide) btnSide.innerHTML = '🔄 สลับดูออสซิลโลสโคป (Scope)';
+      } else if (mode === 'scope') {
+        if (viewScope) viewScope.style.display = 'block';
+        if (tabScope) {
+          tabScope.classList.add('active');
+          tabScope.style.background = 'rgba(168, 85, 247, 0.25)';
+          tabScope.style.borderColor = 'var(--accent-purple)';
+          tabScope.style.color = '#fff';
+        }
         if (btnSide) btnSide.innerHTML = '🔄 สลับดูแบบจำลอง 2-Port';
+        setTimeout(() => {
+          resizeScope();
+        }, 30);
       } else if (mode === 'twoport') {
         if (svgTwoPort) svgTwoPort.style.display = 'block';
         if (tabTwoPort) {
@@ -2152,11 +2155,13 @@
     }
     window.switchSchematicMode = switchSchematicMode;
 
-    // Toggle Diagram between Physical Schematic, AC h-Model, and 2-Port Model
+    // Toggle Diagram between Physical Schematic, AC h-Model, Scope, and 2-Port Model
     function toggleModelDiagram() {
       if (STATE.schematicMode === 'physical') {
         switchSchematicMode('h-model');
       } else if (STATE.schematicMode === 'h-model') {
+        switchSchematicMode('scope');
+      } else if (STATE.schematicMode === 'scope') {
         switchSchematicMode('twoport');
       } else {
         switchSchematicMode('physical');
