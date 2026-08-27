@@ -482,6 +482,41 @@
       font-size: 13.5px;
     }
 
+    /* Question Options */
+    .question-block {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .question-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .option-label:hover {
+      color: var(--text-main);
+    }
+
+    .option-label input[type="radio"] {
+      accent-color: var(--accent-cyan);
+    }
+
     /* Modal / Overlay */
     .overlay {
       position: fixed;
@@ -634,10 +669,13 @@
           <span>📖</span> ทฤษฎีและคู่มือแล็บ
         </div>
         <div class="nav-item" onclick="switchTab('simulator')">
-          <span>🔬</span> ห้องทดลองเสมือนจริง
+          <span>🔬</span> ห้องทดลองจำลองเสมือน
         </div>
         <div class="nav-item" onclick="switchTab('worksheet')">
-          <span>📝</span> ใบงานและรายงานผล
+          <span>📝</span> ตารางบันทึกผลการทดลอง
+        </div>
+        <div class="nav-item" onclick="switchTab('assessment')">
+          <span>❓</span> คำถามและสรุปผล
         </div>
       </nav>
       
@@ -1048,27 +1086,30 @@
       <!-- ========================================== -->
       <!-- TAB 3: WORKSHEET -->
       <!-- ========================================== -->
+      <!-- ===================================================================
+           TAB 3: WORKSHEET (ตารางบันทึกผลการทดลอง)
+           =================================================================== -->
       <section id="worksheet" class="tab-content">
         <header class="content-header">
-          <h1>📝 ใบงานการทดลอง (Interactive Worksheet & Report)</h1>
-          <p class="subtitle">บันทึกผลการทดลองทั้ง 3 ตอน คำนวณค่าทางทฤษฎี ตอบคำถาม และส่งตรวจประเมินผล</p>
+          <h1>📝 ตารางบันทึกผลการทดลอง (Interactive Worksheet)</h1>
+          <p class="subtitle">บันทึกผลการวัดจุดทำงาน DC, การหาค่าความนำข้าม gm และผลการทดสอบสัญญาณขนาดเล็กของวงจร Common-Source</p>
         </header>
 
-        <!-- STUDENT PROFILE CARD -->
+        <!-- Student Info -->
         <div class="card">
-          <h2 class="card-title"><span class="number">👤</span> <span>ข้อมูลผู้ทำการทดลอง</span></h2>
+          <h2 class="card-title">👤 ข้อมูลผู้ทำปฏิบัติการ</h2>
           <div class="grid-4">
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">ชื่อ-นามสกุล:</label>
-              <input type="text" id="student-name" placeholder="นายสมชาย ใจดี" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <input type="text" id="student-name" placeholder="เช่น นายสมชาย ใจดี" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
             </div>
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">รหัสนักศึกษา:</label>
-              <input type="text" id="student-id" placeholder="66010001" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <input type="text" id="student-id" placeholder="เช่น 66010001" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
             </div>
             <div>
-              <label style="font-size: 12px; color: var(--text-muted);">กลุ่มเรียน (Group):</label>
-              <input type="text" id="student-group" placeholder="กลุ่ม 1" value="กลุ่ม 1" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+              <label style="font-size: 12px; color: var(--text-muted);">กลุ่มเรียน (Group / Sec):</label>
+              <input type="text" id="student-group" placeholder="เช่น กลุ่ม 1 / Sec 01" value="กลุ่ม 1" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
             </div>
             <div>
               <label style="font-size: 12px; color: var(--text-muted);">วันที่ทำการทดลอง:</label>
@@ -1077,216 +1118,285 @@
           </div>
         </div>
 
-        <!-- 2-MODE WORKSHEET SELECTOR PANEL -->
-        <div class="card no-print" style="border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.85);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
-              <span>⚙️</span> <span>โหมดการทดลองของใบงาน (Worksheet Parameter Mode)</span>
+        <!-- Parameter Mode Selector Card -->
+        <div class="card no-print" style="border: 1px solid rgba(56, 189, 248, 0.35); background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.6));">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h2 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; border-bottom: none; padding-bottom: 0;">
+                <span>⚙️</span> ระบบกำหนดค่าพารามิเตอร์วงจรสำหรับการทดลอง
+              </h2>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 0;">
+                เลือกรูปแบบการทำแล็บ: ใช้ชุดค่ามาตรฐานของใบงาน หรือป้อนกำหนดค่าพารามิเตอร์เองแบบ Dynamic
+              </p>
             </div>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn btn-secondary btn-small active" id="btn-mode-fixed" onclick="setWorksheetMode('fixed')" style="border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.2);">
+              <button id="btn-mode-fixed" class="btn btn-secondary active" style="font-size: 13px; padding: 8px 16px; border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.2);" onclick="setWorksheetMode('fixed')">
                 📌 โหมดค่ามาตรฐาน (Fixed Preset)
               </button>
-              <button type="button" class="btn btn-secondary btn-small" id="btn-mode-custom" onclick="setWorksheetMode('custom')">
+              <button id="btn-mode-custom" class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="setWorksheetMode('custom')">
                 🛠️ โหมดกำหนดค่าเอง (Custom Dynamic)
               </button>
             </div>
           </div>
 
-          <!-- Parameter Fields Row -->
-          <div class="grid-4" id="panel-params" style="margin-top: 10px;">
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">V<sub>DD</sub> (V):</label>
-              <input type="number" id="ws-param-vdd" value="18.0" step="0.5" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+          <!-- Custom Parameter Box -->
+          <div id="custom-param-panel" style="display: none; background: rgba(11, 15, 25, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 13px; font-weight: bold; color: var(--accent-cyan);">
+                🎛️ แผงปรับแต่งค่าพารามิเตอร์วงจร FET (Circuit Parameters)
+              </span>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-small" onclick="syncWorksheetFromSim()" title="ดึงค่าจากหน้าห้องทดลองเสมือนจริง">
+                  ⚡ ซิงค์จากแล็บเสมือน
+                </button>
+                <button class="btn btn-secondary btn-small" onclick="randomizeWorksheetParams()" title="สุ่มค่าตัวต้านทานและแรงดันที่เหมาะสม">
+                  🎲 สุ่มโจทย์ใหม่
+                </button>
+                <button class="btn btn-secondary btn-small" onclick="resetWorksheetDefaultParams()" title="คืนค่าพารามิเตอร์ตั้งต้น">
+                  ⏪ คืนค่ามาตรฐาน
+                </button>
+              </div>
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>1</sub> (kΩ):</label>
-              <input type="number" id="ws-param-r1" value="2200.0" step="100" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
-            </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>2</sub> (kΩ):</label>
-              <input type="number" id="ws-param-r2" value="270.0" step="10" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
-            </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>D</sub> (kΩ):</label>
-              <input type="number" id="ws-param-rd" value="2.2" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
-            </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>S</sub> (kΩ):</label>
-              <input type="number" id="ws-param-rs" value="1.0" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
-            </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">I<sub>DSS</sub> (mA):</label>
-              <input type="number" id="ws-param-idss" value="6.0" step="0.5" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
-            </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">V<sub>P</sub> (V):</label>
-              <input type="number" id="ws-param-vp" value="-3.5" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
-            </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">เบอร์ FET:</label>
-              <select id="ws-sel-model" onchange="onWorksheetModelSelect()" disabled style="background:#0b0f19;">
-                <option value="2N5458">2N5458 (6mA, -3.5V)</option>
-                <option value="2N5484">2N5484 (3.5mA, -2.0V)</option>
-                <option value="BF245B">BF245B (10mA, -4.0V)</option>
-                <option value="2N7000">2N7000 (MOSFET)</option>
-                <option value="BS170">BS170 (MOSFET)</option>
-              </select>
-            </div>
-          </div>
 
-          <div id="custom-tools-bar" style="display: none; justify-content: flex-end; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color);">
-            <button type="button" class="btn btn-secondary btn-small" onclick="syncWorksheetFromSim()">⚡ ซิงค์ค่าจากหน้าจำลอง</button>
-            <button type="button" class="btn btn-secondary btn-small" onclick="randomizeWorksheetParams()">🎲 สุ่มโจทย์ใหม่</button>
-            <button type="button" class="btn btn-secondary btn-small" onclick="resetWorksheetDefaultParams()">⏪ คืนค่ามาตรฐาน</button>
+            <!-- FET Quick Presets in Custom Panel -->
+            <div style="margin-bottom: 12px; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 12px; color: var(--text-muted);">เลือกเบอร์ FET อ้างอิง:</span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-small" onclick="selectWorksheetFetModel('2N5458')">2N5458 (6mA, -3.5V)</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="selectWorksheetFetModel('2N5484')">2N5484 (3.5mA, -2.0V)</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="selectWorksheetFetModel('BF245B')">BF245B (10mA, -4.0V)</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="selectWorksheetFetModel('2N7000')">2N7000 (MOSFET)</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="selectWorksheetFetModel('BS170')">BS170 (MOSFET)</button>
+              </div>
+            </div>
+
+            <div class="grid-4">
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">V<sub>DD</sub> (V):</label>
+                <input type="number" id="ws-param-vdd" value="18.0" step="0.5" min="5" max="30" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>1</sub> (kΩ):</label>
+                <input type="number" id="ws-param-r1" value="2200.0" step="100" min="100" max="10000" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>2</sub> (kΩ):</label>
+                <input type="number" id="ws-param-r2" value="270.0" step="10" min="10" max="2000" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>D</sub> (kΩ):</label>
+                <input type="number" id="ws-param-rd" value="2.2" step="0.1" min="0.5" max="10" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>S</sub> (kΩ):</label>
+                <input type="number" id="ws-param-rs" value="1.0" step="0.1" min="0.1" max="5" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">I<sub>DSS</sub> (mA):</label>
+                <input type="number" id="ws-param-idss" value="6.0" step="0.5" min="1" max="30" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">V<sub>P</sub> (V):</label>
+                <input type="number" id="ws-param-vp" value="-3.5" step="0.1" min="-10" max="-0.5" oninput="onWorksheetParamChange()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="font-size: 11.5px; color: var(--text-muted);">เบอร์ FET:</label>
+                <select id="ws-sel-model" onchange="onWorksheetModelSelect()" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 6px 8px; border-radius: 4px;">
+                  <option value="2N5458">2N5458</option>
+                  <option value="2N5484">2N5484</option>
+                  <option value="BF245B">BF245B</option>
+                  <option value="2N7000">2N7000</option>
+                  <option value="BS170">BS170</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- PART 1: DC BIAS OPERATING POINT TABLE -->
+        <!-- Part 1: DC Operating Point & gm -->
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-              <span class="number">ตอนที่ 1:</span> <span>จุดทำงานทางไฟฟ้ากระแสตรง (DC Bias Operating Point)</span>
-            </div>
-            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart1()">⚡ เติมผลวัด DC อัตโนมัติ</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              1️⃣ ตอนที่ 1: การกำหนดจุดทำงาน DC และการคำนวณหาค่าความนำข้าม g<sub>m</sub>
+            </h2>
+            <button class="btn btn-secondary btn-small" onclick="autoFillPart1()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
           </div>
-
           <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-            วัดระดับแรงดันและกระแสไฟฟ้ากระแสตรงที่จุดทำงาน (Q-Point) ของวงจรคอมมอนซอร์ส:
+            บันทึกค่าแรงดันและกระแสไฟตรงที่จุดทำงาน (<span id="txt-dc-params" style="color: var(--accent-cyan); font-weight: 500;">V<sub>DD</sub> = 18 V, R<sub>1</sub> = 2.2 MΩ, R<sub>2</sub> = 270 kΩ, R<sub>D</sub> = 2.2 kΩ, R<sub>S</sub> = 1.0 kΩ, เบอร์: 2N5458</span>) และคำนวณหาค่า g<sub>m</sub>
           </p>
 
           <table class="lab-table">
             <thead>
               <tr>
-                <th>V<sub>G</sub> (V)</th>
-                <th>V<sub>S</sub> (V)</th>
-                <th>V<sub>GSQ</sub> (V)</th>
-                <th>I<sub>DQ</sub> (mA)</th>
-                <th>V<sub>D</sub> (V)</th>
-                <th>V<sub>DSQ</sub> (V)</th>
+                <th>แรงดัน V<sub>G</sub> (V)</th>
+                <th>แรงดัน V<sub>S</sub> (V)</th>
+                <th>แรงดัน V<sub>GSQ</sub> (V)</th>
+                <th>กระแส I<sub>DQ</sub> (mA)</th>
+                <th>แรงดัน V<sub>D</sub> (V)</th>
+                <th>แรงดัน V<sub>DSQ</sub> (V)</th>
+                <th>ค่า g<sub>m0</sub> (mS)</th>
+                <th>ค่า g<sub>m</sub> คำนวณ (mS)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><input type="number" id="dc-vg" step="0.01" placeholder="เช่น 1.97"></td>
-                <td><input type="number" id="dc-vs" step="0.01" placeholder="เช่น 2.45"></td>
-                <td><input type="number" id="dc-vgs" step="0.01" placeholder="เช่น -0.48"></td>
-                <td><input type="number" id="dc-id" step="0.01" placeholder="เช่น 2.45"></td>
-                <td><input type="number" id="dc-vd" step="0.01" placeholder="เช่น 12.61"></td>
-                <td><input type="number" id="dc-vds" step="0.01" placeholder="เช่น 10.16"></td>
+                <td><input type="number" id="dc-vg" step="0.01" placeholder="1.97"></td>
+                <td><input type="number" id="dc-vs" step="0.01" placeholder="2.45"></td>
+                <td><input type="number" id="dc-vgs" step="0.01" placeholder="-0.48"></td>
+                <td><input type="number" id="dc-id" step="0.01" placeholder="2.45"></td>
+                <td><input type="number" id="dc-vd" step="0.01" placeholder="12.61"></td>
+                <td><input type="number" id="dc-vds" step="0.01" placeholder="10.16"></td>
+                <td><input type="number" id="ac-gm0" step="0.01" placeholder="3.43" style="color: var(--accent-cyan);"></td>
+                <td><input type="number" id="ac-gm" step="0.01" placeholder="2.96" style="color: var(--accent-cyan); font-weight: bold;"></td>
               </tr>
             </tbody>
           </table>
-          <p style="font-size: 12px; color: var(--text-muted);">(สูตร: V<sub>G</sub> = V<sub>DD</sub> · R<sub>2</sub>/(R<sub>1</sub>+R<sub>2</sub>), V<sub>S</sub> = I<sub>D</sub>·R<sub>S</sub>, V<sub>GS</sub> = V<sub>G</sub> − V<sub>S</sub>, V<sub>DS</sub> = V<sub>D</sub> − V<sub>S</sub>)</p>
         </div>
 
-        <!-- PART 2: SMALL-SIGNAL gm & IMPEDANCES -->
+        <!-- Part 2: AC Performance Table -->
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-              <span class="number">ตอนที่ 2:</span> <span>การคำนวณ Transconductance (gm) และอิมพีแดนซ์ (Zi, Zo)</span>
-            </div>
-            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart2()">⚡ เติมผลคำนวณ gm อัตโนมัติ</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              2️⃣ ตอนที่ 2: การทดสอบวงจรขยายสัญญาณขนาดเล็ก (AC Small-Signal Test)
+            </h2>
+            <button class="btn btn-secondary btn-small" onclick="autoFillPart2()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
           </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            ทดสอบวัดสัญญาณกระแสสลับที่ความถี่ 1 kHz และเปรียบเทียบสภาวะเมื่อมี C<sub>S</sub> และไม่มี C<sub>S</sub> (<span id="txt-ac-params" style="color: var(--accent-cyan); font-weight: 500;">R<sub>D</sub> = 2.2 kΩ, R<sub>S</sub> = 1.0 kΩ, g<sub>m</sub> ≈ 2.96 mS</span>)
+          </p>
 
           <table class="lab-table">
             <thead>
               <tr>
-                <th>g<sub>m0</sub> (mS)</th>
-                <th>g<sub>m</sub> คำนวณ (mS)</th>
-                <th>อิมพีแดนซ์อินพุต Z<sub>i</sub> (kΩ)</th>
-                <th>อิมพีแดนซ์เอาต์พุต Z<sub>o</sub> (kΩ)</th>
+                <th>สภาวะวงจร</th>
+                <th>แรงดัน V<sub>i</sub> (mV<sub>p-p</sub>)</th>
+                <th>แรงดัน V<sub>o</sub> (mV<sub>p-p</sub> / V<sub>p-p</sub>)</th>
+                <th>อัตราขยายแรงดัน A<sub>v</sub> = v<sub>o</sub> / v<sub>i</sub></th>
+                <th>ความต้านทาน Z<sub>i</sub> (kΩ)</th>
+                <th>ความต้านทาน Z<sub>o</sub> (kΩ)</th>
+                <th>เฟสสัญญาณ (°)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><input type="number" id="ac-gm0" step="0.01" placeholder="เช่น 3.43"></td>
-                <td><input type="number" id="ac-gm" step="0.01" placeholder="เช่น 2.96"></td>
-                <td><input type="number" id="ac-zi" step="0.1" placeholder="เช่น 240.5"></td>
-                <td><input type="number" id="ac-zo" step="0.01" placeholder="เช่น 2.08"></td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="font-size: 12px; color: var(--text-muted);">(สูตร: g<sub>m0</sub> = 2·I<sub>DSS</sub>/|V<sub>P</sub>|, g<sub>m</sub> = g<sub>m0</sub>·(1 − V<sub>GSQ</sub>/V<sub>P</sub>), Z<sub>i</sub> = R<sub>1</sub>∥R<sub>2</sub>, Z<sub>o</sub> = R<sub>D</sub>∥r<sub>d</sub>)</p>
-        </div>
-
-        <!-- PART 3: AC VOLTAGE GAIN Av & PHASE (WITH/WITHOUT CS) -->
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-              <span class="number">ตอนที่ 3:</span> <span>อัตราขยายสัญญาณแรงดันไฟฟ้า (Av) และความต่างเฟส</span>
-            </div>
-            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart3()">⚡ เติมผลวัด Av อัตโนมัติ</button>
-          </div>
-
-          <table class="lab-table">
-            <thead>
-              <tr>
-                <th>สภาวะการทดลอง</th>
-                <th>แรงดันอินพุต v<sub>i(p-p)</sub> (mV)</th>
-                <th>แรงดันเอาต์พุต v<sub>o(p-p)</sub> (mV)</th>
-                <th>อัตราขยายแรงดัน A<sub>v</sub> = v<sub>o</sub>/v<sub>i</sub></th>
-                <th>ความต่างเฟส (Phase)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>1. มีตัวเก็บประจุบายพาส (C<sub>S</sub> Bypassed)</strong></td>
-                <td><input type="number" id="ac-vi-bypassed" value="50" step="1"></td>
-                <td><input type="number" id="ac-vo-bypassed" step="0.1" placeholder="เช่น 308"></td>
-                <td><input type="number" id="ac-av-bypassed" step="0.01" placeholder="เช่น 6.16"></td>
+                <td><strong>มี C<sub>S</sub> (Bypassed)</strong></td>
+                <td><input type="number" id="ac-vi-bypassed" step="1" value="50"></td>
+                <td><input type="number" id="ac-vo-bypassed" step="0.1" placeholder="308"></td>
+                <td><input type="number" id="ac-av-bypassed" step="0.01" placeholder="6.16"></td>
+                <td><input type="number" id="ac-zi-bypassed" step="0.1" placeholder="240.5"></td>
+                <td><input type="number" id="ac-zo-bypassed" step="0.01" placeholder="2.08"></td>
                 <td>
                   <select id="ac-phase-bypassed">
-                    <option value="180">กลับเฟส 180° (Inverting)</option>
-                    <option value="0">ร่วมเฟส 0° (In-Phase)</option>
+                    <option value="180">180° (กลับเฟส)</option>
+                    <option value="0">0° (ตรงเฟส)</option>
                   </select>
                 </td>
               </tr>
               <tr>
-                <td><strong>2. ไม่มีตัวเก็บประจุบายพาส (C<sub>S</sub> Unbypassed)</strong></td>
-                <td><input type="number" id="ac-vi-unbypassed" value="50" step="1"></td>
-                <td><input type="number" id="ac-vo-unbypassed" step="0.1" placeholder="เช่น 82"></td>
-                <td><input type="number" id="ac-av-unbypassed" step="0.01" placeholder="เช่น 1.64"></td>
+                <td><strong>ไม่มี C<sub>S</sub> (Unbypassed)</strong></td>
+                <td><input type="number" id="ac-vi-unbypassed" step="1" value="50"></td>
+                <td><input type="number" id="ac-vo-unbypassed" step="0.1" placeholder="82"></td>
+                <td><input type="number" id="ac-av-unbypassed" step="0.01" placeholder="1.64"></td>
+                <td><input type="number" id="ac-zi-unbypassed" step="0.1" placeholder="240.5"></td>
+                <td><input type="number" id="ac-zo-unbypassed" step="0.01" placeholder="2.08"></td>
                 <td>
                   <select id="ac-phase-unbypassed">
-                    <option value="180">กลับเฟส 180° (Inverting)</option>
-                    <option value="0">ร่วมเฟส 0° (In-Phase)</option>
+                    <option value="180">180° (กลับเฟส)</option>
+                    <option value="0">0° (ตรงเฟส)</option>
                   </select>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+      </section>
 
-        <!-- POST-LAB QUESTIONS -->
+      <!-- ===================================================================
+           TAB 4: ASSESSMENT & CONCLUSION (คำถามและสรุปผล)
+           =================================================================== -->
+      <section id="assessment" class="tab-content">
+        <header class="content-header">
+          <h1>❓ คำถามท้ายการทดลองและสรุปผล (Assessment & Conclusion)</h1>
+          <p class="subtitle">ตอบคำถามวัดความเข้าใจ 3 ข้อ สรุปผลการทดลอง และส่งรายงานตรวจประเมินคะแนนอัตโนมัติ</p>
+        </header>
+
+        <!-- Post-Lab Questions -->
         <div class="card">
-          <h2 class="card-title"><span class="number">4.</span> <span>คำถามท้ายการทดลอง (Post-Lab Questions)</span></h2>
-          
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">1. เพราะเหตุใดเมื่อต่อตัวเก็บประจุบายพาส C<sub>S</sub> ขนานกับ R<sub>S</sub> อัตราขยายแรงดัน (A<sub>v</sub>) จึงมีค่าสูงกว่ากรณีถอด C<sub>S</sub> ออกอย่างมีนัยสำคัญ?</label>
-            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบวิเคราะห์บทบาทของ CS ต่อสัญญาณ AC และผลกระทบต่อ Negative Feedback..."></textarea>
+          <h2 class="card-title">❓ คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</h2>
+
+          <div class="question-block">
+            <div class="question-title">
+              1. ค่าความนำข้าม g<sub>m</sub> (Transconductance) ของ FET มีความสัมพันธ์กับจุดทำงานไฟตรง V<sub>GSQ</sub> และกระแส I<sub>DQ</sub> อย่างไร?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q1" value="a">
+              <span>ก. เมื่อ |V<sub>GSQ</sub>| มีค่าเข้าใกล้ศูนย์ ค่า g<sub>m</sub> จะมีค่าสูงสุด (g<sub>m0</sub>) ส่งผลให้อัตราขยายแรงดัน A<sub>v</sub> สูงที่สุด</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="b">
+              <span>ข. ค่า g<sub>m</sub> จะมีค่าคงที่เสมอ ไม่เปลี่ยนแปลงตามระดับแรงดันไบแอส V<sub>GSQ</sub> หรือกระแส I<sub>DQ</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="c">
+              <span>ค. เมื่อ |V<sub>GSQ</sub>| เพิ่มขึ้นเข้าใกล้ |V<sub>P</sub>| ค่า g<sub>m</sub> จะเพิ่มขึ้นและกระแส I<sub>DQ</sub> จะลดลง</span>
+            </label>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">2. ค่าความนำข้าม (g<sub>m</sub>) ของ FET มีความสัมพันธ์กับจุดทำงานไฟตรง V<sub>GSQ</sub> และ I<sub>DQ</sub> อย่างไร หากปรับให้ V<sub>GSQ</sub> เข้าใกล้ 0V ค่า g<sub>m</sub> จะเปลี่ยนแปลงอย่างไร?</label>
-            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบอธิบายความสัมพันธ์ตามสมการ gm = gm0*(1 - VGS/VP)..."></textarea>
+          <div class="question-block">
+            <div class="question-title">
+              2. การต่อตัวเก็บประจุบายพาส C<sub>S</sub> ขนานคร่อมตัวต้านทาน R<sub>S</sub> ส่งผลกระทบต่ออัตราขยายแรงดัน A<sub>v</sub> อย่างไรเมื่อเทียบกับกรณีถอด C<sub>S</sub> ออก?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q2" value="a">
+              <span>ก. อัตราขยาย A<sub>v</sub> จะลดลง เนื่องจาก C<sub>S</sub> ลัดวงจรแรงดันสัญญาณกระแสสลับลงกราวด์</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="b">
+              <span>ข. อัตราขยาย A<sub>v</sub> จะสูงขึ้นมาก (จาก A<sub>v</sub> &approx; -g<sub>m</sub>R<sub>D</sub>/(1+g<sub>m</sub>R<sub>S</sub>) กลายเป็น A<sub>v</sub> &approx; -g<sub>m</sub>R<sub>D</sub>) เพราะขจัดผล Negative Feedback ของ R<sub>S</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="c">
+              <span>ค. อัตราขยาย A<sub>v</sub> จะมีค่าเท่าเดิม เพราะตัวต้านทาน R<sub>S</sub> ทำงานเฉพาะไฟตรงเท่านั้น</span>
+            </label>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">3. จงเปรียบเทียบข้อดีและข้อจำกัดของวงจรขยาย Common-Source FET กับวงจรขยาย Common-Emitter BJT ในด้านอิมพีแดนซ์อินพุต (Z<sub>i</sub>) และอัตราขยายแรงดัน (A<sub>v</sub>)?</label>
-            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบเปรียบเทียบ Zi ระดับ MΩ ของ FET กับ Zi ระดับ kΩ ของ BJT และระดับอัตราขยาย..."></textarea>
+          <div class="question-block">
+            <div class="question-title">
+              3. ข้อได้เปรียบที่โดดเด่นที่สุดของวงจรขยาย Common-Source FET เมื่อเทียบกับวงจรขยาย Common-Emitter BJT คือข้อใด?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q3" value="a">
+              <span>ก. FET มีความต้านทานอินพุต (Z<sub>i</sub> = R<sub>1</sub> ∥ R<sub>2</sub>) สูงมากในระดับหลายร้อย kΩ ถึง MΩ จึงแทบไม่ดึงโหลดจากแหล่งจ่ายสัญญาณ</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="b">
+              <span>ข. FET ให้ระดับอัตราขยายแรงดัน A<sub>v</sub> ที่สูงกว่าทรานซิสเตอร์ BJT เสมอในทุกสภาวะ</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="c">
+              <span>ค. FET ไม่มีค่าความต้านทานภายในที่ขาเดรน r<sub>d</sub> ทำให้คำนวณวงจรได้ง่ายกว่า</span>
+            </label>
           </div>
         </div>
 
-        <!-- CONCLUSION -->
+        <!-- Conclusion Block -->
         <div class="card">
-          <h2 class="card-title"><span class="number">5.</span> <span>สรุปผลการทดลอง (Conclusion)</span></h2>
-          <textarea id="lab-conclusion" rows="5" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่าง gm กับจุดทำงาน DC, ผลของการบายพาส CS ต่ออัตราขยายแรงดัน, คุณลักษณะความต่างเฟส 180°, และการนำแบบจำลอง gm ไปใช้ออกแบบวงจรขยาย..."></textarea>
+          <h2 class="card-title">📝 สรุปและวิจารณ์ผลการทดลอง (Conclusion & Discussion)</h2>
+          <div class="form-group">
+            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px;">สรุปสิ่งที่ได้เรียนรู้จากการจำลองแบบจำลอง g<sub>m</sub> และผลการทดลอง:</label>
+            <textarea id="lab-conclusion" rows="5" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่าง gm กับจุดทำงาน DC, ผลของการบายพาส CS ต่ออัตราขยายแรงดัน Av, คุณลักษณะความต่างเฟส 180°, และการนำแบบจำลอง gm ไปประยุกต์ใช้งาน..." style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 12px; border-radius: 8px; font-family: 'Sarabun', sans-serif; font-size: 13.5px;"></textarea>
+          </div>
         </div>
 
-        <!-- SUBMIT BAR -->
-        <div class="card-footer-action no-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
-          <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ พิมพ์รายงาน / บันทึก PDF</button>
+        <!-- Submission Actions Bar -->
+        <div class="card-footer-action no-print" style="display: flex; gap: 15px; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-top: 20px;">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">
+            🖨️ พิมพ์รายงาน / บันทึก PDF
+          </button>
           <button type="button" class="btn btn-success" style="padding: 12px 28px; font-size: 15px;" onclick="submitReportToGAS()">
             🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ
           </button>
@@ -1409,10 +1519,14 @@
       if (tabId === 'theory' && navItems[0]) navItems[0].classList.add('active');
       if (tabId === 'simulator' && navItems[1]) navItems[1].classList.add('active');
       if (tabId === 'worksheet' && navItems[2]) navItems[2].classList.add('active');
+      if (tabId === 'assessment' && navItems[3]) navItems[3].classList.add('active');
 
       if (tabId === 'simulator') {
         updateSim();
         renderScope();
+      }
+      if (tabId === 'worksheet') {
+        updateWorksheetParamBanners();
       }
     }
 
@@ -1741,8 +1855,7 @@
       STATE.wsMode = mode;
       const btnFixed = document.getElementById('btn-mode-fixed');
       const btnCustom = document.getElementById('btn-mode-custom');
-      const toolsBar = document.getElementById('custom-tools-bar');
-      const inputs = document.querySelectorAll('#panel-params input, #panel-params select');
+      const customPanel = document.getElementById('custom-param-panel');
 
       if (mode === 'fixed') {
         btnFixed.classList.add('active');
@@ -1755,12 +1868,7 @@
         btnCustom.style.color = '';
         btnCustom.style.background = '';
 
-        toolsBar.style.display = 'none';
-        inputs.forEach(el => {
-          el.disabled = true;
-          el.style.background = '#0b0f19';
-        });
-
+        if (customPanel) customPanel.style.display = 'none';
         resetWorksheetDefaultParams();
       } else {
         btnCustom.classList.add('active');
@@ -1773,12 +1881,9 @@
         btnFixed.style.color = '';
         btnFixed.style.background = '';
 
-        toolsBar.style.display = 'flex';
-        inputs.forEach(el => {
-          el.disabled = false;
-          el.style.background = '#090d16';
-        });
+        if (customPanel) customPanel.style.display = 'block';
       }
+      updateWorksheetParamBanners();
     }
 
     function resetWorksheetDefaultParams() {
@@ -1790,6 +1895,7 @@
       document.getElementById('ws-param-idss').value = '6.0';
       document.getElementById('ws-param-vp').value = '-3.5';
       document.getElementById('ws-sel-model').value = '2N5458';
+      updateWorksheetParamBanners();
     }
 
     function syncWorksheetFromSim() {
@@ -1800,6 +1906,7 @@
       const m = FET_MODELS[STATE.fetModel] || FET_MODELS['2N5458'];
       document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
       document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
+      updateWorksheetParamBanners();
       alert('⚡ ซิงค์ค่าพารามิเตอร์จากห้องทดลองเสมือนจริงเรียบร้อยแล้ว!');
     }
 
@@ -1817,11 +1924,21 @@
       document.getElementById('ws-sel-model').value = chosenModel;
       document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
       document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
+      updateWorksheetParamBanners();
       alert('🎲 สุ่มโจทย์ใหม่: ' + chosenModel + ' (Vdd=' + vdd + 'V, RD=' + rd + 'kΩ, RS=' + rs + 'kΩ)');
     }
 
+    function selectWorksheetFetModel(modelKey) {
+      if (!FET_MODELS[modelKey]) return;
+      const m = FET_MODELS[modelKey];
+      document.getElementById('ws-sel-model').value = modelKey;
+      document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
+      document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
+      updateWorksheetParamBanners();
+    }
+
     function onWorksheetParamChange() {
-      // Dynamic change listener
+      updateWorksheetParamBanners();
     }
 
     function onWorksheetModelSelect() {
@@ -1830,6 +1947,22 @@
       if (m) {
         document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
         document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
+      }
+      updateWorksheetParamBanners();
+    }
+
+    function updateWorksheetParamBanners() {
+      const p = getWorksheetCurrentParams();
+      const selModel = document.getElementById('ws-sel-model').value;
+      const txtDc = document.getElementById('txt-dc-params');
+      if (txtDc) {
+        const r1Str = p.r1 >= 1000 ? (p.r1 / 1000).toFixed(1) + ' MΩ' : p.r1.toFixed(0) + ' kΩ';
+        txtDc.innerHTML = `V<sub>DD</sub> = ${p.vdd.toFixed(1)} V, R<sub>1</sub> = ${r1Str}, R<sub>2</sub> = ${p.r2.toFixed(1)} kΩ, R<sub>D</sub> = ${p.rd.toFixed(1)} kΩ, R<sub>S</sub> = ${p.rs.toFixed(1)} kΩ, เบอร์: ${selModel}`;
+      }
+      const res = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
+      const txtAc = document.getElementById('txt-ac-params');
+      if (txtAc) {
+        txtAc.innerHTML = `R<sub>D</sub> = ${p.rd.toFixed(1)} kΩ, R<sub>S</sub> = ${p.rs.toFixed(1)} kΩ, g<sub>m</sub> &approx; ${res.gm.toFixed(2)} mS (g<sub>m0</sub> &approx; ${res.gm0.toFixed(2)} mS)`;
       }
     }
 
@@ -1855,18 +1988,11 @@
       document.getElementById('dc-id').value = res.ID.toFixed(2);
       document.getElementById('dc-vd').value = res.VD.toFixed(2);
       document.getElementById('dc-vds').value = res.VDS.toFixed(2);
+      document.getElementById('ac-gm0').value = res.gm0.toFixed(2);
+      document.getElementById('ac-gm').value = res.gm.toFixed(2);
     }
 
     function autoFillPart2() {
-      const p = getWorksheetCurrentParams();
-      const res = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
-      document.getElementById('ac-gm0').value = res.gm0.toFixed(2);
-      document.getElementById('ac-gm').value = res.gm.toFixed(2);
-      document.getElementById('ac-zi').value = res.Zi.toFixed(1);
-      document.getElementById('ac-zo').value = res.Zo.toFixed(2);
-    }
-
-    function autoFillPart3() {
       const p = getWorksheetCurrentParams();
       const res = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
       const vi1 = parseFloat(document.getElementById('ac-vi-bypassed').value) || 50;
@@ -1877,19 +2003,15 @@
 
       document.getElementById('ac-vo-bypassed').value = vo1.toFixed(1);
       document.getElementById('ac-av-bypassed').value = Math.abs(res.Av_bypassed).toFixed(2);
+      document.getElementById('ac-zi-bypassed').value = res.Zi.toFixed(1);
+      document.getElementById('ac-zo-bypassed').value = res.Zo.toFixed(2);
       document.getElementById('ac-phase-bypassed').value = "180";
 
       document.getElementById('ac-vo-unbypassed').value = vo2.toFixed(1);
       document.getElementById('ac-av-unbypassed').value = Math.abs(res.Av_unbypassed).toFixed(2);
+      document.getElementById('ac-zi-unbypassed').value = res.Zi.toFixed(1);
+      document.getElementById('ac-zo-unbypassed').value = res.Zo.toFixed(2);
       document.getElementById('ac-phase-unbypassed').value = "180";
-    }
-
-    function syncSimToWorksheet() {
-      autoFillPart1();
-      autoFillPart2();
-      autoFillPart3();
-      switchTab('worksheet');
-      alert('📋 โอนผลการวัดทั้งหมดไปยังใบงานเรียบร้อยแล้ว!');
     }
 
     // --- SUBMISSION TO GOOGLE APPS SCRIPT ---
@@ -1903,6 +2025,10 @@
         alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่ม และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
         return;
       }
+
+      const q1El = document.querySelector('input[name="q1"]:checked');
+      const q2El = document.querySelector('input[name="q2"]:checked');
+      const q3El = document.querySelector('input[name="q3"]:checked');
 
       const p = getWorksheetCurrentParams();
       const payload = {
@@ -1926,20 +2052,26 @@
         dc_id: document.getElementById('dc-id').value,
         dc_vd: document.getElementById('dc-vd').value,
         dc_vds: document.getElementById('dc-vds').value,
-
         ac_gm0: document.getElementById('ac-gm0').value,
         ac_gm: document.getElementById('ac-gm').value,
-        ac_zi: document.getElementById('ac-zi').value,
-        ac_zo: document.getElementById('ac-zo').value,
 
+        ac_vi_bypassed: document.getElementById('ac-vi-bypassed').value,
+        ac_vo_bypassed: document.getElementById('ac-vo-bypassed').value,
         ac_av_bypassed: document.getElementById('ac-av-bypassed').value,
+        ac_zi_bypassed: document.getElementById('ac-zi-bypassed').value,
+        ac_zo_bypassed: document.getElementById('ac-zo-bypassed').value,
         ac_phase_bypassed: document.getElementById('ac-phase-bypassed').value,
+
+        ac_vi_unbypassed: document.getElementById('ac-vi-unbypassed').value,
+        ac_vo_unbypassed: document.getElementById('ac-vo-unbypassed').value,
         ac_av_unbypassed: document.getElementById('ac-av-unbypassed').value,
+        ac_zi_unbypassed: document.getElementById('ac-zi-unbypassed').value,
+        ac_zo_unbypassed: document.getElementById('ac-zo-unbypassed').value,
         ac_phase_unbypassed: document.getElementById('ac-phase-unbypassed').value,
 
-        q1Answer: document.getElementById('q1-answer').value,
-        q2Answer: document.getElementById('q2-answer').value,
-        q3Answer: document.getElementById('q3-answer').value,
+        q1Answer: q1El ? q1El.value : '',
+        q2Answer: q2El ? q2El.value : '',
+        q3Answer: q3El ? q3El.value : '',
         labConclusion: document.getElementById('lab-conclusion').value
       };
 
@@ -1967,17 +2099,118 @@
         setTimeout(() => {
           const localRes = localGradeSimulator(payload);
           onSuccessGrading(localRes);
-        }, 1200);
+        }, 1000);
       }
     }
 
     function localGradeSimulator(data) {
+      const p = {
+        vdd: data.param_vdd,
+        r1: data.param_r1,
+        r2: data.param_r2,
+        rd: data.param_rd,
+        rs: data.param_rs,
+        idss: data.param_idss,
+        vp: data.param_vp
+      };
+      const th = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
+      let score = 0;
+      const feedback = [];
+
+      // Part 1: DC Bias & gm (3 pts)
+      const s_vg = parseFloat(data.dc_vg) || 0;
+      const s_vs = parseFloat(data.dc_vs) || 0;
+      const s_vgs = parseFloat(data.dc_vgs) || 0;
+      const s_id = parseFloat(data.dc_id) || 0;
+      const s_vd = parseFloat(data.dc_vd) || 0;
+      const s_vds = parseFloat(data.dc_vds) || 0;
+      const s_gm0 = parseFloat(data.ac_gm0) || 0;
+      const s_gm = parseFloat(data.ac_gm) || 0;
+
+      const tolV = 0.35;
+      const tolI = 0.40;
+
+      const vgOk = Math.abs(s_vg - th.VG) <= tolV;
+      const vsOk = Math.abs(s_vs - th.VS) <= tolV;
+      const vgsOk = Math.abs(s_vgs - th.VGS) <= tolV;
+      const idOk = Math.abs(s_id - th.ID) <= tolI;
+      const vdOk = Math.abs(s_vd - th.VD) <= tolV;
+      const vdsOk = Math.abs(s_vds - th.VDS) <= tolV;
+      const gm0Ok = Math.abs(s_gm0 - th.gm0) <= 0.40;
+      const gmOk = Math.abs(s_gm - th.gm) <= 0.40;
+
+      const dcPassCount = [vgOk, vsOk, vgsOk, idOk, vdOk, vdsOk, gm0Ok, gmOk].filter(Boolean).length;
+      let p1Score = 0;
+      if (dcPassCount >= 7) p1Score = 3;
+      else if (dcPassCount >= 4) p1Score = 2;
+      else if (dcPassCount >= 2) p1Score = 1;
+
+      score += p1Score;
+      feedback.push(`[ตอนที่ 1] จุดทำงาน DC และค่า gm: ได้ ${p1Score}/3 คะแนน (ถูกต้อง ${dcPassCount}/8 ค่า)`);
+      feedback.push(`  (ทฤษฎี: VG=${th.VG.toFixed(2)}V, VS=${th.VS.toFixed(2)}V, VGS=${th.VGS.toFixed(2)}V, ID=${th.ID.toFixed(2)}mA, VDS=${th.VDS.toFixed(2)}V, gm0=${th.gm0.toFixed(2)}mS, gm=${th.gm.toFixed(2)}mS)`);
+
+      // Part 2: AC Performance (3 pts)
+      const s_av_bypassed = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
+      const s_av_unbypassed = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
+      const s_zi_bypassed = parseFloat(data.ac_zi_bypassed) || 0;
+      const s_zo_bypassed = parseFloat(data.ac_zo_bypassed) || 0;
+      const s_phase_bypassed = parseInt(data.ac_phase_bypassed) || 0;
+      const s_phase_unbypassed = parseInt(data.ac_phase_unbypassed) || 0;
+
+      const expAvBypassed = Math.abs(th.Av_bypassed);
+      const expAvUnbypassed = Math.abs(th.Av_unbypassed);
+
+      const avBypassedOk = Math.abs(s_av_bypassed - expAvBypassed) <= (expAvBypassed * 0.35) || (s_av_bypassed > 0 && Math.abs(s_av_bypassed - (th.gm * parseFloat(p.rd))) <= 1.5);
+      const avUnbypassedOk = Math.abs(s_av_unbypassed - expAvUnbypassed) <= (expAvUnbypassed * 0.35) || (s_av_unbypassed > 0 && Math.abs(s_av_unbypassed - expAvUnbypassed) <= 0.8);
+      const ziOk = Math.abs(s_zi_bypassed - th.Zi) <= (th.Zi * 0.30);
+      const zoOk = Math.abs(s_zo_bypassed - th.Zo) <= (th.Zo * 0.30);
+      const phaseBypassedOk = s_phase_bypassed === 180;
+      const phaseUnbypassedOk = s_phase_unbypassed === 180;
+
+      const acPassCount = [avBypassedOk, avUnbypassedOk, ziOk, zoOk, phaseBypassedOk, phaseUnbypassedOk].filter(Boolean).length;
+      let p2Score = 0;
+      if (acPassCount >= 5) p2Score = 3;
+      else if (acPassCount >= 3) p2Score = 2;
+      else if (acPassCount >= 1) p2Score = 1;
+
+      score += p2Score;
+      feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรขยายสัญญาณ AC: ได้ ${p2Score}/3 คะแนน (ถูกต้อง ${acPassCount}/6 ค่า)`);
+      feedback.push(`  (ทฤษฎี: Av(มี CS)=${expAvBypassed.toFixed(2)}, Av(ไม่มี CS)=${expAvUnbypassed.toFixed(2)}, Zi=${th.Zi.toFixed(1)}kΩ, Zo=${th.Zo.toFixed(2)}kΩ, เฟสกลับ 180°)`);
+
+      // Part 3: Questions (3 pts)
+      const q1 = (data.q1Answer || '').trim().toLowerCase();
+      const q2 = (data.q2Answer || '').trim().toLowerCase();
+      const q3 = (data.q3Answer || '').trim().toLowerCase();
+
+      let qScore = 0;
+      const q1Correct = q1 === 'a';
+      const q2Correct = q2 === 'b';
+      const q3Correct = q3 === 'a';
+
+      if (q1Correct) qScore += 1;
+      if (q2Correct) qScore += 1;
+      if (q3Correct) qScore += 1;
+
+      score += qScore;
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ได้ ${qScore}/3 คะแนน`);
+      feedback.push(`  ข้อ 1 (ความสัมพันธ์ gm กับ VGS): ${q1Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
+      feedback.push(`  ข้อ 2 (ผลการบายพาส CS ขนาน RS): ${q2Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ข.)'}`);
+      feedback.push(`  ข้อ 3 (ข้อได้เปรียบ FET เทียบ BJT): ${q3Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
+
+      // Part 4: Conclusion (1 pt)
+      const conc = (data.labConclusion || '').trim();
+      let concScore = conc.length >= 10 ? 1 : 0;
+      score += concScore;
+      feedback.push(`\n[สรุปและวิจารณ์ผลการทดลอง]: ได้ ${concScore}/1 คะแนน (${concScore ? '✓ ครบถ้วน' : '✗ สรุปสั้นเกินไป'})`);
+
+      let comment = score >= 9 ? 'ผ่านเกณฑ์ดีมาก (Excellent)' : (score >= 7 ? 'ผ่านเกณฑ์ดี (Good)' : (score >= 5 ? 'ผ่านเกณฑ์พอใช้ (Fair)' : 'ต้องปรับปรุงแก้ไขใบงาน'));
+
       return {
         status: 'success',
-        score: 10,
+        score,
         maxScore: 10,
-        feedback: '[จำลองตรวจคะแนนในเครื่อง]: ทำการทดลองและคำนวณแบบจำลอง gm ได้อย่างถูกต้องสมบูรณ์ (10/10 คะแนน)',
-        comment: 'ผ่านเกณฑ์ดีมาก (Excellent) — พร้อมสำหรับการบันทึกลงชีตจริงเมื่อ Deploy บน Google Sheets'
+        feedback: feedback.join('\n'),
+        comment: `${comment} — บันทึกลงชีตเสร็จสมบูรณ์`
       };
     }
 
@@ -2024,6 +2257,7 @@
 
       updateSim();
       renderScope();
+      updateWorksheetParamBanners();
     });
   </script>
 
