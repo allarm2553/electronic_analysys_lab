@@ -327,141 +327,238 @@
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
 
-    .scope-screen {
-      width: 100%;
-      height: 320px;
-      background: var(--scope-bg);
-      border-radius: 6px;
+    .tab-content, .tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .tab-content.active, .tab-pane.active {
       display: block;
     }
 
-    .scope-controls {
+    .btn-toggle {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 12.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all var(--transition-speed);
+    }
+
+    .btn-toggle.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+
+    /* Oscilloscope Visual */
+    .scope-container {
+      background: var(--scope-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .scope-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+    }
+
+    .scope-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background: #040810;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    canvas.scope-screen {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scope-readouts {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-top: 12px;
       padding-top: 10px;
-      border-top: 1px solid #1e293b;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .scope-readout {
-      display: flex;
-      justify-content: space-between;
-      font-family: 'Fira Code', monospace;
-      font-size: 11.5px;
-      padding: 6px 12px;
-      background: #090d16;
-      border-radius: 4px;
-      border: 1px solid #1e293b;
-      margin-top: 8px;
-    }
-
-    .control-panel {
-      background: rgba(15, 23, 42, 0.7);
+    .readout-item {
+      background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
     }
 
-    .slider-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+    .readout-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 2px;
     }
 
-    .slider-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-    }
-
-    .slider-header span:last-child {
+    .readout-val {
       font-family: 'Fira Code', monospace;
-      font-weight: 600;
+      font-size: 13.5px;
+      font-weight: bold;
       color: var(--accent-cyan);
     }
 
-    input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 6px;
-      background: #1e293b;
-      border-radius: 3px;
-      outline: none;
+    .readout-val.yellow { color: #facc15; }
+    .readout-val.cyan { color: var(--accent-cyan); }
+    .readout-val.green { color: var(--accent-green); }
+    .readout-val.red { color: var(--accent-red); }
+
+    /* Schematic View */
+    .schematic-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      position: relative;
     }
 
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--accent-cyan);
-      cursor: pointer;
-      box-shadow: 0 0 8px var(--accent-cyan);
+    .probe-card {
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+      text-align: center;
     }
 
-    /* Tables */
-    .lab-table {
+    /* Forms and Tables */
+    table.lab-table {
       width: 100%;
       border-collapse: collapse;
       margin: 15px 0;
-      font-size: 13.5px;
+      font-size: 13px;
     }
 
-    .lab-table th {
-      background: rgba(15, 23, 42, 0.85);
-      color: var(--accent-cyan);
-      font-family: 'Chakra Petch', sans-serif;
-      padding: 10px;
+    table.lab-table th, table.lab-table td {
       border: 1px solid var(--border-color);
+      padding: 10px 12px;
       text-align: center;
     }
 
-    .lab-table td {
-      padding: 8px 10px;
-      border: 1px solid var(--border-color);
+    table.lab-table th {
+      background: rgba(15, 23, 42, 0.85);
+      font-family: 'Chakra Petch', sans-serif;
+      color: var(--accent-cyan);
+    }
+
+    table.lab-table td {
       background: rgba(15, 23, 42, 0.4);
     }
 
-    .lab-table input[type="number"], .lab-table input[type="text"], .lab-table select {
+    table.lab-table input[type="text"],
+    table.lab-table input[type="number"],
+    table.lab-table select,
+    .form-control {
       width: 100%;
-      background: #090d16;
+      background: rgba(15, 23, 42, 0.7);
       border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 4px;
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 8px 10px;
       font-family: 'Fira Code', monospace;
       font-size: 13px;
       text-align: center;
+      transition: all var(--transition-speed);
     }
 
-    .lab-table input:focus {
-      border-color: var(--accent-cyan);
+    .form-control:focus, table.lab-table input:focus, table.lab-table select:focus {
       outline: none;
+      border-color: var(--accent-cyan);
       box-shadow: 0 0 8px var(--accent-cyan-glow);
     }
 
-    /* Textarea & Inputs */
-    textarea {
-      width: 100%;
-      background: #090d16;
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-family: 'Sarabun', sans-serif;
-      font-size: 13.5px;
-      resize: vertical;
-      transition: all 0.2s;
+    .form-group {
+      margin-bottom: 15px;
     }
 
-    textarea:focus {
-      border-color: var(--accent-cyan);
-      outline: none;
-      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    textarea.form-control {
+      text-align: left;
+      font-family: 'Sarabun', sans-serif;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    /* Question Options */
+    .question-block {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .question-title {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .option-label:hover {
+      color: var(--text-main);
+    }
+
+    .option-label input[type="radio"] {
+      accent-color: var(--accent-cyan);
+    }
+
+    /* Formula Box */
+    .formula-box {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: #38bdf8;
     }
 
     .highlight-box {
@@ -630,14 +727,17 @@
       </div>
       
       <nav class="sidebar-nav">
-        <div class="nav-item active" onclick="switchTab('theory')">
+        <div class="nav-item active" onclick="switchTab('tab-theory')">
           <span>📖</span> ทฤษฎีและคู่มือแล็บ
         </div>
-        <div class="nav-item" onclick="switchTab('simulator')">
-          <span>🔬</span> ห้องทดลองเสมือนจริง
+        <div class="nav-item" onclick="switchTab('tab-simulator')">
+          <span>🔬</span> ห้องทดลองจำลองเสมือน
         </div>
-        <div class="nav-item" onclick="switchTab('worksheet')">
-          <span>📝</span> ใบงานและรายงานผล
+        <div class="nav-item" onclick="switchTab('tab-worksheet')">
+          <span>📝</span> ตารางบันทึกผลการทดลอง
+        </div>
+        <div class="nav-item" onclick="switchTab('tab-assessment')">
+          <span>❓</span> คำถามและสรุปผล
         </div>
       </nav>
       
@@ -653,7 +753,7 @@
       <!-- ========================================== -->
       <!-- TAB 1: THEORY -->
       <!-- ========================================== -->
-      <section id="theory" class="tab-content active">
+      <section id="tab-theory" class="tab-content active">
         <header class="content-header">
           <h1>📖 ทฤษฎีและคู่มือแล็บ (Theory & Background)</h1>
           <p class="subtitle">การวิเคราะห์วงจรขยายสัญญาณขนาดเล็กของ FET และ MOSFET ด้วยแบบจำลองค่าความนำข้าม (gm Model)</p>
@@ -661,9 +761,9 @@
 
         <div class="card">
           <h2 class="card-title"><span class="number">1.</span> <span>วัตถุประสงค์การทดลอง (Objectives)</span></h2>
-          <ul style="margin-left: 20px; color: var(--text-main);">
+          <ul style="margin-left: 20px; color: var(--text-main); line-height: 1.8;">
             <li>เพื่อศึกษาจุดทำงานทางไฟฟ้ากระแสตรง (DC Operating Point: Q-Point) ของวงจรขยายสัญญาณขนาดเล็กที่ใช้ JFET และ MOSFET</li>
-            <li>เพื่อคำนวณและวัดค่าความนำข้ามทางไฟฟ้า (Transconductance: <strong>g<sub>m</sub></strong>) ของ FET ในสภาวะสัญญาณขนาดเล็ก</li>
+            <li>เพื่อคำนวณและสกัดค่าความนำข้ามทางไฟฟ้า (Transconductance: <strong>g<sub>m</sub></strong>) ของ FET ในสภาวะสัญญาณขนาดเล็ก</li>
             <li>เพื่อเปรียบเทียบอัตราขยายแรงดันไฟฟ้า (Voltage Gain: <strong>A<sub>v</sub></strong>) และอิมพีแดนซ์อินพุต/เอาต์พุต (<strong>Z<sub>i</sub>, Z<sub>o</sub></strong>) ระหว่างกรณีมีตัวเก็บประจุบายพาส (<strong>C<sub>S</sub> Bypassed</strong>) และไม่มีบายพาส (<strong>C<sub>S</sub> Unbypassed</strong>)</li>
             <li>เพื่อสังเกตความต่างเฟส 180° ระหว่างสัญญาณอินพุต v<sub>i</sub> และเอาต์พุต v<sub>o</sub> ในวงจรขยายแบบคอมมอนซอร์ส (Common-Source Amplifier)</li>
           </ul>
@@ -729,7 +829,7 @@
               </tr>
               <tr>
                 <td><strong>อิมพีแดนซ์เอาต์พุต (Z<sub>o</sub>)</strong></td>
-                <td>≈ R<sub>D</sub></td>
+                <td>≈ R<sub>D</sub> (หรือ R<sub>D</sub> ∥ r<sub>d</sub>)</td>
                 <td>≈ R<sub>D</sub></td>
                 <td>กำหนดโดยตัวต้านทานที่ขาเดรน</td>
               </tr>
@@ -744,7 +844,7 @@
         </div>
 
         <div class="card-footer-action no-print" style="text-align: right;">
-          <button class="btn btn-primary" onclick="switchTab('simulator')">เข้าสู่ห้องทดลองเสมือนจริง 🔬</button>
+          <button class="btn btn-primary" onclick="switchTab('tab-simulator')">เข้าสู่ห้องทดลองจำลองเสมือน 🔬</button>
         </div>
       </section>
 
@@ -752,380 +852,481 @@
       <!-- ========================================== -->
       <!-- TAB 2: VIRTUAL LAB SIMULATOR -->
       <!-- ========================================== -->
-      <section id="simulator" class="tab-content">
+      <section id="tab-simulator" class="tab-content">
         <header class="content-header">
-          <h1>🔬 ห้องทดลองเสมือนจริง (FET/MOSFET Virtual Lab & Oscilloscope)</h1>
-          <p class="subtitle">ปรับพารามิเตอร์วงจร เลือกเบอร์ FET สลับสวิตช์ CS และดูรูปคลื่นบนออสซิลโลสโคปแบบเรียลไทม์</p>
+          <h1>🔬 ห้องทดลองจำลองเสมือน (FET/MOSFET Virtual Lab & Oscilloscope)</h1>
+          <p class="subtitle">ปรับพารามิเตอร์วงจร เลือกเบอร์ FET สลับสวิตช์ CS และดูวงจรสมมูล AC หรือรูปคลื่นออสซิลโลสโคปแบบเรียลไทม์</p>
         </header>
 
-        <!-- TOP CONTROLS: MODEL SELECTOR & SWITCHES -->
-        <div class="card no-print" style="margin-bottom: 20px; border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.75);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
-              <span>🏷️</span> <span>เลือกเบอร์อุปกรณ์ FET / MOSFET</span>
-            </div>
-            <span id="txt-sim-model-badge" class="badge badge-cyan" style="font-size: 12px; padding: 4px 10px;">
-              เบอร์ปัจจุบัน: 2N5458 (JFET N-Ch, Idss=6mA, Vp=-3.5V)
-            </span>
-          </div>
-          
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">
-            <button type="button" class="btn btn-secondary active" id="btn-fet-2n5458" onclick="selectFetModel('2N5458')" style="border-color: #38bdf8; background: rgba(56, 189, 248, 0.25); color: #38bdf8;">
-              <strong>2N5458 ⭐</strong><br><span style="font-size: 11px; opacity: 0.85;">I<sub>DSS</sub>=6mA, V<sub>P</sub>=−3.5V</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-fet-2n5484" onclick="selectFetModel('2N5484')">
-              <strong>2N5484</strong><br><span style="font-size: 11px; opacity: 0.85;">I<sub>DSS</sub>=3.5mA, V<sub>P</sub>=−2.0V</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-fet-bf245b" onclick="selectFetModel('BF245B')">
-              <strong>BF245B</strong><br><span style="font-size: 11px; opacity: 0.85;">I<sub>DSS</sub>=10mA, V<sub>P</sub>=−4.0V</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-fet-2n7000" onclick="selectFetModel('2N7000')">
-              <strong>2N7000 (MOS)</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>th</sub>=2.1V, k=0.12</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-fet-bs170" onclick="selectFetModel('BS170')">
-              <strong>BS170 (MOS)</strong><br><span style="font-size: 11px; opacity: 0.85;">V<sub>th</sub>=2.0V, k=0.15</span>
-            </button>
-          </div>
-          
-          <div style="display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <span style="font-size: 13px; color: var(--text-muted);">ตัวเก็บประจุบายพาส C<sub>S</sub>:</span>
-              <button type="button" class="btn btn-success btn-small" id="btn-toggle-cs" onclick="toggleCS()">
-                🟢 ต่อขนาน C<sub>S</sub> (Bypassed Mode)
-              </button>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <span style="font-size: 13px; color: var(--text-muted);">มุมมองวงจร:</span>
-              <button type="button" class="btn btn-secondary btn-small active" id="btn-view-real" onclick="setSchematicView('real')" style="border-color: #38bdf8; color: #38bdf8;">
-                📷 ผังวงจรจริง (Real Circuit)
-              </button>
-              <button type="button" class="btn btn-secondary btn-small" id="btn-view-ac" onclick="setSchematicView('ac')">
-                🔲 วงจรสมมูล AC (AC g<sub>m</sub> Model)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- SIMULATOR WORKSPACE (OSCILLOSCOPE + CONTROLS) -->
-        <div class="simulator-workspace">
-          
-          <!-- LEFT: LIVE DUAL OSCILLOSCOPE & SCHEMATIC -->
-          <div>
-            <div class="card" style="padding: 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="font-size: 15px; color: #fff;">📡 Dual-Trace Live Oscilloscope</h3>
-                <span id="txt-scope-mode-tag" class="badge badge-green">C<sub>S</sub> Bypassed: Gain ≈ −6.16 (Inverting)</span>
+        <div class="grid-2">
+          <!-- LEFT: INTERACTIVE CONTROLS -->
+          <div class="card">
+            <h2 class="card-title">🎛️ แผงปรับพารามิเตอร์วงจร (Circuit & FET Parameters)</h2>
+            
+            <div class="control-group">
+              <div class="slider-header">
+                <span>แรงดันแหล่งจ่ายไฟตรง V<sub>DD</sub></span>
+                <span class="val" id="val-vdd">18.0 V</span>
               </div>
-              
-              <div class="scope-container">
-                <canvas id="scopeCanvas" class="scope-screen" width="600" height="320"></canvas>
-                
-                <div class="scope-readout">
-                  <span style="color: #fbbf24;">CH1 (v<sub>i</sub>): <span id="txt-readout-vi">50.0 mVp-p</span></span>
-                  <span style="color: #38bdf8;">CH2 (v<sub>o</sub>): <span id="txt-readout-vo">308.2 mVp-p</span></span>
-                  <span style="color: #34d399;">A<sub>v</sub>: <span id="txt-readout-gain">−6.16</span> (180°)</span>
-                </div>
-              </div>
+              <input type="range" id="slider-vdd" min="6.0" max="24.0" step="0.5" value="18.0" oninput="updateSim()">
             </div>
 
-            <!-- SCHEMATIC SVG -->
-            <div class="card" style="padding: 16px; margin-bottom: 0;">
-              <h3 style="font-size: 15px; color: #fff; margin-bottom: 10px;" id="txt-schematic-title">
-                ⚡ ผังวงจรขยายคอมมอนซอร์ส (Common-Source JFET Amplifier)
-              </h3>
-              
-              <div style="background: #090d16; border-radius: 8px; border: 1px solid var(--border-color); padding: 10px; overflow-x: auto;">
-                <svg id="schematic-svg" viewBox="0 0 540 280" width="100%" height="240" style="display: block; margin: 0 auto;">
-                  <!-- Real Circuit Schematic -->
-                  <g id="schematic-real">
-                    <!-- Rails -->
-                    <line x1="50" y1="30" x2="450" y2="30" stroke="#ef4444" stroke-width="2.5"/>
-                    <text x="460" y="34" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold">+VDD (+18V)</text>
-                    <line x1="50" y1="250" x2="450" y2="250" stroke="#3b82f6" stroke-width="2.5"/>
-                    <text x="460" y="254" fill="#3b82f6" font-family="Chakra Petch" font-size="12">GND</text>
-                    
-                    <!-- Resistor R1 -->
-                    <line x1="140" y1="30" x2="140" y2="70" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="130" y="70" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="140" y="60" fill="#f59e0b" font-family="Chakra Petch" font-size="11" text-anchor="middle">R1 = 2.2MΩ</text>
-                    <line x1="140" y1="110" x2="140" y2="170" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- Resistor R2 -->
-                    <rect x="130" y="170" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="140" y="225" fill="#f59e0b" font-family="Chakra Petch" font-size="11" text-anchor="middle">R2 = 270kΩ</text>
-                    <line x1="140" y1="210" x2="140" y2="250" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- Input C1 branch -->
-                    <line x1="50" y1="140" x2="80" y2="140" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="80" y1="128" x2="80" y2="152" stroke="#38bdf8" stroke-width="3"/>
-                    <line x1="88" y1="128" x2="88" y2="152" stroke="#38bdf8" stroke-width="3"/>
-                    <text x="84" y="120" fill="#38bdf8" font-family="Chakra Petch" font-size="10" text-anchor="middle">C1 = 0.1μF</text>
-                    <line x1="88" y1="140" x2="140" y2="140" stroke="#94a3b8" stroke-width="2"/>
-                    <circle cx="50" cy="140" r="5" fill="#fbbf24"/>
-                    <text x="35" y="144" fill="#fbbf24" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="end">vi</text>
-                    
-                    <!-- Gate connection to JFET -->
-                    <line x1="140" y1="140" x2="215" y2="140" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- JFET Symbol -->
-                    <circle cx="245" cy="140" r="28" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
-                    <!-- Gate Bar -->
-                    <line x1="235" y1="125" x2="235" y2="155" stroke="#cbd5e1" stroke-width="3.5"/>
-                    <!-- Gate terminal with arrow -->
-                    <line x1="215" y1="140" x2="235" y2="140" stroke="#cbd5e1" stroke-width="2"/>
-                    <polygon points="224,136 235,140 224,144" fill="#38bdf8"/>
-                    <!-- Drain & Source lines -->
-                    <line x1="235" y1="130" x2="255" y2="130" stroke="#cbd5e1" stroke-width="2"/>
-                    <line x1="255" y1="130" x2="255" y2="90" stroke="#cbd5e1" stroke-width="2"/>
-                    <line x1="235" y1="150" x2="255" y2="150" stroke="#cbd5e1" stroke-width="2"/>
-                    <line x1="255" y1="150" x2="255" y2="190" stroke="#cbd5e1" stroke-width="2"/>
-                    <text id="svg-fet-tag" x="245" y="105" fill="#38bdf8" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">Q1: 2N5458</text>
-                    
-                    <!-- Resistor RD -->
-                    <line x1="255" y1="30" x2="255" y2="50" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="245" y="50" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="275" y="74" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RD = 2.2kΩ</text>
-                    <line x1="255" y1="90" x2="330" y2="90" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- Resistor RS and CS branch -->
-                    <rect x="245" y="190" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="205" y="215" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RS = 1.0kΩ</text>
-                    <line x1="255" y1="230" x2="255" y2="250" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- CS capacitor -->
-                    <line x1="255" y1="170" x2="310" y2="170" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="310" y1="170" x2="310" y2="195" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="300" y1="195" x2="320" y2="195" stroke="#34d399" stroke-width="3" id="svg-cs-plate1"/>
-                    <line x1="300" y1="205" x2="320" y2="205" stroke="#34d399" stroke-width="3" id="svg-cs-plate2"/>
-                    <line x1="310" y1="205" x2="310" y2="250" stroke="#94a3b8" stroke-width="2"/>
-                    <text id="svg-cs-label" x="330" y="204" fill="#34d399" font-family="Chakra Petch" font-size="11" font-weight="bold">CS = 10μF (ON)</text>
-                    
-                    <!-- Output C2 branch -->
-                    <line x1="330" y1="78" x2="330" y2="102" stroke="#38bdf8" stroke-width="3"/>
-                    <line x1="338" y1="78" x2="338" y2="102" stroke="#38bdf8" stroke-width="3"/>
-                    <line x1="338" y1="90" x2="410" y2="90" stroke="#94a3b8" stroke-width="2"/>
-                    <text x="334" y="70" fill="#38bdf8" font-family="Chakra Petch" font-size="10" text-anchor="middle">C2 = 0.1μF</text>
-                    <circle cx="410" cy="90" r="5" fill="#38bdf8"/>
-                    <text x="425" y="94" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">vo</text>
-                  </g>
-
-                  <!-- AC gm Model Schematic (Initially Hidden) -->
-                  <g id="schematic-ac" style="display: none;">
-                    <rect x="20" y="20" width="500" height="240" rx="8" fill="#0b1329" stroke="#38bdf8" stroke-dasharray="4 4"/>
-                    <text x="270" y="45" fill="#38bdf8" font-family="Chakra Petch" font-size="13" font-weight="bold" text-anchor="middle">AC Small-Signal gm Equivalent Circuit Model</text>
-                    
-                    <!-- Gate Input & RG -->
-                    <circle cx="50" cy="130" r="5" fill="#fbbf24"/>
-                    <text x="40" y="134" fill="#fbbf24" font-family="Chakra Petch" font-size="11" font-weight="bold">vi</text>
-                    <line x1="50" y1="130" x2="120" y2="130" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="110" y="145" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="65" y="170" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RG = R1 || R2</text>
-                    <line x1="120" y1="130" x2="120" y2="145" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="120" y1="185" x2="120" y2="220" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="50" y1="220" x2="480" y2="220" stroke="#3b82f6" stroke-width="2"/>
-                    
-                    <!-- Open Circuit Gate-Source (vgs) -->
-                    <line x1="120" y1="130" x2="190" y2="130" stroke="#94a3b8" stroke-width="2"/>
-                    <circle cx="190" cy="130" r="4" fill="#cbd5e1"/>
-                    <text x="190" y="118" fill="#38bdf8" font-family="Chakra Petch" font-size="11" text-anchor="middle">Gate (G)</text>
-                    <text x="210" y="170" fill="#38bdf8" font-family="Chakra Petch" font-size="14" font-weight="bold">+  vgs  −</text>
-                    
-                    <!-- Dependent Current Source gm*vgs -->
-                    <circle cx="290" cy="150" r="22" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
-                    <polygon points="290,165 295,145 285,145" fill="#34d399"/>
-                    <line x1="290" y1="135" x2="290" y2="155" stroke="#34d399" stroke-width="2"/>
-                    <text x="290" y="120" fill="#34d399" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">gm · vgs</text>
-                    <line x1="290" y1="172" x2="290" y2="220" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="290" y1="128" x2="290" y2="90" stroke="#94a3b8" stroke-width="2"/>
-                    <line x1="290" y1="90" x2="450" y2="90" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- rd and RD -->
-                    <line x1="365" y1="90" x2="365" y2="135" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="355" y="135" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="385" y="160" fill="#f59e0b" font-family="Chakra Petch" font-size="11">rd = 40kΩ</text>
-                    <line x1="365" y1="175" x2="365" y2="220" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <line x1="425" y1="90" x2="425" y2="135" stroke="#94a3b8" stroke-width="2"/>
-                    <rect x="415" y="135" width="20" height="40" rx="3" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="445" y="160" fill="#f59e0b" font-family="Chakra Petch" font-size="11">RD = 2.2kΩ</text>
-                    <line x1="425" y1="175" x2="425" y2="220" stroke="#94a3b8" stroke-width="2"/>
-                    
-                    <!-- Output vo -->
-                    <circle cx="450" cy="90" r="5" fill="#38bdf8"/>
-                    <text x="465" y="94" fill="#38bdf8" font-family="Chakra Petch" font-size="11" font-weight="bold">vo</text>
-                  </g>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- RIGHT: INTERACTIVE CONTROL PANEL & DC METER -->
-          <div>
-            <div class="control-panel">
-              <h3 style="font-size: 15px; color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
-                🎛️ แผงปรับพารามิเตอร์วงจรเสมือนจริง
-              </h3>
-
-              <!-- DC Supply VDD -->
-              <div class="slider-group">
+            <div class="grid-2">
+              <div class="control-group">
                 <div class="slider-header">
-                  <span>แหล่งจ่ายไฟตรง (V<sub>DD</sub>):</span>
-                  <span id="txt-val-vdd">18.0 V</span>
+                  <span>ตัวต้านทาน R<sub>1</sub></span>
+                  <span class="val" id="val-r1">2200 kΩ</span>
                 </div>
-                <input type="range" id="slider-vdd" min="6" max="24" step="0.5" value="18.0" oninput="updateSim()">
+                <input type="range" id="slider-r1" min="500" max="5000" step="100" value="2200" oninput="updateSim()">
               </div>
 
-              <!-- Input AC Amplitude -->
-              <div class="slider-group">
+              <div class="control-group">
                 <div class="slider-header">
-                  <span>แรงดันอินพุต (v<sub>i(p-p)</sub>):</span>
-                  <span id="txt-val-vi">50 mV</span>
+                  <span>ตัวต้านทาน R<sub>2</sub></span>
+                  <span class="val" id="val-r2">270 kΩ</span>
                 </div>
-                <input type="range" id="slider-vi" min="10" max="250" step="5" value="50" oninput="updateSim()">
+                <input type="range" id="slider-r2" min="50" max="600" step="10" value="270" oninput="updateSim()">
               </div>
+            </div>
 
-              <!-- Input Frequency -->
-              <div class="slider-group">
+            <div class="grid-2">
+              <div class="control-group">
                 <div class="slider-header">
-                  <span>ความถี่สัญญาณ (f):</span>
-                  <span id="txt-val-freq">1,000 Hz</span>
-                </div>
-                <input type="range" id="slider-freq" min="100" max="10000" step="100" value="1000" oninput="updateSim()">
-              </div>
-
-              <!-- Resistor RD -->
-              <div class="slider-group">
-                <div class="slider-header">
-                  <span>ตัวต้านทานขาเดรน (R<sub>D</sub>):</span>
-                  <span id="txt-val-rd">2.2 kΩ</span>
+                  <span>ตัวต้านทาน R<sub>D</sub></span>
+                  <span class="val" id="val-rd">2.2 kΩ</span>
                 </div>
                 <input type="range" id="slider-rd" min="1.0" max="5.6" step="0.1" value="2.2" oninput="updateSim()">
               </div>
 
-              <!-- Resistor RS -->
-              <div class="slider-group">
+              <div class="control-group">
                 <div class="slider-header">
-                  <span>ตัวต้านทานขาซอร์ส (R<sub>S</sub>):</span>
-                  <span id="txt-val-rs">1.0 kΩ</span>
+                  <span>ตัวต้านทาน R<sub>S</sub></span>
+                  <span class="val" id="val-rs">1.0 kΩ</span>
                 </div>
                 <input type="range" id="slider-rs" min="0.2" max="3.3" step="0.1" value="1.0" oninput="updateSim()">
               </div>
+            </div>
 
-              <!-- DC Multimeter Probe Box -->
-              <div style="background: #090d16; border-radius: 8px; border: 1px solid var(--border-color); padding: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <span style="font-size: 12px; color: var(--text-muted);">โพรบวัดจุดทำงาน DC:</span>
-                  <select id="sel-dc-probe" onchange="updateDCMeter()" style="width: auto; background:#1e293b; border:1px solid #475569; color:#fff; padding:4px 8px; border-radius:4px; font-size:12px;">
-                    <option value="vgs">แรงดัน V_GS (Gate-Source)</option>
-                    <option value="vg">แรงดัน V_G (Gate-GND)</option>
-                    <option value="vs">แรงดัน V_S (Source-GND)</option>
-                    <option value="vd">แรงดัน V_D (Drain-GND)</option>
-                    <option value="vds">แรงดัน V_DS (Drain-Source)</option>
-                    <option value="id">กระแสเดรน I_D (mA)</option>
-                  </select>
+            <!-- FET Model Selection -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 13px; font-weight: 600;">🏷️ เลือกรุ่น FET/MOSFET (FET Model)</span>
+                <span id="txt-fet-model-badge" class="badge" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-cyan); color: #38bdf8; font-size: 11px; padding: 2px 8px;">
+                  2N5458 (IDSS=6mA, VP=-3.5V)
+                </span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 8px;">
+                <button type="button" class="btn btn-secondary active" id="btn-fet-2n5458" onclick="selectFetModel('2N5458')" style="font-size: 11px; padding: 6px 2px; text-align: center; border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.25); color: #38bdf8;">2N5458</button>
+                <button type="button" class="btn btn-secondary" id="btn-fet-2n5484" onclick="selectFetModel('2N5484')" style="font-size: 11px; padding: 6px 2px; text-align: center;">2N5484</button>
+                <button type="button" class="btn btn-secondary" id="btn-fet-bf245b" onclick="selectFetModel('BF245B')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BF245B</button>
+                <button type="button" class="btn btn-secondary" id="btn-fet-2n7000" onclick="selectFetModel('2N7000')" style="font-size: 11px; padding: 6px 2px; text-align: center;">2N7000</button>
+                <button type="button" class="btn btn-secondary" id="btn-fet-bs170" onclick="selectFetModel('BS170')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BS170</button>
+              </div>
+              <p id="txt-fet-model-desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 0;">
+                💡 2N5458: JFET N-Channel สัญญาณขนาดเล็กและขยายสัญญาณอเนกประสงค์ (IDSS = 6.0mA, VP = -3.5V, rd = 40kΩ)
+              </p>
+            </div>
+
+            <div class="grid-2">
+              <div class="control-group">
+                <div class="slider-header">
+                  <span>กระแสอิ่มตัว I<sub>DSS</sub></span>
+                  <span class="val" id="val-idss">6.0 mA</span>
                 </div>
-                <div style="display: flex; align-items: baseline; justify-content: space-between; background: #050b14; padding: 10px 14px; border-radius: 6px; border: 1px solid #38bdf8;">
-                  <span id="txt-meter-title" style="font-size: 13px; color: #94a3b8;">V<sub>GSQ</sub> =</span>
-                  <span id="txt-meter-val" style="font-family: 'Fira Code', monospace; font-size: 22px; font-weight: bold; color: #38bdf8;">−0.482 V</span>
-                </div>
+                <input type="range" id="slider-idss" min="1.0" max="15.0" step="0.5" value="6.0" oninput="onCustomParamChange()">
               </div>
 
-              <div style="display: flex; gap: 8px;">
-                <button type="button" class="btn btn-primary" style="flex: 1;" onclick="syncSimToWorksheet()">
-                  📋 โอนข้อมูลผลการวัดไปยังใบงาน
+              <div class="control-group">
+                <div class="slider-header">
+                  <span>แรงดันคัตออฟ V<sub>P</sub></span>
+                  <span class="val" id="val-vp">-3.5 V</span>
+                </div>
+                <input type="range" id="slider-vp" min="-6.0" max="-1.0" step="0.1" value="-3.5" oninput="onCustomParamChange()">
+              </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 12px 0;">
+
+            <div class="control-group">
+              <div class="slider-header">
+                <span>ขนาดสัญญาณกระแสสลับอินพุต v<sub>i(p-p)</sub></span>
+                <span class="val" id="val-vi">50 mV</span>
+              </div>
+              <input type="range" id="slider-vi" min="10" max="150" step="5" value="50" oninput="updateSim()">
+            </div>
+
+            <!-- CS Bypass Switch Control -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">
+                  🔌 ตัวเก็บประจุบายพาส C<sub>S</sub> (Bypass Capacitor):
+                </span>
+                <span id="badge-cs-status" class="badge" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-cyan); color: #38bdf8; font-size: 11px; padding: 2px 8px;">
+                  🟢 ต่อวงจร (Bypassed)
+                </span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button id="btn-cs-on" class="btn btn-secondary active" style="font-size: 12px; padding: 8px 10px; border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.2); color: #38bdf8;" onclick="setBypassState(true)">
+                  ⚡ ต่อ C<sub>S</sub> (Bypassed)
                 </button>
+                <button id="btn-cs-off" class="btn btn-secondary" style="font-size: 12px; padding: 8px 10px;" onclick="setBypassState(false)">
+                  ❌ ถอด C<sub>S</sub> ออก (Unbypassed)
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 12px;">
+              <button id="btn-model-view" class="btn btn-secondary" style="flex: 1;" onclick="toggleModelDiagram()">
+                🔄 สลับดูแบบจำลอง gm-Parameter
+              </button>
+            </div>
+          </div>
+
+          <!-- RIGHT: SCHEMATIC & OSCILLOSCOPE MULTI-VIEW CARD -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+              <h2 class="card-title" style="margin-bottom: 0;">📐 แผนภาพวงจรและแบบจำลอง (Circuit & gm-Model)</h2>
+              <div style="display: flex; gap: 6px; background: rgba(15, 23, 42, 0.8); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <button id="tab-btn-phys" class="btn btn-secondary active" style="padding: 6px 12px; font-size: 11px; background: rgba(56, 189, 248, 0.25); border-color: var(--accent-cyan); color: #fff;" onclick="switchSchematicMode('physical')">
+                  ⚡ วงจรจริง (Circuit)
+                </button>
+                <button id="tab-btn-gmmodel" class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; color: var(--text-muted);" onclick="switchSchematicMode('gm-model')">
+                  📐 วงจรสมมูล AC (gm-Model)
+                </button>
+                <button id="tab-btn-scope" class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; color: var(--text-muted);" onclick="switchSchematicMode('scope')">
+                  📡 ออสซิลโลสโคปคู่ (Scope)
+                </button>
+              </div>
+            </div>
+            
+            <div class="schematic-box">
+              <!-- Mode 1: Physical Circuit Schematic -->
+              <svg id="svg-schematic-physical" viewBox="0 0 520 270" style="width: 100%; height: auto; max-height: 240px; display: block;">
+                <!-- Supply Rails -->
+                <line x1="40" y1="20" x2="480" y2="20" stroke="#38bdf8" stroke-width="2.5" />
+                <text id="svg-txt-vdd" x="485" y="24" fill="#38bdf8" font-size="12" font-weight="bold" font-family="Chakra Petch">+18.0V</text>
+                
+                <line x1="40" y1="245" x2="480" y2="245" stroke="#64748b" stroke-width="2.5" />
+                <text x="485" y="249" fill="#64748b" font-size="12" font-family="Chakra Petch">GND</text>
+
+                <!-- R1 and R2 divider branch -->
+                <line x1="120" y1="20" x2="120" y2="60" stroke="#94a3b8" stroke-width="2" />
+                <rect x="110" y="60" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-txt-r1" x="75" y="83" fill="#bae6fd" font-size="10" font-family="Fira Code">R1 2.2M</text>
+
+                <line x1="120" y1="98" x2="120" y2="160" stroke="#94a3b8" stroke-width="2" />
+                <rect x="110" y="160" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-txt-r2" x="75" y="183" fill="#bae6fd" font-size="10" font-family="Fira Code">R2 270k</text>
+                <line x1="120" y1="198" x2="120" y2="245" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Input branch -->
+                <circle cx="35" cy="130" r="4" fill="#facc15" />
+                <text x="12" y="134" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
+                <line x1="35" y1="130" x2="70" y2="130" stroke="#facc15" stroke-width="2" />
+                <!-- C1 -->
+                <line x1="70" y1="120" x2="70" y2="140" stroke="#94a3b8" stroke-width="2" />
+                <line x1="76" y1="120" x2="76" y2="140" stroke="#94a3b8" stroke-width="2" />
+                <line x1="76" y1="130" x2="210" y2="130" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- FET Symbol -->
+                <circle cx="240" cy="130" r="26" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" />
+                <!-- Gate bar -->
+                <line x1="230" y1="112" x2="230" y2="148" stroke="#cbd5e1" stroke-width="3.5" />
+                <!-- Gate lead with arrow -->
+                <line x1="210" y1="130" x2="230" y2="130" stroke="#cbd5e1" stroke-width="2" />
+                <polygon points="220,126 230,130 220,134" fill="#38bdf8" />
+                <!-- Drain and Source -->
+                <line x1="230" y1="118" x2="250" y2="118" stroke="#cbd5e1" stroke-width="2" />
+                <line x1="250" y1="118" x2="250" y2="80" stroke="#cbd5e1" stroke-width="2" />
+                <line x1="230" y1="142" x2="250" y2="142" stroke="#cbd5e1" stroke-width="2" />
+                <line x1="250" y1="142" x2="250" y2="180" stroke="#cbd5e1" stroke-width="2" />
+                <text id="svg-txt-q1-part" x="240" y="98" fill="#facc15" font-size="10" font-weight="bold" font-family="Chakra Petch" text-anchor="middle">Q1: 2N5458</text>
+
+                <!-- Drain Branch (RD) -->
+                <rect x="240" y="28" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-txt-rd" x="270" y="52" fill="#bae6fd" font-size="10" font-family="Fira Code">RD 2.2k</text>
+                <line x1="250" y1="20" x2="250" y2="28" stroke="#94a3b8" stroke-width="2" />
+                <line x1="250" y1="66" x2="250" y2="118" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Output Branch (C2 & Vo) -->
+                <circle cx="250" y="80" r="3.5" fill="#38bdf8" />
+                <line x1="250" y1="80" x2="350" y2="80" stroke="#38bdf8" stroke-width="2" />
+                <!-- C2 -->
+                <line x1="350" y1="70" x2="350" y2="90" stroke="#94a3b8" stroke-width="2" />
+                <line x1="356" y1="70" x2="356" y2="90" stroke="#94a3b8" stroke-width="2" />
+                <line x1="356" y1="80" x2="410" y2="80" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="410" y="80" r="4" fill="#38bdf8" />
+                <text x="420" y="84" fill="#38bdf8" font-size="12" font-family="Chakra Petch">vo</text>
+
+                <!-- Source Branch (RS & CS) -->
+                <rect x="240" y="180" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-txt-rs" x="200" y="202" fill="#bae6fd" font-size="10" font-family="Fira Code">RS 1.0k</text>
+                <line x1="250" y1="218" x2="250" y2="245" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- CS Parallel Capacitor with Knife Switch SW1 -->
+                <g id="svg-cs-branch" style="cursor: pointer;" onclick="toggleCS()" title="👉 คลิกตรงนี้เพื่อสับสวิตช์ ต่อ/ถอด ตัวเก็บประจุ CS">
+                  <line x1="250" y1="172" x2="305" y2="172" stroke="#10b981" stroke-width="1.5" />
+                  <circle cx="305" cy="172" r="2.5" fill="#10b981" />
+                  
+                  <!-- Switch SW1 Blade -->
+                  <line id="svg-sw-blade" x1="305" y1="172" x2="330" y2="172" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
+                  <circle cx="330" cy="172" r="2.5" fill="#10b981" />
+                  <text id="svg-sw-label" x="317" y="162" fill="#10b981" font-size="9" font-family="Chakra Petch" text-anchor="middle">SW1: ON (ต่อ CS)</text>
+
+                  <line x1="330" y1="172" x2="330" y2="188" stroke="#10b981" stroke-width="1.5" />
+                  <line id="svg-cs-plate1" x1="322" y1="188" x2="338" y2="188" stroke="#10b981" stroke-width="2" />
+                  <line id="svg-cs-plate2" x1="322" y1="194" x2="338" y2="194" stroke="#10b981" stroke-width="2" />
+                  <line x1="330" y1="194" x2="330" y2="245" stroke="#10b981" stroke-width="1.5" />
+                  <text id="svg-cs-text" x="345" y="194" fill="#10b981" font-size="10" font-family="Fira Code">CS 10uF</text>
+                  <text id="svg-cs-hint" x="330" y="258" fill="#94a3b8" font-size="9" font-family="Chakra Petch" text-anchor="middle">👆 คลิกสับสวิตช์</text>
+                </g>
+              </svg>
+
+              <!-- Mode 2: AC Small-Signal gm Equivalent Model -->
+              <svg id="svg-schematic-gm-model" viewBox="0 0 540 260" style="width: 100%; height: auto; max-height: 235px; display: none;">
+                <!-- AC Ground Rail -->
+                <line x1="15" y1="215" x2="525" y2="215" stroke="#64748b" stroke-width="2.5" />
+                <text x="480" y="230" fill="#64748b" font-size="10" font-family="Chakra Petch">AC GND</text>
+
+                <!-- Input Vi -->
+                <circle cx="20" cy="68" r="4" fill="#facc15" />
+                <text x="8" y="72" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
+                <line x1="20" y1="68" x2="60" y2="68" stroke="#facc15" stroke-width="2" />
+
+                <!-- RG = R1 || R2 -->
+                <line x1="60" y1="68" x2="60" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="50" y="95" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-gm-rg-val" x="60" y="150" fill="#bae6fd" font-size="9" font-family="Fira Code" text-anchor="middle">RG: 240.5k</text>
+                <line x1="60" y1="133" x2="60" y2="215" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Gate Node (G) & vgs -->
+                <line x1="60" y1="68" x2="140" y2="68" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="140" cy="68" r="3.5" fill="#fff" />
+                <text x="140" y="54" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">G (Gate)</text>
+                
+                <text x="160" y="110" fill="#38bdf8" font-size="12" font-family="Chakra Petch" font-weight="bold">+  vgs  −</text>
+
+                <!-- FET gm Model Box Outline -->
+                <rect x="120" y="40" width="275" height="118" rx="6" fill="rgba(30, 41, 59, 0.2)" stroke="#475569" stroke-width="1" stroke-dasharray="4,4" />
+
+                <!-- Drain Terminal (D) -->
+                <circle cx="305" cy="68" r="3.5" fill="#fff" />
+                <text x="305" y="54" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">D (Drain)</text>
+                <line x1="245" y1="68" x2="365" y2="68" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Dependent Current Source gm * vgs -->
+                <text id="svg-gm-source-val" x="245" y="86" fill="#34d399" font-size="9.5" font-family="Fira Code" text-anchor="middle">gm&bull;vgs (2.96mS&bull;vgs)</text>
+                <line x1="245" y1="68" x2="245" y2="96" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="245" cy="114" r="16" fill="#1e293b" stroke="#34d399" stroke-width="2" />
+                <line x1="245" y1="103" x2="245" y2="125" stroke="#34d399" stroke-width="2" />
+                <polygon points="245,129 240,121 250,121" fill="#34d399" />
+                <line x1="245" y1="130" x2="245" y2="150" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Output resistance rd -->
+                <line x1="365" y1="68" x2="365" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="355" y="95" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-gm-rd-val" x="382" y="118" fill="#bae6fd" font-size="9" font-family="Fira Code" text-anchor="start">rd: 40k</text>
+                <line x1="365" y1="133" x2="365" y2="150" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Source Bus (S) -->
+                <line x1="140" y1="150" x2="365" y2="150" stroke="#10b981" stroke-width="2.5" />
+                <circle cx="245" cy="150" r="3.5" fill="#10b981" />
+                <text x="280" y="145" fill="#10b981" font-size="10" font-family="Chakra Petch">S (Source)</text>
+
+                <!-- Source to AC GND Path: Case A (Bypassed with CS) -->
+                <g id="svg-gm-bypassed-group" style="display: block;">
+                  <line x1="245" y1="150" x2="245" y2="215" stroke="#10b981" stroke-width="2.5" />
+                  <circle cx="245" cy="215" r="3" fill="#10b981" />
+                  <rect x="170" y="172" width="150" height="20" rx="4" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1" />
+                  <text x="245" y="186" fill="#10b981" font-size="9.5" font-family="Chakra Petch" text-anchor="middle">⚡ ต่อตรงลง AC GND (มี CS)</text>
+                </g>
+
+                <!-- Source to AC GND Path: Case B (Unbypassed: RS in Source) -->
+                <g id="svg-gm-unbypassed-group" style="display: none;">
+                  <line x1="245" y1="150" x2="245" y2="165" stroke="#facc15" stroke-width="2" />
+                  <rect x="235" y="165" width="20" height="32" fill="#1e293b" stroke="#facc15" stroke-width="2" />
+                  <text id="svg-gm-rs-val" x="265" y="184" fill="#facc15" font-size="10" font-family="Fira Code" font-weight="bold">RS: 1.0kΩ</text>
+                  <line x1="245" y1="197" x2="245" y2="215" stroke="#facc15" stroke-width="2" />
+                  <circle cx="245" cy="215" r="3" fill="#facc15" />
+                </g>
+
+                <!-- External Load RD -->
+                <line x1="305" y1="68" x2="445" y2="68" stroke="#94a3b8" stroke-width="2" />
+                <line x1="445" y1="68" x2="445" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="435" y="95" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-gm-load-rd" x="465" y="118" fill="#bae6fd" font-size="9.5" font-family="Fira Code">RD: 2.2k</text>
+                <line x1="445" y1="133" x2="445" y2="215" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="445" cy="215" r="3" fill="#64748b" />
+
+                <!-- Output Vo -->
+                <circle cx="485" cy="68" r="4" fill="#38bdf8" />
+                <line x1="445" y1="68" x2="485" y2="68" stroke="#38bdf8" stroke-width="2" />
+                <text x="495" y="72" fill="#38bdf8" font-size="12" font-family="Chakra Petch" font-weight="bold">vo</text>
+
+                <!-- AC Performance Formula Banner at Bottom -->
+                <rect x="15" y="235" width="510" height="20" rx="3" fill="rgba(15, 23, 42, 0.9)" stroke="#334155" stroke-width="1" />
+                <text id="svg-gm-formula-bar" x="270" y="249" fill="#38bdf8" font-size="9.5" font-family="Fira Code" text-anchor="middle">Av = −6.16 เท่า | Zi = 240.5 kΩ | Zo = 2.08 kΩ (ต่อ CS: Bypassed)</text>
+              </svg>
+
+              <!-- Mode 3: Dual-Trace Oscilloscope View -->
+              <div id="scope-view-container" style="display: none; padding: 6px;">
+                <div class="scope-header">
+                  <span id="txt-scope-mode-tag" class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; font-size: 11px; padding: 2px 8px;">C<sub>S</sub> Bypassed: Gain ≈ −6.16 (Inverting)</span>
+                  <span style="color: var(--text-muted); font-size: 11px;">f = 1,000 Hz (Dual CH1 & CH2)</span>
+                </div>
+                <div class="scope-canvas-wrapper">
+                  <canvas id="scopeCanvas" class="scope-screen" width="560" height="220"></canvas>
+                </div>
+                <div class="scope-readouts">
+                  <div class="readout-item">
+                    <span class="readout-label">CH1 (v<sub>i</sub> Input)</span>
+                    <span class="readout-val yellow" id="txt-readout-vi">50.0 mVp-p</span>
+                  </div>
+                  <div class="readout-item">
+                    <span class="readout-label">CH2 (v<sub>o</sub> Output)</span>
+                    <span class="readout-val cyan" id="txt-readout-vo">308.2 mVp-p</span>
+                  </div>
+                  <div class="readout-item">
+                    <span class="readout-label">Voltage Gain (A<sub>v</sub>)</span>
+                    <span class="readout-val green" id="txt-readout-gain">−6.16</span>
+                  </div>
+                  <div class="readout-item">
+                    <span class="readout-label">Phase Difference</span>
+                    <span class="readout-val yellow" id="txt-readout-phase">180° Inverting</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Real-time Probe Readouts -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px;">
+              <div class="probe-card">
+                <span style="color: var(--text-muted); font-size: 11px;">แรงดัน V<sub>G</sub></span>
+                <div id="readout-vg" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: var(--accent-cyan);">1.97 V</div>
+              </div>
+              <div class="probe-card">
+                <span style="color: var(--text-muted); font-size: 11px;">แรงดัน V<sub>S</sub></span>
+                <div id="readout-vs" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: var(--accent-cyan);">2.45 V</div>
+              </div>
+              <div class="probe-card">
+                <span style="color: var(--text-muted); font-size: 11px;">แรงดัน V<sub>D</sub></span>
+                <div id="readout-vd" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: var(--accent-cyan);">12.61 V</div>
+              </div>
+              <div class="probe-card">
+                <span style="color: var(--text-muted); font-size: 11px;">กระแส I<sub>D</sub></span>
+                <div id="readout-id" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: #34d399;">2.45 mA</div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;">
+              <div class="probe-card" style="border-color: rgba(56, 189, 248, 0.4);">
+                <span style="color: var(--text-muted); font-size: 11px;">พารามิเตอร์ g<sub>m</sub></span>
+                <div id="readout-gm" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: #facc15;">2.96 mS</div>
+              </div>
+              <div class="probe-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                <span style="color: var(--text-muted); font-size: 11px;">อัตราขยายแรงดัน A<sub>v</sub></span>
+                <div id="readout-av" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: #34d399;">−6.16</div>
+              </div>
+              <div class="probe-card" style="border-color: rgba(56, 189, 248, 0.4);">
+                <span style="color: var(--text-muted); font-size: 11px;">ความต้านทาน Z<sub>i</sub></span>
+                <div id="readout-zi" style="font-family: 'Fira Code', monospace; font-size: 15px; font-weight: bold; color: var(--accent-cyan);">240.5 kΩ</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="card-footer-action no-print" style="text-align: right;">
-          <button class="btn btn-primary" onclick="switchTab('worksheet')">ไปที่ใบงานและบันทึกผล 📝</button>
+        <div class="card-footer-action no-print" style="text-align: right; margin-top: 15px;">
+          <button class="btn btn-primary" onclick="switchTab('tab-worksheet')">ไปที่ตารางบันทึกผลการทดลอง 📝</button>
         </div>
       </section>
 
 
       <!-- ========================================== -->
-      <!-- TAB 3: WORKSHEET -->
+      <!-- TAB 3: WORKSHEET (ตารางบันทึกผลการทดลอง) -->
       <!-- ========================================== -->
-      <section id="worksheet" class="tab-content">
+      <section id="tab-worksheet" class="tab-content">
         <header class="content-header">
-          <h1>📝 ใบงานการทดลอง (Interactive Worksheet & Report)</h1>
-          <p class="subtitle">บันทึกผลการทดลองทั้ง 3 ตอน คำนวณค่าทางทฤษฎี ตอบคำถาม และส่งตรวจประเมินผล</p>
+          <h1>📝 ตารางบันทึกผลการทดลอง (Worksheet & Performance Analysis)</h1>
+          <p class="subtitle">บันทึกผลการวัดค่าจุดทำงาน DC, การสกัดพารามิเตอร์ gm และการทดสอบเปรียบเทียบอัตราขยาย AC</p>
         </header>
 
-        <!-- STUDENT PROFILE CARD -->
+        <!-- CARD 1: STUDENT INFORMATION -->
         <div class="card">
-          <h2 class="card-title"><span class="number">👤</span> <span>ข้อมูลผู้ทำการทดลอง</span></h2>
+          <h2 class="card-title">👤 ข้อมูลผู้ทำปฏิบัติการ</h2>
           <div class="grid-4">
-            <div>
-              <label style="font-size: 12px; color: var(--text-muted);">ชื่อ-นามสกุล:</label>
-              <input type="text" id="student-name" placeholder="นายสมชาย ใจดี" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            <div class="form-group">
+              <label>ชื่อ-นามสกุล:</label>
+              <input type="text" id="student-name" class="form-control" placeholder="เช่น นายสมชาย ใจดี">
             </div>
-            <div>
-              <label style="font-size: 12px; color: var(--text-muted);">รหัสนักศึกษา:</label>
-              <input type="text" id="student-id" placeholder="66010001" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            <div class="form-group">
+              <label>รหัสนักศึกษา:</label>
+              <input type="text" id="student-id" class="form-control" placeholder="เช่น 66010001">
             </div>
-            <div>
-              <label style="font-size: 12px; color: var(--text-muted);">กลุ่มเรียน (Group):</label>
-              <input type="text" id="student-group" placeholder="กลุ่ม 1" value="กลุ่ม 1" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            <div class="form-group">
+              <label>กลุ่มเรียน (Group):</label>
+              <input type="text" id="student-group" class="form-control" placeholder="กลุ่ม 1" value="กลุ่ม 1">
             </div>
-            <div>
-              <label style="font-size: 12px; color: var(--text-muted);">วันที่ทำการทดลอง:</label>
-              <input type="date" id="lab-date" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px;">
+            <div class="form-group">
+              <label>วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date" class="form-control">
             </div>
           </div>
         </div>
 
-        <!-- 2-MODE WORKSHEET SELECTOR PANEL -->
+        <!-- CARD 2: CIRCUIT PARAMETER PRESET & CUSTOM MODE SELECTOR -->
         <div class="card no-print" style="border: 1px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.85);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
-              <span>⚙️</span> <span>โหมดการทดลองของใบงาน (Worksheet Parameter Mode)</span>
-            </div>
+            <h2 class="card-title" style="margin-bottom: 0; font-size: 16px; color: var(--accent-cyan); border-bottom: none; padding-bottom: 0;">
+              ⚙️ ระบบกำหนดค่าพารามิเตอร์วงจรสำหรับการทดลอง (Worksheet Parameter Mode)
+            </h2>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn btn-secondary btn-small active" id="btn-mode-fixed" onclick="setWorksheetMode('fixed')" style="border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.2);">
+              <button type="button" class="btn-toggle active" id="btn-ws-mode-fixed" onclick="setWorksheetMode('fixed')">
                 📌 โหมดค่ามาตรฐาน (Fixed Preset)
               </button>
-              <button type="button" class="btn btn-secondary btn-small" id="btn-mode-custom" onclick="setWorksheetMode('custom')">
+              <button type="button" class="btn-toggle" id="btn-ws-mode-custom" onclick="setWorksheetMode('custom')">
                 🛠️ โหมดกำหนดค่าเอง (Custom Dynamic)
               </button>
             </div>
           </div>
 
-          <!-- Parameter Fields Row -->
-          <div class="grid-4" id="panel-params" style="margin-top: 10px;">
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">V<sub>DD</sub> (V):</label>
-              <input type="number" id="ws-param-vdd" value="18.0" step="0.5" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+          <!-- Alert Note Box -->
+          <div id="ws-param-alert" class="highlight-box" style="margin-top: 5px; margin-bottom: 12px; font-size: 12.5px;">
+            📌 <strong>โหมดค่ามาตรฐาน (Fixed Preset):</strong> ใบงานถูกล็อคค่าพารามิเตอร์วงจรมาตรฐานสำหรับ JFET เบอร์ <strong>2N5458</strong> (V<sub>DD</sub> = 18V, R<sub>1</sub> = 2.2MΩ, R<sub>2</sub> = 270kΩ, R<sub>D</sub> = 2.2kΩ, R<sub>S</sub> = 1.0kΩ, I<sub>DSS</sub> = 6.0mA, V<sub>P</sub> = -3.5V)
+          </div>
+
+          <!-- Parameter Fields Grid -->
+          <div class="grid-4" id="panel-params">
+            <div class="form-group">
+              <label style="font-size: 12px;">V<sub>DD</sub> แหล่งจ่าย (V):</label>
+              <input type="number" id="ws-param-vdd" class="form-control" value="18.0" step="0.5" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>1</sub> (kΩ):</label>
-              <input type="number" id="ws-param-r1" value="2200.0" step="100" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">R<sub>1</sub> ไบแอสเกต (kΩ):</label>
+              <input type="number" id="ws-param-r1" class="form-control" value="2200.0" step="100" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>2</sub> (kΩ):</label>
-              <input type="number" id="ws-param-r2" value="270.0" step="10" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">R<sub>2</sub> ไบแอสเกต (kΩ):</label>
+              <input type="number" id="ws-param-r2" class="form-control" value="270.0" step="10" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>D</sub> (kΩ):</label>
-              <input type="number" id="ws-param-rd" value="2.2" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">R<sub>D</sub> ขาเดรน (kΩ):</label>
+              <input type="number" id="ws-param-rd" class="form-control" value="2.2" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">R<sub>S</sub> (kΩ):</label>
-              <input type="number" id="ws-param-rs" value="1.0" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">R<sub>S</sub> ขาซอร์ส (kΩ):</label>
+              <input type="number" id="ws-param-rs" class="form-control" value="1.0" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">I<sub>DSS</sub> (mA):</label>
-              <input type="number" id="ws-param-idss" value="6.0" step="0.5" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">I<sub>DSS</sub> กระแสอิ่มตัว (mA):</label>
+              <input type="number" id="ws-param-idss" class="form-control" value="6.0" step="0.5" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">V<sub>P</sub> (V):</label>
-              <input type="number" id="ws-param-vp" value="-3.5" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">V<sub>P</sub> แรงดันคัตออฟ (V):</label>
+              <input type="number" id="ws-param-vp" class="form-control" value="-3.5" step="0.1" oninput="onWorksheetParamChange()" disabled style="background:#090d16;">
             </div>
-            <div>
-              <label style="font-size: 11.5px; color: var(--text-muted);">เบอร์ FET:</label>
-              <select id="ws-sel-model" onchange="onWorksheetModelSelect()" disabled style="background:#0b0f19;">
+            <div class="form-group">
+              <label style="font-size: 12px;">เบอร์ FET:</label>
+              <select id="ws-sel-model" class="form-control" onchange="onWorksheetModelSelect()" disabled style="background:#090d16;">
                 <option value="2N5458">2N5458 (6mA, -3.5V)</option>
                 <option value="2N5484">2N5484 (3.5mA, -2.0V)</option>
                 <option value="BF245B">BF245B (10mA, -4.0V)</option>
@@ -1135,25 +1336,28 @@
             </div>
           </div>
 
-          <div id="custom-tools-bar" style="display: none; justify-content: flex-end; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color);">
-            <button type="button" class="btn btn-secondary btn-small" onclick="syncWorksheetFromSim()">⚡ ซิงค์ค่าจากหน้าจำลอง</button>
+          <!-- Quick Action Buttons for Custom Mode -->
+          <div id="custom-tools-bar" style="display: none; justify-content: flex-end; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+            <button type="button" class="btn btn-secondary btn-small" onclick="syncWorksheetFromSim()">⚡ ซิงค์จากแล็บเสมือน</button>
             <button type="button" class="btn btn-secondary btn-small" onclick="randomizeWorksheetParams()">🎲 สุ่มโจทย์ใหม่</button>
-            <button type="button" class="btn btn-secondary btn-small" onclick="resetWorksheetDefaultParams()">⏪ คืนค่ามาตรฐาน</button>
+            <button type="button" class="btn btn-secondary btn-small" onclick="resetWorksheetToDefault()">⏪ คืนค่ามาตรฐาน</button>
           </div>
         </div>
 
-        <!-- PART 1: DC BIAS OPERATING POINT TABLE -->
+        <!-- CARD 3: PART 1 DC OPERATING POINT & GM EXTRACTION -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-              <span class="number">ตอนที่ 1:</span> <span>จุดทำงานทางไฟฟ้ากระแสตรง (DC Bias Operating Point)</span>
-            </div>
-            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart1()">⚡ เติมผลวัด DC อัตโนมัติ</button>
+            <h2 class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              1️⃣ ตอนที่ 1: การกำหนดจุดทำงาน DC และการหาค่าความนำข้าม g<sub>m</sub> (Transconductance)
+            </h2>
+            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillDCFromSim()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
           </div>
 
-          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-            วัดระดับแรงดันและกระแสไฟฟ้ากระแสตรงที่จุดทำงาน (Q-Point) ของวงจรคอมมอนซอร์ส:
-          </p>
+          <div id="txt-dc-params" style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            บันทึกค่าระดับแรงดันไฟตรงที่ขาเกต (V<sub>G</sub>), ขาซอร์ส (V<sub>S</sub>), ขาเดรน (V<sub>D</sub>), กระแสเดรน (I<sub>DQ</sub>) และคำนวณ g<sub>m0</sub>, g<sub>m</sub>:
+          </div>
 
           <table class="lab-table">
             <thead>
@@ -1164,6 +1368,8 @@
                 <th>I<sub>DQ</sub> (mA)</th>
                 <th>V<sub>D</sub> (V)</th>
                 <th>V<sub>DSQ</sub> (V)</th>
+                <th>g<sub>m0</sub> (mS)</th>
+                <th>g<sub>m</sub> (mS)</th>
               </tr>
             </thead>
             <tbody>
@@ -1174,67 +1380,49 @@
                 <td><input type="number" id="dc-id" step="0.01" placeholder="เช่น 2.45"></td>
                 <td><input type="number" id="dc-vd" step="0.01" placeholder="เช่น 12.61"></td>
                 <td><input type="number" id="dc-vds" step="0.01" placeholder="เช่น 10.16"></td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="font-size: 12px; color: var(--text-muted);">(สูตร: V<sub>G</sub> = V<sub>DD</sub> · R<sub>2</sub>/(R<sub>1</sub>+R<sub>2</sub>), V<sub>S</sub> = I<sub>D</sub>·R<sub>S</sub>, V<sub>GS</sub> = V<sub>G</sub> − V<sub>S</sub>, V<sub>DS</sub> = V<sub>D</sub> − V<sub>S</sub>)</p>
-        </div>
-
-        <!-- PART 2: SMALL-SIGNAL gm & IMPEDANCES -->
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-              <span class="number">ตอนที่ 2:</span> <span>การคำนวณ Transconductance (gm) และอิมพีแดนซ์ (Zi, Zo)</span>
-            </div>
-            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart2()">⚡ เติมผลคำนวณ gm อัตโนมัติ</button>
-          </div>
-
-          <table class="lab-table">
-            <thead>
-              <tr>
-                <th>g<sub>m0</sub> (mS)</th>
-                <th>g<sub>m</sub> คำนวณ (mS)</th>
-                <th>อิมพีแดนซ์อินพุต Z<sub>i</sub> (kΩ)</th>
-                <th>อิมพีแดนซ์เอาต์พุต Z<sub>o</sub> (kΩ)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
                 <td><input type="number" id="ac-gm0" step="0.01" placeholder="เช่น 3.43"></td>
                 <td><input type="number" id="ac-gm" step="0.01" placeholder="เช่น 2.96"></td>
-                <td><input type="number" id="ac-zi" step="0.1" placeholder="เช่น 240.5"></td>
-                <td><input type="number" id="ac-zo" step="0.01" placeholder="เช่น 2.08"></td>
               </tr>
             </tbody>
           </table>
-          <p style="font-size: 12px; color: var(--text-muted);">(สูตร: g<sub>m0</sub> = 2·I<sub>DSS</sub>/|V<sub>P</sub>|, g<sub>m</sub> = g<sub>m0</sub>·(1 − V<sub>GSQ</sub>/V<sub>P</sub>), Z<sub>i</sub> = R<sub>1</sub>∥R<sub>2</sub>, Z<sub>o</sub> = R<sub>D</sub>∥r<sub>d</sub>)</p>
+          <p style="font-size: 12px; color: var(--text-muted);">(สูตร: V<sub>GS</sub> = V<sub>G</sub> − V<sub>S</sub>, V<sub>DS</sub> = V<sub>D</sub> − V<sub>S</sub>, g<sub>m0</sub> = 2·I<sub>DSS</sub>/|V<sub>P</sub>|, g<sub>m</sub> = g<sub>m0</sub>·(1 − V<sub>GSQ</sub>/V<sub>P</sub>))</p>
         </div>
 
-        <!-- PART 3: AC VOLTAGE GAIN Av & PHASE (WITH/WITHOUT CS) -->
+        <!-- CARD 4: PART 2 AC PERFORMANCE & CS BYPASS COMPARISON -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-              <span class="number">ตอนที่ 3:</span> <span>อัตราขยายสัญญาณแรงดันไฟฟ้า (Av) และความต่างเฟส</span>
-            </div>
-            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillPart3()">⚡ เติมผลวัด Av อัตโนมัติ</button>
+            <h2 class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              2️⃣ ตอนที่ 2: การวิเคราะห์และวัดค่าสัญญาณ AC ของวงจร Common-Source FET
+            </h2>
+            <button type="button" class="btn btn-primary btn-small no-print" onclick="autoFillACFromSim()">
+              ⚡ ดึงค่าจากการจำลองอัตโนมัติ
+            </button>
+          </div>
+
+          <div id="txt-ac-params" style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            ป้อนสัญญาณกระแสสลับความถี่ 1 kHz และเปรียบเทียบสภาวะ **มีตัวเก็บประจุบายพาส (Bypassed)** กับ **ไม่มีตัวเก็บประจุบายพาส (Unbypassed)**:
           </div>
 
           <table class="lab-table">
             <thead>
               <tr>
-                <th>สภาวะการทดลอง</th>
-                <th>แรงดันอินพุต v<sub>i(p-p)</sub> (mV)</th>
-                <th>แรงดันเอาต์พุต v<sub>o(p-p)</sub> (mV)</th>
-                <th>อัตราขยายแรงดัน A<sub>v</sub> = v<sub>o</sub>/v<sub>i</sub></th>
-                <th>ความต่างเฟส (Phase)</th>
+                <th>สภาวะวงจร (C<sub>S</sub>)</th>
+                <th>แรงดัน V<sub>i(p-p)</sub> (mV)</th>
+                <th>แรงดัน V<sub>o(p-p)</sub> (mV)</th>
+                <th>อัตราขยายแรงดัน A<sub>v</sub></th>
+                <th>ความต้านทาน Z<sub>i</sub> (kΩ)</th>
+                <th>ความต้านทาน Z<sub>o</sub> (kΩ)</th>
+                <th>เฟสสัญญาณ (°)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>1. มีตัวเก็บประจุบายพาส (C<sub>S</sub> Bypassed)</strong></td>
+                <td style="color: #34d399; font-weight: bold;">⚡ มี C<sub>S</sub> (Bypassed)</td>
                 <td><input type="number" id="ac-vi-bypassed" value="50" step="1"></td>
-                <td><input type="number" id="ac-vo-bypassed" step="0.1" placeholder="เช่น 308"></td>
+                <td><input type="number" id="ac-vo-bypassed" step="0.1" placeholder="เช่น 308.2"></td>
                 <td><input type="number" id="ac-av-bypassed" step="0.01" placeholder="เช่น 6.16"></td>
+                <td><input type="number" id="ac-zi-bypassed" step="0.1" placeholder="เช่น 240.5"></td>
+                <td><input type="number" id="ac-zo-bypassed" step="0.01" placeholder="เช่น 2.08"></td>
                 <td>
                   <select id="ac-phase-bypassed">
                     <option value="180">กลับเฟส 180° (Inverting)</option>
@@ -1243,10 +1431,12 @@
                 </td>
               </tr>
               <tr>
-                <td><strong>2. ไม่มีตัวเก็บประจุบายพาส (C<sub>S</sub> Unbypassed)</strong></td>
+                <td style="color: #facc15; font-weight: bold;">❌ ไม่มี C<sub>S</sub> (Unbypassed)</td>
                 <td><input type="number" id="ac-vi-unbypassed" value="50" step="1"></td>
-                <td><input type="number" id="ac-vo-unbypassed" step="0.1" placeholder="เช่น 82"></td>
+                <td><input type="number" id="ac-vo-unbypassed" step="0.1" placeholder="เช่น 82.0"></td>
                 <td><input type="number" id="ac-av-unbypassed" step="0.01" placeholder="เช่น 1.64"></td>
+                <td><input type="number" id="ac-zi-unbypassed" step="0.1" placeholder="เช่น 240.5"></td>
+                <td><input type="number" id="ac-zo-unbypassed" step="0.01" placeholder="เช่น 2.20"></td>
                 <td>
                   <select id="ac-phase-unbypassed">
                     <option value="180">กลับเฟส 180° (Inverting)</option>
@@ -1256,38 +1446,120 @@
               </tr>
             </tbody>
           </table>
+          <p style="font-size: 12px; color: var(--text-muted);">(สูตร: A<sub>v(Bypassed)</sub> ≈ −g<sub>m</sub>·R<sub>D</sub>, A<sub>v(Unbypassed)</sub> ≈ −(g<sub>m</sub>·R<sub>D</sub>)/(1 + g<sub>m</sub>·R<sub>S</sub>), Z<sub>i</sub> = R<sub>1</sub>∥R<sub>2</sub>, Z<sub>o</sub> = R<sub>D</sub>∥r<sub>d</sub>)</p>
         </div>
 
-        <!-- POST-LAB QUESTIONS -->
+        <div class="card-footer-action no-print" style="text-align: right; margin-top: 15px;">
+          <button class="btn btn-primary" onclick="switchTab('tab-assessment')">ไปที่คำถามและสรุปผล ❓</button>
+        </div>
+      </section>
+
+
+      <!-- ========================================== -->
+      <!-- TAB 4: ASSESSMENT & CONCLUSION (คำถามและสรุปผล) -->
+      <!-- ========================================== -->
+      <section id="tab-assessment" class="tab-content">
+        <header class="content-header">
+          <h1>❓ คำถามและสรุปผลการทดลอง (Post-Lab Assessment & Conclusion)</h1>
+          <p class="subtitle">ตอบคำถามวัดความเข้าใจเชิงวิเคราะห์ 4 ข้อ และเขียนสรุปวิจารณ์ผลการทดลองเพื่อส่งประเมินผล</p>
+        </header>
+
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS -->
         <div class="card">
-          <h2 class="card-title"><span class="number">4.</span> <span>คำถามท้ายการทดลอง (Post-Lab Questions)</span></h2>
-          
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">1. เพราะเหตุใดเมื่อต่อตัวเก็บประจุบายพาส C<sub>S</sub> ขนานกับ R<sub>S</sub> อัตราขยายแรงดัน (A<sub>v</sub>) จึงมีค่าสูงกว่ากรณีถอด C<sub>S</sub> ออกอย่างมีนัยสำคัญ?</label>
-            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบวิเคราะห์บทบาทของ CS ต่อสัญญาณ AC และผลกระทบต่อ Negative Feedback..."></textarea>
+          <h2 class="card-title">❓ คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</h2>
+
+          <!-- Question 1 -->
+          <div class="question-block">
+            <div class="question-title">
+              1. ค่าความนำข้ามทางไฟฟ้า (Transconductance: g<sub>m</sub>) ของ FET สื่อถึงความหมายใด และคำนวณได้อย่างไร?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q1" value="a">
+              <span>ก. อัตราการเปลี่ยนแปลงของกระแสเอาต์พุต ΔI<sub>D</sub> ต่อการเปลี่ยนแปลงแรงดันอินพุต ΔV<sub>GS</sub> คำนวณจาก g<sub>m</sub> = g<sub>m0</sub>(1 − V<sub>GS</sub>/V<sub>P</sub>)</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="b">
+              <span>ข. ความต้านทานอินพุตที่รอยต่อเกต-ซอร์ส คำนวณจาก g<sub>m</sub> = V<sub>GS</sub> / I<sub>D</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q1" value="c">
+              <span>ค. อัตราขยายแรงดันสูงสุดเมื่อต่อแบบคอมมอนเดรน คำนวณจาก g<sub>m</sub> = I<sub>DSS</sub> / V<sub>DD</sub></span>
+            </label>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">2. ค่าความนำข้าม (g<sub>m</sub>) ของ FET มีความสัมพันธ์กับจุดทำงานไฟตรง V<sub>GSQ</sub> และ I<sub>DQ</sub> อย่างไร หากปรับให้ V<sub>GSQ</sub> เข้าใกล้ 0V ค่า g<sub>m</sub> จะเปลี่ยนแปลงอย่างไร?</label>
-            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบอธิบายความสัมพันธ์ตามสมการ gm = gm0*(1 - VGS/VP)..."></textarea>
+          <!-- Question 2 -->
+          <div class="question-block">
+            <div class="question-title">
+              2. ค่าความนำข้ามสูงสุด (g<sub>m0</sub>) ของ JFET จะเกิดขึ้นภายใต้สภาวะใด?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q2" value="a">
+              <span>ก. เมื่อแรงดัน V<sub>GS</sub> มีค่าเท่ากับแรงดันคัตออฟ V<sub>P</sub> พอดี (V<sub>GS</sub> = V<sub>P</sub>)</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="b">
+              <span>ข. เมื่อแรงดันเกต-ซอร์สเท่ากับศูนย์โวลต์ (V<sub>GS</sub> = 0V) และมีค่า g<sub>m0</sub> = 2·I<sub>DSS</sub> / |V<sub>P</sub>|</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q2" value="c">
+              <span>ค. เมื่อแรงดันแหล่งจ่าย V<sub>DD</sub> มีค่าสูงสุดเท่านั้น</span>
+            </label>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">3. จงเปรียบเทียบข้อดีและข้อจำกัดของวงจรขยาย Common-Source FET กับวงจรขยาย Common-Emitter BJT ในด้านอิมพีแดนซ์อินพุต (Z<sub>i</sub>) และอัตราขยายแรงดัน (A<sub>v</sub>)?</label>
-            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบเปรียบเทียบ Zi ระดับ MΩ ของ FET กับ Zi ระดับ kΩ ของ BJT และระดับอัตราขยาย..."></textarea>
+          <!-- Question 3 -->
+          <div class="question-block">
+            <div class="question-title">
+              3. เพราะเหตุใดเมื่อต่อตัวเก็บประจุบายพาส C<sub>S</sub> ขนานกับ R<sub>S</sub> อัตราขยายแรงดัน (A<sub>v</sub>) จึงสูงกว่ากรณีถอด C<sub>S</sub> ออกอย่างมาก?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q3" value="a">
+              <span>ก. เพราะ C<sub>S</sub> ลัดวงจรสัญญาณ AC ที่ขาซอร์สลงกราวด์ ทำให้ไม่เกิดแรงดันป้อนกลับแบบลบตกคร่อม R<sub>S</sub> ส่งผลให้ได้อัตราขยายเต็มที่ A<sub>v</sub> ≈ −g<sub>m</sub>·R<sub>D</sub></span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="b">
+              <span>ข. เพราะ C<sub>S</sub> ช่วยเพิ่มแรงดันไบแอสไฟตรง V<sub>DD</sub> ให้สูงขึ้นเป็นสองเท่า</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q3" value="c">
+              <span>ค. เพราะ C<sub>S</sub> ทำหน้าที่กรองสัญญาณรบกวนความถี่ต่ำออกไปทั้งหมด</span>
+            </label>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="question-block">
+            <div class="question-title">
+              4. เมื่อเปรียบเทียบวงจรขยาย Common-Source ของ FET กับ Common-Emitter ของ BJT ข้อใดเป็นข้อได้เปรียบเด่นที่สุดของ FET?
+            </div>
+            <label class="option-label">
+              <input type="radio" name="q4" value="a">
+              <span>ก. FET มีอัตราขยายแรงดันไฟฟ้า (A<sub>v</sub>) สูงกว่า BJT เสมอ</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q4" value="b">
+              <span>ข. FET มีอิมพีแดนซ์อินพุต (Z<sub>i</sub>) สูงมากในระดับหลายร้อยกิโลโอห์มถึงเมกะโอห์ม ทำให้แทบไม่ดึงโหลดจากแหล่งจ่ายสัญญาณอินพุต</span>
+            </label>
+            <label class="option-label">
+              <input type="radio" name="q4" value="c">
+              <span>ค. FET มีสัญญาณเอาต์พุตร่วมเฟสกับอินพุต (0°) ในขณะที่ BJT กลับเฟส 180°</span>
+            </label>
           </div>
         </div>
 
-        <!-- CONCLUSION -->
+        <!-- CARD 2: CONCLUSION & DISCUSSION -->
         <div class="card">
-          <h2 class="card-title"><span class="number">5.</span> <span>สรุปผลการทดลอง (Conclusion)</span></h2>
-          <textarea id="lab-conclusion" rows="5" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่าง gm กับจุดทำงาน DC, ผลของการบายพาส CS ต่ออัตราขยายแรงดัน, คุณลักษณะความต่างเฟส 180°, และการนำแบบจำลอง gm ไปใช้ออกแบบวงจรขยาย..."></textarea>
+          <h2 class="card-title">📝 สรุปและวิจารณ์ผลการทดลอง (Conclusion & Discussion)</h2>
+          <div class="form-group">
+            <label>สรุปประเด็นสำคัญจากการทดลอง:</label>
+            <textarea id="lab-conclusion" class="form-control" rows="5" placeholder="เขียนสรุปผลการทดลอง เช่น ความสัมพันธ์ระหว่างค่า gm กับจุดทำงาน DC (VGSQ, IDQ), ผลกระทบของการต่อ/ถอดตัวเก็บประจุบายพาส CS ต่ออัตราขยายแรงดัน (Av), การเกิดความต่างเฟส 180 องศา และการนำแบบจำลอง gm ไปใช้คำนวณวงจรขยายจริง..."></textarea>
+          </div>
         </div>
 
-        <!-- SUBMIT BAR -->
+        <!-- ACTION BAR -->
         <div class="card-footer-action no-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
-          <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ พิมพ์รายงาน / บันทึก PDF</button>
-          <button type="button" class="btn btn-success" style="padding: 12px 28px; font-size: 15px;" onclick="submitReportToGAS()">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">
+            🖨️ พิมพ์รายงาน / บันทึก PDF
+          </button>
+          <button type="button" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px;" onclick="submitReportToGAS()">
             🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ
           </button>
         </div>
@@ -1326,7 +1598,7 @@
         idss: 6.0,   // mA
         vp: -3.5,    // V
         rd: 40.0,    // kOhms
-        desc: '💡 2N5458: JFET N-Channel มาตรฐานสำหรับสัญญาณเสียงและวงจรขยายทั่วไป (Idss=6mA, Vp=-3.5V)'
+        desc: '💡 2N5458: N-Channel JFET สัญญาณขนาดเล็กและขยายสัญญาณอเนกประสงค์ (IDSS = 6.0mA, VP = -3.5V, rd = 40kΩ)'
       },
       '2N5484': {
         name: '2N5484',
@@ -1334,7 +1606,7 @@
         idss: 3.5,
         vp: -2.0,
         rd: 45.0,
-        desc: '💡 2N5484: JFET N-Channel สำหรับความถี่สูง RF / สัญญาณรบกวนต่ำ (Idss=3.5mA, Vp=-2.0V)'
+        desc: '💡 2N5484: N-Channel JFET สัญญาณรบกวนต่ำ สำหรับย่านความถี่สูง RF (IDSS = 3.5mA, VP = -2.0V, rd = 45kΩ)'
       },
       'BF245B': {
         name: 'BF245B',
@@ -1342,7 +1614,7 @@
         idss: 10.0,
         vp: -4.0,
         rd: 35.0,
-        desc: '💡 BF245B: JFET N-Channel กำลังสูง (Idss=10mA, Vp=-4.0V, gm0 สูง)'
+        desc: '💡 BF245B: N-Channel JFET กำลังสูง อัตราขยาย gm0 สูงเป็นพิเศษ (IDSS = 10.0mA, VP = -4.0V, rd = 35kΩ)'
       },
       '2N7000': {
         name: '2N7000',
@@ -1350,7 +1622,7 @@
         idss: 8.0,
         vp: -3.0,
         rd: 30.0,
-        desc: '💡 2N7000: E-MOSFET N-Channel ยอดนิยม ควบคุมแรงดันด้วยเกตออกไซด์ฉนวนสูง'
+        desc: '💡 2N7000: N-Channel Enhancement MOSFET เกตออกไซด์ฉนวนสูงมาก (IDSS = 8.0mA, VP = -3.0V, rd = 30kΩ)'
       },
       'BS170': {
         name: 'BS170',
@@ -1358,27 +1630,29 @@
         idss: 12.0,
         vp: -3.2,
         rd: 25.0,
-        desc: '💡 BS170: E-MOSFET N-Channel สวิตชิ่งและวงจรขยายความเร็วสูง'
+        desc: '💡 BS170: N-Channel Enhancement MOSFET สวิตชิ่งและขยายสัญญาณความเร็วสูง (IDSS = 12.0mA, VP = -3.2V, rd = 25kΩ)'
       }
     };
 
     // --- APPLICATION STATE ---
     const STATE = {
-      activeTab: 'theory',
-      schematicView: 'real', // 'real' or 'ac'
+      activeTab: 'tab-theory',
+      schematicMode: 'physical', // 'physical', 'gm-model', 'scope'
       fetModel: '2N5458',
-      csEnabled: true,       // true = Bypassed, false = Unbypassed
+      csBypassed: true,          // true = Bypassed, false = Unbypassed
       
-      // Simulation Parameters
+      // Circuit Parameters
       vdd: 18.0,
-      vi_p_p: 50.0,          // mV
-      freq: 1000,            // Hz
-      rd: 2.2,               // kOhms
-      rs: 1.0,               // kOhms
-      r1: 2200.0,            // kOhms
-      r2: 270.0,             // kOhms
-      
-      // Solved DC & AC Values
+      r1: 2200.0,    // kOhms
+      r2: 270.0,     // kOhms
+      rd: 2.2,       // kOhms
+      rs: 1.0,       // kOhms
+      idss: 6.0,     // mA
+      vp: -3.5,      // V
+      rd_int: 40.0,  // kOhms
+      vi_p_p: 50.0,  // mV
+
+      // Solved Values
       vg: 0,
       vs: 0,
       vgs: 0,
@@ -1389,399 +1663,511 @@
       gm: 0,
       zi: 0,
       zo: 0,
-      gain: 0,
+      av: 0,
       vo_p_p: 0,
 
       // Worksheet Mode
-      wsMode: 'fixed'        // 'fixed' or 'custom'
+      wsMode: 'fixed'
     };
 
     // --- TAB SWITCHING ---
     function switchTab(tabId) {
-      STATE.activeTab = tabId;
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      
-      const tabEl = document.getElementById(tabId);
-      if (tabEl) tabEl.classList.add('active');
+      // Normalize tab ID
+      let fullTabId = tabId;
+      if (!tabId.startsWith('tab-')) {
+        fullTabId = 'tab-' + tabId;
+      }
 
-      const navItems = document.querySelectorAll('.nav-item');
-      if (tabId === 'theory' && navItems[0]) navItems[0].classList.add('active');
-      if (tabId === 'simulator' && navItems[1]) navItems[1].classList.add('active');
-      if (tabId === 'worksheet' && navItems[2]) navItems[2].classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(section => {
+        section.classList.remove('active');
+      });
 
-      if (tabId === 'simulator') {
-        updateSim();
+      const target = document.getElementById(fullTabId) || document.getElementById(tabId);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+        item.classList.remove('active');
+        const clickAttr = item.getAttribute('onclick') || '';
+        if (clickAttr.includes(tabId) || clickAttr.includes(fullTabId)) {
+          item.classList.add('active');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (fullTabId === 'tab-simulator') {
         renderScope();
       }
     }
 
-    // --- FET MODEL SELECTION ---
+    // --- SCHEMATIC VIEW TOGGLING ---
+    function switchSchematicMode(mode) {
+      STATE.schematicMode = mode;
+
+      const btnPhys = document.getElementById('tab-btn-phys');
+      const btnGm = document.getElementById('tab-btn-gmmodel');
+      const btnScope = document.getElementById('tab-btn-scope');
+
+      const svgPhys = document.getElementById('svg-schematic-physical');
+      const svgGm = document.getElementById('svg-schematic-gm-model');
+      const scopeView = document.getElementById('scope-view-container');
+
+      [btnPhys, btnGm, btnScope].forEach(b => {
+        if (b) {
+          b.classList.remove('active');
+          b.style.background = '';
+          b.style.borderColor = '';
+          b.style.color = 'var(--text-muted)';
+        }
+      });
+
+      if (mode === 'physical') {
+        if (btnPhys) {
+          btnPhys.classList.add('active');
+          btnPhys.style.background = 'rgba(56, 189, 248, 0.25)';
+          btnPhys.style.borderColor = 'var(--accent-cyan)';
+          btnPhys.style.color = '#fff';
+        }
+        if (svgPhys) svgPhys.style.display = 'block';
+        if (svgGm) svgGm.style.display = 'none';
+        if (scopeView) scopeView.style.display = 'none';
+      } else if (mode === 'gm-model') {
+        if (btnGm) {
+          btnGm.classList.add('active');
+          btnGm.style.background = 'rgba(56, 189, 248, 0.25)';
+          btnGm.style.borderColor = 'var(--accent-cyan)';
+          btnGm.style.color = '#fff';
+        }
+        if (svgPhys) svgPhys.style.display = 'none';
+        if (svgGm) svgGm.style.display = 'block';
+        if (scopeView) scopeView.style.display = 'none';
+      } else if (mode === 'scope') {
+        if (btnScope) {
+          btnScope.classList.add('active');
+          btnScope.style.background = 'rgba(56, 189, 248, 0.25)';
+          btnScope.style.borderColor = 'var(--accent-cyan)';
+          btnScope.style.color = '#fff';
+        }
+        if (svgPhys) svgPhys.style.display = 'none';
+        if (svgGm) svgGm.style.display = 'none';
+        if (scopeView) scopeView.style.display = 'block';
+        renderScope();
+      }
+    }
+
+    function toggleModelDiagram() {
+      if (STATE.schematicMode === 'physical') {
+        switchSchematicMode('gm-model');
+      } else if (STATE.schematicMode === 'gm-model') {
+        switchSchematicMode('scope');
+      } else {
+        switchSchematicMode('physical');
+      }
+    }
+
+    // --- MODEL SELECTION ---
     function selectFetModel(modelKey) {
       if (!FET_MODELS[modelKey]) return;
       STATE.fetModel = modelKey;
       const m = FET_MODELS[modelKey];
 
-      // Update button highlights
-      ['2n5458', '2n5484', 'bf245b', '2n7000', 'bs170'].forEach(k => {
-        const btn = document.getElementById('btn-fet-' + k);
-        if (btn) {
-          if (k === modelKey.toLowerCase()) {
-            btn.classList.add('active');
-            btn.style.borderColor = '#38bdf8';
-            btn.style.background = 'rgba(56, 189, 248, 0.25)';
-            btn.style.color = '#38bdf8';
-          } else {
-            btn.classList.remove('active');
-            btn.style.borderColor = '';
-            btn.style.background = '';
-            btn.style.color = '';
-          }
-        }
+      STATE.idss = m.idss;
+      STATE.vp = m.vp;
+      STATE.rd_int = m.rd;
+
+      document.getElementById('slider-idss').value = m.idss;
+      document.getElementById('slider-vp').value = m.vp;
+      document.getElementById('val-idss').innerText = m.idss.toFixed(1) + ' mA';
+      document.getElementById('val-vp').innerText = m.vp.toFixed(1) + ' V';
+
+      document.querySelectorAll('[id^="btn-fet-"]').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.borderColor = '';
+        btn.style.background = '';
+        btn.style.color = '';
       });
 
-      // Update badge & tags
-      const badge = document.getElementById('txt-sim-model-badge');
-      if (badge) badge.innerText = `เบอร์ปัจจุบัน: ${m.name} (${m.type}, Idss=${m.idss}mA, Vp=${m.vp}V)`;
-      
-      const svgTag = document.getElementById('svg-fet-tag');
-      if (svgTag) svgTag.textContent = `Q1: ${m.name}`;
+      const activeBtn = document.getElementById('btn-fet-' + modelKey.toLowerCase());
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.style.borderColor = 'var(--accent-cyan)';
+        activeBtn.style.background = 'rgba(56, 189, 248, 0.25)';
+        activeBtn.style.color = '#38bdf8';
+      }
 
-      // Update worksheet model select if in sync
-      const wsSel = document.getElementById('ws-sel-model');
-      if (wsSel) wsSel.value = modelKey;
-      const wsIdss = document.getElementById('ws-param-idss');
-      if (wsIdss) wsIdss.value = m.idss;
-      const wsVp = document.getElementById('ws-param-vp');
-      if (wsVp) wsVp.value = m.vp;
+      document.getElementById('txt-fet-model-badge').innerText = `${modelKey} (IDSS=${m.idss}mA, VP=${m.vp}V)`;
+      document.getElementById('txt-fet-model-desc').innerHTML = m.desc;
+      document.getElementById('svg-txt-q1-part').textContent = `Q1: ${modelKey}`;
 
       updateSim();
     }
 
-    // --- TOGGLE CS (BYPASS CAPACITOR) ---
+    function onCustomParamChange() {
+      STATE.idss = parseFloat(document.getElementById('slider-idss').value);
+      STATE.vp = parseFloat(document.getElementById('slider-vp').value);
+      document.getElementById('val-idss').innerText = STATE.idss.toFixed(1) + ' mA';
+      document.getElementById('val-vp').innerText = STATE.vp.toFixed(1) + ' V';
+
+      document.getElementById('txt-fet-model-badge').innerText = `${STATE.fetModel}* (Custom: IDSS=${STATE.idss}mA, VP=${STATE.vp}V)`;
+      updateSim();
+    }
+
+    // --- CS BYPASS SWITCHING ---
+    function setBypassState(bypassed) {
+      STATE.csBypassed = bypassed;
+
+      const btnOn = document.getElementById('btn-cs-on');
+      const btnOff = document.getElementById('btn-cs-off');
+      const badge = document.getElementById('badge-cs-status');
+
+      if (bypassed) {
+        btnOn.classList.add('active');
+        btnOn.style.borderColor = 'var(--accent-cyan)';
+        btnOn.style.background = 'rgba(56, 189, 248, 0.2)';
+        btnOn.style.color = '#38bdf8';
+
+        btnOff.classList.remove('active');
+        btnOff.style.borderColor = '';
+        btnOff.style.background = '';
+        btnOff.style.color = '';
+
+        badge.style.background = 'rgba(56, 189, 248, 0.2)';
+        badge.style.borderColor = 'var(--accent-cyan)';
+        badge.style.color = '#38bdf8';
+        badge.innerText = '🟢 ต่อวงจร (Bypassed)';
+
+        // Update physical schematic switch
+        const swBlade = document.getElementById('svg-sw-blade');
+        const swLabel = document.getElementById('svg-sw-label');
+        if (swBlade) swBlade.setAttribute('y2', '172');
+        if (swLabel) {
+          swLabel.textContent = 'SW1: ON (ต่อ CS)';
+          swLabel.setAttribute('fill', '#10b981');
+        }
+
+        // Update AC gm schematic paths
+        const gmBypassed = document.getElementById('svg-gm-bypassed-group');
+        const gmUnbypassed = document.getElementById('svg-gm-unbypassed-group');
+        if (gmBypassed) gmBypassed.style.display = 'block';
+        if (gmUnbypassed) gmUnbypassed.style.display = 'none';
+
+      } else {
+        btnOff.classList.add('active');
+        btnOff.style.borderColor = '#f59e0b';
+        btnOff.style.background = 'rgba(245, 158, 11, 0.2)';
+        btnOff.style.color = '#fbbf24';
+
+        btnOn.classList.remove('active');
+        btnOn.style.borderColor = '';
+        btnOn.style.background = '';
+        btnOn.style.color = '';
+
+        badge.style.background = 'rgba(245, 158, 11, 0.2)';
+        badge.style.borderColor = '#f59e0b';
+        badge.style.color = '#fbbf24';
+        badge.innerText = '❌ ถอดออก (Unbypassed)';
+
+        // Update physical schematic switch (open)
+        const swBlade = document.getElementById('svg-sw-blade');
+        const swLabel = document.getElementById('svg-sw-label');
+        if (swBlade) swBlade.setAttribute('y2', '152');
+        if (swLabel) {
+          swLabel.textContent = 'SW1: OFF (ถอด CS)';
+          swLabel.setAttribute('fill', '#f59e0b');
+        }
+
+        // Update AC gm schematic paths
+        const gmBypassed = document.getElementById('svg-gm-bypassed-group');
+        const gmUnbypassed = document.getElementById('svg-gm-unbypassed-group');
+        if (gmBypassed) gmBypassed.style.display = 'none';
+        if (gmUnbypassed) gmUnbypassed.style.display = 'block';
+      }
+
+      updateSim();
+    }
+
     function toggleCS() {
-      STATE.csEnabled = !STATE.csEnabled;
-      const btn = document.getElementById('btn-toggle-cs');
-      const tag = document.getElementById('txt-scope-mode-tag');
-      const csLabel = document.getElementById('svg-cs-label');
-      const csP1 = document.getElementById('svg-cs-plate1');
-      const csP2 = document.getElementById('svg-cs-plate2');
-
-      if (STATE.csEnabled) {
-        if (btn) {
-          btn.className = 'btn btn-success btn-small';
-          btn.innerHTML = '🟢 ต่อขนาน C<sub>S</sub> (Bypassed Mode)';
-        }
-        if (tag) {
-          tag.className = 'badge badge-green';
-          tag.innerHTML = 'C<sub>S</sub> Bypassed: Gain สูงสุด (Inverting)';
-        }
-        if (csLabel) {
-          csLabel.textContent = 'CS = 10μF (ON)';
-          csLabel.setAttribute('fill', '#34d399');
-        }
-        if (csP1) csP1.setAttribute('stroke', '#34d399');
-        if (csP2) csP2.setAttribute('stroke', '#34d399');
-      } else {
-        if (btn) {
-          btn.className = 'btn btn-secondary btn-small';
-          btn.innerHTML = '⚪ ถอด C<sub>S</sub> ออก (Unbypassed Mode)';
-        }
-        if (tag) {
-          tag.className = 'badge badge-yellow';
-          tag.innerHTML = 'C<sub>S</sub> Unbypassed: Gain ลดลง (Negative Feedback)';
-        }
-        if (csLabel) {
-          csLabel.textContent = 'CS ถอดออก (OFF)';
-          csLabel.setAttribute('fill', '#94a3b8');
-        }
-        if (csP1) csP1.setAttribute('stroke', '#475569');
-        if (csP2) csP2.setAttribute('stroke', '#475569');
-      }
-
-      updateSim();
+      setBypassState(!STATE.csBypassed);
     }
 
-    // --- SCHEMATIC VIEW SWITCHER ---
-    function setSchematicView(view) {
-      STATE.schematicView = view;
-      const btnReal = document.getElementById('btn-view-real');
-      const btnAc = document.getElementById('btn-view-ac');
-      const gReal = document.getElementById('schematic-real');
-      const gAc = document.getElementById('schematic-ac');
-      const title = document.getElementById('txt-schematic-title');
+    // --- MATHEMATICAL SOLVER & SIMULATION UPDATE ---
+    function updateSim() {
+      // Read slider values
+      STATE.vdd = parseFloat(document.getElementById('slider-vdd').value);
+      STATE.r1 = parseFloat(document.getElementById('slider-r1').value);
+      STATE.r2 = parseFloat(document.getElementById('slider-r2').value);
+      STATE.rd = parseFloat(document.getElementById('slider-rd').value);
+      STATE.rs = parseFloat(document.getElementById('slider-rs').value);
+      STATE.vi_p_p = parseFloat(document.getElementById('slider-vi').value);
 
-      if (view === 'real') {
-        if (btnReal) {
-          btnReal.classList.add('active');
-          btnReal.style.borderColor = '#38bdf8';
-          btnReal.style.color = '#38bdf8';
-        }
-        if (btnAc) {
-          btnAc.classList.remove('active');
-          btnAc.style.borderColor = '';
-          btnAc.style.color = '';
-        }
-        if (gReal) gReal.style.display = 'inline';
-        if (gAc) gAc.style.display = 'none';
-        if (title) title.innerText = '⚡ ผังวงจรขยายคอมมอนซอร์ส (Common-Source JFET Amplifier)';
-      } else {
-        if (btnAc) {
-          btnAc.classList.add('active');
-          btnAc.style.borderColor = '#38bdf8';
-          btnAc.style.color = '#38bdf8';
-        }
-        if (btnReal) {
-          btnReal.classList.remove('active');
-          btnReal.style.borderColor = '';
-          btnReal.style.color = '';
-        }
-        if (gReal) gReal.style.display = 'none';
-        if (gAc) gAc.style.display = 'inline';
-        if (title) title.innerText = '🔲 วงจรสมมูลสัญญาณขนาดเล็ก (AC Small-Signal gm Model)';
-      }
-    }
+      // Update control slider labels
+      document.getElementById('val-vdd').innerText = STATE.vdd.toFixed(1) + ' V';
+      document.getElementById('val-r1').innerText = STATE.r1 >= 1000 ? (STATE.r1 / 1000).toFixed(1) + ' MΩ' : STATE.r1.toFixed(0) + ' kΩ';
+      document.getElementById('val-r2').innerText = STATE.r2.toFixed(0) + ' kΩ';
+      document.getElementById('val-rd').innerText = STATE.rd.toFixed(1) + ' kΩ';
+      document.getElementById('val-rs').innerText = STATE.rs.toFixed(1) + ' kΩ';
+      document.getElementById('val-vi').innerText = STATE.vi_p_p.toFixed(0) + ' mV';
 
-    // --- MATHEMATICAL SOLVER ---
-    function solveCircuit(vdd, r1, r2, rd, rs, idss, vp) {
-      const absVp = Math.abs(vp);
-      const VG = vdd * (r2 / (r1 + r2));
+      // Update SVG physical schematic texts
+      document.getElementById('svg-txt-vdd').textContent = `+${STATE.vdd.toFixed(1)}V`;
+      document.getElementById('svg-txt-r1').textContent = `R1 ${STATE.r1 >= 1000 ? (STATE.r1/1000).toFixed(1)+'M' : STATE.r1.toFixed(0)+'k'}`;
+      document.getElementById('svg-txt-r2').textContent = `R2 ${STATE.r2.toFixed(0)}k`;
+      document.getElementById('svg-txt-rd').textContent = `RD ${STATE.rd.toFixed(1)}k`;
+      document.getElementById('svg-txt-rs').textContent = `RS ${STATE.rs.toFixed(1)}k`;
 
-      // Solve ID via Bisection: ID = Idss * (1 - (VG - ID * RS)/vp)^2
+      // Solve DC operating point
+      const R1_ohms = STATE.r1 * 1000;
+      const R2_ohms = STATE.r2 * 1000;
+      const RD_ohms = STATE.rd * 1000;
+      const RS_ohms = STATE.rs * 1000;
+      const IDSS_A = STATE.idss / 1000;
+      const Vp = STATE.vp;
+      const absVp = Math.abs(Vp);
+
+      STATE.vg = STATE.vdd * (R2_ohms / (R1_ohms + R2_ohms));
+
+      // Solve Shockley's Equation for ID
       let low = 0;
-      let high = idss;
-      for (let i = 0; i < 50; i++) {
+      let high = IDSS_A;
+      for (let i = 0; i < 60; i++) {
         const mid = (low + high) / 2;
-        const Vgs = VG - (mid * rs);
-        if (Vgs <= vp) {
+        const vgs_calc = STATE.vg - (mid * RS_ohms);
+        if (vgs_calc <= Vp) {
           high = mid;
           continue;
         }
-        const Id_calc = idss * Math.pow(1 - (Vgs / vp), 2);
-        if (Id_calc > mid) low = mid;
-        else high = mid;
+        const id_shockley = IDSS_A * Math.pow(1 - (vgs_calc / Vp), 2);
+        if (id_shockley > mid) {
+          low = mid;
+        } else {
+          high = mid;
+        }
       }
 
-      const ID = low;
-      const VS = ID * rs;
-      const VGS = VG - VS;
-      const VD = vdd - (ID * rd);
-      const VDS = VD - VS;
+      const ID_A = low;
+      STATE.id = ID_A * 1000; // mA
+      STATE.vs = ID_A * RS_ohms;
+      STATE.vgs = STATE.vg - STATE.vs;
+      STATE.vd = Math.max(0, STATE.vdd - (ID_A * RD_ohms));
+      STATE.vds = STATE.vd - STATE.vs;
 
-      const gm0 = (2 * idss) / absVp; // mS
-      const gm = gm0 * (1 - (VGS / vp)); // mS
+      // Small-Signal Transconductance
+      const gm0_S = (2 * IDSS_A) / absVp;
+      const gm_S = gm0_S * (1 - (STATE.vgs / Vp));
+      STATE.gm0 = gm0_S * 1000; // mS
+      STATE.gm = gm_S * 1000;   // mS
 
-      const Zi = (r1 * r2) / (r1 + r2); // kOhms
-      const fet_rd = (FET_MODELS[STATE.fetModel] || {}).rd || 40.0;
-      const Zo = (rd * fet_rd) / (rd + fet_rd); // kOhms
+      // Impedances
+      const Zi_ohms = 1 / (1/R1_ohms + 1/R2_ohms);
+      const rd_ohms = STATE.rd_int * 1000;
+      const Zo_ohms = (RD_ohms * rd_ohms) / (RD_ohms + rd_ohms);
+      STATE.zi = Zi_ohms / 1000; // kOhms
+      STATE.zo = Zo_ohms / 1000; // kOhms
 
-      const Av_bypassed = -gm * Zo;
-      const Av_unbypassed = (-gm * rd) / (1 + (gm * rs));
+      // Voltage Gain
+      if (STATE.csBypassed) {
+        STATE.av = -(gm_S * Zo_ohms);
+      } else {
+        STATE.av = -(gm_S * RD_ohms) / (1 + (gm_S * RS_ohms));
+      }
 
-      return {
-        VG, VS, VGS, ID, VD, VDS,
-        gm0, gm, Zi, Zo,
-        Av_bypassed, Av_unbypassed
-      };
-    }
+      STATE.vo_p_p = Math.abs(STATE.av) * STATE.vi_p_p;
 
-    // --- UPDATE SIMULATION ---
-    function updateSim() {
-      // Read slider values
-      STATE.vdd = parseFloat(document.getElementById('slider-vdd').value) || 18.0;
-      STATE.vi_p_p = parseFloat(document.getElementById('slider-vi').value) || 50.0;
-      STATE.freq = parseInt(document.getElementById('slider-freq').value) || 1000;
-      STATE.rd = parseFloat(document.getElementById('slider-rd').value) || 2.2;
-      STATE.rs = parseFloat(document.getElementById('slider-rs').value) || 1.0;
+      // Update Probe Readouts
+      document.getElementById('readout-vg').innerText = STATE.vg.toFixed(2) + ' V';
+      document.getElementById('readout-vs').innerText = STATE.vs.toFixed(2) + ' V';
+      document.getElementById('readout-vd').innerText = STATE.vd.toFixed(2) + ' V';
+      document.getElementById('readout-id').innerText = STATE.id.toFixed(2) + ' mA';
+      document.getElementById('readout-gm').innerText = STATE.gm.toFixed(2) + ' mS';
+      document.getElementById('readout-av').innerText = STATE.av.toFixed(2);
+      document.getElementById('readout-zi').innerText = STATE.zi.toFixed(1) + ' kΩ';
 
-      // Update slider texts
-      document.getElementById('txt-val-vdd').innerText = STATE.vdd.toFixed(1) + ' V';
-      document.getElementById('txt-val-vi').innerText = STATE.vi_p_p.toFixed(0) + ' mV';
-      document.getElementById('txt-val-freq').innerText = STATE.freq.toLocaleString() + ' Hz';
-      document.getElementById('txt-val-rd').innerText = STATE.rd.toFixed(1) + ' kΩ';
-      document.getElementById('txt-val-rs').innerText = STATE.rs.toFixed(1) + ' kΩ';
+      // Update SVG AC gm model labels
+      document.getElementById('svg-gm-rg-val').textContent = `RG: ${STATE.zi.toFixed(1)}k`;
+      document.getElementById('svg-gm-source-val').textContent = `gm•vgs (${STATE.gm.toFixed(2)}mS•vgs)`;
+      document.getElementById('svg-gm-rd-val').textContent = `rd: ${STATE.rd_int.toFixed(0)}k`;
+      document.getElementById('svg-gm-rs-val').textContent = `RS: ${STATE.rs.toFixed(1)}kΩ`;
+      document.getElementById('svg-gm-load-rd').textContent = `RD: ${STATE.rd.toFixed(1)}k`;
+      document.getElementById('svg-gm-formula-bar').textContent = `Av = ${STATE.av.toFixed(2)} เท่า | Zi = ${STATE.zi.toFixed(1)} kΩ | Zo = ${STATE.zo.toFixed(2)} kΩ (${STATE.csBypassed ? 'ต่อ CS: Bypassed' : 'ถอด CS: Unbypassed'})`;
 
-      const model = FET_MODELS[STATE.fetModel] || FET_MODELS['2N5458'];
-      const res = solveCircuit(STATE.vdd, STATE.r1, STATE.r2, STATE.rd, STATE.rs, model.idss, model.vp);
-
-      STATE.vg = res.VG;
-      STATE.vs = res.VS;
-      STATE.vgs = res.VGS;
-      STATE.id = res.ID;
-      STATE.vd = res.VD;
-      STATE.vds = res.VDS;
-      STATE.gm0 = res.gm0;
-      STATE.gm = res.gm;
-      STATE.zi = res.Zi;
-      STATE.zo = res.Zo;
-
-      STATE.gain = STATE.csEnabled ? res.Av_bypassed : res.Av_unbypassed;
-      STATE.vo_p_p = Math.abs(STATE.gain) * STATE.vi_p_p;
-
-      // Update Oscilloscope Readout
+      // Update Scope Readouts
       document.getElementById('txt-readout-vi').innerText = STATE.vi_p_p.toFixed(1) + ' mVp-p';
       document.getElementById('txt-readout-vo').innerText = STATE.vo_p_p.toFixed(1) + ' mVp-p';
-      document.getElementById('txt-readout-gain').innerText = STATE.gain.toFixed(2);
+      document.getElementById('txt-readout-gain').innerText = STATE.av.toFixed(2);
+      document.getElementById('txt-scope-mode-tag').innerText = `CS ${STATE.csBypassed ? 'Bypassed' : 'Unbypassed'}: Gain ≈ ${STATE.av.toFixed(2)} (Inverting)`;
 
-      updateDCMeter();
+      renderScope();
     }
 
-    // --- DC METER PROBE ---
-    function updateDCMeter() {
-      const probe = document.getElementById('sel-dc-probe').value;
-      const title = document.getElementById('txt-meter-title');
-      const val = document.getElementById('txt-meter-val');
+    // --- OSCILLOSCOPE ANIMATION ---
+    let scopePhase = 0;
+    let animId = null;
 
-      if (probe === 'vgs') {
-        title.innerHTML = 'V<sub>GSQ</sub> =';
-        val.innerText = STATE.vgs.toFixed(3) + ' V';
-      } else if (probe === 'vg') {
-        title.innerHTML = 'V<sub>G</sub> =';
-        val.innerText = STATE.vg.toFixed(3) + ' V';
-      } else if (probe === 'vs') {
-        title.innerHTML = 'V<sub>S</sub> =';
-        val.innerText = STATE.vs.toFixed(3) + ' V';
-      } else if (probe === 'vd') {
-        title.innerHTML = 'V<sub>D</sub> =';
-        val.innerText = STATE.vd.toFixed(3) + ' V';
-      } else if (probe === 'vds') {
-        title.innerHTML = 'V<sub>DSQ</sub> =';
-        val.innerText = STATE.vds.toFixed(3) + ' V';
-      } else if (probe === 'id') {
-        title.innerHTML = 'I<sub>DQ</sub> =';
-        val.innerText = STATE.id.toFixed(3) + ' mA';
-      }
-    }
-
-    // --- OSCILLOSCOPE CANVAS RENDERER ---
-    let animPhase = 0;
     function renderScope() {
       const canvas = document.getElementById('scopeCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const W = canvas.width;
-      const H = canvas.height;
+      const w = canvas.width;
+      const h = canvas.height;
 
-      // Clear Screen
       ctx.fillStyle = '#050b14';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, w, h);
 
-      // Draw Grid
+      // Grid
       ctx.strokeStyle = '#132338';
       ctx.lineWidth = 1;
-      const divX = W / 10;
-      const divY = H / 8;
-
-      for (let x = 0; x <= W; x += divX) {
+      const gridX = 10;
+      const gridY = 8;
+      for (let i = 0; i <= gridX; i++) {
+        const x = (w / gridX) * i;
         ctx.beginPath();
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, H);
+        ctx.lineTo(x, h);
         ctx.stroke();
       }
-      for (let y = 0; y <= H; y += divY) {
+      for (let j = 0; j <= gridY; j++) {
+        const y = (h / gridY) * j;
         ctx.beginPath();
         ctx.moveTo(0, y);
-        ctx.lineTo(W, y);
+        ctx.lineTo(w, y);
         ctx.stroke();
       }
 
-      // Center crosshairs
-      ctx.strokeStyle = '#1e3a5f';
+      // Center crosshair
+      ctx.strokeStyle = 'rgba(71, 85, 105, 0.4)';
       ctx.beginPath();
-      ctx.moveTo(0, H / 2);
-      ctx.lineTo(W, H / 2);
-      ctx.moveTo(W / 2, 0);
-      ctx.lineTo(W / 2, H);
+      ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
+      ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
       ctx.stroke();
 
-      // Signals
-      const vi_amp = Math.min(H * 0.35, (STATE.vi_p_p / 250) * 80);
-      const vo_amp = Math.min(H * 0.42, (STATE.vo_p_p / 1500) * 120);
+      const centerY = h / 2;
+      const cycles = 3;
 
-      // Draw CH1: Input vi (Yellow, CH1)
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 2;
-      ctx.shadowColor = 'rgba(251, 191, 36, 0.5)';
-      ctx.shadowBlur = 8;
+      // CH1 (vi - Yellow)
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      for (let x = 0; x < W; x++) {
-        const t = (x / divX) * Math.PI * 0.8 + animPhase;
-        const y = H / 2 - Math.sin(t) * vi_amp; // goes UP on positive cycle
+      for (let x = 0; x < w; x++) {
+        const angle = ((x / w) * cycles * 2 * Math.PI) + scopePhase;
+        const amp = 35 * (STATE.vi_p_p / 50.0);
+        const y = centerY - Math.sin(angle) * amp;
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
 
-      // Draw CH2: Output vo (Cyan, CH2 - Inverted 180° Out-of-Phase)
+      // CH2 (vo - Cyan, Inverted 180°)
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.5;
-      ctx.shadowColor = 'rgba(56, 189, 248, 0.6)';
-      ctx.shadowBlur = 10;
       ctx.beginPath();
-      for (let x = 0; x < W; x++) {
-        const t = (x / divX) * Math.PI * 0.8 + animPhase;
-        // Inverted 180 deg out-of-phase: goes DOWN on screen when vi goes UP
-        let wave = Math.sin(t) * vo_amp;
-        // Clipping simulation
-        if (wave > H * 0.42) wave = H * 0.42;
-        if (wave < -H * 0.42) wave = -H * 0.42;
-        const y = H / 2 + wave; // positive wave draws downward on canvas (inverted)
+      for (let x = 0; x < w; x++) {
+        const angle = ((x / w) * cycles * 2 * Math.PI) + scopePhase;
+        const voScale = Math.min(85, 35 * (STATE.vo_p_p / 300.0));
+        // 180 degrees inverted -> minus sign
+        const y = centerY + Math.sin(angle) * voScale;
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
-      ctx.shadowBlur = 0;
 
-      animPhase += 0.05;
-      requestAnimationFrame(renderScope);
+      scopePhase += 0.05;
+      if (scopePhase > 2 * Math.PI) scopePhase -= 2 * Math.PI;
+
+      if (!animId) {
+        animId = requestAnimationFrame(animLoop);
+      }
     }
 
-    // --- WORKSHEET MODE MANAGEMENT ---
+    function animLoop() {
+      if (STATE.schematicMode === 'scope' || STATE.activeTab === 'tab-simulator') {
+        renderScope();
+      }
+      animId = requestAnimationFrame(animLoop);
+    }
+
+    // --- 2-MODE WORKSHEET PARAMETER SYSTEM ---
     function setWorksheetMode(mode) {
       STATE.wsMode = mode;
-      const btnFixed = document.getElementById('btn-mode-fixed');
-      const btnCustom = document.getElementById('btn-mode-custom');
+      const btnFixed = document.getElementById('btn-ws-mode-fixed');
+      const btnCustom = document.getElementById('btn-ws-mode-custom');
+      const alertBox = document.getElementById('ws-param-alert');
       const toolsBar = document.getElementById('custom-tools-bar');
       const inputs = document.querySelectorAll('#panel-params input, #panel-params select');
 
       if (mode === 'fixed') {
         btnFixed.classList.add('active');
-        btnFixed.style.borderColor = '#38bdf8';
-        btnFixed.style.color = '#38bdf8';
-        btnFixed.style.background = 'rgba(56, 189, 248, 0.2)';
-
         btnCustom.classList.remove('active');
-        btnCustom.style.borderColor = '';
-        btnCustom.style.color = '';
-        btnCustom.style.background = '';
-
-        toolsBar.style.display = 'none';
         inputs.forEach(el => {
           el.disabled = true;
-          el.style.background = '#0b0f19';
-        });
-
-        resetWorksheetDefaultParams();
-      } else {
-        btnCustom.classList.add('active');
-        btnCustom.style.borderColor = '#38bdf8';
-        btnCustom.style.color = '#38bdf8';
-        btnCustom.style.background = 'rgba(56, 189, 248, 0.2)';
-
-        btnFixed.classList.remove('active');
-        btnFixed.style.borderColor = '';
-        btnFixed.style.color = '';
-        btnFixed.style.background = '';
-
-        toolsBar.style.display = 'flex';
-        inputs.forEach(el => {
-          el.disabled = false;
           el.style.background = '#090d16';
         });
+        if (toolsBar) toolsBar.style.display = 'none';
+        if (alertBox) {
+          alertBox.className = 'highlight-box';
+          alertBox.innerHTML = `📌 <strong>โหมดค่ามาตรฐาน (Fixed Preset):</strong> ใบงานถูกล็อคค่าพารามิเตอร์วงจรมาตรฐานสำหรับ JFET เบอร์ <strong>2N5458</strong> (V<sub>DD</sub> = 18V, R<sub>1</sub> = 2.2MΩ, R<sub>2</sub> = 270kΩ, R<sub>D</sub> = 2.2kΩ, R<sub>S</sub> = 1.0kΩ, I<sub>DSS</sub> = 6.0mA, V<sub>P</sub> = -3.5V)`;
+        }
+        resetWorksheetToDefault();
+      } else {
+        btnCustom.classList.add('active');
+        btnFixed.classList.remove('active');
+        inputs.forEach(el => {
+          el.disabled = false;
+          el.style.background = 'rgba(15, 23, 42, 0.9)';
+        });
+        if (toolsBar) toolsBar.style.display = 'flex';
+        if (alertBox) {
+          alertBox.className = 'warning-box';
+          alertBox.innerHTML = `🛠️ <strong>โหมดกำหนดค่าเอง (Custom Dynamic):</strong> คุณสามารถแก้ไขพารามิเตอร์วงจร สุ่มโจทย์ใหม่ หรือซิงค์จากหน้าแล็บเสมือนได้ ระบบตรวจจะคำนวณเฉลยตามค่าที่กำหนดจริง`;
+        }
       }
     }
 
-    function resetWorksheetDefaultParams() {
+    function onWorksheetParamChange() {
+      // Dynamic updates if needed
+    }
+
+    function onWorksheetModelSelect() {
+      const model = document.getElementById('ws-sel-model').value;
+      if (FET_MODELS[model]) {
+        const m = FET_MODELS[model];
+        document.getElementById('ws-param-idss').value = m.idss;
+        document.getElementById('ws-param-vp').value = m.vp;
+      }
+    }
+
+    function syncWorksheetFromSim() {
+      document.getElementById('ws-param-vdd').value = STATE.vdd;
+      document.getElementById('ws-param-r1').value = STATE.r1;
+      document.getElementById('ws-param-r2').value = STATE.r2;
+      document.getElementById('ws-param-rd').value = STATE.rd;
+      document.getElementById('ws-param-rs').value = STATE.rs;
+      document.getElementById('ws-param-idss').value = STATE.idss;
+      document.getElementById('ws-param-vp').value = STATE.vp;
+      document.getElementById('ws-sel-model').value = STATE.fetModel;
+      alert('⚡ ซิงค์ค่าพารามิเตอร์จากห้องทดลองจำลองเสมือนเรียบร้อยแล้ว!');
+    }
+
+    function randomizeWorksheetParams() {
+      const models = ['2N5458', '2N5484', 'BF245B', '2N7000', 'BS170'];
+      const randModel = models[Math.floor(Math.random() * models.length)];
+      const m = FET_MODELS[randModel];
+
+      document.getElementById('ws-sel-model').value = randModel;
+      document.getElementById('ws-param-idss').value = m.idss;
+      document.getElementById('ws-param-vp').value = m.vp;
+      document.getElementById('ws-param-vdd').value = (12 + Math.floor(Math.random() * 9) * 1).toFixed(1);
+      document.getElementById('ws-param-r1').value = (1500 + Math.floor(Math.random() * 15) * 100).toFixed(1);
+      document.getElementById('ws-param-r2').value = (180 + Math.floor(Math.random() * 15) * 10).toFixed(1);
+      document.getElementById('ws-param-rd').value = (1.5 + Math.floor(Math.random() * 20) * 0.1).toFixed(1);
+      document.getElementById('ws-param-rs').value = (0.5 + Math.floor(Math.random() * 15) * 0.1).toFixed(1);
+
+      alert(`🎲 สุ่มโจทย์ใหม่สำเร็จ: รุ่น ${randModel}, VDD=${document.getElementById('ws-param-vdd').value}V`);
+    }
+
+    function resetWorksheetToDefault() {
+      document.getElementById('ws-sel-model').value = '2N5458';
       document.getElementById('ws-param-vdd').value = '18.0';
       document.getElementById('ws-param-r1').value = '2200.0';
       document.getElementById('ws-param-r2').value = '270.0';
@@ -1789,136 +2175,92 @@
       document.getElementById('ws-param-rs').value = '1.0';
       document.getElementById('ws-param-idss').value = '6.0';
       document.getElementById('ws-param-vp').value = '-3.5';
-      document.getElementById('ws-sel-model').value = '2N5458';
     }
 
-    function syncWorksheetFromSim() {
-      document.getElementById('ws-param-vdd').value = STATE.vdd.toFixed(1);
-      document.getElementById('ws-param-rd').value = STATE.rd.toFixed(1);
-      document.getElementById('ws-param-rs').value = STATE.rs.toFixed(1);
-      document.getElementById('ws-sel-model').value = STATE.fetModel;
-      const m = FET_MODELS[STATE.fetModel] || FET_MODELS['2N5458'];
-      document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
-      document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
-      alert('⚡ ซิงค์ค่าพารามิเตอร์จากห้องทดลองเสมือนจริงเรียบร้อยแล้ว!');
+    // Aliases
+    function resetWorksheetDefaultParams() { resetWorksheetToDefault(); }
+    function syncSimToWorksheet() { syncWorksheetFromSim(); }
+
+    // --- AUTO-FILL FUNCTIONS ---
+    function autoFillDCFromSim() {
+      updateSim();
+      document.getElementById('dc-vg').value = STATE.vg.toFixed(2);
+      document.getElementById('dc-vs').value = STATE.vs.toFixed(2);
+      document.getElementById('dc-vgs').value = STATE.vgs.toFixed(2);
+      document.getElementById('dc-id').value = STATE.id.toFixed(2);
+      document.getElementById('dc-vd').value = STATE.vd.toFixed(2);
+      document.getElementById('dc-vds').value = STATE.vds.toFixed(2);
+      document.getElementById('ac-gm0').value = STATE.gm0.toFixed(2);
+      document.getElementById('ac-gm').value = STATE.gm.toFixed(2);
     }
 
-    function randomizeWorksheetParams() {
-      const vdd = (14 + Math.floor(Math.random() * 9)).toFixed(1);
-      const rd = (1.5 + Math.random() * 2.5).toFixed(1);
-      const rs = (0.5 + Math.random() * 1.5).toFixed(1);
-      const models = ['2N5458', '2N5484', 'BF245B'];
-      const chosenModel = models[Math.floor(Math.random() * models.length)];
-      const m = FET_MODELS[chosenModel];
+    function autoFillACFromSim() {
+      updateSim();
+      // Bypassed
+      const gm_S = STATE.gm / 1000;
+      const RD_ohms = STATE.rd * 1000;
+      const RS_ohms = STATE.rs * 1000;
+      const rd_ohms = STATE.rd_int * 1000;
+      const Zo_ohms = (RD_ohms * rd_ohms) / (RD_ohms + rd_ohms);
+      const av_bypassed = gm_S * Zo_ohms;
+      const av_unbypassed = (gm_S * RD_ohms) / (1 + (gm_S * RS_ohms));
 
-      document.getElementById('ws-param-vdd').value = vdd;
-      document.getElementById('ws-param-rd').value = rd;
-      document.getElementById('ws-param-rs').value = rs;
-      document.getElementById('ws-sel-model').value = chosenModel;
-      document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
-      document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
-      alert('🎲 สุ่มโจทย์ใหม่: ' + chosenModel + ' (Vdd=' + vdd + 'V, RD=' + rd + 'kΩ, RS=' + rs + 'kΩ)');
+      document.getElementById('ac-vi-bypassed').value = '50';
+      document.getElementById('ac-vo-bypassed').value = (50 * av_bypassed).toFixed(1);
+      document.getElementById('ac-av-bypassed').value = av_bypassed.toFixed(2);
+      document.getElementById('ac-zi-bypassed').value = STATE.zi.toFixed(1);
+      document.getElementById('ac-zo-bypassed').value = STATE.zo.toFixed(2);
+      document.getElementById('ac-phase-bypassed').value = '180';
+
+      // Unbypassed
+      document.getElementById('ac-vi-unbypassed').value = '50';
+      document.getElementById('ac-vo-unbypassed').value = (50 * av_unbypassed).toFixed(1);
+      document.getElementById('ac-av-unbypassed').value = av_unbypassed.toFixed(2);
+      document.getElementById('ac-zi-unbypassed').value = STATE.zi.toFixed(1);
+      document.getElementById('ac-zo-unbypassed').value = STATE.rd.toFixed(2);
+      document.getElementById('ac-phase-unbypassed').value = '180';
     }
 
-    function onWorksheetParamChange() {
-      // Dynamic change listener
-    }
+    // Aliases
+    function autoFillPart1() { autoFillDCFromSim(); }
+    function autoFillPart2() { autoFillACFromSim(); }
+    function autoFillPart3() { autoFillACFromSim(); }
 
-    function onWorksheetModelSelect() {
-      const mod = document.getElementById('ws-sel-model').value;
-      const m = FET_MODELS[mod];
-      if (m) {
-        document.getElementById('ws-param-idss').value = m.idss.toFixed(1);
-        document.getElementById('ws-param-vp').value = m.vp.toFixed(1);
-      }
-    }
-
-    // --- AUTO-FILL ACTIONS ---
-    function getWorksheetCurrentParams() {
-      return {
-        vdd: parseFloat(document.getElementById('ws-param-vdd').value) || 18.0,
-        r1: parseFloat(document.getElementById('ws-param-r1').value) || 2200.0,
-        r2: parseFloat(document.getElementById('ws-param-r2').value) || 270.0,
-        rd: parseFloat(document.getElementById('ws-param-rd').value) || 2.2,
-        rs: parseFloat(document.getElementById('ws-param-rs').value) || 1.0,
-        idss: parseFloat(document.getElementById('ws-param-idss').value) || 6.0,
-        vp: parseFloat(document.getElementById('ws-param-vp').value) || -3.5
-      };
-    }
-
-    function autoFillPart1() {
-      const p = getWorksheetCurrentParams();
-      const res = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
-      document.getElementById('dc-vg').value = res.VG.toFixed(2);
-      document.getElementById('dc-vs').value = res.VS.toFixed(2);
-      document.getElementById('dc-vgs').value = res.VGS.toFixed(2);
-      document.getElementById('dc-id').value = res.ID.toFixed(2);
-      document.getElementById('dc-vd').value = res.VD.toFixed(2);
-      document.getElementById('dc-vds').value = res.VDS.toFixed(2);
-    }
-
-    function autoFillPart2() {
-      const p = getWorksheetCurrentParams();
-      const res = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
-      document.getElementById('ac-gm0').value = res.gm0.toFixed(2);
-      document.getElementById('ac-gm').value = res.gm.toFixed(2);
-      document.getElementById('ac-zi').value = res.Zi.toFixed(1);
-      document.getElementById('ac-zo').value = res.Zo.toFixed(2);
-    }
-
-    function autoFillPart3() {
-      const p = getWorksheetCurrentParams();
-      const res = solveCircuit(p.vdd, p.r1, p.r2, p.rd, p.rs, p.idss, p.vp);
-      const vi1 = parseFloat(document.getElementById('ac-vi-bypassed').value) || 50;
-      const vi2 = parseFloat(document.getElementById('ac-vi-unbypassed').value) || 50;
-
-      const vo1 = Math.abs(res.Av_bypassed) * vi1;
-      const vo2 = Math.abs(res.Av_unbypassed) * vi2;
-
-      document.getElementById('ac-vo-bypassed').value = vo1.toFixed(1);
-      document.getElementById('ac-av-bypassed').value = Math.abs(res.Av_bypassed).toFixed(2);
-      document.getElementById('ac-phase-bypassed').value = "180";
-
-      document.getElementById('ac-vo-unbypassed').value = vo2.toFixed(1);
-      document.getElementById('ac-av-unbypassed').value = Math.abs(res.Av_unbypassed).toFixed(2);
-      document.getElementById('ac-phase-unbypassed').value = "180";
-    }
-
-    function syncSimToWorksheet() {
-      autoFillPart1();
-      autoFillPart2();
-      autoFillPart3();
-      switchTab('worksheet');
-      alert('📋 โอนผลการวัดทั้งหมดไปยังใบงานเรียบร้อยแล้ว!');
-    }
-
-    // --- SUBMISSION TO GOOGLE APPS SCRIPT ---
+    // --- SUBMISSION & AUTO-GRADING HANDLER ---
     function submitReportToGAS() {
+      // Validate student profile
       const name = document.getElementById('student-name').value.trim();
       const id = document.getElementById('student-id').value.trim();
-      const group = document.getElementById('student-group').value.trim();
-      const date = document.getElementById('lab-date').value;
 
-      if (!name || !id || !group || !date) {
-        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่ม และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+      if (!name || !id) {
+        alert('⚠️ กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษา ในแท็บตารางบันทึกผลการทดลองก่อนส่งรายงาน');
+        switchTab('tab-worksheet');
+        document.getElementById('student-name').focus();
         return;
       }
 
-      const p = getWorksheetCurrentParams();
+      // Check Q1-Q4 answers
+      const q1 = document.querySelector('input[name="q1"]:checked')?.value || '';
+      const q2 = document.querySelector('input[name="q2"]:checked')?.value || '';
+      const q3 = document.querySelector('input[name="q3"]:checked')?.value || '';
+      const q4 = document.querySelector('input[name="q4"]:checked')?.value || '';
+
+      const conclusion = document.getElementById('lab-conclusion').value.trim();
+
       const payload = {
         studentName: name,
         studentId: id,
-        studentGroup: group,
-        labDate: date,
+        studentGroup: document.getElementById('student-group').value.trim(),
+        labDate: document.getElementById('lab-date').value,
         circuitMode: STATE.wsMode,
         fetModel: document.getElementById('ws-sel-model').value,
-        param_vdd: p.vdd,
-        param_r1: p.r1,
-        param_r2: p.r2,
-        param_rd: p.rd,
-        param_rs: p.rs,
-        param_idss: p.idss,
-        param_vp: p.vp,
+        param_vdd: document.getElementById('ws-param-vdd').value,
+        param_r1: document.getElementById('ws-param-r1').value,
+        param_r2: document.getElementById('ws-param-r2').value,
+        param_rd: document.getElementById('ws-param-rd').value,
+        param_rs: document.getElementById('ws-param-rs').value,
+        param_idss: document.getElementById('ws-param-idss').value,
+        param_vp: document.getElementById('ws-param-vp').value,
 
         dc_vg: document.getElementById('dc-vg').value,
         dc_vs: document.getElementById('dc-vs').value,
