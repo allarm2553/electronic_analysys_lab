@@ -977,7 +977,7 @@
                 </g>
               </svg>
 
-              <!-- Mode 2: AC Small-Signal re Equivalent Model -->
+                            <!-- Mode 2: AC Small-Signal re Equivalent Model -->
               <svg id="svg-schematic-re-model" viewBox="0 0 540 260" style="width: 100%; height: auto; max-height: 235px; display: none;">
                 <!-- AC Ground Rail -->
                 <line x1="15" y1="215" x2="525" y2="215" stroke="#64748b" stroke-width="2.5" />
@@ -988,7 +988,7 @@
                 <text x="8" y="72" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
                 <line x1="20" y1="68" x2="60" y2="68" stroke="#facc15" stroke-width="2" />
 
-                <!-- RB = R1 || R2 -->
+                <!-- RB = R1 || R2 (External Base Bias to AC GND) -->
                 <line x1="60" y1="68" x2="60" y2="95" stroke="#94a3b8" stroke-width="2" />
                 <rect x="50" y="95" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
                 <text id="svg-re-rb-val" x="60" y="150" fill="#bae6fd" font-size="9" font-family="Fira Code" text-anchor="middle">RB: 5.64k</text>
@@ -1002,54 +1002,72 @@
                 <circle cx="140" cy="68" r="3.5" fill="#fff" />
                 <text x="140" y="54" fill="#fff" font-size="11" font-weight="bold" font-family="Chakra Petch" text-anchor="middle">B (Base)</text>
 
-                <!-- Base-to-Emitter Resistance (β • re) -->
-                <line x1="140" y1="68" x2="140" y2="95" stroke="#94a3b8" stroke-width="2" />
-                <rect x="130" y="95" width="20" height="42" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
-                <text id="svg-re-zb-val" x="140" y="152" fill="#34d399" font-size="9" font-family="Fira Code" text-anchor="middle">β•re: 2.38k</text>
-                <line x1="140" y1="137" x2="140" y2="168" stroke="#94a3b8" stroke-width="2" />
+                <!-- BJT Transistor Outline Box -->
+                <rect x="115" y="40" width="265" height="118" rx="6" fill="rgba(30, 41, 59, 0.2)" stroke="#475569" stroke-width="1" stroke-dasharray="4,4" />
 
-                <!-- Emitter Node (E) & Emitter branch -->
-                <circle cx="140" cy="168" r="3" fill="#10b981" />
-                <text x="140" y="182" fill="#10b981" font-size="10" font-family="Chakra Petch" text-anchor="middle">E (Emitter)</text>
-                
-                <!-- Bypassed wire (shown when CE ON) -->
-                <line id="svg-re-emitter-direct" x1="140" y1="168" x2="140" y2="215" stroke="#10b981" stroke-width="2.5" />
-                
-                <!-- Unbypassed RE Resistor (shown when CE OFF) -->
-                <g id="svg-re-emitter-unbyp" style="display: none;">
-                  <line x1="140" y1="168" x2="140" y2="180" stroke="#fca5a5" stroke-width="1.5" />
-                  <rect x="130" y="180" width="20" height="25" fill="#1e293b" stroke="#f87171" stroke-width="1.5" />
-                  <text id="svg-re-unbyp-txt" x="165" y="196" fill="#f87171" font-size="8.5" font-family="Fira Code">RE 560Ω</text>
-                  <line x1="140" y1="205" x2="140" y2="215" stroke="#fca5a5" stroke-width="1.5" />
+                <!-- Base-to-Emitter Dynamic Resistance (β • re) -->
+                <line x1="140" y1="68" x2="140" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="130" y="95" width="20" height="38" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+                <text id="svg-re-zb-val" x="156" y="118" fill="#10b981" font-size="9" font-family="Fira Code" text-anchor="start">β•re: 2.26k</text>
+                <line x1="140" y1="133" x2="140" y2="150" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Collector Terminal (C) & Top Bus -->
+                <circle cx="280" cy="68" r="3.5" fill="#fff" />
+                <text x="280" y="54" fill="#fff" font-size="11" font-weight="bold" font-family="Chakra Petch" text-anchor="middle">C (Collector)</text>
+                <line x1="245" y1="68" x2="350" y2="68" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Dependent Current Source (β • ib) from Collector to Emitter Bus -->
+                <text id="svg-re-cs-label" x="245" y="86" fill="#38bdf8" font-size="9" font-family="Fira Code" text-anchor="middle">β&bull;ib (200&bull;ib)</text>
+                <line x1="245" y1="68" x2="245" y2="96" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="245" cy="114" r="16" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+                <line x1="245" y1="103" x2="245" y2="125" stroke="#38bdf8" stroke-width="2" />
+                <polygon points="245,129 240,121 250,121" fill="#38bdf8" />
+                <line x1="245" y1="130" x2="245" y2="150" stroke="#94a3b8" stroke-width="2" />
+
+                <!-- Emitter Bus E (Common node connecting β•re and β•ib) -->
+                <line x1="140" y1="150" x2="245" y2="150" stroke="#10b981" stroke-width="2.5" />
+                <circle cx="192" cy="150" r="3.5" fill="#10b981" />
+                <text x="192" y="142" fill="#10b981" font-size="10" font-weight="bold" font-family="Chakra Petch" text-anchor="middle">E (Emitter)</text>
+
+                <!-- Emitter Path Case A (Bypassed with CE) -->
+                <g id="svg-re-bypassed-group" style="display: block;">
+                  <line x1="192" y1="150" x2="192" y2="215" stroke="#10b981" stroke-width="2.5" />
+                  <circle cx="192" cy="215" r="3" fill="#10b981" />
+                  <rect x="117" y="172" width="150" height="20" rx="4" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1" />
+                  <text x="192" y="186" fill="#10b981" font-size="9.5" font-family="Chakra Petch" text-anchor="middle">⚡ ต่อตรงลง AC GND (มี CE)</text>
                 </g>
 
-                <!-- Collector Node (C) -->
-                <circle cx="340" cy="68" r="3.5" fill="#fff" />
-                <text x="340" y="54" fill="#fff" font-size="11" font-weight="bold" font-family="Chakra Petch" text-anchor="middle">C (Collector)</text>
+                <!-- Emitter Path Case B (Unbypassed: RE in Emitter to AC GND) -->
+                <g id="svg-re-unbypassed-group" style="display: none;">
+                  <line x1="192" y1="150" x2="192" y2="165" stroke="#facc15" stroke-width="2" />
+                  <rect x="182" y="165" width="20" height="32" fill="#1e293b" stroke="#facc15" stroke-width="2" />
+                  <text id="svg-re-unbyp-txt" x="212" y="184" fill="#facc15" font-size="10" font-family="Fira Code" font-weight="bold">RE: 560Ω</text>
+                  
+                  <!-- ie current arrow through RE -->
+                  <line x1="162" y1="168" x2="162" y2="192" stroke="#10b981" stroke-width="1.5" />
+                  <polygon points="162,196 158,189 166,189" fill="#10b981" />
+                  <text x="155" y="183" fill="#10b981" font-size="8" font-family="Fira Code" text-anchor="end">ie=(1+β)ib</text>
+                  
+                  <line x1="192" y1="197" x2="192" y2="215" stroke="#facc15" stroke-width="2" />
+                  <circle cx="192" cy="215" r="3" fill="#facc15" />
+                  <text x="210" y="228" fill="#facc15" font-size="8.5" font-family="Chakra Petch" text-anchor="middle">⚠️ ถอด CE: กระแส ie ไหลผ่าน RE (Zb = β·re + (1+β)RE)</text>
+                </g>
 
-                <!-- Dependent Current Source (β • ib) -->
-                <line x1="340" y1="68" x2="340" y2="92" stroke="#94a3b8" stroke-width="2" />
-                <circle cx="340" cy="116" r="24" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
-                <line x1="340" y1="102" x2="340" y2="128" stroke="#38bdf8" stroke-width="2.5" />
-                <polygon points="340,132 334,122 346,122" fill="#38bdf8" />
-                <text id="svg-re-cs-label" x="382" y="120" fill="#38bdf8" font-size="10" font-family="Fira Code">β &bull; ib</text>
-                <line x1="340" y1="140" x2="340" y2="215" stroke="#94a3b8" stroke-width="2" />
-
-                <!-- RC branch to AC GND -->
-                <line x1="340" y1="68" x2="440" y2="68" stroke="#94a3b8" stroke-width="2" />
-                <line x1="440" y1="68" x2="440" y2="95" stroke="#94a3b8" stroke-width="2" />
-                <rect x="430" y="95" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
-                <text id="svg-re-rc-val" x="440" y="150" fill="#bae6fd" font-size="9" font-family="Fira Code" text-anchor="middle">RC: 2.2k</text>
-                <line x1="440" y1="133" x2="440" y2="215" stroke="#94a3b8" stroke-width="2" />
+                <!-- External Collector Load RC -->
+                <line x1="280" y1="68" x2="430" y2="68" stroke="#38bdf8" stroke-width="2" />
+                <line x1="430" y1="68" x2="430" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="420" y="95" width="20" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+                <text id="svg-re-rc-val" x="430" y="150" fill="#bae6fd" font-size="9" font-family="Fira Code" text-anchor="middle">RC: 2.20k</text>
+                <line x1="430" y1="133" x2="430" y2="215" stroke="#94a3b8" stroke-width="2" />
 
                 <!-- Output vo -->
-                <line x1="440" y1="68" x2="480" y2="68" stroke="#38bdf8" stroke-width="2" />
+                <line x1="430" y1="68" x2="480" y2="68" stroke="#38bdf8" stroke-width="2" />
                 <circle cx="480" cy="68" r="4" fill="#38bdf8" />
                 <text x="490" y="72" fill="#38bdf8" font-size="12" font-family="Chakra Petch">vo</text>
 
                 <!-- Model Formula Note Banner at Bottom -->
-                <rect x="20" y="235" width="500" height="22" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="#38bdf8" stroke-width="1" />
-                <text id="svg-re-formula-bar" x="270" y="250" fill="#38bdf8" font-size="10.5" font-family="Fira Code" text-anchor="middle">Av = -184.8 เท่า | Zi = 1.62 kΩ | Zo = 2.20 kΩ (ต่อ CE: Bypassed)</text>
+                <rect x="20" y="238" width="500" height="18" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="#38bdf8" stroke-width="0.8" />
+                <text id="svg-re-formula-bar" x="270" y="251" fill="#38bdf8" font-size="9.5" font-family="Fira Code" text-anchor="middle">Av = -184.8 เท่า | Zi = 1.62 kΩ | Zo = 2.20 kΩ (ต่อ CE: Bypassed)</text>
               </svg>
 
               <!-- Mode 3: Dual Trace Oscilloscope (Scope) -->
@@ -1629,8 +1647,8 @@
       const swLabel = document.getElementById('svg-sw-label');
       const ceText = document.getElementById('svg-ce-text');
 
-      const reDirect = document.getElementById('svg-re-emitter-direct');
-      const reUnbyp = document.getElementById('svg-re-emitter-unbyp');
+      const reByp = document.getElementById('svg-re-bypassed-group');
+      const reUnbyp = document.getElementById('svg-re-unbypassed-group');
 
       if (bypassed) {
         btnOn.classList.add('active');
@@ -1659,7 +1677,7 @@
         }
         if (ceText) ceText.setAttribute('fill', '#10b981');
 
-        if (reDirect) reDirect.style.display = 'block';
+        if (reByp) reByp.style.display = 'block';
         if (reUnbyp) reUnbyp.style.display = 'none';
       } else {
         btnOff.classList.add('active');
@@ -1688,7 +1706,7 @@
         }
         if (ceText) ceText.setAttribute('fill', '#64748b');
 
-        if (reDirect) reDirect.style.display = 'none';
+        if (reByp) reByp.style.display = 'none';
         if (reUnbyp) reUnbyp.style.display = 'block';
       }
 
@@ -1775,12 +1793,24 @@
       document.getElementById('readout-zi').innerText = STATE.zi.toFixed(2) + ' kΩ';
 
       // Update AC re model labels
+      const beta_re_k = (Beta * STATE.re_ohm) / 1000;
       document.getElementById('svg-re-rb-val').textContent = `RB: ${(RB_ohms/1000).toFixed(2)}k`;
-      document.getElementById('svg-re-zb-val').textContent = `β•re: ${(Zb_ohms/1000).toFixed(2)}k`;
-      document.getElementById('svg-re-rc-val').textContent = `RC: ${STATE.rc.toFixed(1)}k`;
+      document.getElementById('svg-re-zb-val').textContent = `β•re: ${beta_re_k.toFixed(2)}k`;
+      document.getElementById('svg-re-rc-val').textContent = `RC: ${STATE.rc.toFixed(2)}k`;
       document.getElementById('svg-re-cs-label').textContent = `β•ib (${Beta}•ib)`;
-      document.getElementById('svg-re-unbyp-txt').textContent = `RE ${RE_ohms.toFixed(0)}Ω`;
-      document.getElementById('svg-re-formula-bar').textContent = `Av = ${STATE.av.toFixed(1)} เท่า | Zi = ${STATE.zi.toFixed(2)} kΩ | Zo = ${STATE.zo.toFixed(2)} kΩ (${STATE.hasBypass ? 'ต่อ CE: Bypassed' : 'ถอด CE: Unbypassed'})`;
+      document.getElementById('svg-re-unbyp-txt').textContent = `RE: ${RE_ohms.toFixed(0)}Ω`;
+      
+      const reByp = document.getElementById('svg-re-bypassed-group');
+      const reUnbyp = document.getElementById('svg-re-unbypassed-group');
+      if (STATE.hasBypass) {
+        if (reByp) reByp.style.display = 'block';
+        if (reUnbyp) reUnbyp.style.display = 'none';
+        document.getElementById('svg-re-formula-bar').textContent = `Av = ${STATE.av.toFixed(1)} เท่า | Zi = ${STATE.zi.toFixed(2)} kΩ | Zo ≈ ${STATE.zo.toFixed(2)} kΩ (ต่อ CE: เกนสูง)`;
+      } else {
+        if (reByp) reByp.style.display = 'none';
+        if (reUnbyp) reUnbyp.style.display = 'block';
+        document.getElementById('svg-re-formula-bar').textContent = `Av ≈ -RC/RE = ${STATE.av.toFixed(2)} เท่า | Zi = ${STATE.zi.toFixed(2)} kΩ | Zb ≈ ${(Zb_ohms/1000).toFixed(1)} kΩ (ถอด CE: ป้อนกลับลบ)`;
+      }
 
       // Update Scope Readouts
       document.getElementById('txt-readout-vi').innerText = STATE.vi_p_p.toFixed(1) + ' mVp-p';
