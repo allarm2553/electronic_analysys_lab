@@ -1711,6 +1711,18 @@ function updateSimulation() {
   if (blackSel) STATE.dmmBlackProbe = blackSel.value;
   if (dialSel) STATE.dmmDialMode = dialSel.value;
   
+  // When measuring DC current, the jumper B-C is physically lifted up to insert the ammeter in series
+  if (STATE.dmmDialMode === 'DCA') {
+    STATE.isJumperClosed = false;
+  } else {
+    // When measuring voltage (ACV/DCV), keep jumper closed for proper circuit operation
+    if (jumperSel && jumperSel.value === 'open') {
+      STATE.isJumperClosed = false;
+    } else {
+      STATE.isJumperClosed = true;
+    }
+  }
+
   if (jumperSel) {
     jumperSel.value = STATE.isJumperClosed ? 'closed' : 'open';
   }
@@ -1728,13 +1740,14 @@ function updateSimulation() {
       jText.textContent = 'Jumper B-C: ต่ออยู่';
       jText.setAttribute('fill', '#10b981');
     } else {
+      // Lifted / Open state: tilted green bridge upwards
       jLine.setAttribute('x1', '285');
       jLine.setAttribute('y1', '70');
-      jLine.setAttribute('x2', '305');
-      jLine.setAttribute('y2', '45');
-      jLine.setAttribute('stroke', '#ef4444');
-      jText.textContent = 'Jumper B-C: เปิด';
-      jText.setAttribute('fill', '#ef4444');
+      jLine.setAttribute('x2', '315');
+      jLine.setAttribute('y2', '40');
+      jLine.setAttribute('stroke', '#10b981'); // Green lifted bridge
+      jText.textContent = 'Jumper B-C: ยกออก (วัดกระแส)';
+      jText.setAttribute('fill', '#10b981');
     }
   }
   

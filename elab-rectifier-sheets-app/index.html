@@ -1662,6 +1662,18 @@ function updateSimulation() {
   if (blackSel) STATE.dmmBlackProbe = blackSel.value;
   if (dialSel) STATE.dmmDialMode = dialSel.value;
   
+  // When measuring DC current, the jumper B-C is physically lifted up to insert the ammeter in series
+  if (STATE.dmmDialMode === 'DCA') {
+    STATE.isJumperClosed = false;
+  } else {
+    // When measuring voltage (ACV/DCV), keep jumper closed for proper circuit operation
+    if (jumperSel && jumperSel.value === 'open') {
+      STATE.isJumperClosed = false;
+    } else {
+      STATE.isJumperClosed = true;
+    }
+  }
+
   // Sync jumper dropdown state
   if (jumperSel) {
     jumperSel.value = STATE.isJumperClosed ? 'closed' : 'open';
@@ -1672,7 +1684,7 @@ function updateSimulation() {
   const jText = document.getElementById('jumper-text');
   if (jLine && jText) {
     if (STATE.isJumperClosed) {
-      // Closed state: straight line connecting B (265) and C (315)
+      // Closed state: straight horizontal line connecting B (265) and C (315)
       jLine.setAttribute('x1', '265');
       jLine.setAttribute('y1', '50');
       jLine.setAttribute('x2', '315');
@@ -1681,14 +1693,14 @@ function updateSimulation() {
       jText.textContent = 'Jumper B-C: ต่ออยู่';
       jText.setAttribute('fill', '#10b981');
     } else {
-      // Open state: tilted line upwards (open terminal)
+      // Open / Lifted state: tilted green bridge upwards
       jLine.setAttribute('x1', '265');
       jLine.setAttribute('y1', '50');
-      jLine.setAttribute('x2', '285');
-      jLine.setAttribute('y2', '25');
-      jLine.setAttribute('stroke', '#ef4444'); // Red
-      jText.textContent = 'Jumper B-C: เปิด';
-      jText.setAttribute('fill', '#ef4444');
+      jLine.setAttribute('x2', '295');
+      jLine.setAttribute('y2', '20');
+      jLine.setAttribute('stroke', '#10b981'); // Green lifted bridge
+      jText.textContent = 'Jumper B-C: ยกออก (วัดกระแส)';
+      jText.setAttribute('fill', '#10b981');
     }
   }
   
