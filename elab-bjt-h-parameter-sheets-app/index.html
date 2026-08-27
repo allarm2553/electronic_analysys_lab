@@ -800,43 +800,57 @@
         </div>
 
         <div class="card">
-          <h2 class="card-title">📊 สรุปสูตรการคำนวณวงจรขยายด้วย Approximate h-Model</h2>
-          <table class="lab-table">
-            <thead>
-              <tr>
-                <th>พารามิเตอร์วงจร</th>
-                <th>สูตรคำนวณจาก h-Parameter Model</th>
-                <th>ความหมายทางวิศวกรรม</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>ความต้านทานอินพุตของทรานซิสเตอร์ (Z<sub>b</sub>)</strong></td>
-                <td>Z<sub>b</sub> = h<sub>ie</sub> (เมื่อต่อ C<sub>E</sub>)<br><small style="color: var(--text-muted);">Z<sub>b</sub> = h<sub>ie</sub> + (1+h<sub>fe</sub>)R<sub>E</sub> (เมื่อถอด C<sub>E</sub>)</small></td>
-                <td>ความต้านทานไดนามิกมองเข้าที่ขา Base ของ BJT</td>
-              </tr>
-              <tr>
-                <td><strong>ความต้านทานอินพุตทั้งหมด (Z<sub>i</sub>)</strong></td>
-                <td>Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || Z<sub>b</sub></td>
-                <td>ความต้านทานรวมที่แหล่งจ่ายสัญญาณภายนอกมองเห็น</td>
-              </tr>
-              <tr>
-                <td><strong>ความต้านทานเอาต์พุต (Z<sub>o</sub>)</strong></td>
-                <td>Z<sub>o</sub> = R<sub>C</sub> || (1 / h<sub>oe</sub>) ≈ R<sub>C</sub></td>
-                <td>ความต้านทานภายในฝั่งเอาต์พุตเมื่อมองย้อนกลับเข้าวงจร</td>
-              </tr>
-              <tr>
-                <td><strong>อัตราขยายแรงดัน (A<sub>v</sub>)</strong></td>
-                <td>A<sub>v</sub> = - [h<sub>fe</sub> &bull; (R<sub>C</sub> || 1/h<sub>oe</sub>)] / Z<sub>b</sub></td>
-                <td>อัตราการขยายขนาดแรงดันสัญญาณ AC (กลับเฟส 180°)</td>
-              </tr>
-              <tr>
-                <td><strong>อัตราขยายกระแส (A<sub>i</sub>)</strong></td>
-                <td>A<sub>i</sub> ≈ h<sub>fe</sub> &bull; [R<sub>B</sub> / (R<sub>B</sub> + Z<sub>b</sub>)]</td>
-                <td>อัตราขยายกระแสจากอินพุตสู่เอาต์พุต</td>
-              </tr>
-            </tbody>
-          </table>
+          <h2 class="card-title">📊 สรุปสูตรการคำนวณวงจรขยายด้วย Approximate h-Model (เปรียบเทียบสภาวะต่อ/ถอด C<sub>E</sub>)</h2>
+          <div style="overflow-x: auto;">
+            <table class="lab-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 170px;">พารามิเตอร์วงจร</th>
+                  <th style="color: #34d399; min-width: 200px; background: rgba(16, 185, 129, 0.15);">🟢 กรณีต่อ C<sub>E</sub> (Bypassed: มี CE)</th>
+                  <th style="color: #f87171; min-width: 240px; background: rgba(239, 68, 68, 0.15);">🔴 กรณีถอด C<sub>E</sub> (Unbypassed: ไม่มี CE)</th>
+                  <th style="min-width: 220px;">ความหมายทางวิศวกรรม / ข้อสังเกต</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>ความต้านทานอินพุตของ BJT (Z<sub>b</sub>)</strong></td>
+                  <td style="color: #34d399; font-family: 'Fira Code', monospace; font-weight: bold;">Z<sub>b</sub> = h<sub>ie</sub></td>
+                  <td style="color: #fca5a5; font-family: 'Fira Code', monospace; font-weight: bold;">Z<sub>b</sub> = h<sub>ie</sub> + (1 + h<sub>fe</sub>)R<sub>E</sub><br><small style="color: var(--text-muted); font-weight: normal;">&approx; h<sub>fe</sub> &bull; R<sub>E</sub></small></td>
+                  <td style="text-align: left; font-size: 12px;">ความต้านทานมองเข้าที่ขา Base (เมื่อถอด C<sub>E</sub> ค่า Z<sub>b</sub> จะเพิ่มขึ้นมหาศาลจากผลของ R<sub>E</sub>)</td>
+                </tr>
+                <tr>
+                  <td><strong>ความต้านทานอินพุตทั้งหมด (Z<sub>i</sub>)</strong></td>
+                  <td style="color: #34d399; font-family: 'Fira Code', monospace;">Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || h<sub>ie</sub></td>
+                  <td style="color: #fca5a5; font-family: 'Fira Code', monospace;">Z<sub>i</sub> = R<sub>1</sub> || R<sub>2</sub> || Z<sub>b</sub></td>
+                  <td style="text-align: left; font-size: 12px;">ความต้านทานรวมที่แหล่งจ่ายสัญญาณภายนอกมองเห็น (R<sub>B</sub> || Z<sub>b</sub>)</td>
+                </tr>
+                <tr>
+                  <td><strong>ความต้านทานเอาต์พุต (Z<sub>o</sub>)</strong></td>
+                  <td style="color: #34d399; font-family: 'Fira Code', monospace;">Z<sub>o</sub> = R<sub>C</sub> || (1 / h<sub>oe</sub>) &approx; R<sub>C</sub></td>
+                  <td style="color: #fca5a5; font-family: 'Fira Code', monospace;">Z<sub>o</sub> = R<sub>C</sub> || (1 / h<sub>oe</sub>) &approx; R<sub>C</sub></td>
+                  <td style="text-align: left; font-size: 12px;">ความต้านทานภายในฝั่งเอาต์พุตเมื่อมองย้อนกลับเข้าวงจร (ถูกจำกัดโดยตัวต้านทานโหลด R<sub>C</sub>)</td>
+                </tr>
+                <tr>
+                  <td><strong>อัตราขยายแรงดัน (A<sub>v</sub>)</strong></td>
+                  <td style="color: #34d399; font-family: 'Fira Code', monospace; font-weight: bold;">
+                    A<sub>v</sub> = - [h<sub>fe</sub> &bull; (R<sub>C</sub> || 1/h<sub>oe</sub>)] / h<sub>ie</sub><br>
+                    <small style="color: #6ee7b7; font-weight: normal;">&approx; - (h<sub>fe</sub> &bull; R<sub>C</sub>) / h<sub>ie</sub> (เกนสูง)</small>
+                  </td>
+                  <td style="color: #fca5a5; font-family: 'Fira Code', monospace; font-weight: bold;">
+                    A<sub>v</sub> = - [h<sub>fe</sub> &bull; (R<sub>C</sub> || 1/h<sub>oe</sub>)] / Z<sub>b</sub><br>
+                    <small style="color: #fca5a5; font-weight: normal;">&approx; - R<sub>C</sub> / R<sub>E</sub> (เกนต่ำ เสถียรสูง)</small>
+                  </td>
+                  <td style="text-align: left; font-size: 12px;">อัตราการขยายแรงดันสัญญาณ AC (กลับเฟส 180°) มี C<sub>E</sub> ให้เกนสูงมาก ไม่มี C<sub>E</sub> ให้เกนคงที่เสถียรตามอัตราส่วน R<sub>C</sub>/R<sub>E</sub></td>
+                </tr>
+                <tr>
+                  <td><strong>อัตราขยายกระแส (A<sub>i</sub>)</strong></td>
+                  <td style="color: #34d399; font-family: 'Fira Code', monospace;">A<sub>i</sub> &approx; h<sub>fe</sub> &bull; [R<sub>B</sub> / (R<sub>B</sub> + h<sub>ie</sub>)]</td>
+                  <td style="color: #fca5a5; font-family: 'Fira Code', monospace;">A<sub>i</sub> &approx; h<sub>fe</sub> &bull; [R<sub>B</sub> / (R<sub>B</sub> + Z<sub>b</sub>)]</td>
+                  <td style="text-align: left; font-size: 12px;">อัตราส่วนกระแสเอาต์พุตต่อกระแสอินพุตจากแหล่งกำเนิด</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
