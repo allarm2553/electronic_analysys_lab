@@ -406,7 +406,7 @@
               <p id="txt-model-desc" style="font-size:10px;color:var(--text-muted);margin-top:6px;">💡 2N2222: NPN อเนกประสงค์ (β=200, V<sub>BE</sub>=0.70V)</p>
             </div>
             <div class="control-group"><div class="control-label"><span>β (h<sub>fe</sub>)</span><span class="val" id="val-beta">200</span></div><input type="range" id="sl-beta" min="50" max="500" step="5" value="200" oninput="onBetaChange()"></div>
-            <div class="control-group"><div class="control-label"><span>V<sub>i(p-p)</sub></span><span class="val" id="val-vi">20 mV</span></div><input type="range" id="sl-vi" min="2" max="100" step="1" value="20" oninput="updateSim()"></div>
+            <div class="control-group"><div class="control-label"><span>V<sub>i(p-p)</sub> (สัญญาณอินพุต)</span><span class="val" id="val-vi">10 mV</span></div><input type="range" id="sl-vi" min="1" max="50" step="1" value="10" oninput="updateSim()"></div>
             <div style="background:rgba(15,23,42,.6);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-top:8px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:12px;font-weight:600;">🔌 C<sub>E2</sub> Bypass (Stage 2):</span>
@@ -598,7 +598,7 @@
                 <text x="60" y="195" fill="#94a3b8" font-size="9" font-family="Fira Code">Av1=-RC1eff/(re1+RE1)    Av2=-RC2eff/re2</text>
                 <text x="60" y="210" fill="#a855f7" font-size="9" font-family="Fira Code">Phase: 180+180=0 degrees (In-Phase Output)</text>
               </svg>
-              <canvas id="canvas-scope" width="700" height="275" style="width:100%;display:none;background:var(--scope-bg);"></canvas>
+              <canvas id="canvas-scope" width="700" height="280" style="width:100%;display:none;background:var(--scope-bg);"></canvas>
             </div>
             <!-- Probe cards -->
             <div style="margin-top:14px;">
@@ -628,7 +628,7 @@
               </div>
               <div id="scope-readout" style="display:none;background:rgba(15,23,42,.9);border:1px solid var(--border-color);border-radius:8px;padding:10px 14px;margin-top:12px;">
                 <div class="grid-4">
-                  <div><span style="font-size:11px;color:#fbbf24;">CH1 Vi(p-p):</span><br><span id="scope-vi" style="font-family:'Fira Code',monospace;color:#fbbf24;font-size:14px;font-weight:700;">20 mV</span></div>
+                  <div><span style="font-size:11px;color:#fbbf24;">CH1 Vi(p-p):</span><br><span id="scope-vi" style="font-family:'Fira Code',monospace;color:#fbbf24;font-size:14px;font-weight:700;">10 mV</span></div>
                   <div><span style="font-size:11px;color:var(--accent-cyan);">CH2 Vo(p-p):</span><br><span id="scope-vo" style="font-family:'Fira Code',monospace;color:var(--accent-cyan);font-size:14px;font-weight:700;">---</span></div>
                   <div><span style="font-size:11px;color:var(--accent-green);">|Av_total|:</span><br><span id="scope-av" style="font-family:'Fira Code',monospace;color:var(--accent-green);font-size:14px;font-weight:700;">---</span></div>
                   <div><span style="font-size:11px;color:var(--text-muted);">Phase:</span><br><span id="scope-phase" style="font-family:'Fira Code',monospace;color:#34d399;font-size:14px;font-weight:700;">0° In-Phase</span></div>
@@ -995,9 +995,15 @@ function updateSim() {
   document.getElementById('rd-av2').textContent = f(res.av2, 1);
   document.getElementById('rd-avtotal').textContent = f(res.av_total, 0);
   
-  const vopp = Math.min(Math.abs(res.av_total) * vi, vcc * 900);
+  // Scope values with physical dynamic range limit
+  const maxSwing_mV = (res.vc2 && res.ve2) ? Math.min(res.vc2 - res.ve2 - 0.3, vcc - res.vc2) * 2000 : vcc * 800;
+  const safeMaxSwing = Math.max(1000, isFinite(maxSwing_mV) ? maxSwing_mV : vcc * 800);
+  const idealVo_mV = isFinite(res.av_total) ? Math.abs(res.av_total) * vi : 0;
+  const isClip = idealVo_mV >= safeMaxSwing * 0.95;
+  const vo_pp = isClip ? safeMaxSwing : idealVo_mV;
+
   document.getElementById('scope-vi').textContent = `${vi} mV`;
-  document.getElementById('scope-vo').textContent = vopp < 1000 ? `${vopp.toFixed(1)} mV` : `${(vopp / 1000).toFixed(2)} V`;
+  document.getElementById('scope-vo').textContent = vo_pp < 1000 ? `${vo_pp.toFixed(1)} mV` : `${(vo_pp / 1000).toFixed(2)} V`;
   document.getElementById('scope-av').textContent = Math.abs(res.av_total).toFixed(0);
 }
 
@@ -1008,52 +1014,85 @@ function renderScope() {
   const W = canvas.width, H = canvas.height;
   if (scopeAnimId) cancelAnimationFrame(scopeAnimId);
   let t = 0;
+
   function draw() {
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#050b14';
     ctx.fillRect(0, 0, W, H);
+
+    // Oscilloscope Grid
     ctx.strokeStyle = '#132338';
     ctx.lineWidth = 0.5;
     for (let gx = 0; gx <= W; gx += W / 10) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
     for (let gy = 0; gy <= H; gy += H / 8) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
-    ctx.strokeStyle = '#1e3a5f';
+    
+    // Center divider between CH1 (top) and CH2 (bottom)
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
     
-    const vi = gv('sl-vi') || 20, vcc = gv('sl-vcc') || 12;
+    const vi = gv('sl-vi') || 10, vcc = gv('sl-vcc') || 12;
     const avT = simData.av_total || 0;
-    const vopp = Math.min(Math.abs(avT) * vi, vcc * 900);
-    const viAmp = 35, maxVoAmp = H / 2 - 20;
-    const voAmpPx = Math.min(viAmp * (vopp / Math.max(vi, 1)), maxVoAmp);
-    const clip = voAmpPx >= maxVoAmp - 2;
     
-    // CH1: Vi yellow at top half
-    ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2; ctx.beginPath();
+    // Dynamic physical headroom calculation
+    const maxSwing_mV = (simData.vc2 && simData.ve2) ? Math.min(simData.vc2 - simData.ve2 - 0.3, vcc - simData.vc2) * 2000 : vcc * 800;
+    const safeMaxSwing = Math.max(1000, isFinite(maxSwing_mV) ? maxSwing_mV : vcc * 800);
+    const idealVo_mV = Math.abs(avT) * vi;
+    const isClip = idealVo_mV >= safeMaxSwing * 0.95;
+    const vopp = isClip ? safeMaxSwing : idealVo_mV;
+
+    // Headrooms and amplitudes
+    // CH1 (Top quadrant, baseline Y = 70px)
+    const ch1_baseY = H * 0.25;
+    const viAmpPx = Math.max(10, Math.min(32, 10 + 22 * (vi / 50)));
+
+    // CH2 (Bottom quadrant, baseline Y = 210px)
+    const ch2_baseY = H * 0.75;
+    const maxVoVisualAmp = 42; // safe height: 210 ± 42 -> [168px, 252px], won't cross divider or bottom edge
+    const voVisualNorm = Math.min(1.0, vopp / safeMaxSwing);
+    const voAmpPx = Math.max(12, maxVoVisualAmp * (isClip ? 1.0 : (0.2 + 0.8 * voVisualNorm)));
+
+    // Draw CH1: Vi (Yellow, 0° phase)
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
     for (let x = 0; x < W; x++) {
       const ph = (x / W) * 4 * Math.PI + t;
-      const y = H / 4 + Math.sin(ph) * viAmp;
+      const y = ch1_baseY - Math.sin(ph) * viAmpPx;
       x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
     ctx.stroke();
     
-    // CH2: Vo cyan at bottom half (0° In-Phase for 2-stage CE cascade)
-    ctx.strokeStyle = clip ? '#f87171' : '#38bdf8'; ctx.lineWidth = 2; ctx.beginPath();
+    // Draw CH2: Vo (Cyan / Red when clipping, 0° in-phase for 2-stage CE)
+    ctx.strokeStyle = isClip ? '#f87171' : '#38bdf8';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
     for (let x = 0; x < W; x++) {
       const ph = (x / W) * 4 * Math.PI + t;
-      let raw = Math.sin(ph) * voAmpPx;
-      if (clip) raw = Math.max(-maxVoAmp, Math.min(maxVoAmp, raw));
-      const y = H * 3 / 4 + raw;
+      let raw = -Math.sin(ph) * (isClip ? voAmpPx * 1.35 : voAmpPx);
+      if (isClip) {
+        raw = Math.max(-maxVoVisualAmp, Math.min(maxVoVisualAmp, raw));
+      }
+      const y = ch2_baseY + raw;
       x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
     ctx.stroke();
     
+    // Channel Information Legends
     ctx.font = '11px Fira Code';
     ctx.fillStyle = '#fbbf24';
-    ctx.fillText(`CH1  Vi(p-p)=${vi}mV`, 10, 16);
-    ctx.fillStyle = clip ? '#f87171' : '#38bdf8';
+    ctx.fillText(`CH1  Vi(p-p)=${vi}mV`, 14, 20);
+    
+    ctx.fillStyle = isClip ? '#f87171' : '#38bdf8';
     const voL = vopp < 1000 ? `${vopp.toFixed(0)}mV` : `${(vopp / 1000).toFixed(2)}V`;
-    ctx.fillText(`CH2  Vo(p-p)=${voL}  Phase=0° (In-Phase)`, 10, H / 2 + 16);
-    if (clip) { ctx.fillStyle = '#f87171'; ctx.fillText('⚠ CLIPPING', W - 100, H / 2 + 16); }
+    ctx.fillText(`CH2  Vo(p-p)=${voL}  Phase=0° (In-Phase)`, 14, H / 2 + 20);
+    
+    if (isClip) {
+      ctx.fillStyle = '#f87171';
+      ctx.font = 'bold 11px Chakra Petch';
+      ctx.fillText('⚠ CLIPPING (Saturation / Cut-off)', W - 230, H / 2 + 20);
+    }
+
     t += 0.05;
     scopeAnimId = requestAnimationFrame(draw);
   }
