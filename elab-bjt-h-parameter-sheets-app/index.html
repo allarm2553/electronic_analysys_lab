@@ -1078,102 +1078,102 @@
               </svg>
 
               <!-- Mode 2: AC Small-Signal h-Parameter Equivalent Model -->
-              <svg id="svg-schematic-h-model" viewBox="0 0 520 260" style="width: 100%; height: auto; max-height: 235px; display: none;">
+              <svg id="svg-schematic-h-model" viewBox="0 0 540 260" style="width: 100%; height: auto; max-height: 235px; display: none;">
                 <!-- AC Ground Rail -->
-                <line x1="20" y1="215" x2="500" y2="215" stroke="#64748b" stroke-width="2.5" />
-                <text x="455" y="230" fill="#64748b" font-size="10" font-family="Chakra Petch">AC GND</text>
+                <line x1="15" y1="215" x2="525" y2="215" stroke="#64748b" stroke-width="2.5" />
+                <text x="480" y="230" fill="#64748b" font-size="10" font-family="Chakra Petch">AC GND</text>
 
                 <!-- Input Vi -->
-                <circle cx="25" cy="70" r="4" fill="#facc15" />
-                <text x="10" y="74" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
-                <line x1="25" y1="70" x2="70" y2="70" stroke="#facc15" stroke-width="2" />
+                <circle cx="20" cy="68" r="4" fill="#facc15" />
+                <text x="8" y="72" fill="#facc15" font-size="11" font-family="Chakra Petch">vi</text>
+                <line x1="20" y1="68" x2="60" y2="68" stroke="#facc15" stroke-width="2" />
 
                 <!-- RB = R1 || R2 (External Base Bias to AC GND) -->
-                <line x1="70" y1="70" x2="70" y2="100" stroke="#94a3b8" stroke-width="2" />
-                <rect x="60" y="100" width="20" height="40" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
-                <text id="svg-h-rb-val" x="70" y="155" fill="#d8b4fe" font-size="9" font-family="Fira Code" text-anchor="middle">RB: 5.64k</text>
-                <line x1="70" y1="140" x2="70" y2="215" stroke="#94a3b8" stroke-width="2" />
+                <line x1="60" y1="68" x2="60" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="50" y="95" width="20" height="38" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text id="svg-h-rb-val" x="60" y="150" fill="#d8b4fe" font-size="9" font-family="Fira Code" text-anchor="middle">RB: 5.64k</text>
+                <line x1="60" y1="133" x2="60" y2="215" stroke="#94a3b8" stroke-width="2" />
 
                 <!-- Base Node (B) & ib arrow -->
-                <line x1="70" y1="70" x2="135" y2="70" stroke="#94a3b8" stroke-width="2" />
-                <line x1="85" y1="62" x2="115" y2="62" stroke="#facc15" stroke-width="1.5" />
-                <polygon points="118,62 111,58 111,66" fill="#facc15" />
-                <text id="svg-h-ib-val" x="100" y="54" fill="#facc15" font-size="9" font-family="Fira Code" text-anchor="middle">ib</text>
-                <circle cx="135" cy="70" r="3.5" fill="#fff" />
-                <text x="135" y="56" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">B (Base)</text>
+                <line x1="60" y1="68" x2="140" y2="68" stroke="#94a3b8" stroke-width="2" />
+                <line x1="80" y1="60" x2="112" y2="60" stroke="#facc15" stroke-width="1.5" />
+                <polygon points="115,60 108,56 108,64" fill="#facc15" />
+                <text id="svg-h-ib-val" x="96" y="52" fill="#facc15" font-size="9" font-family="Fira Code" text-anchor="middle">ib</text>
+                <circle cx="140" cy="68" r="3.5" fill="#fff" />
+                <text x="140" y="54" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">B (Base)</text>
 
                 <!-- BJT Model Outline -->
-                <rect x="110" y="42" width="260" height="116" rx="6" fill="rgba(30, 41, 59, 0.2)" stroke="#475569" stroke-width="1" stroke-dasharray="4,4" />
+                <rect x="115" y="40" width="275" height="118" rx="6" fill="rgba(30, 41, 59, 0.2)" stroke="#475569" stroke-width="1" stroke-dasharray="4,4" />
 
                 <!-- 1. hie internal resistance (Base to Emitter Bus) -->
-                <line x1="135" y1="70" x2="135" y2="95" stroke="#94a3b8" stroke-width="2" />
-                <rect x="125" y="95" width="20" height="36" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
-                <text id="svg-h-hie-val" x="102" y="117" fill="#10b981" font-size="9" font-family="Fira Code" text-anchor="end">hie: 2.26k</text>
-                <line x1="135" y1="131" x2="135" y2="150" stroke="#94a3b8" stroke-width="2" />
+                <line x1="140" y1="68" x2="140" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="130" y="95" width="20" height="38" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+                <text id="svg-h-hie-val" x="156" y="118" fill="#10b981" font-size="9" font-family="Fira Code" text-anchor="start">hie: 2.26k</text>
+                <line x1="140" y1="133" x2="140" y2="150" stroke="#94a3b8" stroke-width="2" />
 
-                <!-- Collector Terminal (C) -->
-                <circle cx="300" cy="70" r="3.5" fill="#fff" />
-                <text x="300" y="56" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">C (Collector)</text>
-                <line x1="230" y1="70" x2="370" y2="70" stroke="#94a3b8" stroke-width="2" />
+                <!-- Collector Terminal (C) & Top Bus -->
+                <circle cx="305" cy="68" r="3.5" fill="#fff" />
+                <text x="305" y="54" fill="#fff" font-size="11" font-family="Chakra Petch" text-anchor="middle">C (Collector)</text>
+                <line x1="245" y1="68" x2="365" y2="68" stroke="#94a3b8" stroke-width="2" />
 
                 <!-- 2. Dependent Current Source hfe * ib (Collector to Emitter Bus) -->
-                <line x1="230" y1="70" x2="230" y2="96" stroke="#94a3b8" stroke-width="2" />
-                <circle cx="230" cy="114" r="16" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
-                <line x1="230" y1="103" x2="230" y2="125" stroke="#38bdf8" stroke-width="2" />
-                <polygon points="230,129 225,121 235,121" fill="#38bdf8" />
-                <text id="svg-h-hfe-val" x="175" y="117" fill="#38bdf8" font-size="9" font-family="Fira Code" text-anchor="end">hfe&bull;ib (200&bull;ib)</text>
-                <line x1="230" y1="130" x2="230" y2="150" stroke="#94a3b8" stroke-width="2" />
+                <text id="svg-h-hfe-val" x="245" y="86" fill="#38bdf8" font-size="9" font-family="Fira Code" text-anchor="middle">hfe&bull;ib (200&bull;ib)</text>
+                <line x1="245" y1="68" x2="245" y2="96" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="245" cy="114" r="16" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+                <line x1="245" y1="103" x2="245" y2="125" stroke="#38bdf8" stroke-width="2" />
+                <polygon points="245,129 240,121 250,121" fill="#38bdf8" />
+                <line x1="245" y1="130" x2="245" y2="150" stroke="#94a3b8" stroke-width="2" />
 
                 <!-- 3. Output Conductance 1/hoe (Collector to Emitter Bus) -->
-                <line x1="330" y1="70" x2="330" y2="95" stroke="#94a3b8" stroke-width="2" />
-                <rect x="320" y="95" width="20" height="36" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
-                <text id="svg-h-hoe-val" x="345" y="117" fill="#a855f7" font-size="9" font-family="Fira Code" text-anchor="start">1/hoe: 40k</text>
-                <line x1="330" y1="131" x2="330" y2="150" stroke="#94a3b8" stroke-width="2" />
+                <line x1="365" y1="68" x2="365" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="355" y="95" width="20" height="38" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text id="svg-h-hoe-val" x="382" y="118" fill="#a855f7" font-size="9" font-family="Fira Code" text-anchor="start">1/hoe: 40k</text>
+                <line x1="365" y1="133" x2="365" y2="150" stroke="#94a3b8" stroke-width="2" />
 
                 <!-- 4. Emitter Bus E (Common bus connecting hie, hfe*ib, and 1/hoe) -->
-                <line x1="135" y1="150" x2="330" y2="150" stroke="#10b981" stroke-width="2.5" />
-                <circle cx="230" cy="150" r="3.5" fill="#10b981" />
-                <text x="245" y="144" fill="#10b981" font-size="10" font-family="Chakra Petch">E (Emitter)</text>
+                <line x1="140" y1="150" x2="365" y2="150" stroke="#10b981" stroke-width="2.5" />
+                <circle cx="245" cy="150" r="3.5" fill="#10b981" />
+                <text x="280" y="145" fill="#10b981" font-size="10" font-family="Chakra Petch">E (Emitter)</text>
 
                 <!-- 5. Emitter to AC GND Path: Case A (Bypassed with CE) -->
                 <g id="svg-h-bypassed-group" style="display: block;">
-                  <line x1="230" y1="150" x2="230" y2="215" stroke="#10b981" stroke-width="2.5" />
-                  <circle cx="230" cy="215" r="3" fill="#10b981" />
-                  <rect x="155" y="172" width="150" height="20" rx="4" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1" />
-                  <text x="230" y="186" fill="#10b981" font-size="9.5" font-family="Chakra Petch" text-anchor="middle">⚡ ต่อตรงลง AC GND (มี CE)</text>
+                  <line x1="245" y1="150" x2="245" y2="215" stroke="#10b981" stroke-width="2.5" />
+                  <circle cx="245" cy="215" r="3" fill="#10b981" />
+                  <rect x="170" y="172" width="150" height="20" rx="4" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1" />
+                  <text x="245" y="186" fill="#10b981" font-size="9.5" font-family="Chakra Petch" text-anchor="middle">⚡ ต่อตรงลง AC GND (มี CE)</text>
                 </g>
 
                 <!-- 5. Emitter to AC GND Path: Case B (Unbypassed: RE in Emitter) -->
                 <g id="svg-h-unbypassed-group" style="display: none;">
-                  <line x1="230" y1="150" x2="230" y2="165" stroke="#facc15" stroke-width="2" />
-                  <rect x="220" y="165" width="20" height="32" fill="#1e293b" stroke="#facc15" stroke-width="2" />
-                  <text id="svg-h-re-val" x="248" y="184" fill="#facc15" font-size="10" font-family="Fira Code" font-weight="bold">RE: 560Ω</text>
+                  <line x1="245" y1="150" x2="245" y2="165" stroke="#facc15" stroke-width="2" />
+                  <rect x="235" y="165" width="20" height="32" fill="#1e293b" stroke="#facc15" stroke-width="2" />
+                  <text id="svg-h-re-val" x="265" y="184" fill="#facc15" font-size="10" font-family="Fira Code" font-weight="bold">RE: 560Ω</text>
                   
                   <!-- ie current arrow through RE -->
-                  <line x1="205" y1="168" x2="205" y2="192" stroke="#10b981" stroke-width="1.5" />
-                  <polygon points="205,196 201,189 209,189" fill="#10b981" />
-                  <text x="198" y="183" fill="#10b981" font-size="8" font-family="Fira Code" text-anchor="end">ie=(1+hfe)ib</text>
+                  <line x1="215" y1="168" x2="215" y2="192" stroke="#10b981" stroke-width="1.5" />
+                  <polygon points="215,196 211,189 219,189" fill="#10b981" />
+                  <text x="208" y="183" fill="#10b981" font-size="8" font-family="Fira Code" text-anchor="end">ie=(1+hfe)ib</text>
                   
-                  <line x1="230" y1="197" x2="230" y2="215" stroke="#facc15" stroke-width="2" />
-                  <circle cx="230" cy="215" r="3" fill="#facc15" />
-                  <text x="230" y="228" fill="#facc15" font-size="8.5" font-family="Chakra Petch" text-anchor="middle">⚠️ ถอด CE: กระแส ie ไหลผ่าน RE ลงกราวด์ (Zb = hie + (1+hfe)RE)</text>
+                  <line x1="245" y1="197" x2="245" y2="215" stroke="#facc15" stroke-width="2" />
+                  <circle cx="245" cy="215" r="3" fill="#facc15" />
+                  <text x="260" y="228" fill="#facc15" font-size="8.5" font-family="Chakra Petch" text-anchor="middle">⚠️ ถอด CE: กระแส ie ไหลผ่าน RE ลงกราวด์ (Zb = hie + (1+hfe)RE)</text>
                 </g>
 
                 <!-- External Collector Load RC -->
-                <line x1="300" y1="70" x2="430" y2="70" stroke="#38bdf8" stroke-width="2" />
-                <line x1="430" y1="70" x2="430" y2="100" stroke="#94a3b8" stroke-width="2" />
-                <rect x="420" y="100" width="20" height="40" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
-                <text id="svg-h-rc-val" x="430" y="155" fill="#d8b4fe" font-size="9" font-family="Fira Code" text-anchor="middle">RC: 2.20k</text>
-                <line x1="430" y1="140" x2="430" y2="215" stroke="#94a3b8" stroke-width="2" />
+                <line x1="305" y1="68" x2="445" y2="68" stroke="#38bdf8" stroke-width="2" />
+                <line x1="445" y1="68" x2="445" y2="95" stroke="#94a3b8" stroke-width="2" />
+                <rect x="435" y="95" width="20" height="38" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" />
+                <text id="svg-h-rc-val" x="445" y="150" fill="#d8b4fe" font-size="9" font-family="Fira Code" text-anchor="middle">RC: 2.20k</text>
+                <line x1="445" y1="133" x2="445" y2="215" stroke="#94a3b8" stroke-width="2" />
 
                 <!-- Output vo -->
-                <line x1="430" y1="70" x2="480" y2="70" stroke="#38bdf8" stroke-width="2" />
-                <circle cx="480" cy="70" r="4" fill="#38bdf8" />
-                <text x="488" y="74" fill="#38bdf8" font-size="12" font-family="Chakra Petch">vo</text>
+                <line x1="445" y1="68" x2="505" y2="68" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="505" cy="68" r="4" fill="#38bdf8" />
+                <text x="513" y="72" fill="#38bdf8" font-size="12" font-family="Chakra Petch">vo</text>
 
                 <!-- Dynamic Model Calculation Summary Bar -->
-                <rect x="20" y="238" width="480" height="18" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="#a855f7" stroke-width="0.8" />
-                <text id="svg-h-summary-formula" x="260" y="251" fill="#d8b4fe" font-size="9.5" font-family="Fira Code" text-anchor="middle">Av = -184.2 เท่า | Zi = 1.62 kΩ | Zo ≈ 2.08 kΩ</text>
+                <rect x="15" y="238" width="510" height="18" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="#a855f7" stroke-width="0.8" />
+                <text id="svg-h-summary-formula" x="270" y="251" fill="#d8b4fe" font-size="9.5" font-family="Fira Code" text-anchor="middle">Av = -184.2 เท่า | Zi = 1.62 kΩ | Zo ≈ 2.08 kΩ</text>
               </svg>
 
               <!-- Mode 3: Complete Two-Port Hybrid Model -->
