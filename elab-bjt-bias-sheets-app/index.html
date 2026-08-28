@@ -1421,30 +1421,118 @@ body {
             </div>
           </div>
           
-          <div class="illustration-container" style="margin-top: 20px;">
+          <h3 class="subsection-title">2.2 สเปกและลักษณะกายภาพของทรานซิสเตอร์ BJT รุ่นยอดนิยม (Transistor Models & Pinouts)</h3>
+          <p>ในห้องปฏิบัติการและงานวงจรจริงจะมีการใช้งานทรานซิสเตอร์ชนิด NPN หลากหลายเบอร์ ซึ่งมีอัตราขยายกระแสไฟตรง (&beta; หรือ h<sub>FE</sub>), แรงดันตกคร่อมรอยต่อ V<sub>BE</sub>, ตัวถัง (Package), และการจัดวางตำแหน่งขา (Pinout) ที่แตกต่างกัน ดังตารางสรุปเปรียบเทียบต่อไปนี้:</p>
+          
+          <table class="lab-table" style="margin-top: 12px; margin-bottom: 20px;">
+            <thead>
+              <tr>
+                <th>เบอร์ทรานซิสเตอร์</th>
+                <th>ชนิด (Type)</th>
+                <th>ตัวถัง (Package)</th>
+                <th>อัตราขยาย &beta; (h<sub>FE</sub>)</th>
+                <th>V<sub>BE(nom)</sub></th>
+                <th>ขา 1</th>
+                <th>ขา 2</th>
+                <th>ขา 3</th>
+                <th>จุดเด่นการใช้งาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>2N2222</strong></td>
+                <td>NPN Switching / GP</td>
+                <td>TO-92 / TO-18</td>
+                <td class="text-center font-bold" style="color: var(--accent-cyan);">200</td>
+                <td class="text-center">0.70 V</td>
+                <td class="text-center">Emitter (E)</td>
+                <td class="text-center">Base (B)</td>
+                <td class="text-center">Collector (C)</td>
+                <td>วงจรสวิตชิ่งความเร็วสูงและภาคขยายสัญญาณอเนกประสงค์</td>
+              </tr>
+              <tr>
+                <td><strong>BC108</strong></td>
+                <td>NPN Low-Noise Audio</td>
+                <td>TO-18 (Metal Can)</td>
+                <td class="text-center font-bold" style="color: var(--accent-cyan);">250</td>
+                <td class="text-center">0.68 V</td>
+                <td class="text-center">Emitter (E)</td>
+                <td class="text-center">Base (B)</td>
+                <td class="text-center">Collector (C)</td>
+                <td>สัญญาณรบกวนต่ำ เหมาะสำหรับวงจรปรีแอมพลิฟายเออร์</td>
+              </tr>
+              <tr>
+                <td><strong>BD137</strong></td>
+                <td>NPN Medium Power</td>
+                <td>TO-126</td>
+                <td class="text-center font-bold" style="color: var(--accent-cyan);">100</td>
+                <td class="text-center">0.75 V</td>
+                <td class="text-center">Emitter (E)</td>
+                <td class="text-center">Collector (C)</td>
+                <td class="text-center">Base (B)</td>
+                <td>ทรานซิสเตอร์กำลังปานกลาง ไดรเวอร์ขับกระแสสูง</td>
+              </tr>
+              <tr>
+                <td><strong>BC547</strong></td>
+                <td>NPN GP Amplifier</td>
+                <td>TO-92</td>
+                <td class="text-center font-bold" style="color: var(--accent-cyan);">300</td>
+                <td class="text-center">0.68 V</td>
+                <td class="text-center">Collector (C)</td>
+                <td class="text-center">Base (B)</td>
+                <td class="text-center">Emitter (E)</td>
+                <td>เบอร์มาตรฐานยอดนิยมในวงจรขยายสัญญาณและแล็บอิเล็กทรอนิกส์</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="illustration-container" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <!-- TO-18 BC108 -->
             <div class="illustration-box">
-              <h3>ทรานซิสเตอร์ BC108 (TO-18 Can)</h3>
-              <svg class="ill-svg" viewBox="0 0 400 120" width="100%">
-                <!-- Metal cylinder body (Top View) -->
-                <circle cx="200" cy="55" r="35" fill="#94a3b8" stroke="#475569" stroke-width="3"/>
-                <circle cx="200" cy="55" r="32" fill="#cbd5e1"/>
-                <!-- Tab indicator on the Emitter side -->
-                <rect x="156" y="50" width="12" height="10" fill="#94a3b8" stroke="#475569" stroke-width="1.5" transform="rotate(-45 162 55)"/>
-                
-                <!-- Pins bottom representation inside -->
-                <circle cx="178" cy="55" r="4" fill="#1e293b"/> <!-- Emitter -->
-                <circle cx="200" cy="77" r="4" fill="#1e293b"/> <!-- Base -->
-                <circle cx="222" cy="55" r="4" fill="#1e293b"/> <!-- Collector -->
-                
-                <text x="178" y="44" fill="#0f172a" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">1 (E)</text>
-                <text x="200" y="93" fill="#0f172a" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">2 (B)</text>
-                <text x="222" y="44" fill="#0f172a" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">3 (C)</text>
-                
-                <text x="290" y="60" fill="#64748b" font-family="Sarabun" font-size="11">
-                  1: Emitter (ขวาติ่ง)<br>
-                  2: Base (ขากลาง)<br>
-                  3: Collector (ขั้วตรงข้าม)
-                </text>
+              <h3>1. TO-18 Metal Can (BC108)</h3>
+              <svg class="ill-svg" viewBox="0 0 320 120" width="100%">
+                <circle cx="120" cy="60" r="35" fill="#94a3b8" stroke="#475569" stroke-width="3"/>
+                <circle cx="120" cy="60" r="32" fill="#cbd5e1"/>
+                <rect x="76" y="55" width="12" height="10" fill="#94a3b8" stroke="#475569" stroke-width="1.5" transform="rotate(-45 82 60)"/>
+                <circle cx="98" cy="60" r="4" fill="#1e293b"/>
+                <circle cx="120" cy="82" r="4" fill="#1e293b"/>
+                <circle cx="142" cy="60" r="4" fill="#1e293b"/>
+                <text x="98" y="48" fill="#0f172a" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">1(E)</text>
+                <text x="120" y="98" fill="#0f172a" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">2(B)</text>
+                <text x="142" y="48" fill="#0f172a" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">3(C)</text>
+                <text x="210" y="45" fill="#94a3b8" font-family="Sarabun" font-size="11">• ขา 1: Emitter (ติ่ง)<br>• ขา 2: Base (กลาง)<br>• ขา 3: Collector</text>
+              </svg>
+            </div>
+            
+            <!-- TO-92 2N2222 / BC547 -->
+            <div class="illustration-box">
+              <h3>2. TO-92 Plastic (2N2222 / BC547)</h3>
+              <svg class="ill-svg" viewBox="0 0 320 120" width="100%">
+                <path d="M 70 30 C 70 15, 150 15, 150 30 L 150 65 L 70 65 Z" fill="#1e293b" stroke="#cbd5e1" stroke-width="1.5"/>
+                <line x1="70" y1="65" x2="150" y2="65" stroke="#38bdf8" stroke-width="2"/>
+                <line x1="85" y1="65" x2="85" y2="95" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="110" y1="65" x2="110" y2="95" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="135" y1="65" x2="135" y2="95" stroke="#94a3b8" stroke-width="2"/>
+                <text x="85" y="108" fill="#38bdf8" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">1</text>
+                <text x="110" y="108" fill="#38bdf8" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">2</text>
+                <text x="135" y="108" fill="#38bdf8" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">3</text>
+                <text x="190" y="45" fill="#94a3b8" font-family="Sarabun" font-size="11">• <strong>2N2222:</strong> 1-E, 2-B, 3-C<br>• <strong>BC547:</strong> 1-C, 2-B, 3-E<br><span style="font-size:10px; color:#64748b;">(มองหน้าแบนหงายขึ้น)</span></text>
+              </svg>
+            </div>
+
+            <!-- TO-126 BD137 -->
+            <div class="illustration-box">
+              <h3>3. TO-126 Power (BD137)</h3>
+              <svg class="ill-svg" viewBox="0 0 320 120" width="100%">
+                <rect x="75" y="20" width="70" height="45" rx="2" fill="#1e293b" stroke="#cbd5e1" stroke-width="1.5"/>
+                <circle cx="110" cy="35" r="6" fill="#475569" stroke="#94a3b8" stroke-width="1"/>
+                <line x1="88" y1="65" x2="88" y2="95" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="110" y1="65" x2="110" y2="95" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="132" y1="65" x2="132" y2="95" stroke="#94a3b8" stroke-width="2"/>
+                <text x="88" y="108" fill="#38bdf8" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">1(E)</text>
+                <text x="110" y="108" fill="#38bdf8" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">2(C)</text>
+                <text x="132" y="108" fill="#38bdf8" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">3(B)</text>
+                <text x="190" y="45" fill="#94a3b8" font-family="Sarabun" font-size="11">• <strong>BD137:</strong><br>ขา 1: Emitter (ซ้าย)<br>ขา 2: Collector (กลาง)<br>ขา 3: Base (ขวา)</text>
               </svg>
             </div>
           </div>
@@ -1464,8 +1552,8 @@ body {
             <tbody>
               <tr>
                 <td class="text-center">1</td>
-                <td>ทรานซิสเตอร์ชนิด NPN (TO-18 Metal Can)</td>
-                <td>เบอร์ BC108 หรือเทียบเท่า</td>
+                <td>ทรานซิสเตอร์ชนิด NPN (เลือกรุ่นทดลอง)</td>
+                <td>เบอร์ BC108 (TO-18), 2N2222 (TO-92), BD137 (TO-126) หรือ BC547 (TO-92)</td>
                 <td class="text-center">1 ตัว</td>
               </tr>
               <tr>
@@ -1519,13 +1607,32 @@ body {
           <div class="sim-pane-controls">
             <h3>ส่วนควบคุมแหล่งจ่ายไฟและเงื่อนไขวงจร</h3>
             
+            <!-- BJT Transistor Model Selection -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+              <div class="control-label" style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 600;">🏷️ เลือกรุ่นทรานซิสเตอร์ (BJT Model)</span>
+                <span id="txt-bjt-model-badge" class="badge" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-size: 11px; padding: 2px 8px;">
+                  BC108 (β=250)
+                </span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
+                <button type="button" class="btn btn-secondary active" id="btn-model-bc108" onclick="selectTransistorModel('BC108')" style="font-size: 11px; padding: 6px 2px; text-align: center; border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.25); color: #38bdf8;">BC108</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-2n2222" onclick="selectTransistorModel('2N2222')" style="font-size: 11px; padding: 6px 2px; text-align: center;">2N2222</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bd137" onclick="selectTransistorModel('BD137')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BD137</button>
+                <button type="button" class="btn btn-secondary" id="btn-model-bc547" onclick="selectTransistorModel('BC547')" style="font-size: 11px; padding: 6px 2px; text-align: center;">BC547</button>
+              </div>
+              <p id="txt-bjt-model-desc" style="font-size: 11px; color: var(--text-muted); margin-bottom: 0;">
+                💡 BC108: สัญญาณรบกวนต่ำ เหมาะกับภาคปรีแอมป์ขยายเสียง (β = 250, V<sub>BE</sub> = 0.68V)
+              </p>
+            </div>
+
             <div class="control-group">
               <label for="input-vcc">แรงดันแหล่งจ่ายไฟหลัก (V<sub>cc</sub>): <strong id="val-vcc">12.0</strong> V</label>
               <input type="range" id="input-vcc" min="0" max="15" step="0.1" value="12.0" oninput="updateCircuitSimulation()">
             </div>
             
             <div class="control-group" style="margin-top: 15px;">
-              <label for="diode-condition">สถานะของทรานซิสเตอร์ BC108:</label>
+              <label id="lbl-transistor-cond" for="diode-condition">สถานะของทรานซิสเตอร์ BC108:</label>
               <select id="diode-condition" onchange="resetSimulator()">
                 <option value="good">ดี (ทำงานได้ปกติแอกทีฟ/อิ่มตัว)</option>
                 <option value="open">ชำรุด (รอยต่อขาเบสขาด - Open)</option>
@@ -1565,7 +1672,7 @@ body {
           
           <!-- Circuit Schema and Board Pane -->
           <div class="sim-pane-circuit">
-            <h3>แผนภาพโครงสร้างทดลองวงจร Fixed Bias (ทรานซิสเตอร์ BC108)</h3>
+            <h3>แผนภาพโครงสร้างทดลองวงจร Fixed Bias (<span id="sim-bjt-title">ทรานซิสเตอร์ BC108</span>)</h3>
             
             <div class="circuit-svg-container">
               <svg id="circuit-board-svg" viewBox="0 0 460 260" width="100%">
@@ -1650,7 +1757,7 @@ body {
                   <rect x="251" y="167" width="8" height="6" fill="#475569" transform="rotate(45 255 170)"/>
                   
                   <!-- BC108 Label -->
-                  <text x="230" y="153" fill="#4b5563" font-family="Chakra Petch" font-size="8" font-weight="bold" text-anchor="middle">BC108</text>
+                  <text id="svg-txt-q1-part" x="230" y="153" fill="#94a3b8" font-family="Chakra Petch" font-size="8" font-weight="bold" text-anchor="middle">BC108</text>
                   
                   <!-- Internal Schematic Elements -->
                   <!-- Base Bar -->
@@ -1772,14 +1879,24 @@ body {
               <input type="text" id="student-group" placeholder="เช่น บอ. 3">
             </div>
           </div>
-          <div class="grid-2 student-grid" style="margin-top: 15px">
+          <div class="grid-3 student-grid" style="margin-top: 15px">
             <div class="input-field">
               <label for="lab-date">วันที่ทดลอง:</label>
               <input type="date" id="lab-date">
             </div>
-            <div class="input-field no-print">
-              <label>&nbsp;</label>
-              <span class="tip-inline">💡 คำแนะนำ: กดปุ่ม "ดึงค่าวัด 🔬" ในแต่ละระดับแรงดัน Vcc เพื่อจำลองผลและเติมตารางอย่างรวดเร็ว</span>
+            <div class="input-field">
+              <label for="ws-sel-model">รุ่นทรานซิสเตอร์ที่ทดลอง (BJT Model):</label>
+              <select id="ws-sel-model" onchange="onWorksheetModelSelect()">
+                <option value="BC108">BC108 (β=250, TO-18)</option>
+                <option value="2N2222">2N2222 (β=200, TO-92)</option>
+                <option value="BD137">BD137 (β=100, TO-126)</option>
+                <option value="BC547">BC547 (β=300, TO-92)</option>
+              </select>
+            </div>
+            <div class="input-field no-print" style="display: flex; align-items: flex-end;">
+              <button type="button" class="btn btn-secondary w-100" style="border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600;" onclick="measureAllRows()">
+                ⚡ ดึงค่าวัดทุกแถวอัตโนมัติ
+              </button>
             </div>
           </div>
         </div>
@@ -1910,12 +2027,12 @@ body {
             </div>
           </div>
           
-          <!-- BC108 PINOUT IDENTIFICATION -->
+          <!-- BJT PINOUT IDENTIFICATION -->
           <div class="input-field" style="margin-top: 20px;">
-            <label>ระบุตำแหน่งขากายภาพของทรานซิสเตอร์ถังโลหะ BC108 (TO-18):</label>
+            <label id="lbl-pinout-title">ระบุตำแหน่งขากายภาพของทรานซิสเตอร์ BC108 (TO-18 Metal Can):</label>
             <div class="grid-3 student-grid" style="margin-top: 10px;">
               <div class="input-field">
-                <label for="ans-pin1">ขา 1 (ขาฝั่งตรงเดียวกับติ่งโลหะ):</label>
+                <label id="lbl-ans-pin1" for="ans-pin1">ขา 1 (ขาฝั่งเดียวกับติ่งโลหะ):</label>
                 <select id="ans-pin1">
                   <option value="0">-- เลือกขาขั้ว BJT --</option>
                   <option value="E">Emitter (E)</option>
@@ -1924,7 +2041,7 @@ body {
                 </select>
               </div>
               <div class="input-field">
-                <label for="ans-pin2">ขา 2 (ขากลางเยื้องล่าง):</label>
+                <label id="lbl-ans-pin2" for="ans-pin2">ขา 2 (ขากลางเยื้องล่าง):</label>
                 <select id="ans-pin2">
                   <option value="0">-- เลือกขาขั้ว BJT --</option>
                   <option value="E">Emitter (E)</option>
@@ -1933,7 +2050,7 @@ body {
                 </select>
               </div>
               <div class="input-field">
-                <label for="ans-pin3">ขา 3 (ขาฝั่งตรงข้ามขั้วติ่ง):</label>
+                <label id="lbl-ans-pin3" for="ans-pin3">ขา 3 (ขาฝั่งตรงข้ามขั้วติ่ง):</label>
                 <select id="ans-pin3">
                   <option value="0">-- เลือกขาขั้ว BJT --</option>
                   <option value="E">Emitter (E)</option>
@@ -1989,10 +2106,66 @@ body {
 
   <script>
 /**
- * BJT Fixed Bias Simulator Engine - Transistor BC108
+ * BJT Fixed Bias Simulator Engine & Model Presets
  */
 
+const BJT_MODELS = {
+  'BC108': {
+    name: 'BC108',
+    type: 'NPN Low-Noise Audio / GP',
+    beta: 250,
+    vbe: 0.68,
+    package: 'TO-18 Metal Can',
+    pinoutTitle: 'ระบุตำแหน่งขากายภาพของทรานซิสเตอร์ BC108 (TO-18 Metal Can):',
+    pin1Label: 'ขา 1 (ขาฝั่งเดียวกับติ่งโลหะ):',
+    pin2Label: 'ขา 2 (ขากลางเยื้องล่าง):',
+    pin3Label: 'ขา 3 (ขาฝั่งตรงข้ามขั้วติ่ง):',
+    pins: { p1: 'E', p2: 'B', p3: 'C' },
+    desc: '💡 BC108: สัญญาณรบกวนต่ำ เหมาะกับภาคปรีแอมป์ขยายเสียง (β = 250, V_BE = 0.68V)'
+  },
+  '2N2222': {
+    name: '2N2222',
+    type: 'NPN General Purpose / Switch',
+    beta: 200,
+    vbe: 0.70,
+    package: 'TO-92 Plastic',
+    pinoutTitle: 'ระบุตำแหน่งขากายภาพของทรานซิสเตอร์ 2N2222 (TO-92 หันหน้าแบนเข้าหาตัว):',
+    pin1Label: 'ขา 1 (ขาซ้ายสุดเมื่อหงายหน้าแบน):',
+    pin2Label: 'ขา 2 (ขากลาง):',
+    pin3Label: 'ขา 3 (ขาขวาสุด):',
+    pins: { p1: 'E', p2: 'B', p3: 'C' },
+    desc: '💡 2N2222: NPN สวิตชิ่งและขยายสัญญาณอเนกประสงค์ (β = 200, V_BE = 0.70V)'
+  },
+  'BD137': {
+    name: 'BD137',
+    type: 'NPN Medium Power / Driver',
+    beta: 100,
+    vbe: 0.75,
+    package: 'TO-126 Power',
+    pinoutTitle: 'ระบุตำแหน่งขากายภาพของทรานซิสเตอร์ BD137 (TO-126 หันหน้าพิมพ์เบอร์เข้าหาตัว):',
+    pin1Label: 'ขา 1 (ขาซ้ายสุดเมื่อหันหน้าด้านพิมพ์เบอร์):',
+    pin2Label: 'ขา 2 (ขากลาง):',
+    pin3Label: 'ขา 3 (ขาขวาสุด):',
+    pins: { p1: 'E', p2: 'C', p3: 'B' },
+    desc: '💡 BD137: ทรานซิสเตอร์กำลังปานกลาง ไดรเวอร์กระแสสูง (β = 100, V_BE = 0.75V)'
+  },
+  'BC547': {
+    name: 'BC547',
+    type: 'NPN General Purpose Amplifier',
+    beta: 300,
+    vbe: 0.68,
+    package: 'TO-92 Plastic',
+    pinoutTitle: 'ระบุตำแหน่งขากายภาพของทรานซิสเตอร์ BC547 (TO-92 หันหน้าแบนเข้าหาตัว):',
+    pin1Label: 'ขา 1 (ขาซ้ายสุดเมื่อหงายหน้าแบน):',
+    pin2Label: 'ขา 2 (ขากลาง):',
+    pin3Label: 'ขา 3 (ขาขวาสุด):',
+    pins: { p1: 'C', p2: 'B', p3: 'E' },
+    desc: '💡 BC547: เบอร์มาตรฐานยอดนิยมในห้องแล็บขยายสัญญาณ (β = 300, V_BE = 0.68V)'
+  }
+};
+
 const STATE = {
+  selectedModel: 'BC108',
   diodeCondition: 'good', // 'good', 'open', 'short'
   vcc: 12.0,
   measuringTarget: 'none', // 'vbe', 'vce', 'vrb', 'vrc', 'ib', 'ic'
@@ -2000,10 +2173,88 @@ const STATE = {
   variance: {
     rb: 468400, // Nominal 470k with slight error
     rc: 1012,   // Nominal 1k with slight error
-    hfe: 295,   // Nominal 300 with slight error
-    vbeNominal: 0.675 // Nominal Vbe base-emitter drop
+    hfe: 250,   // Active model beta
+    vbeNominal: 0.68 // Active model Vbe
   }
 };
+
+function selectTransistorModel(modelKey) {
+  if (!BJT_MODELS[modelKey]) return;
+  STATE.selectedModel = modelKey;
+  const m = BJT_MODELS[modelKey];
+  
+  // Set slight variance per model
+  STATE.variance.hfe = m.beta;
+  STATE.variance.vbeNominal = m.vbe;
+  
+  // Update button active states
+  ['bc108', '2n2222', 'bd137', 'bc547'].forEach(k => {
+    const btn = document.getElementById('btn-model-' + k);
+    if (btn) {
+      if (k === modelKey.toLowerCase()) {
+        btn.classList.add('active');
+        btn.style.background = 'rgba(56, 189, 248, 0.25)';
+        btn.style.borderColor = 'var(--accent-cyan)';
+        btn.style.color = '#38bdf8';
+      } else {
+        btn.classList.remove('active');
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }
+    }
+  });
+  
+  // Update UI texts
+  const badge = document.getElementById('txt-bjt-model-badge');
+  if (badge) badge.innerText = `${m.name} (β=${m.beta})`;
+  
+  const desc = document.getElementById('txt-bjt-model-desc');
+  if (desc) desc.innerText = m.desc;
+  
+  const title = document.getElementById('sim-bjt-title');
+  if (title) title.innerText = `ทรานซิสเตอร์ ${m.name}`;
+  
+  const condLbl = document.getElementById('lbl-transistor-cond');
+  if (condLbl) condLbl.innerText = `สถานะของทรานซิสเตอร์ ${m.name}:`;
+  
+  const svgTxt = document.getElementById('svg-txt-q1-part');
+  if (svgTxt) svgTxt.textContent = `Q1: ${m.name}`;
+  
+  // Sync to worksheet dropdown
+  const wsSel = document.getElementById('ws-sel-model');
+  if (wsSel && wsSel.value !== modelKey) {
+    wsSel.value = modelKey;
+  }
+  
+  // Update worksheet pinout labels
+  updatePinoutLabels(modelKey);
+  
+  // Re-run simulation
+  updateCircuitSimulation();
+}
+window.selectTransistorModel = selectTransistorModel;
+
+function onWorksheetModelSelect() {
+  const wsSel = document.getElementById('ws-sel-model');
+  if (wsSel) {
+    selectTransistorModel(wsSel.value);
+  }
+}
+window.onWorksheetModelSelect = onWorksheetModelSelect;
+
+function updatePinoutLabels(modelKey) {
+  const m = BJT_MODELS[modelKey] || BJT_MODELS['BC108'];
+  const titleEl = document.getElementById('lbl-pinout-title');
+  const p1El = document.getElementById('lbl-ans-pin1');
+  const p2El = document.getElementById('lbl-ans-pin2');
+  const p3El = document.getElementById('lbl-ans-pin3');
+  
+  if (titleEl) titleEl.innerText = m.pinoutTitle;
+  if (p1El) p1El.innerText = m.pin1Label;
+  if (p2El) p2El.innerText = m.pin2Label;
+  if (p3El) p3El.innerText = m.pin3Label;
+}
 
 function solveCircuit(Vcc) {
   const Rb = STATE.variance.rb;
@@ -2029,12 +2280,12 @@ function solveCircuit(Vcc) {
   
   if (cond === 'open') {
     // Open Base condition (no base current can flow)
-    vbe = Vcc; // Since no current flows, measuring base to emitter (GND) sees Vcc pullup
+    vbe = Vcc;
     ib = 0;
     vrb = 0;
     ic = 0;
     vrc = 0;
-    vce = Vcc; // Since BJT is off, Vce = Vcc
+    vce = Vcc; // BJT is off, Vce = Vcc
   } else if (cond === 'short') {
     // Short Collector-Emitter condition
     vce = 0.0;
@@ -2047,11 +2298,10 @@ function solveCircuit(Vcc) {
       vrb = 0;
       vbe = Vcc;
     }
-    // Since C-E is shorted, Collector current is limited only by Rc and Vcc
     ic = Vcc / Rc;
     vrc = Vcc;
   } else {
-    // cond === 'good' (Normal operation)
+    // cond === 'good' (Normal active/saturation operation)
     if (Vcc <= VbeNom) {
       // Below cutoff
       vbe = Vcc;
@@ -2061,10 +2311,10 @@ function solveCircuit(Vcc) {
       vrc = 0;
       vce = Vcc;
     } else {
-      // Calculate realistic Vbe based on current
+      // Realistic Vbe based on current
       const ibApprox = (Vcc - VbeNom) / Rb;
-      vbe = 0.65 + 0.015 * Math.log(1 + Math.max(0, ibApprox * 1e6));
-      vbe = Math.min(vbe, Vcc - 0.01); // cap Vbe below Vcc
+      vbe = VbeNom + 0.015 * Math.log(1 + Math.max(0, ibApprox * 1e6));
+      vbe = Math.min(vbe, Vcc - 0.01);
       
       ib = (Vcc - vbe) / Rb;
       vrb = Vcc - vbe;
@@ -2134,7 +2384,7 @@ function initChart() {
           position: 'bottom',
           title: {
             display: true,
-            text: 'V_CE (V)',
+            text: 'แรงดันตกคร่อมคอลเล็กเตอร์-อิมิตเตอร์ V_CE (V)',
             color: '#94a3b8',
             font: { family: 'Chakra Petch', size: 12, weight: 'bold' }
           },
@@ -2144,9 +2394,10 @@ function initChart() {
           ticks: { color: '#94a3b8', font: { family: 'Chakra Petch' } }
         },
         y: {
+          type: 'linear',
           title: {
             display: true,
-            text: 'I_C (mA)',
+            text: 'กระแสคอลเล็กเตอร์ I_C (mA)',
             color: '#94a3b8',
             font: { family: 'Chakra Petch', size: 12, weight: 'bold' }
           },
@@ -2283,6 +2534,7 @@ function initApp() {
   });
 
   initChart();
+  selectTransistorModel('BC108');
   resetSimulator();
   updateCircuitSimulation();
 }
@@ -2402,7 +2654,7 @@ function updateCircuitSimulation() {
       probeRedTip.setAttribute('cx', '250');
       probeRedTip.setAttribute('cy', '122');
       probeRedTip.setAttribute('opacity', '1');
-      probeRedWire.setAttribute('d', 'M 250 20 C 250 40, 250 80, 250 122');
+      probeRedWire.setAttribute('d', 'M 250 20 C 260 20, 260 70, 250 122');
       
       probeBlackTip.setAttribute('cx', '250');
       probeBlackTip.setAttribute('cy', '178');
@@ -2410,10 +2662,10 @@ function updateCircuitSimulation() {
       probeBlackWire.setAttribute('d', 'M 210 20 C 220 20, 240 80, 250 178');
     }
   } else if (STATE.measuringTarget === 'vrb') {
-    // Across Rb: Red on top Vcc (X=140, Y=40), Black on bottom Base Node (X=140, Y=110)
+    // Red on Vcc (X=140, Y=40), Black on Rb out (X=140, Y=110)
     if (dmmVal) dmmVal.innerText = results.vrb.toFixed(3);
     if (dmmUnit) dmmUnit.innerText = 'V';
-    if (dmmMode) dmmMode.innerText = 'DC Voltage: Voltage drop across Base Resistor Rb (VRb)';
+    if (dmmMode) dmmMode.innerText = 'DC Voltage: Base resistor voltage drop (VRb)';
     
     if (probeRedTip && probeBlackTip && probeRedWire && probeBlackWire) {
       probeRedTip.setAttribute('cx', '140');
@@ -2424,13 +2676,13 @@ function updateCircuitSimulation() {
       probeBlackTip.setAttribute('cx', '140');
       probeBlackTip.setAttribute('cy', '110');
       probeBlackTip.setAttribute('opacity', '1');
-      probeBlackWire.setAttribute('d', 'M 210 20 C 180 20, 160 80, 140 110');
+      probeBlackWire.setAttribute('d', 'M 210 20 C 180 20, 150 70, 140 110');
     }
   } else if (STATE.measuringTarget === 'vrc') {
-    // Across Rc: Red on top Vcc (X=320, Y=40), Black on bottom Collector Node (X=320, Y=110)
+    // Red on Vcc (X=320, Y=40), Black on Rc out (X=320, Y=110)
     if (dmmVal) dmmVal.innerText = results.vrc.toFixed(3);
     if (dmmUnit) dmmUnit.innerText = 'V';
-    if (dmmMode) dmmMode.innerText = 'DC Voltage: Voltage drop across Collector Resistor Rc (VRc)';
+    if (dmmMode) dmmMode.innerText = 'DC Voltage: Collector resistor voltage drop (VRc)';
     
     if (probeRedTip && probeBlackTip && probeRedWire && probeBlackWire) {
       probeRedTip.setAttribute('cx', '320');
@@ -2441,45 +2693,41 @@ function updateCircuitSimulation() {
       probeBlackTip.setAttribute('cx', '320');
       probeBlackTip.setAttribute('cy', '110');
       probeBlackTip.setAttribute('opacity', '1');
-      probeBlackWire.setAttribute('d', 'M 210 20 C 240 20, 280 80, 320 110');
+      probeBlackWire.setAttribute('d', 'M 210 20 C 250 20, 300 70, 320 110');
     }
   } else if (STATE.measuringTarget === 'ib') {
-    // Base current: open bridge and measure series
-    if (baseAmmeterBridge) baseAmmeterBridge.setAttribute('stroke', 'none');
-    
+    // Red on Rb out (X=140, Y=110), Black on Base wire (X=190, Y=110)
     if (dmmVal) dmmVal.innerText = results.ib.toFixed(2);
-    if (dmmUnit) dmmUnit.innerText = 'uA';
-    if (dmmMode) dmmMode.innerText = 'DC Current: Base current in series (IB)';
+    if (dmmUnit) dmmUnit.innerText = 'μA';
+    if (dmmMode) dmmMode.innerText = 'DC Current: Base current series measurement (IB)';
+    
+    if (baseAmmeterBridge) baseAmmeterBridge.setAttribute('stroke', '#ef4444');
     
     if (probeRedTip && probeBlackTip && probeRedWire && probeBlackWire) {
-      // Red probe on Resistor Rb output (X=140, Y=110)
       probeRedTip.setAttribute('cx', '140');
       probeRedTip.setAttribute('cy', '110');
       probeRedTip.setAttribute('opacity', '1');
-      probeRedWire.setAttribute('d', 'M 250 20 C 180 20, 160 80, 140 110');
+      probeRedWire.setAttribute('d', 'M 250 20 C 200 20, 160 60, 140 110');
       
-      // Black probe on Base wire input (X=190, Y=110)
       probeBlackTip.setAttribute('cx', '190');
       probeBlackTip.setAttribute('cy', '110');
       probeBlackTip.setAttribute('opacity', '1');
-      probeBlackWire.setAttribute('d', 'M 210 20 C 200 20, 190 80, 190 110');
+      probeBlackWire.setAttribute('d', 'M 210 20 C 200 30, 190 70, 190 110');
     }
   } else if (STATE.measuringTarget === 'ic') {
-    // Collector current: open bridge and measure series
-    if (collAmmeterBridge) collAmmeterBridge.setAttribute('stroke', 'none');
-    
-    if (dmmVal) dmmVal.innerText = Battle_ic = results.ic.toFixed(3);
+    // Red on Rc out (X=320, Y=110), Black on Collector wire (X=250, Y=110)
+    if (dmmVal) dmmVal.innerText = results.ic.toFixed(3);
     if (dmmUnit) dmmUnit.innerText = 'mA';
-    if (dmmMode) dmmMode.innerText = 'DC Current: Collector current in series (IC)';
+    if (dmmMode) dmmMode.innerText = 'DC Current: Collector current series measurement (IC)';
+    
+    if (collAmmeterBridge) collAmmeterBridge.setAttribute('stroke', '#ef4444');
     
     if (probeRedTip && probeBlackTip && probeRedWire && probeBlackWire) {
-      // Red probe on Resistor Rc output (X=320, Y=110)
       probeRedTip.setAttribute('cx', '320');
       probeRedTip.setAttribute('cy', '110');
       probeRedTip.setAttribute('opacity', '1');
-      probeRedWire.setAttribute('d', 'M 250 20 C 280 20, 300 80, 320 110');
+      probeRedWire.setAttribute('d', 'M 250 20 C 280 20, 310 60, 320 110');
       
-      // Black probe on Collector wire input (X=250, Y=110)
       probeBlackTip.setAttribute('cx', '250');
       probeBlackTip.setAttribute('cy', '110');
       probeBlackTip.setAttribute('opacity', '1');
@@ -2487,7 +2735,7 @@ function updateCircuitSimulation() {
     }
   }
   
-  // Update badge
+  // Update state badge
   const stateBadge = document.getElementById('circuit-state-label');
   if (stateBadge) {
     if (results.ib < 0.1) {
@@ -2538,7 +2786,7 @@ function measureRow(idx) {
   if (icIn) icIn.value = results.ic.toFixed(3);
   
   // Highlight
-  const row = vrbIn.closest('tr');
+  const row = vrbIn ? vrbIn.closest('tr') : null;
   if (row) {
     row.style.backgroundColor = 'rgba(56, 189, 248, 0.15)';
     setTimeout(() => {
@@ -2547,6 +2795,13 @@ function measureRow(idx) {
   }
 }
 window.measureRow = measureRow;
+
+function measureAllRows() {
+  for (let i = 0; i < vinList.length; i++) {
+    measureRow(i);
+  }
+}
+window.measureAllRows = measureAllRows;
 
 function recordPart2Data() {
   const target = STATE.measuringTarget;
@@ -2601,7 +2856,6 @@ function recordPart2Data() {
   if (targetInput) {
     targetInput.value = dmmVal.toFixed(target === 'ib' ? 2 : 3);
     
-    // Highlight
     const row = targetInput.closest('tr');
     if (row) {
       row.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
@@ -2650,6 +2904,7 @@ function getWorksheetPayload() {
     studentId: document.getElementById('student-id')?.value.trim() || '',
     studentGroup: document.getElementById('student-group')?.value.trim() || '',
     labDate: document.getElementById('lab-date')?.value || '',
+    bjtModel: document.getElementById('ws-sel-model')?.value || STATE.selectedModel,
     diodeCondition: STATE.diodeCondition,
     part2Rows: part2Rows,
     ansVceQ: document.getElementById('ans-vce-q')?.value.trim() || '',
@@ -2700,7 +2955,7 @@ function previewScoreBeforeSubmit() {
         ระดับผลการประเมิน: ${res.comment}
       </p>
       <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
-      <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</p>
+      <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ (ทรานซิสเตอร์ ${data.bjtModel}):</p>
       <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${formattedFeedback}</div>
     </div>
     <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
@@ -2723,7 +2978,7 @@ function submitReportToGAS() {
   
   if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
     alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');
-    switchTab('worksheet');
+    switchTab('report');
     document.getElementById('student-name')?.focus();
     return;
   }
@@ -2752,6 +3007,12 @@ function localGradeSimulator(data) {
   const maxScore = 10;
   const feedback = [];
 
+  const modelKey = data.bjtModel || data.selectedModel || 'BC108';
+  const model = BJT_MODELS[modelKey] || BJT_MODELS['BC108'];
+  const cond = data.diodeCondition || 'good';
+  const hfe = model.beta;
+  const VbeNom = model.vbe;
+
   // 1. Table Data Check (6 pts)
   let rowCorrect = 0;
   if (data.part2Rows && data.part2Rows.length >= 6) {
@@ -2769,19 +3030,21 @@ function localGradeSimulator(data) {
   if (parseFloat(data.ansIcQ) > 0) qScore += 0.5;
   if (parseFloat(data.ansBetaCalc) > 50) qScore += 1.0;
   score += qScore;
-  feedback.push(`[ตอนที่ 2] พิกัดจุดทำงาน Q-point และอัตราขยาย Beta: ได้ ${qScore} / 2 คะแนน`);
+  feedback.push(`[ตอนที่ 2] พิกัดจุดทำงาน Q-point และอัตราขยาย Beta (ทรานซิสเตอร์ ${model.name}): ได้ ${qScore} / 2 คะแนน`);
 
   // 3. Pinout & Questions (2 pts)
   let pinScore = 0;
-  if (data.ansPin1 === 'Emitter' || data.ansPin1 === '1') pinScore += 0.33;
-  if (data.ansPin2 === 'Base' || data.ansPin2 === '2') pinScore += 0.33;
-  if (data.ansPin3 === 'Collector' || data.ansPin3 === '3') pinScore += 0.34;
+  const expPins = model.pins;
+  if (data.ansPin1 === expPins.p1) pinScore += 0.33;
+  if (data.ansPin2 === expPins.p2) pinScore += 0.33;
+  if (data.ansPin3 === expPins.p3) pinScore += 0.34;
+  
   let finalQ = 0;
   if (data.q1Answer && data.q1Answer.length > 5) finalQ += 0.5;
   if (data.q2Answer && data.q2Answer.length > 5) finalQ += 0.5;
   let part3Score = Math.round(pinScore + finalQ);
   score += part3Score;
-  feedback.push(`[ตอนที่ 3] ระบุขั้วขาและตอบคำถาม: ได้ ${part3Score} / 2 คะแนน`);
+  feedback.push(`[ตอนที่ 3] ระบุขั้วขา ${model.name} (${model.package}) และตอบคำถาม: ได้ ${part3Score} / 2 คะแนน`);
 
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
   if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
