@@ -2623,8 +2623,14 @@ function updateCircuitSimulation() {
   const baseAmmeterBridge = document.getElementById('base-ammeter-bridge');
   const collAmmeterBridge = document.getElementById('coll-ammeter-bridge');
   
-  if (baseAmmeterBridge) baseAmmeterBridge.setAttribute('stroke', '#38bdf8');
-  if (collAmmeterBridge) collAmmeterBridge.setAttribute('stroke', '#cbd5e1');
+  if (baseAmmeterBridge) {
+    baseAmmeterBridge.style.display = 'block';
+    baseAmmeterBridge.setAttribute('stroke', '#38bdf8');
+  }
+  if (collAmmeterBridge) {
+    collAmmeterBridge.style.display = 'block';
+    collAmmeterBridge.setAttribute('stroke', '#cbd5e1');
+  }
   
   if (STATE.measuringTarget === 'none') {
     if (dmmVal) dmmVal.innerText = '0.000';
@@ -2704,7 +2710,8 @@ function updateCircuitSimulation() {
     if (dmmUnit) dmmUnit.innerText = 'μA';
     if (dmmMode) dmmMode.innerText = 'DC Current: Base current series measurement (IB)';
     
-    if (baseAmmeterBridge) baseAmmeterBridge.setAttribute('stroke', '#ef4444');
+    // ปลดสายเชื่อมต่อออก เมื่อต่อแอมมิเตอร์วัดกระแสแบบอนุกรม
+    if (baseAmmeterBridge) baseAmmeterBridge.style.display = 'none';
     
     if (probeRedTip && probeBlackTip && probeRedWire && probeBlackWire) {
       probeRedTip.setAttribute('cx', '140');
@@ -2723,7 +2730,8 @@ function updateCircuitSimulation() {
     if (dmmUnit) dmmUnit.innerText = 'mA';
     if (dmmMode) dmmMode.innerText = 'DC Current: Collector current series measurement (IC)';
     
-    if (collAmmeterBridge) collAmmeterBridge.setAttribute('stroke', '#ef4444');
+    // ปลดสายเชื่อมต่อออก เมื่อต่อแอมมิเตอร์วัดกระแสแบบอนุกรม
+    if (collAmmeterBridge) collAmmeterBridge.style.display = 'none';
     
     if (probeRedTip && probeBlackTip && probeRedWire && probeBlackWire) {
       probeRedTip.setAttribute('cx', '320');
