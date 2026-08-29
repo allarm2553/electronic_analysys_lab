@@ -1535,6 +1535,32 @@ function submitToGAS() {
 }
 
 function onGradeSuccess(res) {
+  if (res.status === 'duplicate') {
+    const overlay = document.getElementById('submission-overlay');
+    const card = overlay?.querySelector('.card');
+    const spinner = document.getElementById('modal-spinner'), title = document.getElementById('modal-title'), body = document.getElementById('modal-body'), closeBtn = document.getElementById('modal-close-btn'), confirmBtn = document.getElementById('modal-confirm-btn');
+    if (card) { card.style.borderColor = '#f59e0b'; card.style.boxShadow = '0 0 35px rgba(245,158,11,.35)'; }
+    if (spinner) spinner.style.display = 'none';
+    if (title) { title.innerText = '⚠️ ไม่อนุญาตให้ส่งใบงานซ้ำ'; title.style.color = '#f59e0b'; }
+    if (body) {
+      body.innerHTML = '<div style="text-align:left;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:12px;border-radius:8px;font-size:13px;line-height:1.7;color:#f8fafc;">' + (res.message || 'รหัสนักศึกษานี้ได้เคยทำการส่งใบงานไปแล้ว').replace(/\n/g, '<br>') + '</div><p style="font-size:12px;color:var(--text-muted);margin-top:10px;">โหมดดูอย่างเดียว: สามารถกดปุ่มพิมพ์รายงานเพื่อบันทึกหลักฐานได้</p>';
+    }
+    if (closeBtn) { closeBtn.innerText = 'รับทราบ ❌'; closeBtn.style.display = 'inline-block'; }
+    if (confirmBtn) confirmBtn.style.display = 'none';
+    const studentId = (document.getElementById('student-id')?.value || '').trim();
+    if (studentId) {
+      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, 'ก่อนหน้านี้');
+    }
+    lockFormAsSubmitted('ก่อนหน้านี้');
+    return;
+  }
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  const nowFormatted = new Date().toLocaleString('th-TH');
+  if (studentId) {
+    localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, nowFormatted);
+  }
+  lockFormAsSubmitted(nowFormatted);
+
   const overlay = document.getElementById('submission-overlay');
   const card = overlay.querySelector('.card');
   const spinner = document.getElementById('modal-spinner'), title = document.getElementById('modal-title'), body = document.getElementById('modal-body'), closeBtn = document.getElementById('modal-close-btn'), confirmBtn = document.getElementById('modal-confirm-btn');
@@ -1567,6 +1593,11 @@ function closeModal() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Check if student already submitted this lab
+  checkExistingSubmission();
+  document.getElementById('student-id')?.addEventListener('change', checkExistingSubmission);
+  document.getElementById('student-id')?.addEventListener('input', checkExistingSubmission);
+
   const d = document.getElementById('lab-date');
   if (d) d.value = new Date().toISOString().split('T')[0];
   updateSim();
@@ -1621,6 +1652,65 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
   else setup();
 })();
+
+
+// ========================================================
+// SINGLE-SUBMISSION & FORM LOCKING SYSTEM
+// ========================================================
+const LAB_STORAGE_KEY_PREFIX = 'submitted_elab_multistage_';
+
+function checkExistingSubmission() {
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  if (studentId) {
+    const prevSubmitTime = localStorage.getItem(LAB_STORAGE_KEY_PREFIX + studentId);
+    if (prevSubmitTime) {
+      lockFormAsSubmitted(prevSubmitTime);
+      return true;
+    }
+  }
+  return false;
+}
+window.checkExistingSubmission = checkExistingSubmission;
+
+function lockFormAsSubmitted(submittedTime) {
+  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  if (!reportTab) return;
+
+  // 1. Disable inputs, selects, and textareas inside report / worksheet tab
+  reportTab.querySelectorAll('input, select, textarea').forEach(el => {
+    el.disabled = true;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.readOnly = true;
+    }
+  });
+
+  // 2. Disable submission button and update styling
+  const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"]');
+  submitButtons.forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.style.cursor = 'default';
+    btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    btn.innerHTML = '✓ ส่งใบงานเรียบร้อยแล้ว (' + submittedTime + ')';
+  });
+
+  // 3. Add or update View-Only banner at top of report tab
+  let banner = document.getElementById('submitted-viewonly-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'submitted-viewonly-banner';
+    banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 12px 18px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13px; font-family: Sarabun, sans-serif; display: flex; align-items: center; gap: 10px; font-weight: 500;';
+    const reportHeader = reportTab.querySelector('.report-header') || reportTab.firstElementChild;
+    if (reportHeader && reportHeader.nextSibling) {
+      reportTab.insertBefore(banner, reportHeader.nextSibling);
+    } else {
+      reportTab.prepend(banner);
+    }
+  }
+  banner.innerHTML = '🔒 <span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>';
+}
+window.lockFormAsSubmitted = lockFormAsSubmitted;
+
 </script>
 </body>
 </html>

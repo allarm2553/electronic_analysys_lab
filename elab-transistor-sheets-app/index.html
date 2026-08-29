@@ -558,7 +558,8 @@ body {
 
 /* Diode Testing Bench */
 .diode-testing-bench {
-  background: #090d16;
+  background: #1e293b;
+  border: 1px solid #334155;
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 20px;
@@ -1607,17 +1608,17 @@ body {
               
               <div class="diode-testing-bench">
                 <svg viewBox="0 0 320 160" width="100%">
-                  <rect x="0" y="0" width="320" height="160" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+                  <rect x="0" y="0" width="320" height="160" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2"/>
                   <!-- Terminals -->
                   <circle id="post-1" cx="80" cy="100" r="10" fill="#334155" stroke="#475569" stroke-width="2"/>
                   <circle id="post-2" cx="160" cy="100" r="10" fill="#334155" stroke="#475569" stroke-width="2"/>
                   <circle id="post-3" cx="240" cy="100" r="10" fill="#334155" stroke="#475569" stroke-width="2"/>
-                  <text x="80" y="130" fill="#94a3b8" font-family="Chakra Petch" font-size="11" text-anchor="middle" font-weight="bold">ขา 1</text>
-                  <text x="160" y="130" fill="#94a3b8" font-family="Chakra Petch" font-size="11" text-anchor="middle" font-weight="bold">ขา 2</text>
-                  <text x="240" y="130" fill="#94a3b8" font-family="Chakra Petch" font-size="11" text-anchor="middle" font-weight="bold">ขา 3</text>
+                  <text x="80" y="130" fill="#cbd5e1" font-family="Chakra Petch" font-size="11" text-anchor="middle" font-weight="bold">ขา 1</text>
+                  <text x="160" y="130" fill="#cbd5e1" font-family="Chakra Petch" font-size="11" text-anchor="middle" font-weight="bold">ขา 2</text>
+                  <text x="240" y="130" fill="#cbd5e1" font-family="Chakra Petch" font-size="11" text-anchor="middle" font-weight="bold">ขา 3</text>
                   
                   <!-- TO-126 Transistor Package Flat face facing front -->
-                  <path d="M 110 50 C 110 30, 210 30, 210 50 L 195 80 L 125 80 Z" fill="#1e293b" stroke="#cbd5e1" stroke-width="2"/>
+                  <path d="M 110 50 C 110 30, 210 30, 210 50 L 195 80 L 125 80 Z" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
                   <line x1="125" y1="80" x2="195" y2="80" stroke="#cbd5e1" stroke-width="2"/>
                   
                   <!-- Lead connections to posts -->
@@ -1626,8 +1627,8 @@ body {
                   <line x1="180" y1="80" x2="240" y2="100" stroke="#94a3b8" stroke-width="2"/>
                   
                   <!-- Probe Wires -->
-                  <path id="wire-black" d="M 0 0" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="3 3"/>
-                  <path id="wire-red" d="M 0 0" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="3 3"/>
+                  <path id="wire-black" d="M 0 0" fill="none" stroke="#000000" stroke-width="3.5" stroke-dasharray="3 3"/>
+                  <path id="wire-red" d="M 0 0" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="3 3"/>
                 </svg>
               </div>
               
@@ -2802,6 +2803,32 @@ function showGradingOverlay(show) {
 window.showGradingOverlay = showGradingOverlay;
 
 function onSuccessGrading(res) {
+  if (res.status === 'duplicate') {
+    const title = document.getElementById('overlay-title');
+    const spinner = document.getElementById('overlay-spinner');
+    const msg = document.getElementById('overlay-message');
+    const closeBtn = document.getElementById('overlay-close-btn');
+    const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+
+    if (title) { title.innerText = '⚠️ ไม่อนุญาตให้ส่งใบงานซ้ำ'; title.style.color = '#f59e0b'; }
+    if (spinner) spinner.style.display = 'none';
+    
+    const formattedMsg = (res.message || 'รหัสนักศึกษานี้ได้เคยทำการส่งใบงานไปแล้ว').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+    
+    if (msg) {
+      msg.innerHTML = '<div style="text-align: left; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 6px; padding: 15px; margin: 15px 0;"><p style="font-size: 15px; font-weight: bold; color: #f59e0b; margin-bottom: 10px;">⚠️ พบประวัติการส่งใบงานในระบบ</p><div style="font-size: 13px; font-family: Sarabun, sans-serif; line-height: 1.8; color: var(--text-main);">' + formattedMsg + '</div></div><p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--text-muted);">โหมดดูอย่างเดียว (View-Only): ท่านสามารถตรวจสอบข้อมูลและกดปุ่ม "🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF" เพื่อเก็บเป็นหลักฐานได้</p>';
+    }
+    if (closeBtn) { closeBtn.innerText = 'รับทราบ ❌'; closeBtn.style.display = 'inline-block'; }
+    if (confirmBtn) confirmBtn.style.display = 'none';
+    
+    const studentId = (document.getElementById('student-id')?.value || '').trim();
+    if (studentId) {
+      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, 'ก่อนหน้านี้');
+    }
+    lockFormAsSubmitted('ก่อนหน้านี้');
+    return;
+  }
+
   showGradingOverlay(true);
   const title = document.getElementById('overlay-title');
   const spinner = document.getElementById('overlay-spinner');
@@ -2810,6 +2837,13 @@ function onSuccessGrading(res) {
   const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
   
   if (res.status === 'success') {
+    const studentId = (document.getElementById('student-id')?.value || '').trim();
+    const nowFormatted = new Date().toLocaleString('th-TH');
+    if (studentId) {
+      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, nowFormatted);
+    }
+    lockFormAsSubmitted(nowFormatted);
+
     title.innerText = '🎉 ใบงานตรวจและบันทึกคะแนนเสร็จสิ้น!';
     title.style.color = 'var(--accent-green)';
     spinner.style.display = 'none';
@@ -2949,7 +2983,66 @@ window.onFailureGrading = onFailureGrading;
       return { pasteAttempts: pasteAttempts };
     };
   })();
-  </script>
+  
+
+// ========================================================
+// SINGLE-SUBMISSION & FORM LOCKING SYSTEM
+// ========================================================
+const LAB_STORAGE_KEY_PREFIX = 'submitted_elab_transistor_';
+
+function checkExistingSubmission() {
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  if (studentId) {
+    const prevSubmitTime = localStorage.getItem(LAB_STORAGE_KEY_PREFIX + studentId);
+    if (prevSubmitTime) {
+      lockFormAsSubmitted(prevSubmitTime);
+      return true;
+    }
+  }
+  return false;
+}
+window.checkExistingSubmission = checkExistingSubmission;
+
+function lockFormAsSubmitted(submittedTime) {
+  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  if (!reportTab) return;
+
+  // 1. Disable inputs, selects, and textareas inside report / worksheet tab
+  reportTab.querySelectorAll('input, select, textarea').forEach(el => {
+    el.disabled = true;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.readOnly = true;
+    }
+  });
+
+  // 2. Disable submission button and update styling
+  const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"]');
+  submitButtons.forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.style.cursor = 'default';
+    btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    btn.innerHTML = '✓ ส่งใบงานเรียบร้อยแล้ว (' + submittedTime + ')';
+  });
+
+  // 3. Add or update View-Only banner at top of report tab
+  let banner = document.getElementById('submitted-viewonly-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'submitted-viewonly-banner';
+    banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 12px 18px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13px; font-family: Sarabun, sans-serif; display: flex; align-items: center; gap: 10px; font-weight: 500;';
+    const reportHeader = reportTab.querySelector('.report-header') || reportTab.firstElementChild;
+    if (reportHeader && reportHeader.nextSibling) {
+      reportTab.insertBefore(banner, reportHeader.nextSibling);
+    } else {
+      reportTab.prepend(banner);
+    }
+  }
+  banner.innerHTML = '🔒 <span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>';
+}
+window.lockFormAsSubmitted = lockFormAsSubmitted;
+
+</script>
 
 </body>
 </html>

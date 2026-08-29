@@ -16,6 +16,12 @@ function doGet(e) {
  */
 function submitWorksheet(data) {
   try {
+    // 0. Check duplicate submission
+    const duplicateCheck = checkDuplicateSubmission("Submissions", 4, data.studentId);
+    if (duplicateCheck) {
+      return duplicateCheck;
+    }
+
     // 1. Run the automatic grading engine
     const gradingResults = gradeWorksheet(data);
     
@@ -36,6 +42,40 @@ function submitWorksheet(data) {
       message: error.toString()
     };
   }
+}
+
+/**
+ * Checks if this student ID has already submitted a report
+ */
+function checkDuplicateSubmission(sheetName, studentIdColIndex, studentId) {
+  if (!studentId) return null;
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (!ss) return null;
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return null;
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      const idValues = sheet.getRange(2, studentIdColIndex, lastRow - 1, 1).getValues();
+      const timestampValues = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      const targetId = studentId.toString().trim();
+      for (let i = 0; i < idValues.length; i++) {
+        if (idValues[i][0] && idValues[i][0].toString().trim() === targetId) {
+          const prevTime = timestampValues[i][0]
+            ? Utilities.formatDate(new Date(timestampValues[i][0]), "Asia/Bangkok", "dd/MM/yyyy HH:mm")
+            : "ก่อนหน้านี้";
+          return {
+            status: "duplicate",
+            score: 0,
+            maxScore: 10,
+            feedback: "เคยส่งใบงานนี้แล้ว",
+            message: "⚠️ รหัสนักศึกษา " + targetId + " ได้ส่งใบงานนี้ไปแล้วเมื่อ " + prevTime + "\nระบบอนุญาตให้ส่งได้เพียง 1 ครั้งเท่านั้น (หากต้องการส่งใหม่ กรุณาติดต่ออาจารย์ผู้สอน)"
+          };
+        }
+      }
+    }
+  } catch (e) {}
+  return null;
 }
 
 /**
