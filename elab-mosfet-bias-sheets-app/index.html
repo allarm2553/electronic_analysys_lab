@@ -1165,6 +1165,36 @@ textarea:focus {
           </div>
         </div>
         
+        <!-- Model Selection Card for Worksheet Report -->
+        <div class="card">
+          <h2 class="card-title" style="margin-bottom: 12px; font-size: 16px;">
+            <span class="number">🏷️</span> เลือกรุ่นทรานซิสเตอร์ที่จะบันทึกผลการทดลอง (Device Model Selection)
+          </h2>
+          <div style="background: rgba(15, 23, 42, 0.5); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 13px; font-weight: 600; color: var(--accent-cyan);">กลุ่ม JFET (N-Channel):</span>
+            </div>
+            <div class="model-btn-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 12px;">
+              <button type="button" class="model-pill-btn active" id="ws-btn-model-2N5458" onclick="selectFetModel('2N5458')">2N5458 (JFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-2N5484" onclick="selectFetModel('2N5484')">2N5484 (JFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-BF245B" onclick="selectFetModel('BF245B')">BF245B (JFET)</button>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 13px; font-weight: 600; color: var(--accent-green);">กลุ่ม E-MOSFET (N-Channel):</span>
+            </div>
+            <div class="model-btn-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 8px;">
+              <button type="button" class="model-pill-btn" id="ws-btn-model-2N7000" onclick="selectFetModel('2N7000')">2N7000 (MOSFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-BS170" onclick="selectFetModel('BS170')">BS170 (MOSFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-IRF540" onclick="selectFetModel('IRF540')">IRF540 (Power MOSFET)</button>
+            </div>
+            
+            <div id="ws-model-desc-banner" style="font-size: 12px; color: var(--accent-cyan); margin-top: 10px; line-height: 1.5; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+              📌 <strong>รุ่นที่กำลังบันทึกผล:</strong> 💡 2N5458: JFET N-Channel อเนกประสงค์ (IDSS = 6.0 mA, VP = -3.5 V, RD = 1 kΩ)
+            </div>
+          </div>
+        </div>
+        
         <!-- PART 1: TRANSFER CHARACTERISTICS -->
         <div class="card report-section">
           <h3>ตอนที่ 1: ตารางบันทึกคุณลักษณะการถ่ายโอน (Transfer Characteristics: I<sub>D</sub> vs V<sub>GS</sub> เมื่อ V<sub>DS</sub> &approx; 10 V)</h3>
@@ -1519,15 +1549,18 @@ function selectFetModel(modelKey) {
   STATE.fetModel = modelKey;
   const model = FET_DEVICE_MODELS[modelKey];
   
-  // Update button active state
+  // Update button active state in Tab 2 and Tab 3
   document.querySelectorAll('.model-pill-btn').forEach(btn => {
     btn.classList.remove('active');
   });
   document.getElementById('btn-model-' + modelKey)?.classList.add('active');
+  document.getElementById('ws-btn-model-' + modelKey)?.classList.add('active');
   
-  // Update description banner
+  // Update description banners
   const descEl = document.getElementById('model-desc-banner');
   if (descEl) descEl.innerText = model.desc;
+  const wsDescEl = document.getElementById('ws-model-desc-banner');
+  if (wsDescEl) wsDescEl.innerHTML = '📌 <strong>รุ่นที่กำลังบันทึกผล:</strong> ' + model.desc;
   
   // Update SVG resistor labels & model text
   const svgModelTxt = document.getElementById('svg-device-model-txt');
@@ -2261,10 +2294,14 @@ function lockFormAsSubmitted(submittedTime) {
   const reportTab = document.getElementById('report') || document.querySelector('.tab-content.active');
   if (!reportTab) return;
 
-  reportTab.querySelectorAll('input, select, textarea').forEach(el => {
+  reportTab.querySelectorAll('input, select, textarea, .model-pill-btn').forEach(el => {
     el.disabled = true;
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
       el.readOnly = true;
+    }
+    if (el.classList.contains('model-pill-btn')) {
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.7';
     }
   });
 
@@ -2382,6 +2419,5 @@ if (document.readyState === 'loading') {
     };
   })();
   </script>
-
 </body>
 </html>
