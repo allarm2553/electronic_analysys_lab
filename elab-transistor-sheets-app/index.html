@@ -1155,9 +1155,7 @@ body {
     display: none !important;
   }
   
-  #report.tab-content {
-    display: block !important;
-  }
+  #worksheet.tab-content, #assessment.tab-content, #report.tab-content { opacity: 1 !important; visibility: visible !important; display: block !important; }
   
   .card {
     background: none !important;
@@ -1303,7 +1301,7 @@ body {
 
   #submitted-viewonly-banner button { display: none !important; }
   .tab-content { animation: none !important; opacity: 1 !important; }
-  #report, #worksheet, #report.tab-content, #worksheet.tab-content { opacity: 1 !important; visibility: visible !important; }
+  #report, #worksheet, #assessment, #report.tab-content, #worksheet.tab-content, #assessment.tab-content, #assessment.tab-content { opacity: 1 !important; visibility: visible !important; }
 </style>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1334,9 +1332,13 @@ body {
           <span class="btn-icon">🔬</span>
           <span class="btn-text">2. ห้องทดลองจำลอง</span>
         </button>
-        <button class="nav-btn" data-tab="report" onclick="switchTab('report')">
+        <button class="nav-btn" data-tab="worksheet" onclick="switchTab('worksheet')">
           <span class="btn-icon">📝</span>
-          <span class="btn-text">3. ใบงานบันทึกผล</span>
+          <span class="btn-text">3. ตารางบันทึกผล</span>
+        </button>
+        <button class="nav-btn" data-tab="assessment" onclick="switchTab('assessment')">
+          <span class="btn-icon">❓</span>
+          <span class="btn-text">4. คำถามและสรุปผล</span>
         </button>
       </nav>
       
@@ -1674,12 +1676,12 @@ body {
         
         <div class="card-footer-action no-print">
           <button class="btn btn-secondary" onclick="switchTab('theory')">⬅️ กลับหน้ารายละเอียดทฤษฎี</button>
-          <button class="btn btn-primary" onclick="switchTab('report')">กรอกข้อมูลและบันทึกรายงาน 📝</button>
+          <button class="btn btn-primary" onclick="switchTab('worksheet')">กรอกข้อมูลและบันทึกรายงาน 📝</button>
         </div>
       </section>
       
       <!-- TAB 3: DIGITAL LAB REPORT -->
-      <section id="report" class="tab-content">
+      <section id="worksheet" class="tab-content">
         <header class="report-header">
           <div class="university-banner">
             <h2>ใบงานการทดลองที่ 3: การระบุขาและชนิดของทรานซิสเตอร์ (Transistor Identification)</h2>
@@ -1900,6 +1902,24 @@ body {
           </div>
         </div>
         
+                <!-- Next Tab Action -->
+        <div style="text-align: right; margin-top: 20px;" class="no-print">
+          <button class="btn btn-primary" onclick="switchTab('assessment')">
+            <span>ไปที่แท็บ คำถามและสรุปผล ❓</span>
+            <span>👉</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: ASSESSMENT & CONCLUSION -->
+      <!-- ========================================== -->
+      <section id="assessment" class="tab-content">
+        <header class="content-header">
+          <h1>❓ คำถามท้ายการทดลองและสรุปผล (Post-Lab Assessment & Conclusion)</h1>
+          <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: การระบุขาและชนิดของทรานซิสเตอร์ (Transistor Identification)</p>
+        </header>
+
         <!-- POST-LAB QUESTIONS -->
         <div class="card report-section">
           <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
@@ -2166,23 +2186,27 @@ if (document.readyState === 'loading') {
  * Switches between different tabs in the application
  */
 function switchTab(tabId) {
-  const navButtons = document.querySelectorAll('.nav-btn');
+  // Update sidebar active buttons
+  const navButtons = document.querySelectorAll('.nav-btn, .nav-item');
   navButtons.forEach(btn => {
-    if (btn.getAttribute('data-tab') === tabId) {
+    const dataTab = btn.getAttribute('data-tab');
+    if (dataTab === tabId || (tabId === 'worksheet' && dataTab === 'report')) {
       btn.classList.add('active');
     } else {
       btn.classList.remove('active');
     }
   });
 
-  const tabContents = document.querySelectorAll('.tab-content');
-  tabContents.forEach(content => {
-    if (content.id === tabId) {
-      content.classList.add('active');
+  // Switch tab contents
+  const tabPanes = document.querySelectorAll('.tab-content, .tab-pane');
+  tabPanes.forEach(pane => {
+    if (pane.id === tabId || (tabId === 'report' && pane.id === 'worksheet')) {
+      pane.classList.add('active');
     } else {
-      content.classList.remove('active');
+      pane.classList.remove('active');
     }
   });
+
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -3018,7 +3042,7 @@ function printReport() {
 window.printReport = printReport;
 
 function lockFormAsSubmitted(submittedTime) {
-  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  const reportTab = document.getElementById('worksheet') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
   if (!reportTab) return;
 
   // 1. Disable inputs, selects, and textareas inside report / worksheet tab
@@ -3076,7 +3100,7 @@ function resetWorksheetForNewUser() {
     return;
   }
 
-  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  const reportTab = document.getElementById('worksheet') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
   if (reportTab) {
     reportTab.querySelectorAll('input, select, textarea').forEach(el => {
       el.disabled = false;

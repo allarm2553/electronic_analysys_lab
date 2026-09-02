@@ -1198,11 +1198,7 @@ body {
     opacity: 1 !important;
   }
   
-  #report.tab-content {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
+  #worksheet.tab-content, #assessment.tab-content, #report.tab-content { opacity: 1 !important; visibility: visible !important; display: block !important; }
 
   #submitted-viewonly-banner button {
     display: none !important;
@@ -1382,9 +1378,13 @@ body {
           <span class="btn-icon">🔬</span>
           <span class="btn-text">2. ห้องทดลองจำลอง</span>
         </button>
-        <button class="nav-btn" data-tab="report" onclick="switchTab('report')">
+        <button class="nav-btn" data-tab="worksheet" onclick="switchTab('worksheet')">
           <span class="btn-icon">📝</span>
-          <span class="btn-text">3. ใบงานบันทึกผล</span>
+          <span class="btn-text">3. ตารางบันทึกผล</span>
+        </button>
+        <button class="nav-btn" data-tab="assessment" onclick="switchTab('assessment')">
+          <span class="btn-icon">❓</span>
+          <span class="btn-text">4. คำถามและสรุปผล</span>
         </button>
       </nav>
       
@@ -1868,12 +1868,12 @@ body {
 
         <div class="card-footer-action no-print" style="margin-top: 25px;">
           <button class="btn btn-secondary" onclick="switchTab('theory')">⬅️ ย้อนกลับไปดูทฤษฎีและสเปกขา</button>
-          <button class="btn btn-primary" onclick="switchTab('report')">ไปที่แท็บกรอกบันทึกใบงาน 📝</button>
+          <button class="btn btn-primary" onclick="switchTab('worksheet')">ไปที่แท็บกรอกบันทึกใบงาน 📝</button>
         </div>
       </section>
       
       <!-- TAB 3: DIGITAL LAB REPORT -->
-      <section id="report" class="tab-content">
+      <section id="worksheet" class="tab-content">
         <header class="report-header">
           <div class="university-banner">
             <h2>ใบงานการปฏิบัติการทดลอง: จุดทำงานทรานซิสเตอร์ (BJT DC Bias)</h2>
@@ -2080,6 +2080,24 @@ body {
           </div>
         </div>
         
+                <!-- Next Tab Action -->
+        <div style="text-align: right; margin-top: 20px;" class="no-print">
+          <button class="btn btn-primary" onclick="switchTab('assessment')">
+            <span>ไปที่แท็บ คำถามและสรุปผล ❓</span>
+            <span>👉</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: ASSESSMENT & CONCLUSION -->
+      <!-- ========================================== -->
+      <section id="assessment" class="tab-content">
+        <header class="content-header">
+          <h1>❓ คำถามท้ายการทดลองและสรุปผล (Post-Lab Assessment & Conclusion)</h1>
+          <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: จุดทำงานทรานซิสเตอร์ (BJT DC Bias)</p>
+        </header>
+
         <!-- TAB 3: POST-LAB QUESTIONS -->
         <div class="card report-section">
           <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
@@ -2565,23 +2583,27 @@ if (document.readyState === 'loading') {
 }
 
 function switchTab(tabId) {
-  const navButtons = document.querySelectorAll('.nav-btn');
+  // Update sidebar active buttons
+  const navButtons = document.querySelectorAll('.nav-btn, .nav-item');
   navButtons.forEach(btn => {
-    if (btn.getAttribute('data-tab') === tabId) {
+    const dataTab = btn.getAttribute('data-tab');
+    if (dataTab === tabId || (tabId === 'worksheet' && dataTab === 'report')) {
       btn.classList.add('active');
     } else {
       btn.classList.remove('active');
     }
   });
 
-  const tabContents = document.querySelectorAll('.tab-content');
-  tabContents.forEach(content => {
-    if (content.id === tabId) {
-      content.classList.add('active');
+  // Switch tab contents
+  const tabPanes = document.querySelectorAll('.tab-content, .tab-pane');
+  tabPanes.forEach(pane => {
+    if (pane.id === tabId || (tabId === 'report' && pane.id === 'worksheet')) {
+      pane.classList.add('active');
     } else {
-      content.classList.remove('active');
+      pane.classList.remove('active');
     }
   });
+
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -3005,7 +3027,7 @@ function submitReportToGAS() {
   
   if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
     alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');
-    switchTab('report');
+    switchTab('worksheet');
     document.getElementById('student-name')?.focus();
     return;
   }
@@ -3336,7 +3358,7 @@ function checkExistingSubmission() {
 window.checkExistingSubmission = checkExistingSubmission;
 
 function lockFormAsSubmitted(submittedTime) {
-  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  const reportTab = document.getElementById('worksheet') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
   if (!reportTab) return;
 
   // 1. Disable inputs, selects, and textareas inside report / worksheet tab
@@ -3390,7 +3412,7 @@ function resetWorksheetForNewUser() {
     return;
   }
 
-  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  const reportTab = document.getElementById('worksheet') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
   if (reportTab) {
     reportTab.querySelectorAll('input, select, textarea').forEach(el => {
       el.disabled = false;
@@ -3440,7 +3462,7 @@ function resetWorksheetForNewUser() {
 
   // Switch to report tab
   if (typeof switchTab === 'function') {
-    switchTab('report');
+    switchTab('worksheet');
   }
 
   // Focus on student-id for immediate next user input
