@@ -630,6 +630,8 @@
         <h2 class="card-title">🎯 วัตถุประสงค์การทดลอง</h2>
         <ul style="padding-left: 20px; line-height: 1.8; font-size: 14px;">
           <li>ศึกษาคุณสมบัติของวงจรขยายกระแสแบบ <strong>Common-Collector (Emitter Follower Buffer)</strong></li>
+          <li>ศึกษาและคำนวณ <strong>อัตราขยายแรงดัน (A<sub>v</sub> &approx; 1)</strong>, <strong>อัตราขยายกระแส (A<sub>i</sub> &gg; 1)</strong>, และ <strong>อัตราขยายกำลังงาน (A<sub>p</sub>)</strong></li>
+          <li>ศึกษาการคำนวณ <strong>กระแสเอาต์พุตพีค (I<sub>p</sub>)</strong>, <strong>กระแส RMS (I<sub>rms</sub>)</strong>, และ <strong>กระแสแหล่งจ่ายไฟ DC (I<sub>DC</sub>)</strong></li>
           <li>ศึกษาการทำงานของวงจรขยายกำลังคู่เสริมสมมาตร (Complementary Symmetry Class AB Push-Pull)</li>
           <li>วิเคราะห์ผลกระทบของอิมพีแดนซ์โหลดลำโพง <strong>4 Ω และ 8 Ω</strong> ต่อกำลังขับ (P<sub>out</sub>), กำลังสูญเสีย (P<sub>D</sub>), และกระแสเอาต์พุต</li>
           <li>ศึกษาและสังเกตความเพี้ยนรอยต่อ (<strong>Crossover Distortion</strong>) ใน Class B และการขจัดความเพี้ยนด้วย Class AB Diode Bias</li>
@@ -637,34 +639,74 @@
         </ul>
       </div>
 
+      <!-- Theory Grid: Gain & Current Formulas -->
       <div class="grid-2">
+        <!-- Box 1: Buffer Gain & Impedance -->
         <div class="card">
-          <h2 class="card-title">⚡ การคำนวณกำลังงานและประสิทธิภาพ</h2>
-          <div class="formula-box" style="font-size:12.5px;line-height:2.1;">
-            <strong>กำลังขับเอาต์พุตสูงสุด (Output Power):</strong><br>
-            P<sub>out</sub> = V<sub>p</sub><sup>2</sup> / (2R<sub>L</sub>) = V<sub>rms</sub><sup>2</sup> / R<sub>L</sub> <small style="color:var(--text-muted);">(เมื่อ V<sub>p</sub> &le; V<sub>CC</sub> − V<sub>sat</sub>)</small><br><br>
-            <strong>กำลังงานจากแหล่งจ่าย (DC Supply Power):</strong><br>
-            P<sub>DC</sub> = 2V<sub>CC</sub>·I<sub>avg</sub> = (2V<sub>CC</sub>·V<sub>p</sub>) / (&pi;·R<sub>L</sub>)<br><br>
-            <strong>ประสิทธิภาพของวงจร (Efficiency &eta;):</strong><br>
-            &eta; = (P<sub>out</sub> / P<sub>DC</sub>) &times; 100% = (&pi;/4)·(V<sub>p</sub> / V<sub>CC</sub>) &approx; 78.5% (Max)
+          <h2 class="card-title">🎛️ 1. อัตราขยายและอิมพีแดนซ์ (Gain & Impedance)</h2>
+          <div class="formula-box" style="font-size:12px;line-height:2.1;border-color:rgba(56,189,248,0.3);background:rgba(15,23,42,0.85);">
+            <strong>อัตราขยายแรงดัน (Voltage Gain A<sub>v</sub>):</strong><br>
+            A<sub>v</sub> = V<sub>out</sub> / V<sub>in</sub> = R<sub>L</sub> / (R<sub>L</sub> + r<sub>e</sub> + R<sub>E</sub>) &approx; <strong>0.98 &approx; 1</strong> <small style="color:var(--text-muted);">(In-Phase 0°)</small><br><br>
+            <strong>อัตราขยายกระแส (Current Gain A<sub>i</sub>):</strong><br>
+            A<sub>i</sub> = I<sub>out</sub> / I<sub>in</sub> &approx; <strong>&beta; + 1 &gg; 1</strong> <small style="color:#34d399;">(ขยายกระแสหลายสิบถึงร้อยเท่า)</small><br><br>
+            <strong>อัตราขยายกำลังงาน (Power Gain A<sub>p</sub>):</strong><br>
+            A<sub>p</sub> = P<sub>out</sub> / P<sub>in</sub> = A<sub>v</sub> &times; A<sub>i</sub> &approx; <strong>A<sub>i</sub></strong> <small style="color:var(--accent-orange);">(ขยายกำลังขับเสียงสูงสุด)</small><br><br>
+            <strong>อิมพีแดนซ์อินพุตและเอาต์พุต (Z<sub>in</sub> & Z<sub>out</sub>):</strong><br>
+            Z<sub>in</sub> = R<sub>1</sub> ‖ R<sub>2</sub> ‖ [(&beta; + 1)(r<sub>e</sub> + R<sub>E</sub> + R<sub>L</sub>)] <small style="color:#38bdf8;">(สูงมาก ไม่โหลดภาคหน้า)</small><br>
+            Z<sub>out</sub> = R<sub>E</sub> + r<sub>e</sub> + [R<sub>S</sub> / (&beta; + 1)] &approx; <strong>&lt; 0.5 Ω</strong> <small style="color:#34d399;">(ต่ำมาก ขับลำโพงได้เต็มที่)</small>
           </div>
         </div>
 
+        <!-- Box 2: Current & Power Calculation -->
         <div class="card">
-          <h2 class="card-title">🌡️ ความร้อนและแผ่นระบายความร้อน (Heatsink)</h2>
-          <div class="formula-box" style="font-size:12.5px;line-height:2.1;color:#fecdd3;border-color:rgba(244,63,94,0.3);">
-            <strong>กำลังสูญเสียความร้อนรวม (Power Dissipation):</strong><br>
-            P<sub>D</sub> = P<sub>DC</sub> − P<sub>out</sub> <small style="color:var(--text-muted);">(แบ่งกระจายใน Q1 และ Q2)</small><br><br>
+          <h2 class="card-title">⚡ 2. การคำนวณกระแสไฟฟ้าและกำลังงาน (Current & Power)</h2>
+          <div class="formula-box" style="font-size:12px;line-height:2.1;border-color:rgba(251,191,36,0.3);background:rgba(15,23,42,0.85);">
+            <strong>กระแสเอาต์พุตพีค (Peak Output Current I<sub>p</sub>):</strong><br>
+            I<sub>p(out)</sub> = V<sub>p(out)</sub> / R<sub>L</sub> = (V<sub>in(p-p)</sub> / 2) / R<sub>L</sub><br><br>
+            <strong>กระแสยังผล (RMS Output Current I<sub>rms</sub>):</strong><br>
+            I<sub>rms</sub> = I<sub>p</sub> / &radic;2 = 0.707 &times; I<sub>p</sub><br><br>
+            <strong>กำลังขับเอาต์พุตเสียง (Output Power P<sub>out</sub>):</strong><br>
+            P<sub>out</sub> = V<sub>p</sub><sup>2</sup> / (2R<sub>L</sub>) = I<sub>rms</sub><sup>2</sup> &times; R<sub>L</sub> = V<sub>rms</sub><sup>2</sup> / R<sub>L</sub><br><br>
+            <strong>กระแสและกำลังงานจากแหล่งจ่าย (DC Supply I<sub>DC</sub> & P<sub>DC</sub>):</strong><br>
+            I<sub>DC(avg)</sub> = (2 &times; I<sub>p</sub>) / &pi; = (2 &times; V<sub>p</sub>) / (&pi; &times; R<sub>L</sub>)<br>
+            P<sub>DC</sub> = 2V<sub>CC</sub> &times; I<sub>DC(avg)</sub> = (2V<sub>CC</sub> &times; V<sub>p</sub>) / (&pi; &times; R<sub>L</sub>)<br><br>
+            <strong>ประสิทธิภาพของวงจร (Efficiency &eta;):</strong><br>
+            &eta; = (P<sub>out</sub> / P<sub>DC</sub>) &times; 100% = (&pi;/4) &times; (V<sub>p</sub> / V<sub>CC</sub>) &approx; <strong>78.5% (Max)</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theory Grid: Thermal & Comparison -->
+      <div class="grid-2">
+        <!-- Box 3: Thermal & Heatsink -->
+        <div class="card">
+          <h2 class="card-title">🌡️ 3. กำลังสูญเสียความร้อนและแผ่นระบายความร้อน (Heatsink)</h2>
+          <div class="formula-box" style="font-size:12px;line-height:2.1;color:#fecdd3;border-color:rgba(244,63,94,0.3);background:rgba(15,23,42,0.85);">
+            <strong>กำลังสูญเสียความร้อนรวม (Power Dissipation P<sub>D</sub>):</strong><br>
+            P<sub>D(total)</sub> = P<sub>DC</sub> − P<sub>out</sub> <small style="color:var(--text-muted);">(กระจายใน Q1 และ Q2 คนละครึ่ง: P<sub>D(Q)</sub> = P<sub>D</sub> / 2)</small><br><br>
             <strong>อุณหภูมิรอยต่อทรานซิสเตอร์ (T<sub>j</sub> Junction Temp):</strong><br>
             T<sub>j</sub> = T<sub>A</sub> + P<sub>D(Q)</sub> &times; (&theta;<sub>jc</sub> + &theta;<sub>cs</sub> + &theta;<sub>sa</sub>)<br>
-            &theta;<sub>sa</sub> = ความต้านทานความร้อนของ Heatsink (°C/W)<br>
-            <span style="color:#fb7185;">⚠️ หากไม่มี Heatsink (&theta;<sub>sa</sub> สูงมาก) &rarr; T<sub>j</sub> &gt; 150°C พังทันที!</span>
+            • &theta;<sub>jc</sub> = ความต้านทานความร้อนรอยต่อถึงตัวถัง (Junction to Case, ~1.5 - 3.1 °C/W)<br>
+            • &theta;<sub>cs</sub> = ความต้านทานความร้อนซิลิโคนระบายความร้อน (Case to Heatsink, ~0.5 °C/W)<br>
+            • &theta;<sub>sa</sub> = ความต้านทานความร้อนแผ่นระบายความร้อน (Heatsink to Ambient, ~4.5 °C/W)<br>
+            <span style="color:#fb7185;">⚠️ กรณีไม่มี Heatsink (&theta;<sub>ja</sub> &approx; 62.5 °C/W) &rarr; T<sub>j</sub> &gt; 150°C ทรานซิสเตอร์จะไหม้ทะลุ (Thermal Runaway) ทันที!</span>
+          </div>
+        </div>
+
+        <!-- Box 4: Why Class AB eliminates Crossover -->
+        <div class="card">
+          <h2 class="card-title">🌊 4. ความเพี้ยนรอยต่อ (Crossover Distortion) ใน Class B vs Class AB</h2>
+          <div class="formula-box" style="font-size:12px;line-height:2.0;color:#fed7aa;border-color:rgba(251,146,60,0.3);background:rgba(15,23,42,0.85);">
+            <strong>สาเหตุการเกิด Crossover Notch ใน Class B:</strong><br>
+            ทรานซิสเตอร์ซิลิคอนต้องการแรงดัน V<sub>BE</sub> &ge; 0.65V ถึงจะเริ่มนำกระแส เมื่อสัญญาณเสียงตัดผ่านจุด 0V (Zero-Crossing) ในช่วง -0.65V ถึง +0.65V จะไม่มีทรานซิสเตอร์ตัวใดทำงาน ทำให้รูปคลื่นเกิด <strong>Deadband Notch (รอยบากแบน)</strong> เสียงจะเพี้ยนแหบ<br><br>
+            <strong>การแก้ปัญหาด้วย Class AB Diode Biasing:</strong><br>
+            ต่อไดโอด D1, D2 อนุกรมคั่นระหว่างขาเบส Q1 และ Q2 เพื่อสร้างแรงดันตกคร่อมชดเชย 2 &times; V<sub>D</sub> &approx; 1.4V ดึงขาเบสทั้งสองให้อยู่ที่ขอบเขตพร้อมนำกระแสพอดี (Quiescent Bias) ทำให้รูปคลื่นเสียงเชื่อมต่อกันได้อย่างต่อเนื่องและเรียบเนียนไร้รอยต่อ
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2 class="card-title">📋 ตารางเปรียบเทียบ: ลำโพง 4Ω vs 8Ω และบทบาทของ Heatsink</h2>
+        <h2 class="card-title">📋 ตารางเปรียบเทียบ: ลำโพง 4Ω vs 8Ω และบทบาทของ Buffer & Heatsink</h2>
         <table class="lab-table">
           <thead>
             <tr>
