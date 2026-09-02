@@ -1920,27 +1920,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: การระบุขาและชนิดของทรานซิสเตอร์ (Transistor Identification)</p>
         </header>
 
-        <!-- POST-LAB QUESTIONS -->
-        <div class="card report-section">
-          <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
-          
-          <div class="input-field">
-            <label class="q-label">1. อธิบายเหตุผลตามทฤษฎีว่าทำไมสายวัดสีดำของมัลติมิเตอร์แบบอนาล็อกจึงเป็นขั้วบวก (+) และส่งศักย์ไฟฟ้าสูงกว่าสายสีแดงเมื่อตั้งย่านวัดความต้านทาน?</label>
-            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. โครงสร้างทางกายภาพและรอยต่อสารกึ่งตัวนำของทรานซิสเตอร์แบบ BJT ชนิด NPN ประกอบด้วยรอยต่อ PN Junction กี่รอยต่อ และมีขั้วต่ออย่างไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) 1 รอยต่อ ระหว่าง Base-Collector</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) 2 รอยต่อ คือ Base-Emitter (BE) และ Base-Collector (BC)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) 3 รอยต่อ อิสระต่อกัน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) 2 รอยต่อ ขนานกัน</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">2. เหตุใดการหาขา Collector และ Emitter ของทรานซิสเตอร์ NPN จึงต้องนำนิ้วมือแตะสัมผัสระหว่างขา B และขา Collector (ไม่ใช่ขั้ว Emitter) และหากทรานซิสเตอร์เป็น PNP ต้องสลับขั้วสายวัดอย่างไร?</label>
-            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. เมื่อใช้มัลติมิเตอร์อนาล็อก (สายดำ +) วัดหาขาเบส พบว่าเมื่อสายดำแตะขาหนึ่ง แล้วสายแดงแตะอีก 2 ขาที่เหลือ เข็มมิเตอร์กระดิกขึ้นทั้งสองครั้ง แสดงว่าทรานซิสเตอร์เป็นชนิดใดและขานั้นคือขาอะไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) ชนิด PNP, ขานั้นคือขา Base</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) ชนิด NPN, ขานั้นคือขา Base</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) ชนิด NPN, ขานั้นคือขา Collector</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) ชนิด PNP, ขานั้นคือขา Emitter</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">3. หากผู้ทดสอบใช้มัลติมิเตอร์ดิจิทัล (Digital Multimeter) ตั้งย่านทดสอบไดโอด (Diode Test) หรือย่านความต้านทาน จะสามารถวัดสลับระบุขาทรานซิสเตอร์ตามใบงานข้อที่ 1 และ 2 ได้เหมือนกันหรือไม่ เพราะเหตุใด?</label>
-            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. ในการทดสอบหาขา Collector และ Emitter ของทรานซิสเตอร์ NPN โดยวิธีแตะกระตุ้น (Touch Test) การใช้นิ้วมือแตะเชื่อมระหว่างขา Base กับขาที่จะทดสอบเป็นการทำหน้าที่อะไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) เป็นการลัดวงจรทรานซิสเตอร์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) เป็นการป้อนกระแสไบแอสขนาดเล็ก (IB) ผ่านความต้านทานของร่างกายเข้าสู่ขาเบส ทำให้ทรานซิสเตอร์เริ่มนำกระแส IC</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) เป็นการวัดอุณหภูมิของทรานซิสเตอร์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) เพื่อคายประจุที่สะสมในรอยต่อ</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. พารามิเตอร์อัตราขยายกระแสไฟฟ้ากระแสตรงของทรานซิสเตอร์ (βDC หรือ hFE) หมายถึงอัตราส่วนระหว่างกระแสใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) IB / IC</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) IC / IB</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) IE / IB</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) IC / IE</span>
+              </label>
+            </div>
           </div>
         </div>
-        
-        <!-- CONCLUSION -->
+
         <div class="card report-section">
           <h3>สรุปผลการทดลอง (Conclusion)</h3>
           <div class="input-field">

@@ -1702,27 +1702,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: การวัดหาตำแหน่งขาและทดสอบมอสเฟต (MOSFET Pinout)</p>
         </header>
 
-        <!-- POST-LAB QUESTIONS -->
-        <div class="card report-section">
-          <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
-          
-          <div class="input-field">
-            <label class="q-label">1. จงอธิบายการหาขาเกต (Gate) ของ MOSFET จากการวัดค่าความต้านทานด้วยมัลติมิเตอร์อนาล็อก</label>
-            <textarea id="q1-answer" rows="3" placeholder="อธิบายคู่การวัดใดที่นำมาประเมินหาขาเกตได้ เนื่องจากโครงสร้างมีความต้านทานแบบใด..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ขาเกต (Gate) ของมอสเฟต (MOSFET) มีฉนวนชั้นบางๆ ชนิดใดกั้นระหว่างขั้วโลหะกับช่องนำกระแส ทำให้มีค่าอินพุตอิมพีแดนซ์สูงมาก (Zin ≈ 10¹² Ω)?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) ซิลิคอนไนไตรด์ (Silicon Nitride)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) ซิลิคอนไดออกไซด์ (SiO₂)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) เจอร์เมเนียมออกไซด์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) คาร์บอนไดออกไซด์</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">2. ทำไมเมื่อกระตุ้นเกตแล้ว รอยต่อระหว่างเดรนและซอร์สจึงยังคงนำกระแสต่อได้แม้ว่าจะดึงสายโพรบที่ป้อนแรงดันกระตุ้นเกตออกไปแล้ว?</label>
-            <textarea id="q2-answer" rows="3" placeholder="อธิบายเรื่องประจุสะสม (Gate Capacitance) ที่โครงสร้างออกไซด์เป็นฉนวนป้องกันการคายประจุ..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. เมื่อใช้มัลติมิเตอร์เข็มย่าน R×10k แตะสายดำ (+) ที่ขา Gate และสายแดง (-) ที่ขา Source ของ N-Channel Power MOSFET จากนั้นย้ายสายไปวัดระหว่าง Drain และ Source ผลการวัดจะเป็นอย่างไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) เข็มไม่กระดิกเลย</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) เข็มกระดิกชี้ค่าความต้านทานต่ำ นำกระแสต่อเนื่องได้เพราะประจุยังคงค้างอยู่ที่ความจุแฝงของเกต (Ciss)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) มอสเฟตจะช็อตเสียหายถาวร</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) เข็มจะชี้ที่ค่าความต้านทานอนันต์ทันที</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">3. ทำไมขั้วสายมัลติมิเตอร์แบบเข็มในย่านวัดความต้านทาน ขั้วสายดำจึงเป็นบวกและขั้วสายแดงเป็นลบ และจุดนี้มีความสำคัญอย่างไรต่อการนำไปใช้วัดสารกึ่งตัวนำ?</label>
-            <textarea id="q3-answer" rows="3" placeholder="วิเคราะห์และอธิบายศักย์แรงดันของถ่านไฟภายในมิเตอร์เข็มที่มีผลต่อการจ่ายไบอัสตรงและไบอัสกลับอุปกรณ์ไดโอด/ทรานซิสเตอร์..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. ไดโอดที่ต่อขนานอยู่ภายในตัวถังระหว่างขา Drain และ Source (Body Diode) ของ Power MOSFET มีหน้าที่หลักคืออะไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) เพื่อเพิ่มแรงดันพังทลาย VDSS</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) เพื่อป้องกันแรงดันไฟฟ้าย้อนกลับแบบเหนี่ยวนำ (Back-EMF Protection / Freewheeling) เมื่อขับโหลดขดลวด</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) เพื่อช่วยให้เกตนำกระแสได้เร็วขึ้น</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) เพื่อลดความต้านทาน RDS(on)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. หากต้องการคายประจุที่ค้างอยู่ที่ขา Gate ของ N-Channel MOSFET เพื่อให้ช่อง Drain-Source หยุดนำกระแส (Turn-OFF) ต้องปฏิบัติอย่างไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) ป้อนไฟบวกเข้าขา Gate อีกครั้ง</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) ช็อตหรือใช้นิ้วแตะเชื่อมระหว่างขา Gate และขา Source เพื่อคายประจุลงกราวด์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) เพิ่มแรงดัน VDS ให้สูงขึ้น</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) สลับขั้วโหลดภายนอก</span>
+              </label>
+            </div>
           </div>
         </div>
-        
-        <!-- CONCLUSION -->
+
         <div class="card report-section">
           <h3>สรุปผลการทดลอง (Conclusion)</h3>
           <div class="input-field">

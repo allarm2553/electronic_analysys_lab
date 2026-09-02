@@ -2223,27 +2223,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: ซีเนอร์ไดโอด (Zener Diode Characteristics)</p>
         </header>
 
-        <!-- POST-LAB QUESTIONS -->
-        <div class="card report-section">
-          <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
-          
-          <div class="input-field">
-            <label class="q-label">1. จากผลการทดลอง ซีเนอร์ไดโอดเบอร์ <span id="txt-q1-zener-name" style="color: #38bdf8;">1N4735A (Vz ≈ 6.2V)</span> เริ่มทำงานในย่านควบคุมแรงดันไฟฟ้าพังทลายคงที่ที่แรงดันอินพุต (V<sub>in</sub>) ตั้งแต่ประมาณกี่โวลต์ขึ้นไป และมีแรงดันตกคร่อมตัวมันคงที่อยู่ที่ช่วงประมาณกี่โวลต์?</label>
-            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ซีเนอร์ไดโอด (Zener Diode) มีคุณสมบัติเด่นที่แตกต่างจากไดโอดธรรมดาอย่างไรในการประยุกต์ใช้งาน?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) นำกระแสได้ดีเฉพาะไบแอสตรงเท่านั้น</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) สามารถทำงานในย่านแรงดันพังทลายย้อนกลับ (Zener Breakdown) โดยรักษาระดับแรงดันตกคร่อมให้คงที่ได้</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) มีแรงดันตกคร่อมไบแอสตรงสูงกว่า 10 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) ป้องกันสัญญาณรบกวนความถี่สูงได้ดีกว่า</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">2. เมื่อแรงดันอินพุตแหล่งจ่าย (V<sub>in</sub>) เพิ่มขึ้นเกินแรงดันควบคุม (เช่น จาก 4.0 V เป็น 10.0 V) ค่าแรงดันตกคร่อมตัวต้านทาน (V<sub>R1</sub>) มีแนวโน้มอย่างไร และจงอธิบายบทบาทความสำคัญของตัวต้านทาน R1 ในวงจรนี้?</label>
-            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. ในวงจรรักษาระดับแรงดันด้วยซีเนอร์ไดโอด เบอร์ 1N4735A (VZ = 6.2V) หากแรงดันอินพุต Vin = 10V และไม่มีโหลด แรงดันตกคร่อมซีเนอร์ไดโอดจะมีค่าประมาณเท่าใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) 10.0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) 0.7 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) 6.2 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) 3.8 V</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">3. หากต่อสลับทิศทางการทำงานของซีเนอร์ไดโอดเป็นแบบไบอัสตรง (หันขั้วแอโนดชนกับตัวต้านทาน คาสิโนดลงกราวด์) ระดับแรงดันตกคร่อมซีเนอร์ไดโอดเมื่อจ่ายอินพุต V<sub>in</sub> = 5.0 V จะมีค่าประมาณกี่โวลต์ เพราะเหตุใด?</label>
-            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. ตัวต้านทานจำกัดกระแส (RS) ที่ต่ออนุกรมก่อนเข้าซีเนอร์ไดโอดมีหน้าที่หลักคืออะไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) เพื่อเพิ่มระดับแรงดันเอาต์พุตให้สูงขึ้น</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) เพื่อจำกัดกระแสไฟฟ้าไม่ให้ไหลผ่านซีเนอร์ไดโอดเกินพิกัดกำลังสูญเสียสูงสุด (PZ(max) = VZ × IZ(max))</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) เพื่อเปลี่ยนไฟฟ้ากระแสสลับเป็นกระแสตรง</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) เพื่อกรองสัญญาณริปเปิลให้เรียบขึ้น</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. หากต่อซีเนอร์ไดโอดในทิศทางไบแอสตรง (Forward Bias) ซีเนอร์ไดโอดจะแสดงพฤติกรรมอย่างไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) รักษาระดับแรงดันคงที่ที่ VZ = 6.2 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) ทำงานเหมือนไดโอดซิลิคอนทั่วไปโดยมีแรงดันตกคร่อมประมาณ 0.7 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) วงจรจะขาดเสียหายทันที</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) ไม่นำกระแสไฟฟ้าเลย</span>
+              </label>
+            </div>
           </div>
         </div>
-        
-        <!-- CONCLUSION -->
+
         <div class="card report-section">
           <h3>สรุปผลการทดลอง (Conclusion)</h3>
           <div class="input-field">

@@ -1302,27 +1302,118 @@ textarea:focus {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: การจัดไบแอสและกราฟถ่ายโอน MOSFET (MOSFET Biasing)</p>
         </header>
 
-        <!-- POST-LAB QUESTIONS -->
-        <div class="card report-section">
-          <h3>คำถามท้ายการปฏิบัติการทดลอง (Post-Lab Questions)</h3>
-          
-          <div class="input-field">
-            <label class="q-label">1. ในวงจร Fixed-Bias เหตุใดแรงดันตกคร่อมตัวต้านทานเกต R<sub>G</sub> จึงมีค่าเกือบเป็นศูนย์ (V<sub>RG</sub> &approx; 0 V) และส่งผลดีต่อเสถียรภาพอย่างไร?</label>
-            <textarea id="q1-answer" rows="3" placeholder="อธิบายเนื่องจากกระแสเกต IG เป็นศูนย์ ทำให้ไม่มีแรงดันตกคร่อม RG..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ในวงจรจัดไบแอสของ E-MOSFET (Enhancement-Mode MOSFET) ระดับแรงดัน VGS ต้องมีค่าอย่างไร อุปกรณ์จึงจะเริ่มสร้างช่องนำกระแส (Inversion Layer) และมีกระแส ID ไหล?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) VGS < 0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) VGS ≥ VGS(th) (แรงดันขีดเริ่ม Threshold Voltage)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) VGS = 0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) VGS < VP</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">2. จงเปรียบเทียบพฤติกรรมการควบคุมกระแสเดรน I<sub>D</sub> ระหว่าง JFET (สมการ Shockley) และ E-MOSFET (สมการ Square-Law) เมื่อปรับแรงดันเกต-ซอร์ส V<sub>GS</sub></label>
-            <textarea id="q2-answer" rows="3" placeholder="อธิบาย JFET นำกระแสสูงสุดที่ VGS = 0V และลดลงเมื่อติดลบ ส่วน E-MOSFET เริ่มนำกระแสเมื่อ VGS มากกว่า Vth..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. สมการความสัมพันธ์ของกระแสเดรน ID ในย่านอิ่มตัว (Saturation Region) ของ E-MOSFET เป็นไปตามสมการใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) ID = IDSS (1 - VGS/VP)²</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) ID = k (VGS - VGS(th))² (Square-Law Equation)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) ID = β × IB</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) ID = VDS / RD</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">3. จงอธิบายเงื่อนไขทางแรงดันตกคร่อมรอยต่อที่แบ่งช่วงการทำงานของอุปกรณ์ระหว่างย่านอิ่มตัว (Saturation) และย่านโอห์มมิก (Triode / Ohmic)</label>
-            <textarea id="q3-answer" rows="3" placeholder="อธิบายเงื่อนไขเปรียบเทียบ VDS กับ VDS(sat) หรือ VGS - Vth..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. เหตุใดในวงจรไบแอสของ MOSFET กระแสเกต IG จึงมีค่าเป็นศูนย์ (IG ≈ 0A) ส่งผลให้แรงดันตกคร่อมตัวต้านทานเกต VRG ≈ 0V?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) เพราะตัวต้านทาน RG มีค่าความต้านทานเป็นศูนย์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) เพราะมีฉนวน SiO₂ กั้นขาเกต ทำให้รอยต่อเกตมีอิมพีแดนซ์สูงมากจนไม่มีกระแส DC ไหลผ่าน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) เพราะแรงดัน VDD จ่ายกระแสไม่พอ</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) เพราะขาเกตต่อลงกราวด์โดยตรง</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. ย่านการทำงานแบบอิ่มตัว (Saturation / Active Region) ของ MOSFET กำหนดโดยเงื่อนไขแรงดันตกคร่อมรอยต่อตามข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) VDS ≥ VGS - VGS(th)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) VDS < VGS - VGS(th)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) VGS = 0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) VDS = 0 V</span>
+              </label>
+            </div>
           </div>
         </div>
-        
-        <!-- CONCLUSION -->
+
         <div class="card report-section">
           <h3>สรุปผลการทดลอง (Conclusion)</h3>
           <div class="input-field">

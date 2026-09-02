@@ -2256,27 +2256,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: คุณสมบัติของไดโอด (Diode Characteristics)</p>
         </header>
 
-        <!-- POST-LAB QUESTIONS -->
-        <div class="card report-section">
-          <h3>6. คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
-          
-          <div class="input-field">
-            <label class="q-label">1. จงอธิบายผลต่างระหว่างกระแสจากการคำนวณ (I<sub>calc</sub>) และกระแสที่วัดได้จริง (I<sub>meas</sub>) ว่ามีความสอดคล้องหรือแตกต่างกันอย่างไร เพราะเหตุใด?</label>
-            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ระดับแรงดันตกคร่อมรอยต่อไบแอสตรง (Forward Barrier Potential V<sub>D</sub>) ของไดโอดซิลิคอน (เช่น 1N4001/1N4007) ณ สภาวะอุณหภูมิห้องปกติมีค่าประมาณเท่าใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) 0.2 V - 0.3 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) 0.6 V - 0.7 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) 1.8 V - 2.2 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) 5.0 V - 6.2 V</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">2. หากสลับหัวท้ายโดยการต่อไดโอด 1N4001 กลับด้าน (ให้ขั้วแคโธดหันไปหาแหล่งจ่ายไฟบวก) จะเกิดอะไรขึ้นกับระดับแรงดันตกคร่อมอุปกรณ์แต่ละตัวและสถานะการทำงานของ LED?</label>
-            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. เมื่อนำมัลติมิเตอร์แบบเข็ม (สายดำคือขั้วบวก + ของแบตเตอรี่ภายใน) วัดขั้วไดโอด สภาวะใดแสดงว่าไดโอดอยู่ในสภาพดีและไบแอสตรง (Forward Bias)?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) เข็มมิเตอร์ชี้ที่ค่าความต้านทานต่ำ (สายดำต่อ Anode, สายแดงต่อ Cathode)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) เข็มมิเตอร์ไม่กระดิกเลยทั้งสองทิศทาง (Infinite ∞)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) เข็มมิเตอร์ชี้ที่ 0 Ω ทั้งสองทิศทางการวัด (Short Circuit)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) เข็มมิเตอร์ชี้ค่าความต้านทานสูงมากเมื่อสายดำต่อ Anode</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">3. แรงดันตกคร่อมไดโอดซิลิคอน (V<sub>D</sub>) และแรงดันตกคร่อม LED (V<sub>LED</sub>) ที่วัดได้ มีความแตกต่างกันอย่างไร และอธิบายค่าขีดเริ่มเปลี่ยน (Barrier Potential) ของอุปกรณ์ทั้งสองชนิดนี้ตามทฤษฎี?</label>
-            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบที่นี่..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. เมื่อต่อไดโอดสลับขั้วในลักษณะไบแอสกลับ (Reverse Bias) กระแสไฟฟ้าที่ไหลผ่านไดโอดในทางอุดมคติและทางปฏิบัติตามลำดับคือข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) ไหลได้สูงสุดตามพิกัด IF, เกิดการลัดวงจร</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) 0 A (ไม่มีกระแสไหล), มีกระแสรั่วไหลย้อนกลับต่ำมากระดับ nA ถึง µA</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) ไหลคงที่ที่ 10 mA, กระแสเป็นศูนย์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) มีกระแสไหลเท่ากับการไบแอสตรง</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. แรงดันตกคร่อมขณะนำกระแสของหลอด LED (เช่น สีแดง หรือ สีเขียว) มีค่าสูงกว่าไดโอดเรียงกระแสซิลิคอนทั่วไปเนื่องจากสาเหตุใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) LED ทำจากสารกึ่งตัวนำผสม (GaAs, GaP) ที่มีแถบพลังงานต้องห้าม (Bandgap) กว้างกว่าซิลิคอน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) LED มีขนาดตัวถังใหญ่กว่าไดโอดซิลิคอน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) LED ทนแรงดันไบแอสกลับได้สูงกว่าไดโอดซิลิคอน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) ไดโอดซิลิคอนไม่มีความต้านทานภายใน</span>
+              </label>
+            </div>
           </div>
         </div>
-        
-        <!-- CONCLUSION -->
+
         <div class="card report-section">
           <h3>7. สรุปผลการทดลอง (Conclusion)</h3>
           <div class="input-field">

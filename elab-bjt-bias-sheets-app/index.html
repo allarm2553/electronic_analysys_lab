@@ -2098,27 +2098,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: จุดทำงานทรานซิสเตอร์ (BJT DC Bias)</p>
         </header>
 
-        <!-- TAB 3: POST-LAB QUESTIONS -->
-        <div class="card report-section">
-          <h3>คำถามท้ายการทดลอง (Post-Lab Questions)</h3>
-          
-          <div class="input-field">
-            <label class="q-label">1. เมื่อปรับแรงดันแหล่งจ่าย V<sub>cc</sub> เพิ่มขึ้นจาก 5V ไปถึง 15V จุดทำงาน Q-Point (V<sub>CE</sub>, I<sub>C</sub>) เคลื่อนที่อย่างไรบนเส้นโหลดไลน์ (DC Load Line)? จงวิเคราะห์ผล</label>
-            <textarea id="q1-answer" rows="3" placeholder="วิเคราะห์แนวโน้มการเคลื่อนที่ของพิกัด (VCE, IC) ตามระดับแรงดันป้อน Vcc..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ในวงจรจัดไบแอสแบบคงที่ (Fixed-Bias Circuit) ค่ากระแสเบส IB คำนวณได้จากสมการข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) IB = (VCC - VBE) / RB</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) IB = VCC / RC</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) IB = β × IC</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) IB = (VCC - VCE) / RE</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">2. จงอธิบายความเสถียรของจุด Q-Point ในวงจร Fixed Bias เมื่ออุณหภูมิเปลี่ยนไปหรือเปลี่ยนทรานซิสเตอร์เบอร์เดิมแต่ค่า β ต่างกัน และบอกข้อจำกัดหลักของวงจรประเภทนี้</label>
-            <textarea id="q2-answer" rows="3" placeholder="อธิบายผลกระทบของค่าเบต้า (Beta Variation) และความเสถียรเชิงความร้อนของวงจร Fixed Bias..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. จุดทำงานบนเส้นโหลดดีซี (DC Operating Point หรือ Q-point) ของวงจรขยายทรานซิสเตอร์ระบุด้วยพิกัดคู่ลำดับใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) (IB, VBE)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) (VCE, IC)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) (VCC, IE)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) (RB, RC)</span>
+              </label>
+            </div>
           </div>
-          
-          <div class="input-field" style="margin-top: 20px;">
-            <label class="q-label">3. หากทรานซิสเตอร์ชำรุดในลักษณะลัดวงจรระหว่าง Collector และ Emitter (Short C-E) ค่าของแรงดัน V<sub>CE</sub> และกระแสคอลเล็กเตอร์ I<sub>C</sub> จะเป็นอย่างไร และทำไมจึงเป็นเช่นนั้น?</label>
-            <textarea id="q3-answer" rows="3" placeholder="อธิบายแรงดัน Vce และกระแส Ic เมื่อรอยต่อ C-E มีความต้านทานเป็นศูนย์โอห์ม..."></textarea>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. เมื่อเพิ่มแรงดันแหล่งจ่ายไฟ VCC สูงขึ้น โดยที่ค่าความต้านทาน RB และ RC คงที่ จุดทำงาน Q-point จะเคลื่อนที่อย่างไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) กระแส IC และแรงดัน VCE เพิ่มสูงขึ้น เลื่อนจุด Q ไปทางขวาบนของเส้นโหลด</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) กระแส IC ลดลงจนเข้าสู่ย่านคัตออฟ</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) แรงดัน VCE ลดลงจนเป็นศูนย์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) จุด Q อยู่ที่เดิมไม่เปลี่ยนแปลง</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. ข้อเสียเปรียบหลักของวงจร Fixed-Bias เมื่อเปรียบเทียบกับวงจร Voltage Divider Bias คือข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) ใช้อุปกรณ์ตัวต้านทานจำนวนมากกว่า</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) มีความเสถียรของจุด Q-point ต่ำ เพราะค่า IC ไวต่อการเปลี่ยนแปลงของอุณหภูมิและอัตราขยาย β</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) ให้สัญญาณเอาต์พุตกลับเฟส 180°</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) ไม่สามารถขยายสัญญาณขนาดเล็กได้</span>
+              </label>
+            </div>
           </div>
         </div>
-        
-        <!-- CONCLUSION -->
+
         <div class="card report-section">
           <h3>สรุปผลการทดลอง (Conclusion)</h3>
           <div class="input-field">

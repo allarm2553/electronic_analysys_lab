@@ -1231,75 +1231,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: วงจรเรียงกระแสครึ่งคลื่น (Half-Wave Rectifier)</p>
         </header>
 
-        <!-- Post-Lab Questions -->
-        <div class="card">
-          <h2 class="card-title">ตอนที่ 3: คำถามท้ายการทดลอง (Post-Lab Questions)</h2>
-          
-          <div class="question-group">
-            <label>1. ค่าแรงดันเฉลี่ยกระแสตรง (Output V<sub>dc</sub>) ของสัญญาณเรียงกระแสครึ่งคลื่นสัมพันธ์กับค่าศักย์แรงดันคร่อมโหลดสูงสุด (V<sub>p,load</sub>) ตามสมการข้อใด?</label>
-            <div class="option-list">
-              <label class="radio-container">
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ค่าแรงดันเฉลี่ยกระแสตรง (Output Vdc) ของสัญญาณเรียงกระแสครึ่งคลื่นสัมพันธ์กับค่าศักย์แรงดันยอดคร่อมโหลดสูงสุด (Vp,load) ตามสมการข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q1" value="A">
                 <span class="checkmark"></span>
-                ก) V<sub>dc</sub> = V<sub>p,load</sub> / π
+                <span>A) Vdc = Vp,load / π ≈ 0.318 × Vp,load</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q1" value="B">
                 <span class="checkmark"></span>
-                ข) V<sub>dc</sub> = 2 × V<sub>p,load</sub> / π
+                <span>B) Vdc = 2 × Vp,load / π ≈ 0.636 × Vp,load</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q1" value="C">
                 <span class="checkmark"></span>
-                ค) V<sub>dc</sub> = V<sub>p,load</sub> / 2
+                <span>C) Vdc = Vp,load / 2</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) Vdc = Vp,load / √2</span>
               </label>
             </div>
           </div>
-          
-          <div class="question-group">
-            <label>2. เหตุใดแรงดันยอดเอาต์พุตสูงสุดคร่อมโหลด (Output V<sub>max</sub>) จึงมีค่าน้อยกว่าแรงดันยอดอินพุต (Input V<sub>peak</sub>) ประมาณ 0.7V?</label>
-            <div class="option-list">
-              <label class="radio-container">
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. เหตุใดแรงดันยอดเอาต์พุตสูงสุดคร่อมโหลด (Output Vmax) จึงมีค่าน้อยกว่าแรงดันยอดอินพุต (Input Vpeak) ประมาณ 0.7V?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q2" value="A">
                 <span class="checkmark"></span>
-                ก) เกิดจากแรงดันตกคร่อมรอยต่อไบอัสตรง (Forward voltage drop) ของไดโอดซิลิคอน 1N4007
+                <span>A) เกิดจากแรงดันตกคร่อมรอยต่อไบอัสตรง (Forward Barrier Voltage) ของไดโอดซิลิคอน 1N4007</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q2" value="B">
                 <span class="checkmark"></span>
-                ข) เกิดจากความต้านทานโหลด 1k มีค่าสูงเกินไป
+                <span>B) เกิดจากความต้านทานโหลด 1kΩ มีค่าสูงเกินไป</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q2" value="C">
                 <span class="checkmark"></span>
-                ค) เกิดการลัดวงจรชั่วคราวในช่วงเฟสบวก
+                <span>C) เกิดจากการสูญเสียในสายไฟ</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) เกิดจากความจุแฝงของไดโอด</span>
               </label>
             </div>
           </div>
-          
-          <div class="question-group">
-            <label>3. ในการวัดกระแสตรงผ่านโหลดด้วย DMM ในใบงานแล็บการทดลองข้อที่ 3 ข้อใดเป็นขั้นตอนการเชื่อมต่อเครื่องวัดที่ถูกต้องทางไฟฟ้า?</label>
-            <div class="option-list">
-              <label class="radio-container">
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. ค่าแรงดันไบแอสกลับสูงสุด (Peak Inverse Voltage: PIV) ที่ไดโอดในวงจรเรียงกระแสครึ่งคลื่นต้องทนได้มีค่าเท่าใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q3" value="A">
                 <span class="checkmark"></span>
-                ก) นำสายวัด DMM แตะขนานคร่อมขั้วตัวต้านทาน RL โหลดตรง ๆ ได้ทันที
+                <span>A) PIV = Vpeak(in) (แรงดันยอดของสัญญาณไฟฟ้าสลับด้านเข้า)</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q3" value="B">
                 <span class="checkmark"></span>
-                ข) เปิด/ถอดสายจัมป์ B-C ออกเพื่อตัดวงจร จากนั้นนำมัลติมิเตอร์ในย่านวัด DCA ต่ออนุกรมแตะจุด B และ C เพื่อเป็นสะพานกระแส
+                <span>B) PIV = 2 × Vpeak(in)</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q3" value="C">
                 <span class="checkmark"></span>
-                ค) นำสายวัด DMM แตะระหว่างจุด Anode และ Cathode ของไดโอดในโหมดย่าน DCA
+                <span>C) PIV = Vdc</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) PIV = Vrms / 2</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. ความถี่ของสัญญาณกระแสตรงเอาต์พุต (Ripple Frequency: fout) ในวงจรเรียงกระแสครึ่งคลื่นมีความสัมพันธ์กับความถี่อินพุต (fin = 50Hz) อย่างไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) fout = fin = 50 Hz (ความถี่เท่ากับสัญญาณอินพุต)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) fout = 2 × fin = 100 Hz</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) fout = fin / 2 = 25 Hz</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) fout = 0 Hz (เป็นไฟตรงสมบูรณ์)</span>
               </label>
             </div>
           </div>
         </div>
-        
-        <!-- Lab Conclusion -->
+
         <div class="card">
           <h2 class="card-title">ตอนที่ 4: สรุปและวิจารณ์ผลการทดลอง</h2>
           <div class="input-field">

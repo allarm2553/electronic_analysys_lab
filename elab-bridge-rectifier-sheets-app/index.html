@@ -1276,75 +1276,118 @@ body {
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier)</p>
         </header>
 
-        <!-- Post-Lab Questions -->
-        <div class="card">
-          <h2 class="card-title">ตอนที่ 3: คำถามท้ายการทดลอง (Post-Lab Questions)</h2>
-          
-          <div class="question-group">
-            <label>1. ค่าความถี่ริปเปิลเอาต์พุต (Output Ripple Frequency) ของวงจรบริดจ์เร็กติไฟเออร์มีค่าเป็นกี่เท่าของความถี่ไฟฟ้ากระแสสลับอินพุต?</label>
-            <div class="option-list">
-              <label class="radio-container">
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ค่าแรงดันเฉลี่ยกระแสตรง (Output Vdc) ของวงจรเรียงกระแสเต็มคลื่นแบบบริดจ์สัมพันธ์กับแรงดันยอดคร่อมโหลด (Vp,load) ตามสมการข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q1" value="A">
                 <span class="checkmark"></span>
-                ก) 1 เท่า (ความถี่ 50 Hz เท่าเดิม)
+                <span>A) Vdc = 2 × Vp,load / π ≈ 0.636 × Vp,load</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q1" value="B">
                 <span class="checkmark"></span>
-                ข) 2 เท่า (ความถี่เพิ่มขึ้นเป็น 100 Hz และคาบลดเหลือ 10 ms)
+                <span>B) Vdc = Vp,load / π ≈ 0.318 × Vp,load</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q1" value="C">
                 <span class="checkmark"></span>
-                ค) 4 เท่า (ความถี่เพิ่มขึ้นเป็น 200 Hz)
+                <span>C) Vdc = Vp,load / 2</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) Vdc = Vp,load / √2</span>
               </label>
             </div>
           </div>
-          
-          <div class="question-group">
-            <label>2. เหตุใดตัวเรียงกระแสแบบบริดจ์จึงสูญเสียแรงดันยอดเอาต์พุตสูงสุด V<sub>p,load</sub> ลดลงประมาณ 1.4V จากอินพุตยอดสูงสุด V<sub>peak</sub>?</label>
-            <div class="option-list">
-              <label class="radio-container">
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. ในแต่ละครึ่งคาบเวลา (Half-Cycle) ของสัญญาณไฟฟ้ากระแสสลับ ไดโอดในวงจรบริดจ์จะนำกระแสครั้งละกี่ตัว และทำให้เกิดแรงดันตกคร่อมรวมเท่าใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q2" value="A">
                 <span class="checkmark"></span>
-                ก) มีไดโอดนำกระแสพร้อมกันในแต่ละช่วงเวลา 2 ตัว ทำให้เกิดแรงดันตกคร่อมรวม 2 &times; V<sub>D</sub> &approx; 1.4 V
+                <span>A) นำกระแสพร้อมกัน 2 ตัว ส่งผลให้มีแรงดันตกคร่อมรวมประมาณ 2 × 0.7V = 1.4V</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q2" value="B">
                 <span class="checkmark"></span>
-                ข) ตัวต้านทานโหลด 1k ดูดกลืนแรงดันไปบางส่วนในช่วงไฟสลับ
+                <span>B) นำกระแสพร้อมกัน 4 ตัว แรงดันตกคร่อม 2.8V</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q2" value="C">
                 <span class="checkmark"></span>
-                ค) แรงดันสะท้อนกลับจากขั้วกราวด์ลัดวงจร
+                <span>C) นำกระแสเพียง 1 ตัว แรงดันตกคร่อม 0.7V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) นำกระแสสลับกันครั้งละ 3 ตัว</span>
               </label>
             </div>
           </div>
-          
-          <div class="question-group">
-            <label>3. ค่าแรงดันเฉลี่ยกระแสตรงเอาต์พุต (V<sub>dc</sub>) ของวงจรเรียงกระแสแบบเต็มคลื่น สัมพันธ์กับค่าแรงดันเอาต์พุตสูงสุดคร่อมโหลด (V<sub>p,load</sub>) ตามสูตรคำนวณข้อใด?</label>
-            <div class="option-list">
-              <label class="radio-container">
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. ความถี่ริปเปิลเอาต์พุต (Ripple Frequency: fout) ของวงจรเรียงกระแสเต็มคลื่นแบบบริดจ์เมื่อต่อกับไฟบ้าน 50Hz (fin = 50Hz) มีค่าเท่าใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q3" value="A">
                 <span class="checkmark"></span>
-                ก) V<sub>dc</sub> = V<sub>p,load</sub> / &pi;
+                <span>A) fout = 2 × fin = 100 Hz (เนื่องจากกลับเฟสซีกคลื่นลบขึ้นมาเป็นบวกทุกครึ่งคาบ)</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q3" value="B">
                 <span class="checkmark"></span>
-                ข) V<sub>dc</sub> = 2 &times; V<sub>p,load</sub> / &pi;
+                <span>B) fout = fin = 50 Hz</span>
               </label>
-              <label class="radio-container">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
                 <input type="radio" name="q3" value="C">
                 <span class="checkmark"></span>
-                ค) V<sub>dc</sub> = V<sub>p,load</sub> / &radic;2
+                <span>C) fout = 4 × fin = 200 Hz</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) fout = 25 Hz</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. ค่าแรงดันไบแอสกลับสูงสุด (Peak Inverse Voltage: PIV) ที่ไดโอดแต่ละตัวในวงจรบริดจ์ต้องทนได้มีค่าเท่าใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) PIV = Vpeak(in) - 0.7V ≈ Vpeak(in)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) PIV = 2 × Vpeak(in)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) PIV = 4 × Vpeak(in)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) PIV = Vrms</span>
               </label>
             </div>
           </div>
         </div>
-        
-        <!-- Lab Conclusion -->
+
         <div class="card">
           <h2 class="card-title">ตอนที่ 4: สรุปและวิจารณ์ผลการทดลอง</h2>
           <div class="input-field">

@@ -1095,32 +1095,118 @@
           <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: การอ่าน Data Sheet อุปกรณ์อิเล็กทรอนิกส์ (Datasheet Parameter Extraction)</p>
         </header>
 
-        <!-- POST-LAB QUESTIONS -->
-        <div class="card">
-          <h2 class="card-title"><span class="number">4.</span> <span>คำถามท้ายการทดลองเชิงวิเคราะห์ (Post-Lab Questions)</span></h2>
-          
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">1. เพราะเหตุใดในการออกแบบวงจรจริงทางวิศวกรรม จึงห้ามใช้งานอุปกรณ์ที่ระดับ Absolute Maximum Ratings และควรมีหลักการเผื่อค่าความปลอดภัย (Safety Derating) อย่างไร?</label>
-            <textarea id="q1-answer" rows="3" placeholder="พิมพ์คำตอบอธิบายความเสี่ยงเมื่อเกิด Voltage Spike หรือความร้อนสะสม และการเผื่อค่าความปลอดภัย..."></textarea>
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. หมวดหมู่ Absolute Maximum Ratings ใน Data Sheet ของอุปกรณ์สารกึ่งตัวนำมีความหมายและข้อควรระวังอย่างไรในทางวิศวกรรม?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) เป็นค่าที่แนะนำให้ใช้งานเป็นประจำเพื่อให้วงจรทำงานได้ประสิทธิภาพสูงสุด</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) เป็นขีดจำกัดสูงสุดเด็ดขาด ห้ามใช้งานเกินกว่าค่านี้แม้แต่ชั่วขณะ เพราะอุปกรณ์อาจเสียหายถาวรทันที</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) เป็นค่าเฉลี่ยที่วัดได้ในห้องปฏิบัติการ</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) เป็นพารามิเตอร์ที่เปลี่ยนตามความถี่ของสัญญาณเท่านั้น</span>
+              </label>
+            </div>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">2. ค่า h<sub>FE</sub> (β) ใน Data Sheet ของทรานซิสเตอร์ BJT ทำไมจึงระบุเป็นช่วงค่า (Min - Max) และค่านี้จะเปลี่ยนแปลงไปตามกระแสคอลเล็กเตอร์ (I<sub>C</sub>) และอุณหภูมิอย่างไร?</label>
-            <textarea id="q2-answer" rows="3" placeholder="พิมพ์คำตอบอธิบายความแปรปรวนในกระบวนการผลิตเซมิคอนดักเตอร์ และผลของอุณหภูมิต่ออัตราขยาย..."></textarea>
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. พารามิเตอร์ VRRM (Peak Repetitive Reverse Voltage) ของไดโอดเรียงกระแส (เช่น 1N4007 VRRM = 1000V) หมายถึงอะไร?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) แรงดันตกคร่อมขณะนำกระแสไปข้างหน้า</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) แรงดันไบแอสกลับสูงสุดซ้ำคาบที่ไดโอดสามารถทนได้โดยไม่เกิดการพังทลาย</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) แรงดันกระเพื่อมที่กรองด้วยตัวเก็บประจุ</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) ระดับแรงดันที่ทำให้ไดโอดเริ่มนำกระแส</span>
+              </label>
+            </div>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">3. ในการเลือกใช้งาน MOSFET เป็นสวิตช์กำลัง (Power Switch) ค่า R<sub>DS(on)</sub> ส่งผลต่อการสูญเสียกำลังงาน (Conduction Loss) และความร้อนอย่างไรตามสูตร P = I<sub>D</sub><sup>2</sup>·R<sub>DS(on)</sub>?</label>
-            <textarea id="q3-answer" rows="3" placeholder="พิมพ์คำตอบวิเคราะห์บทบาทของ RDS(on) ต่ำใน Power MOSFET เทียบกับ VCE(sat) ของ BJT..."></textarea>
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. ค่าความต้านทาน RDS(on) (Static Drain-Source On-Resistance) ใน Data Sheet ของ Power MOSFET มีความสำคัญอย่างไรในการออกแบบวงจรสวิตชิ่ง?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) ใช้คำนวณกำลังงานสูญเสียจากการนำกระแส (Pcond = ID² × RDS(on)) และกำหนดขนาดแผ่นระบายความร้อน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) กำหนดระดับแรงดันขับที่ขาเกต</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) ใช้คำนวณอัตราขยายแรงดัน Av</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) ป้องกันการเกิดความเพี้ยนฮาร์มอนิก</span>
+              </label>
+            </div>
           </div>
 
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);">4. หากต้องการนำไดโอดไปใช้งานในวงจรเรียงกระแสบริดจ์ (Bridge Rectifier) ที่รับไฟกระแสสลับ 220V<sub>RMS</sub> ควรเลือกไดโอดที่มีพิกัด V<sub>RRM</sub> อย่างน้อยเท่าใดจึงจะปลอดภัย?</label>
-            <textarea id="q4-answer" rows="3" placeholder="พิมพ์คำตอบคำนวณหาค่า Vpeak = 220 * sqrt(2) ≈ 311V และการเลือกพิกัดไดโอดที่เหมาะสม เช่น 1N4007 (1000V)..."></textarea>
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. พารามิเตอร์ hFE หรือ β ใน Data Sheet ของทรานซิสเตอร์ BJT ทำไมจึงระบุเป็นช่วงค่า (Min - Typ - Max)?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) เพราะทรานซิสเตอร์แต่ละตัวในสายการผลิตมีความแปรปรวนของระดับการโดปสารและจุดทำงานเปลี่ยนตามอุณหภูมิ/กระแส IC</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) เพราะขึ้นอยู่กับแรงดันไฟเลี้ยง VCC เพียงอย่างเดียว</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) เป็นการระบุอัตราขยายของวงจรเมื่อต่อตัวต้านทานภายนอก</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) เพื่อระบุความถี่สูงสุดที่ทรานซิสเตอร์ขยายได้</span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <!-- CONCLUSION -->
         <div class="card">
           <h2 class="card-title"><span class="number">5.</span> <span>สรุปผลการทดลอง (Conclusion)</span></h2>
           <textarea id="lab-conclusion" rows="5" placeholder="เขียนสรุปประโยชน์ของการอ่าน Data Sheet, ข้อควรระวังในการเลือกใช้อุปกรณ์เซมิคอนดักเตอร์ให้ตรงกับพิกัดแรงดัน-กระแส, และทักษะการตรวจสอบตำแหน่งขาจากเอกสารข้อมูล..."></textarea>
