@@ -878,6 +878,17 @@
 
             <!-- VIEW 2: OSCILLOSCOPE CANVAS -->
             <div id="view-scope" style="display:none;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                <div style="display:flex;gap:6px;">
+                  <button id="btn-scope-split" class="btn btn-secondary active" onclick="setScopeDisplayMode('split')" style="font-size:11px;padding:4px 10px;border-color:var(--accent-cyan);color:#fff;background:rgba(56,189,248,0.2);">📺 แยก 2 ช่อง (Dual Split: บน Vi / ล่าง Vo)</button>
+                  <button id="btn-scope-overlay" class="btn btn-secondary" onclick="setScopeDisplayMode('overlay')" style="font-size:11px;padding:4px 10px;">🔀 ซ้อนทับ (Overlay)</button>
+                  <button id="btn-scope-ch1" class="btn btn-secondary" onclick="setScopeDisplayMode('ch1')" style="font-size:11px;padding:4px 10px;color:#fbbf24;">🟡 CH1 (Vi)</button>
+                  <button id="btn-scope-ch2" class="btn btn-secondary" onclick="setScopeDisplayMode('ch2')" style="font-size:11px;padding:4px 10px;color:#38bdf8;">🔵 CH2 (Vo)</button>
+                </div>
+                <div style="font-size:11px;font-family:'Fira Code',monospace;color:var(--text-muted);">
+                  <span style="color:#fbbf24;">CH1: Vi (เหลือง)</span> | <span style="color:#38bdf8;">CH2: Vo (ฟ้า)</span>
+                </div>
+              </div>
               <canvas id="canvas-scope" width="700" height="270" style="width:100%;height:auto;background:var(--scope-bg);border-radius:8px;border:1px solid var(--border-color);display:block;"></canvas>
             </div>
 
@@ -1150,6 +1161,28 @@ const PAIRS = {
   '2N3055/MJ2955': { npn: '2N3055', pnp: 'MJ2955', vce_sat: 1.0, r_theta_jc: 1.52, r_theta_ja: 35.0, max_pd: 115 }
 };
 
+let scopeDisplayMode = 'split'; // 'split', 'overlay', 'ch1', 'ch2'
+
+function setScopeDisplayMode(mode) {
+  scopeDisplayMode = mode;
+  ['split', 'overlay', 'ch1', 'ch2'].forEach(m => {
+    const btn = document.getElementById(`btn-scope-${m}`);
+    if (btn) {
+      btn.classList.toggle('active', m === mode);
+      if (m === mode) {
+        btn.style.borderColor = 'var(--accent-cyan)';
+        btn.style.background = 'rgba(56,189,248,0.2)';
+        btn.style.color = '#fff';
+      } else {
+        btn.style.borderColor = '';
+        btn.style.background = '';
+        btn.style.color = (m === 'ch1') ? '#fbbf24' : (m === 'ch2' ? '#38bdf8' : 'var(--text-muted)');
+      }
+    }
+  });
+  renderScope();
+}
+
 let currentPair = 'TIP31C/TIP32C';
 let currentSpeaker = 4; // 4, 8, 16, or 999 (open)
 let currentBias = 'AB'; // 'AB' or 'B'
@@ -1345,6 +1378,11 @@ function updateSim() {
       tbox.style.background = 'rgba(56,189,248,0.08)';
     }
   }
+
+  const viewScope = document.getElementById('view-scope');
+  if (viewScope && viewScope.style.display !== 'none') {
+    renderScope();
+  }
 }
 
 function renderScope() {
@@ -1360,83 +1398,197 @@ function renderScope() {
     ctx.fillStyle = '#050b14';
     ctx.fillRect(0, 0, W, H);
 
-    // Oscilloscope Grid
+    // Grid Lines
     ctx.strokeStyle = '#132338';
     ctx.lineWidth = 0.5;
     for (let gx = 0; gx <= W; gx += W / 10) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
     for (let gy = 0; gy <= H; gy += H / 8) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
-    
-    // Center baseline
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
-    
+
     const vin = gv('sl-vin') || 10;
     const vcc = gv('sl-vcc') || 15;
     const isClip = simData.isClip || false;
     const bias = simData.bias || 'AB';
-    
-    const centerY = H / 2;
-    const scale = (H * 0.42) / (vcc + 2);
-    
-    // Draw Input (CH1: Yellow dashed line)
-    ctx.strokeStyle = '#fbbf24';
-    ctx.lineWidth = 1.8;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
     const vin_p = vin / 2;
-    for (let x = 0; x < W; x++) {
-      const ph = (x / W) * 4 * Math.PI + t;
-      const y = centerY - Math.sin(ph) * vin_p * scale;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-    
-    // Draw Output (CH2: Cyan / Orange / Red with Crossover or Clip)
-    ctx.strokeStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
-    ctx.lineWidth = 2.4;
-    ctx.beginPath();
-    
-    for (let x = 0; x < W; x++) {
-      const ph = (x / W) * 4 * Math.PI + t;
-      let sineVal = Math.sin(ph) * vin_p;
-      
-      // Simulate Crossover Distortion in Class B (0.65V deadband notch around zero)
-      if (bias === 'B') {
-        if (Math.abs(sineVal) < 0.65) {
-          sineVal = 0;
-        } else {
-          sineVal = sineVal > 0 ? (sineVal - 0.65) : (sineVal + 0.65);
-        }
-      }
-      
-      // Simulate Rail Clipping
-      const maxClip = vcc - 1.2;
-      sineVal = Math.max(-maxClip, Math.min(maxClip, sineVal));
-      
-      const y = centerY - sineVal * scale;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    
-    // Legends
-    ctx.font = '11px Fira Code';
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillText(`CH1 (In): ${vin.toFixed(1)}V(p-p)`, 14, 20);
-    
-    ctx.fillStyle = isClip ? '#f87171' : '#38bdf8';
     const vout_p_txt = ((simData.vout_peak || 0) * 2).toFixed(1);
-    ctx.fillText(`CH2 (Out): ${vout_p_txt}V(p-p) · Mode: Class ${bias}`, 14, 38);
-    
+    const spkTxt = currentSpeaker === 999 ? 'No-Load' : `${currentSpeaker}Ω`;
+
+    if (scopeDisplayMode === 'split') {
+      // DUAL-TRACE SPLIT MODE: Upper CH1 (Vi) & Lower CH2 (Vo)
+      const ch1_baseY = H * 0.28;
+      const dividerY = H * 0.52;
+      const ch2_baseY = H * 0.76;
+      const scale_split = (H * 0.18) / (vcc + 1);
+
+      // Center Divider Line
+      ctx.strokeStyle = 'rgba(71, 85, 105, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(0, dividerY); ctx.lineTo(W, dividerY); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Baseline CH1 & CH2
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.25)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(0, ch1_baseY); ctx.lineTo(W, ch1_baseY); ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+      ctx.beginPath(); ctx.moveTo(0, ch2_baseY); ctx.lineTo(W, ch2_baseY); ctx.stroke();
+
+      // DRAW CH1: Vi (Yellow Solid)
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const ph = (x / W) * 4 * Math.PI + t;
+        const y = ch1_baseY - Math.sin(ph) * vin_p * scale_split;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // DRAW CH2: Vo (Cyan / Orange / Red)
+      ctx.strokeStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const ph = (x / W) * 4 * Math.PI + t;
+        let sineVal = Math.sin(ph) * vin_p;
+        if (bias === 'B') {
+          if (Math.abs(sineVal) < 0.65) {
+            sineVal = 0;
+          } else {
+            sineVal = sineVal > 0 ? (sineVal - 0.65) : (sineVal + 0.65);
+          }
+        }
+        const maxClip = vcc - 1.2;
+        sineVal = Math.max(-maxClip, Math.min(maxClip, sineVal));
+        const y = ch2_baseY - sineVal * scale_split;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Legends & Channel Info
+      ctx.font = 'bold 11px Fira Code';
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText(`CH1 (บน): สัญญาณเสียงอินพุต Vi = ${vin.toFixed(1)} V(p-p)  [Reference Sine 0°]`, 14, 18);
+
+      ctx.fillStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+      ctx.fillText(`CH2 (ล่าง): สัญญาณเอาต์พุตขับลำโพง Vo = ${vout_p_txt} V(p-p)  [Class ${bias}, RL=${spkTxt}]`, 14, dividerY + 18);
+
+    } else if (scopeDisplayMode === 'overlay') {
+      // OVERLAY MODE: Both on center axis with CH1 dashed
+      const centerY = H / 2;
+      const scale = (H * 0.42) / (vcc + 2);
+
+      // Center baseline
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(W, centerY); ctx.stroke();
+
+      // Draw CH1: Vi (Yellow Dashed)
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 2.0;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const ph = (x / W) * 4 * Math.PI + t;
+        const y = centerY - Math.sin(ph) * vin_p * scale;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw CH2: Vo (Cyan / Orange / Red Solid)
+      ctx.strokeStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const ph = (x / W) * 4 * Math.PI + t;
+        let sineVal = Math.sin(ph) * vin_p;
+        if (bias === 'B') {
+          if (Math.abs(sineVal) < 0.65) {
+            sineVal = 0;
+          } else {
+            sineVal = sineVal > 0 ? (sineVal - 0.65) : (sineVal + 0.65);
+          }
+        }
+        const maxClip = vcc - 1.2;
+        sineVal = Math.max(-maxClip, Math.min(maxClip, sineVal));
+        const y = centerY - sineVal * scale;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.font = '11px Fira Code';
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText(`CH1 (In): ${vin.toFixed(1)}V(p-p) [เส้นประ]`, 14, 20);
+
+      ctx.fillStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+      ctx.fillText(`CH2 (Out): ${vout_p_txt}V(p-p) [เส้นทึบ] · Mode: Class ${bias} (RL=${spkTxt})`, 14, 38);
+
+    } else if (scopeDisplayMode === 'ch1') {
+      // CH1 ONLY
+      const centerY = H / 2;
+      const scale = (H * 0.42) / (vcc + 2);
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(W, centerY); ctx.stroke();
+
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const ph = (x / W) * 4 * Math.PI + t;
+        const y = centerY - Math.sin(ph) * vin_p * scale;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.font = 'bold 12px Fira Code';
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText(`CH1 ONLY: สัญญาณอินพุต Vi = ${vin.toFixed(1)} V(p-p) (Sinusoidal Input)`, 14, 22);
+
+    } else if (scopeDisplayMode === 'ch2') {
+      // CH2 ONLY
+      const centerY = H / 2;
+      const scale = (H * 0.42) / (vcc + 2);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(W, centerY); ctx.stroke();
+
+      ctx.strokeStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const ph = (x / W) * 4 * Math.PI + t;
+        let sineVal = Math.sin(ph) * vin_p;
+        if (bias === 'B') {
+          if (Math.abs(sineVal) < 0.65) {
+            sineVal = 0;
+          } else {
+            sineVal = sineVal > 0 ? (sineVal - 0.65) : (sineVal + 0.65);
+          }
+        }
+        const maxClip = vcc - 1.2;
+        sineVal = Math.max(-maxClip, Math.min(maxClip, sineVal));
+        const y = centerY - sineVal * scale;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.font = 'bold 12px Fira Code';
+      ctx.fillStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+      ctx.fillText(`CH2 ONLY: สัญญาณเอาต์พุตขับลำโพง Vo = ${vout_p_txt} V(p-p) (Class ${bias}, RL=${spkTxt})`, 14, 22);
+    }
+
+    // Status / Warning Banner
     if (bias === 'B') {
       ctx.fillStyle = '#fb923c';
       ctx.font = 'bold 11px Chakra Petch';
-      ctx.fillText('⚠️ CROSSOVER NOTCH DISTORTION', W - 240, 22);
+      ctx.fillText('⚠️ CROSSOVER NOTCH DISTORTION', W - 240, 20);
     } else if (isClip) {
       ctx.fillStyle = '#f87171';
       ctx.font = 'bold 11px Chakra Petch';
-      ctx.fillText('⚠ SATURATION CLIPPING', W - 200, 22);
+      ctx.fillText('⚠ SATURATION CLIPPING', W - 200, 20);
     }
 
     t += 0.05;
