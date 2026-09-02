@@ -501,7 +501,7 @@
               V<sub>th2</sub> = V<sub>CC</sub>·R<sub>6</sub> / (R<sub>5</sub>+R<sub>6</sub>)<br>
               I<sub>E2</sub> = (V<sub>th2</sub> − V<sub>BE</sub>) / (R<sub>th2</sub>/(β+1) + R<sub>E2</sub>)<br>
               r<sub>e2</sub> = 26mV / I<sub>E2</sub>(mA)<br>
-              R'<sub>C2</sub> = R<sub>C2</sub> ‖ R<sub>L</sub><br>
+              R'<sub>C2</sub> = R<sub>C2</sub> ‖ R<sub>L</sub> <small style="color:var(--text-muted);">(เมื่อต่อโหลด)</small> หรือ R'<sub>C2</sub> = R<sub>C2</sub> <small style="color:#34d399;">(เมื่อปลดโหลดออก / No-Load)</small><br>
               A<sub>v2</sub> = −R'<sub>C2</sub> / r<sub>e2</sub>
             </div>
           </div>
@@ -543,6 +543,17 @@
             <div class="control-group"><div class="control-label"><span>R<sub>C2</sub></span><span class="val" id="val-rc2">2.2 kΩ</span></div><input type="range" id="sl-rc2" min="0.5" max="8" step="0.1" value="2.2" oninput="updateSim()"></div>
             <div class="control-group"><div class="control-label"><span>R<sub>E2</sub></span><span class="val" id="val-re2">560 Ω</span></div><input type="range" id="sl-re2" min="100" max="2000" step="20" value="560" oninput="updateSim()"></div>
             <div class="control-group"><div class="control-label"><span>R<sub>L</sub> (Load)</span><span class="val" id="val-rl">10.0 kΩ</span></div><input type="range" id="sl-rl" min="1" max="47" step="0.5" value="10" oninput="updateSim()"></div>
+            <div style="background:rgba(15,23,42,.6);padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);margin-top:6px;margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:12px;font-weight:600;">🔌 โหลดเอาต์พุต R<sub>L</sub>:</span>
+                <span id="badge-rl" class="badge" style="background:rgba(16,185,129,.2);border-color:var(--accent-green);color:var(--accent-green);font-size:11px;padding:2px 8px;">🟢 ต่อโหลด (Loaded)</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button id="btn-rl-on" type="button" class="btn btn-secondary active" style="font-size:11px;padding:6px;border-color:var(--accent-green);background:rgba(16,185,129,.15);color:#34d399;" onclick="setRlConnected(true)">⚡ ต่อโหลด R<sub>L</sub></button>
+                <button id="btn-rl-off" type="button" class="btn btn-secondary" style="font-size:11px;padding:6px;" onclick="setRlConnected(false)">❌ ปลดโหลดออก (No-Load)</button>
+              </div>
+              <p id="txt-rl-hint" style="font-size:10px;color:var(--text-muted);margin:6px 0 0 0;line-height:1.4;">💡 ต่อโหลด: R'<sub>C2</sub> = R<sub>C2</sub> ‖ R<sub>L</sub> | ปลดโหลด: R'<sub>C2</sub> = R<sub>C2</sub> (อัตราขยาย A<sub>v2</sub> สูงขึ้น)</p>
+            </div>
             
             <hr style="border:0;border-top:1px solid var(--border-color);margin:14px 0;">
             <div style="background:rgba(15,23,42,.5);padding:10px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:12px;">
@@ -709,11 +720,13 @@
                 <line x1="596" y1="80" x2="650" y2="80" stroke="#38bdf8" stroke-width="2"/>
 
                 <!-- Load Resistor RL (connected to GND, NOT to +Vcc) -->
-                <circle cx="650" cy="80" r="3.5" fill="#38bdf8"/>
-                <line x1="650" y1="80" x2="650" y2="115" stroke="#94a3b8" stroke-width="2"/>
-                <rect x="640" y="115" width="20" height="38" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
-                <text id="svg-txt-rl-phys" x="668" y="138" fill="#34d399" font-size="9.5" font-family="Fira Code">RL 10k</text>
-                <line x1="650" y1="153" x2="650" y2="245" stroke="#94a3b8" stroke-width="2"/>
+                <circle id="svg-dot-rl-node" cx="650" cy="80" r="3.5" fill="#38bdf8"/>
+                <g id="svg-grp-rl-phys">
+                  <line id="svg-wire-rl-top" x1="650" y1="80" x2="650" y2="115" stroke="#94a3b8" stroke-width="2"/>
+                  <rect id="svg-rect-rl-phys" x="640" y="115" width="20" height="38" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+                  <text id="svg-txt-rl-phys" x="668" y="138" fill="#34d399" font-size="9.5" font-family="Fira Code">RL 10k</text>
+                  <line id="svg-wire-rl-bot" x1="650" y1="153" x2="650" y2="245" stroke="#94a3b8" stroke-width="2"/>
+                </g>
 
                 <!-- Output Terminal Vo -->
                 <line x1="650" y1="80" x2="710" y2="80" stroke="#34d399" stroke-width="2"/>
@@ -836,11 +849,13 @@
                 <line x1="615" y1="133" x2="615" y2="215" stroke="#94a3b8" stroke-width="1.5"/>
 
                 <!-- RL Load Branch -->
-                <line x1="615" y1="68" x2="665" y2="68" stroke="#94a3b8" stroke-width="1.5"/>
-                <line x1="665" y1="68" x2="665" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
-                <rect x="655" y="95" width="20" height="38" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
-                <text id="svg-ac-rl" x="665" y="148" fill="#34d399" font-size="8.5" font-family="Fira Code" text-anchor="middle">RL</text>
-                <line x1="665" y1="133" x2="665" y2="215" stroke="#94a3b8" stroke-width="1.5"/>
+                <g id="svg-grp-rl-ac">
+                  <line x1="615" y1="68" x2="665" y2="68" stroke="#94a3b8" stroke-width="1.5"/>
+                  <line x1="665" y1="68" x2="665" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+                  <rect id="svg-ac-rect-rl" x="655" y="95" width="20" height="38" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+                  <text id="svg-ac-rl" x="665" y="148" fill="#34d399" font-size="8.5" font-family="Fira Code" text-anchor="middle">RL</text>
+                  <line x1="665" y1="133" x2="665" y2="215" stroke="#94a3b8" stroke-width="1.5"/>
+                </g>
 
                 <!-- Output Terminal Vo -->
                 <line x1="665" y1="68" x2="695" y2="68" stroke="#38bdf8" stroke-width="2"/>
@@ -876,7 +891,7 @@
               </div>
               <div class="grid-3">
                 <div class="probe-card" style="border-color:var(--accent-yellow);"><span class="readout-label">r<sub>e2</sub></span><span class="readout-val yellow" id="rd-re2">---</span></div>
-                <div class="probe-card" style="border-color:var(--accent-purple);"><span class="readout-label">A<sub>v2</sub></span><span class="readout-val purple" id="rd-av2">---</span></div>
+                <div class="probe-card" style="border-color:var(--accent-purple);"><span class="readout-label">A<sub>v2</sub></span><span class="readout-val purple" id="rd-av2">---</span><span id="rd-rl-load-hint" style="display:block;font-size:10px;color:var(--text-muted);margin-top:2px;">(Loaded)</span></div>
                 <div class="probe-card" style="border-color:var(--accent-green);"><span class="readout-label">A<sub>v(total)</sub></span><span class="readout-val green" id="rd-avtotal">---</span></div>
               </div>
               <div id="scope-readout" style="display:none;background:rgba(15,23,42,.9);border:1px solid var(--border-color);border-radius:8px;padding:10px 14px;margin-top:12px;">
@@ -1071,7 +1086,7 @@ const MODELS = {
   'BD137':  { beta: 100, vbe: 0.72, desc: '💡 BD137: NPN Medium Power (β=100)' },
   'BC547':  { beta: 300, vbe: 0.70, desc: '💡 BC547: NPN Low Noise (β=300)' }
 };
-let currentModel = '2N2222', ceBypass = true, wsMode = 'fixed', scopeAnimId = null, simData = {};
+let currentModel = '2N2222', ceBypass = true, rlConnected = true, wsMode = 'fixed', scopeAnimId = null, simData = {};
 
 function switchTab(t) {
   const tabs = ['theory', 'simulator', 'worksheet', 'assessment'];
@@ -1142,6 +1157,69 @@ function setBypass(state) {
   updateSim();
 }
 
+function setRlConnected(state) {
+  rlConnected = state;
+  const badge = document.getElementById('badge-rl');
+  const on = document.getElementById('btn-rl-on'), off = document.getElementById('btn-rl-off');
+  const slRl = document.getElementById('sl-rl');
+  const txtHint = document.getElementById('txt-rl-hint');
+  
+  if (state) {
+    if (badge) {
+      badge.textContent = '🟢 ต่อโหลด (Loaded)';
+      badge.style.background = 'rgba(16,185,129,.2)';
+      badge.style.borderColor = 'var(--accent-green)';
+      badge.style.color = 'var(--accent-green)';
+    }
+    if (on) {
+      on.classList.add('active');
+      on.style.borderColor = 'var(--accent-green)';
+      on.style.background = 'rgba(16,185,129,.15)';
+      on.style.color = '#34d399';
+    }
+    if (off) {
+      off.classList.remove('active');
+      off.style.borderColor = '';
+      off.style.background = 'rgba(30,41,59,.7)';
+      off.style.color = '';
+    }
+    if (slRl) {
+      slRl.disabled = false;
+      slRl.style.opacity = '1';
+    }
+    if (txtHint) {
+      txtHint.innerHTML = '💡 <strong>ต่อโหลด RL:</strong> R\'<sub>C2</sub> = R<sub>C2</sub> ‖ R<sub>L</sub> | สัญญาณมีภาระโหลดดึง อัตราขยาย A<sub>v2</sub> ลดลงตามทฤษฎี';
+    }
+  } else {
+    if (badge) {
+      badge.textContent = '❌ ปลดโหลดออก (No-Load)';
+      badge.style.background = 'rgba(239,68,68,.15)';
+      badge.style.borderColor = 'var(--accent-red)';
+      badge.style.color = 'var(--accent-red)';
+    }
+    if (off) {
+      off.classList.add('active');
+      off.style.borderColor = 'var(--accent-red)';
+      off.style.background = 'rgba(239,68,68,.15)';
+      off.style.color = '#f87171';
+    }
+    if (on) {
+      on.classList.remove('active');
+      on.style.borderColor = '';
+      on.style.background = 'rgba(30,41,59,.7)';
+      on.style.color = '';
+    }
+    if (slRl) {
+      slRl.disabled = true;
+      slRl.style.opacity = '0.35';
+    }
+    if (txtHint) {
+      txtHint.innerHTML = '💡 <strong>ปลดโหลด RL:</strong> R\'<sub>C2</sub> = R<sub>C2</sub> | ไม่มีโหลดดึงสัญญาณ อัตราขยาย A<sub>v2</sub> และ A<sub>v(total)</sub> เพิ่มขึ้นสูงสุด!';
+    }
+  }
+  updateSim();
+}
+
 function switchView(mode) {
   const views = ['phys', 'acmodel', 'scope'];
   views.forEach(v => {
@@ -1174,7 +1252,8 @@ function switchView(mode) {
 function gv(id) { return parseFloat(document.getElementById(id).value); }
 
 function calcCircuit(p) {
-  const { vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, ceBypass } = p;
+  const { vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, ceBypass, rlConnected: isRlConn } = p;
+  const isLoaded = (isRlConn !== undefined) ? isRlConn : rlConnected;
   const vbe = MODELS[currentModel]?.vbe || 0.70;
   
   // Stage 1 DC
@@ -1200,13 +1279,13 @@ function calcCircuit(p) {
   const zi2 = 1 / (1 / r5 + 1 / r6 + 1 / zb2);
   const rC1eff = (rc1 * zi2) / (rc1 + zi2);
   const av1 = -(rC1eff / (re1c + re1));
-  const rC2eff = (rc2 * rl) / (rc2 + rl);
+  const rC2eff = isLoaded ? ((rc2 * rl) / (rc2 + rl)) : rc2;
   const av2 = ceBypass ? -(rC2eff / re2c) : -(rC2eff / (re2c + re2));
   const av_total = av1 * av2;
   const zb1 = beta * (re1c + re1);
   const zi1 = 1 / (1 / r1 + 1 / r2 + 1 / zb1);
   
-  return { vb1, ve1, vc1, vce1, ie1mA, re1c, vb2, ve2, vc2, vce2, ie2mA, re2c, av1, av2, av_total, zi: zi1 / 1000, rC1eff, rC2eff, zb1, zb2, zi2 };
+  return { vb1, ve1, vc1, vce1, ie1mA, re1c, vb2, ve2, vc2, vce2, ie2mA, re2c, av1, av2, av_total, zi: zi1 / 1000, rC1eff, rC2eff, zb1, zb2, zi2, rlConnected: isLoaded };
 }
 
 function updateSim() {
@@ -1226,12 +1305,12 @@ function updateSim() {
   document.getElementById('val-r6').textContent = `${(r6 / 1000).toFixed(1)} kΩ`;
   document.getElementById('val-rc2').textContent = `${(rc2 / 1000).toFixed(1)} kΩ`;
   document.getElementById('val-re2').textContent = `${re2} Ω`;
-  document.getElementById('val-rl').textContent = `${(rl / 1000).toFixed(1)} kΩ`;
+  document.getElementById('val-rl').textContent = rlConnected ? `${(rl / 1000).toFixed(1)} kΩ` : 'ปลดออก (Open / ∞)';
   document.getElementById('val-beta').textContent = beta;
   document.getElementById('val-vi').textContent = `${vi} mV`;
   
-  const res = calcCircuit({ vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, ceBypass });
-  simData = { ...res, vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, vi };
+  const res = calcCircuit({ vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, ceBypass, rlConnected });
+  simData = { ...res, vcc, r1, r2, rc1, re1, r5, r6, rc2, re2, rl, beta, vi, rlConnected };
   
   const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '---';
   document.getElementById('rd-vb1').textContent = `${f(res.vb1)} V`;
@@ -1250,6 +1329,12 @@ function updateSim() {
   document.getElementById('rd-av2').textContent = f(res.av2, 1);
   document.getElementById('rd-avtotal').textContent = f(res.av_total, 0);
 
+  const el_hint = document.getElementById('rd-rl-load-hint');
+  if (el_hint) {
+    el_hint.textContent = rlConnected ? `(R'C2=${(res.rC2eff/1000).toFixed(2)}kΩ)` : `(R'C2=RC2=${(res.rC2eff/1000).toFixed(1)}kΩ No-Load)`;
+    el_hint.style.color = rlConnected ? 'var(--text-muted)' : '#34d399';
+  }
+
   // Update Physical Schematic SVG labels dynamically
   const el_vcc = document.getElementById('svg-txt-vcc'); if (el_vcc) el_vcc.textContent = `+${vcc.toFixed(1)}V`;
   const el_r1 = document.getElementById('svg-txt-r1'); if (el_r1) el_r1.textContent = `R1 ${(r1/1000).toFixed(0)}k`;
@@ -1263,7 +1348,22 @@ function updateSim() {
   const el_rc2_p = document.getElementById('svg-txt-rc2'); if (el_rc2_p) el_rc2_p.textContent = `RC2 ${(rc2/1000).toFixed(1)}k`;
   const el_re2_p = document.getElementById('svg-txt-re2'); if (el_re2_p) el_re2_p.textContent = `RE2 ${re2}`;
   const el_q2 = document.getElementById('svg-txt-q2-part'); if (el_q2) el_q2.textContent = `Q2: ${currentModel}`;
-  const el_rl_p = document.getElementById('svg-txt-rl-phys'); if (el_rl_p) el_rl_p.textContent = `RL ${(rl/1000).toFixed(1)}k`;
+  
+  const el_rl_p = document.getElementById('svg-txt-rl-phys');
+  const wire_rl_top = document.getElementById('svg-wire-rl-top');
+  const wire_rl_bot = document.getElementById('svg-wire-rl-bot');
+  const rect_rl_phys = document.getElementById('svg-rect-rl-phys');
+  if (rlConnected) {
+    if (el_rl_p) { el_rl_p.textContent = `RL ${(rl/1000).toFixed(1)}k`; el_rl_p.setAttribute('fill', '#34d399'); }
+    if (wire_rl_top) { wire_rl_top.setAttribute('stroke-dasharray', 'none'); wire_rl_top.setAttribute('opacity', '1'); }
+    if (wire_rl_bot) { wire_rl_bot.setAttribute('stroke-dasharray', 'none'); wire_rl_bot.setAttribute('opacity', '1'); }
+    if (rect_rl_phys) { rect_rl_phys.setAttribute('stroke', '#10b981'); rect_rl_phys.setAttribute('stroke-dasharray', 'none'); rect_rl_phys.setAttribute('opacity', '1'); }
+  } else {
+    if (el_rl_p) { el_rl_p.textContent = 'RL: ปลดออก (No-Load)'; el_rl_p.setAttribute('fill', '#f87171'); }
+    if (wire_rl_top) { wire_rl_top.setAttribute('stroke-dasharray', '4,3'); wire_rl_top.setAttribute('opacity', '0.35'); }
+    if (wire_rl_bot) { wire_rl_bot.setAttribute('stroke-dasharray', '4,3'); wire_rl_bot.setAttribute('opacity', '0.35'); }
+    if (rect_rl_phys) { rect_rl_phys.setAttribute('stroke', '#ef4444'); rect_rl_phys.setAttribute('stroke-dasharray', '3,3'); rect_rl_phys.setAttribute('opacity', '0.45'); }
+  }
   
   // Update AC Model SVG labels dynamically
   const rb1_k = ((r1 * r2) / (r1 + r2) / 1000).toFixed(1);
@@ -1280,12 +1380,23 @@ function updateSim() {
   const el_rb2 = document.getElementById('svg-ac-rb2'); if (el_rb2) el_rb2.textContent = `R5||R6 (${rb2_k}k)`;
   const el_bre2 = document.getElementById('svg-ac-bre2'); if (el_bre2) el_bre2.textContent = `β•re2 (${bre2_k}k)`;
   const el_rc2_ac = document.getElementById('svg-ac-rc2'); if (el_rc2_ac) el_rc2_ac.textContent = `RC2 (${(rc2/1000).toFixed(1)}k)`;
-  const el_rl = document.getElementById('svg-ac-rl'); if (el_rl) el_rl.textContent = `RL (${(rl/1000).toFixed(1)}k)`;
+  
+  const el_rl = document.getElementById('svg-ac-rl');
+  const grp_rl_ac = document.getElementById('svg-grp-rl-ac');
+  if (rlConnected) {
+    if (el_rl) { el_rl.textContent = `RL (${(rl/1000).toFixed(1)}k)`; el_rl.setAttribute('fill', '#34d399'); }
+    if (grp_rl_ac) grp_rl_ac.setAttribute('opacity', '1');
+  } else {
+    if (el_rl) { el_rl.textContent = 'RL: Open'; el_rl.setAttribute('fill', '#f87171'); }
+    if (grp_rl_ac) grp_rl_ac.setAttribute('opacity', '0.25');
+  }
+  
   const el_cs2 = document.getElementById('svg-ac-cs2'); if (el_cs2) el_cs2.textContent = `${beta}•ib2`;
   
   const el_bar = document.getElementById('svg-ac-formula-bar');
   if (el_bar) {
-    el_bar.textContent = `Av(total) = ${f(res.av_total, 0)} เท่า (Av1=${f(res.av1, 1)} × Av2=${f(res.av2, 1)}) | Zi = ${f(res.zi, 2)} kΩ | Phase = 0° (In-Phase)`;
+    const rlStatusTxt = rlConnected ? `RL=${(rl/1000).toFixed(1)}k` : `RL=ปลดออก (R'C2=RC2)`;
+    el_bar.textContent = `Av(total) = ${f(res.av_total, 0)} เท่า (Av1=${f(res.av1, 1)} × Av2=${f(res.av2, 1)}) | ${rlStatusTxt} | Zi = ${f(res.zi, 2)} kΩ | Phase = 0° (In-Phase)`;
   }
 
   // Scope values with physical dynamic range limit
@@ -1516,6 +1627,7 @@ function getPayload() {
     param_rc2: p.rc2 / 1000,
     param_re2: p.re2,
     param_rl: p.rl / 1000,
+    param_rl_connected: (wsMode === 'custom') ? rlConnected : true,
     param_beta: p.beta,
     dc1_vb: document.getElementById('ws-vb1').value,
     dc1_ve: document.getElementById('ws-ve1').value,
@@ -1959,6 +2071,10 @@ function resetWorksheetForNewUser() {
   if (idInput) {
     idInput.focus();
   }
+
+  // Reset simulator toggles to standard defaults
+  if (typeof setRlConnected === 'function') setRlConnected(true);
+  if (typeof setBypass === 'function') setBypass(true);
 
   // Close any modal dialog if open
   const overlay = document.getElementById('submission-overlay') || document.getElementById('grading-overlay');

@@ -98,7 +98,8 @@ function gradeWorksheet(data) {
   const Rc1_eff = (Rc1 * Zi2) / (Rc1 + Zi2);
   const Av1 = -(Rc1_eff / (re1_calc + Re1));
 
-  const Rc2_eff = (Rc2 * Rl) / (Rc2 + Rl);
+  const isRlConnected = (data.param_rl_connected !== false && data.param_rl_connected !== 'false');
+  const Rc2_eff = isRlConnected ? ((Rc2 * Rl) / (Rc2 + Rl)) : Rc2;
   const Av2 = -(Rc2_eff / re2_calc);
   const Av_total = Av1 * Av2;
 
@@ -241,7 +242,9 @@ function recordToSheet(data, grading) {
   }
   
   const studentEmail = Session.getActiveUser().getEmail() || 'Anonymous / Local User';
-  const paramSummary = `Vcc=${data.param_vcc || 12}V, R1=${data.param_r1 || 33}k, R2=${data.param_r2 || 6.8}k, RC1=${data.param_rc1 || 3.3}k, RE1=${data.param_re1 || 680}Ω, R5=${data.param_r5 || 33}k, R6=${data.param_r6 || 6.8}k, RC2=${data.param_rc2 || 2.2}k, RE2=${data.param_re2 || 560}Ω, RL=${data.param_rl || 10}k, β=${data.param_beta || 200}`;
+  const isRlConn = (data.param_rl_connected !== false && data.param_rl_connected !== 'false');
+  const rlSummaryText = isRlConn ? `${data.param_rl || 10}k` : 'ปลดออก (No-Load)';
+  const paramSummary = `Vcc=${data.param_vcc || 12}V, R1=${data.param_r1 || 33}k, R2=${data.param_r2 || 6.8}k, RC1=${data.param_rc1 || 3.3}k, RE1=${data.param_re1 || 680}Ω, R5=${data.param_r5 || 33}k, R6=${data.param_r6 || 6.8}k, RC2=${data.param_rc2 || 2.2}k, RE2=${data.param_re2 || 560}Ω, RL=${rlSummaryText}, β=${data.param_beta || 200}`;
   
   const rowData = [
     new Date(),
