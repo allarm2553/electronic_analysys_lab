@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 14: วงจรขยายกำลังและวงจรกันชน (Power Amplifier & Emitter Follower)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sarabun:wght@300;400;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.55);
+      --border-color: rgba(71, 85, 105, 0.35);
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.25);
+      --accent-purple: #c084fc;
+      --accent-green: #34d399;
+      --accent-yellow: #fbbf24;
+      --accent-red: #f87171;
+      --accent-orange: #fb923c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --scope-bg: #050b14;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(251, 146, 60, 0.06) 0, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 0 20px 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 0 8px var(--accent-orange));
+    }
+
+    .logo-text h2 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 11px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-btn:hover {
+      background: rgba(56, 189, 248, 0.08);
+      color: var(--text-main);
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(90deg, rgba(251, 146, 60, 0.18) 0%, rgba(56, 189, 248, 0.05) 100%);
+      color: #fff;
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 15px rgba(251, 146, 60, 0.15);
+    }
+
+    .sidebar-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 24px 30px;
+      overflow-y: auto;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-title h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-orange) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--accent-green);
+      font-size: 12px;
+      font-family: 'Chakra Petch', sans-serif;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* Tab Panes */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Card System */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+      padding-bottom: 8px;
+    }
+
+    /* Grids & Layouts */
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1050px) {
+      .sim-layout { grid-template-columns: 1fr; }
+      .app-container { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* Controls */
+    .control-group { margin-bottom: 14px; }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .control-label .val {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-orange);
+      border: 2px solid #fff;
+      box-shadow: 0 0 8px rgba(251, 146, 60, 0.6);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 18px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+      color: #fff;
+      border-color: #fb923c;
+      box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.7);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.8);
+      border-color: var(--accent-cyan);
+    }
+    .btn-secondary.active {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.18);
+      color: #fff;
+    }
+
+    /* Probe & Readout Cards */
+    .probe-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-align: center;
+    }
+    .probe-card .readout-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .probe-card .readout-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    .readout-val.green { color: var(--accent-green); }
+    .readout-val.yellow { color: var(--accent-yellow); }
+    .readout-val.red { color: var(--accent-red); }
+    .readout-val.orange { color: var(--accent-orange); }
+
+    /* Tables */
+    .lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-top: 10px;
+    }
+    .lab-table th, .lab-table td {
+      border: 1px solid var(--border-color);
+      padding: 9px 12px;
+      text-align: left;
+    }
+    .lab-table th {
+      background: rgba(15, 23, 42, 0.8);
+      font-family: 'Chakra Petch', sans-serif;
+      color: var(--accent-orange);
+      font-weight: 700;
+    }
+    .lab-table td { background: rgba(30, 41, 59, 0.35); }
+    .lab-table tr:hover td { background: rgba(51, 65, 85, 0.45); }
+
+    .form-control {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      width: 100%;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 8px rgba(251, 146, 60, 0.4);
+    }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    /* Highlight box & Formulas */
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid var(--accent-cyan);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .formula-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(251, 146, 60, 0.3);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: 'Fira Code', monospace;
+      color: #fed7aa;
+      margin: 10px 0;
+    }
+
+    /* Question Block */
+    .question-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .question-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .option-label:hover {
+      background: rgba(51, 65, 85, 0.7);
+      border-color: var(--accent-orange);
+    }
+    .option-label input[type="radio"] { accent-color: var(--accent-orange); }
+
+    /* Modal overlay */
+    #submission-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 11, 20, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    #modal-spinner {
+      width: 42px;
+      height: 42px;
+      border: 4px solid rgba(251, 146, 60, 0.2);
+      border-top-color: var(--accent-orange);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 10px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #anti-cheat-toast {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(15px);
+      background: rgba(239, 68, 68, 0.95);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 10000;
+      opacity: 0;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Print Styling */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 12mm 12mm 12mm;
+      }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+      .app-container, .main-content {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+      .sidebar, .nav-btn, .btn, .no-print, #submission-overlay, #anti-cheat-toast,
+      #tab-theory, #tab-simulator {
+        display: none !important;
+      }
+      * {
+        animation: none !important;
+        transition: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .tab-pane {
+        display: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      #tab-worksheet, #tab-assessment {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+      .card {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        box-shadow: none !important;
+        padding: 12px 16px !important;
+        margin-bottom: 12px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .card-title {
+        color: #0f172a !important;
+        border-bottom: 1.5px solid #94a3b8 !important;
+        font-size: 12pt !important;
+        padding-bottom: 5px !important;
+        margin-bottom: 8px !important;
+      }
+      .lab-table th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #64748b !important;
+        font-weight: bold;
+      }
+      .lab-table td {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      .form-control, input, select, textarea {
+        background: #f8fafc !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        font-weight: bold;
+      }
+      .question-card {
+        background: #ffffff !important;
+        border: 1px solid #94a3b8 !important;
+        color: #0f172a !important;
+        padding: 8px 12px !important;
+        margin-bottom: 8px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .option-label {
+        color: #0f172a !important;
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        font-size: 9pt !important;
+        padding: 4px 8px !important;
+      }
+      #submitted-viewonly-banner button,
+      #submitted-viewonly-banner-assessment button {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">🔊</div>
+      <div class="logo-text">
+        <h2>E-Lab Simulator</h2>
+        <span>Power Amplifier Lab</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" onclick="switchTab('theory')"><span>📖</span> ทฤษฎีและคู่มือแล็บ</button>
+      <button class="nav-btn" onclick="switchTab('simulator')"><span>🔬</span> ห้องทดลองจำลองเสมือน</button>
+      <button class="nav-btn" onclick="switchTab('worksheet')"><span>📝</span> ตารางบันทึกผลการทดลอง</button>
+      <button class="nav-btn" onclick="switchTab('assessment')"><span>❓</span> คำถามและสรุปผล</button>
+    </nav>
+    <div class="sidebar-footer">
+      <p>วิชา วิเคราะห์วงจรอิเล็กทรอนิกส์</p>
+      <p style="font-size:10px;margin-top:4px;color:var(--accent-orange);">Lab 14: Class AB Power Amp V1.0</p>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="header-bar">
+      <div class="header-title">
+        <h1>วงจรขยายกำลังและวงจรกันชน (Power Amplifier & Emitter Follower)</h1>
+        <p>Complementary Push-Pull Class AB · Speaker Load 4Ω/8Ω · Heatsink Thermal Simulation</p>
+      </div>
+      <div class="badge"><span>🟢 สถานะ:</span> ออนไลน์พร้อมจำลอง</div>
+    </div>
+
+    <!-- TAB 1: THEORY -->
+    <section id="tab-theory" class="tab-pane active">
+      <div class="card">
+        <h2 class="card-title">🎯 วัตถุประสงค์การทดลอง</h2>
+        <ul style="padding-left: 20px; line-height: 1.8; font-size: 14px;">
+          <li>ศึกษาคุณสมบัติของวงจรขยายกระแสแบบ <strong>Common-Collector (Emitter Follower Buffer)</strong></li>
+          <li>ศึกษาการทำงานของวงจรขยายกำลังคู่เสริมสมมาตร (Complementary Symmetry Class AB Push-Pull)</li>
+          <li>วิเคราะห์ผลกระทบของอิมพีแดนซ์โหลดลำโพง <strong>4 Ω และ 8 Ω</strong> ต่อกำลังขับ ($P_{out}$), กำลังสูญเสีย ($P_D$), และกระแสเอาต์พุต</li>
+          <li>ศึกษาและสังเกตความเพี้ยนรอยต่อ (<strong>Crossover Distortion</strong>) ใน Class B และการขจัดความเพี้ยนด้วย Class AB Diode Bias</li>
+          <li>ทำความเข้าใจความสำคัญของ <strong>แผ่นระบายความร้อน (Heatsink)</strong> และการป้องกันสภาวะ Thermal Runaway</li>
+        </ul>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-title">⚡ การคำนวณกำลังงานและประสิทธิภาพ</h2>
+          <div class="formula-box" style="font-size:12.5px;line-height:1.9;">
+            <strong>กำลังขับเอาต์พุตสูงสุด (Output Power):</strong><br>
+            $P_{out} = \frac{V_p^2}{2 R_L} = \frac{V_{rms}^2}{R_L}$ (เมื่อ $V_p \le V_{CC} - V_{sat}$)<br><br>
+            <strong>กำลังงานจากแหล่งจ่าย (DC Supply Power):</strong><br>
+            $P_{DC} = 2 V_{CC} \cdot I_{avg} = \frac{2 V_{CC} \cdot V_p}{\pi R_L}$<br><br>
+            <strong>ประสิทธิภาพของวงจร (Efficiency $\eta$):</strong><br>
+            $\eta = \frac{P_{out}}{P_{DC}} \times 100\% = \frac{\pi}{4} \left(\frac{V_p}{V_{CC}}\right) \approx 78.5\%\text{ (Max)}$
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">🌡️ ความร้อนและแผ่นระบายความร้อน (Heatsink)</h2>
+          <div class="formula-box" style="font-size:12.5px;line-height:1.9;color:#fecdd3;border-color:rgba(244,63,94,0.3);">
+            <strong>กำลังสูญเสียความร้อนรวม (Power Dissipation):</strong><br>
+            $P_D = P_{DC} - P_{out}$ (แบ่งกระจายใน Q1 และ Q2)<br><br>
+            <strong>อุณหภูมิรอยต่อทรานซิสเตอร์ ($T_j$ Junction Temp):</strong><br>
+            $T_j = T_A + P_{D(Q)} \times (\theta_{jc} + \theta_{cs} + \theta_{sa})$<br>
+            $\theta_{sa}$ = ความต้านทานความร้อนของ Heatsink ($^\circ\text{C/W}$)<br>
+            <span style="color:#fb7185;">⚠️ หากไม่มี Heatsink ($\theta_{sa}$ สูงมาก) $\to T_j > 150^\circ\text{C}$ พังทันที!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">📋 ตารางเปรียบเทียบ: ลำโพง 4Ω vs 8Ω และบทบาทของ Heatsink</h2>
+        <table class="lab-table">
+          <thead>
+            <tr>
+              <th>พารามิเตอร์</th>
+              <th>โหลดลำโพง 4 Ω</th>
+              <th>โหลดลำโพง 8 Ω</th>
+              <th>ผลของการมีแผ่นระบายความร้อน (Heatsink)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>กำลังขับ $P_{out}$</strong></td>
+              <td>สูงกว่า (~2 เท่า) ให้เสียงดังกว่า</td>
+              <td>ต่ำกว่า (~ครึ่งหนึ่ง)</td>
+              <td>รักษากำลังขับต่อเนื่องได้โดยไม่เกิด Thermal Limiting</td>
+            </tr>
+            <tr>
+              <td><strong>กระแสสูงสุด $I_{p}$</strong></td>
+              <td>$I_p = V_p / 4\Omega$ (ดึงกระแสสูง 2 เท่า)</td>
+              <td>$I_p = V_p / 8\Omega$ (ดึงกระแสน้อยกว่า)</td>
+              <td>ทรานซิสเตอร์ต้องรองรับพิกัด $I_{C(max)}$</td>
+            </tr>
+            <tr>
+              <td><strong>ความร้อนสะสม $P_D$</strong></td>
+              <td>สูงมาก ทรานซิสเตอร์ร้อนเร็ว</td>
+              <td>ปานกลาง ทรานซิสเตอร์ทำงานเบาแรง</td>
+              <td>ถ่ายเทความร้อนสู่อากาศ ป้องกัน Thermal Runaway</td>
+            </tr>
+            <tr>
+              <td><strong>Damping Factor</strong></td>
+              <td>ต่ำกว่า การควบคุมกรวยลำโพงปานกลาง</td>
+              <td>สูงกว่า เบสกระชับ คมชัด ความเพี้ยนต่ำ</td>
+              <td>ช่วยรักษาเสถียรภาพจุดทำงาน Q-point</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: SIMULATOR -->
+    <section id="tab-simulator" class="tab-pane">
+      <div class="sim-layout">
+        <!-- Sidebar Controls -->
+        <div>
+          <div class="card" style="padding:18px;">
+            <h2 class="card-title" style="margin-bottom:14px;">⚙️ แผงควบคุมเพาเวอร์แอมป์</h2>
+            
+            <div style="font-size:11px;font-weight:700;color:var(--accent-orange);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">🔋 แหล่งจ่ายไฟคู่ (Dual Rail)</div>
+            <div class="control-group">
+              <div class="control-label"><span>$\pm V_{CC}$ (Supply Rails)</span><span class="val" id="val-vcc">±15.0 V</span></div>
+              <input type="range" id="sl-vcc" min="9" max="24" step="1" value="15" oninput="updateSim()">
+            </div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);letter-spacing:1px;margin-bottom:8px;margin-top:14px;text-transform:uppercase;">🔊 โหลดลำโพง (Speaker Load $R_L$)</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;">
+              <button id="btn-rl-4" class="btn btn-secondary active" onclick="setSpeaker(4)" style="font-size:11px;padding:6px 2px;">4 Ω</button>
+              <button id="btn-rl-8" class="btn btn-secondary" onclick="setSpeaker(8)" style="font-size:11px;padding:6px 2px;">8 Ω</button>
+              <button id="btn-rl-16" class="btn btn-secondary" onclick="setSpeaker(16)" style="font-size:11px;padding:6px 2px;">16 Ω</button>
+              <button id="btn-rl-open" class="btn btn-secondary" onclick="setSpeaker(999)" style="font-size:11px;padding:6px 2px;color:#f87171;">ปลดออก</button>
+            </div>
+            <div class="control-label"><span>สถานะโหลด:</span><span class="val" id="val-rl-status">ลำโพง 4 Ω (Heavy Load)</span></div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--accent-purple);letter-spacing:1px;margin-bottom:8px;margin-top:14px;text-transform:uppercase;">🎛️ การจัดไบแอสและลดความเพี้ยน</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <button id="btn-bias-ab" class="btn btn-secondary active" onclick="setBiasMode('AB')" style="font-size:11px;padding:7px;border-color:var(--accent-green);color:#34d399;background:rgba(16,185,129,0.15);">⚡ Class AB (ไร้รอยต่อ)</button>
+              <button id="btn-bias-b" class="btn btn-secondary" onclick="setBiasMode('B')" style="font-size:11px;padding:7px;color:#fbbf24;">⚠️ Class B (Crossover)</button>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.6);padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:12px;font-weight:600;">❄️ แผ่นระบายความร้อน (Heatsink):</span>
+                <span id="badge-heatsink" class="badge" style="background:rgba(56,189,248,0.15);border-color:var(--accent-cyan);color:var(--accent-cyan);font-size:11px;padding:2px 8px;">❄️ ติดตั้ง Heatsink</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button id="btn-hs-on" class="btn btn-secondary active" onclick="setHeatsink(true)" style="font-size:11px;padding:6px;border-color:var(--accent-cyan);background:rgba(56,189,248,0.15);color:#38bdf8;">❄️ มี Heatsink</button>
+                <button id="btn-hs-off" class="btn btn-secondary" onclick="setHeatsink(false)" style="font-size:11px;padding:6px;">🔥 ไม่มี Heatsink</button>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label"><span>$V_{in(p-p)}$ (สัญญาณเสียงอินพุต)</span><span class="val" id="val-vin">10.0 V</span></div>
+              <input type="range" id="sl-vin" min="1" max="24" step="0.5" value="10" oninput="updateSim()">
+            </div>
+
+            <div style="background:rgba(15,23,42,0.5);padding:10px;border-radius:8px;border:1px solid var(--border-color);">
+              <div class="control-label" style="margin-bottom:6px;"><span style="font-size:12px;font-weight:600;">🏷️ คู่ทรานซิสเตอร์กำลัง</span><span id="badge-pair" class="badge" style="font-size:10px;padding:2px 6px;">TIP31C / TIP32C</span></div>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+                <button class="btn btn-secondary active" id="btn-p-tip" onclick="selectPair('TIP31C/TIP32C')" style="font-size:10px;padding:5px;">TIP31C / TIP32C</button>
+                <button class="btn btn-secondary" id="btn-p-2n" onclick="selectPair('2N3055/MJ2955')" style="font-size:10px;padding:5px;">2N3055 / MJ2955</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Display & Scope -->
+        <div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+              <h2 class="card-title" style="margin-bottom:0;">📐 แผนภาพวงจร ออสซิลโลสโคป และความร้อน</h2>
+              <div style="display:flex;gap:6px;background:rgba(15,23,42,0.8);padding:4px;border-radius:8px;border:1px solid var(--border-color);">
+                <button id="tbtn-circuit" class="btn btn-secondary active" onclick="switchSimView('circuit')" style="padding:6px 12px;font-size:11px;background:rgba(251,146,60,0.2);border-color:var(--accent-orange);color:#fff;">⚡ วงจรจริง</button>
+                <button id="tbtn-scope" class="btn btn-secondary" onclick="switchSimView('scope')" style="padding:6px 12px;font-size:11px;color:var(--text-muted);">📡 ออสซิลโลสโคป</button>
+                <button id="tbtn-thermal" class="btn btn-secondary" onclick="switchSimView('thermal')" style="padding:6px 12px;font-size:11px;color:var(--text-muted);">🌡️ เกจความร้อน</button>
+              </div>
+            </div>
+
+            <!-- VIEW 1: CIRCUIT SVG -->
+            <div id="view-circuit" style="display:block;">
+              <svg id="svg-power-amp" viewBox="0 0 740 280" style="width:100%;height:auto;max-height:270px;background:#050b14;border-radius:8px;border:1px solid var(--border-color);">
+                <!-- Power Rails -->
+                <line x1="40" y1="25" x2="700" y2="25" stroke="#f87171" stroke-width="2.5"/>
+                <text id="txt-vcc-pos" x="705" y="29" fill="#f87171" font-size="11" font-weight="bold" font-family="Chakra Petch">+15.0V</text>
+
+                <line x1="40" y1="255" x2="700" y2="255" stroke="#38bdf8" stroke-width="2.5"/>
+                <text id="txt-vcc-neg" x="705" y="259" fill="#38bdf8" font-size="11" font-weight="bold" font-family="Chakra Petch">-15.0V</text>
+
+                <!-- Ground center line -->
+                <line x1="580" y1="140" x2="700" y2="140" stroke="#64748b" stroke-width="2"/>
+                <text x="705" y="144" fill="#64748b" font-size="10" font-family="Chakra Petch">GND</text>
+
+                <!-- Heatsink Visual Box -->
+                <rect id="svg-heatsink-box" x="380" y="38" width="120" height="204" rx="6" fill="rgba(56,189,248,0.06)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4"/>
+                <text id="txt-hs-label" x="440" y="52" fill="#38bdf8" font-size="9" font-family="Chakra Petch" text-anchor="middle">❄️ ALUMINUM HEATSINK</text>
+
+                <!-- Input Vi & Coupling -->
+                <circle cx="50" cy="140" r="4" fill="#fbbf24"/>
+                <text x="30" y="144" fill="#fbbf24" font-size="11" font-weight="bold" font-family="Chakra Petch">vi</text>
+                <line x1="50" y1="140" x2="100" y2="140" stroke="#fbbf24" stroke-width="2"/>
+                
+                <!-- Cin -->
+                <line x1="100" y1="130" x2="100" y2="150" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="106" y1="130" x2="106" y2="150" stroke="#94a3b8" stroke-width="2"/>
+                <text x="103" y="122" fill="#94a3b8" font-size="9" font-family="Fira Code" text-anchor="middle">Cin</text>
+                <line x1="106" y1="140" x2="160" y2="140" stroke="#94a3b8" stroke-width="2"/>
+
+                <!-- Bias Network: R1 -> D1 -> D2 -> R2 -->
+                <line x1="160" y1="25" x2="160" y2="60" stroke="#f87171" stroke-width="1.5"/>
+                <rect x="150" y="60" width="20" height="35" rx="3" fill="#1e293b" stroke="#f87171" stroke-width="1.5"/>
+                <text x="125" y="80" fill="#fca5a5" font-size="9" font-family="Fira Code">R1 1k</text>
+                <line x1="160" y1="95" x2="160" y2="115" stroke="#94a3b8" stroke-width="1.5"/>
+
+                <!-- Diodes D1 & D2 (Class AB) -->
+                <g id="grp-diodes">
+                  <polygon points="152,125 168,125 160,137" fill="#34d399"/>
+                  <line x1="152" y1="137" x2="168" y2="137" stroke="#34d399" stroke-width="1.5"/>
+                  <text x="175" y="132" fill="#34d399" font-size="8.5" font-family="Fira Code">D1</text>
+                  <line x1="160" y1="137" x2="160" y2="143" stroke="#94a3b8" stroke-width="1.5"/>
+                  <polygon points="152,143 168,143 160,155" fill="#34d399"/>
+                  <line x1="152" y1="155" x2="168" y2="155" stroke="#34d399" stroke-width="1.5"/>
+                  <text x="175" y="152" fill="#34d399" font-size="8.5" font-family="Fira Code">D2</text>
+                </g>
+                <line x1="160" y1="155" x2="160" y2="185" stroke="#94a3b8" stroke-width="1.5"/>
+
+                <!-- R2 -->
+                <rect x="150" y="185" width="20" height="35" rx="3" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="125" y="205" fill="#bae6fd" font-size="9" font-family="Fira Code">R2 1k</text>
+                <line x1="160" y1="220" x2="160" y2="255" stroke="#38bdf8" stroke-width="1.5"/>
+
+                <!-- Connections to Q1 Base and Q2 Base -->
+                <line x1="160" y1="110" x2="280" y2="110" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="280" y1="110" x2="280" y2="75" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="280" y1="75" x2="395" y2="75" stroke="#94a3b8" stroke-width="1.5"/>
+
+                <line x1="160" y1="170" x2="280" y2="170" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="280" y1="170" x2="280" y2="205" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="280" y1="205" x2="395" y2="205" stroke="#94a3b8" stroke-width="1.5"/>
+
+                <!-- NPN Transistor Q1 (Top) -->
+                <line x1="395" y1="55" x2="395" y2="95" stroke="#f8fafc" stroke-width="3"/>
+                <line x1="395" y1="65" x2="430" y2="45" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="430" y1="45" x2="430" y2="25" stroke="#f87171" stroke-width="2"/>
+                <!-- Emitter arrow Q1 (pointing out) -->
+                <line x1="395" y1="85" x2="430" y2="105" stroke="#94a3b8" stroke-width="2"/>
+                <polygon points="428,103 416,93 423,88" fill="#fbbf24"/>
+                <text id="txt-q1-model" x="440" y="80" fill="#fbbf24" font-size="10" font-weight="bold" font-family="Chakra Petch">Q1 (NPN): TIP31C</text>
+
+                <!-- PNP Transistor Q2 (Bottom) -->
+                <line x1="395" y1="185" x2="395" y2="225" stroke="#f8fafc" stroke-width="3"/>
+                <line x1="395" y1="215" x2="430" y2="235" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="430" y1="235" x2="430" y2="255" stroke="#38bdf8" stroke-width="2"/>
+                <!-- Emitter arrow Q2 (pointing in to base) -->
+                <line x1="395" y1="195" x2="430" y2="175" stroke="#94a3b8" stroke-width="2"/>
+                <polygon points="400,198 412,207 405,212" fill="#38bdf8"/>
+                <text id="txt-q2-model" x="440" y="210" fill="#38bdf8" font-size="10" font-weight="bold" font-family="Chakra Petch">Q2 (PNP): TIP32C</text>
+
+                <!-- Emitter resistors RE1, RE2 and Output Node -->
+                <line x1="430" y1="105" x2="470" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="470" y="98" width="28" height="14" rx="2" fill="#1e293b" stroke="#94a3b8" stroke-width="1"/>
+                <text x="484" y="109" fill="#94a3b8" font-size="7.5" font-family="Fira Code" text-anchor="middle">0.47Ω</text>
+                <line x1="498" y1="105" x2="520" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+
+                <line x1="430" y1="175" x2="470" y2="175" stroke="#94a3b8" stroke-width="1.5"/>
+                <rect x="470" y="168" width="28" height="14" rx="2" fill="#1e293b" stroke="#94a3b8" stroke-width="1"/>
+                <text x="484" y="179" fill="#94a3b8" font-size="7.5" font-family="Fira Code" text-anchor="middle">0.47Ω</text>
+                <line x1="498" y1="175" x2="520" y2="175" stroke="#94a3b8" stroke-width="1.5"/>
+
+                <line x1="520" y1="105" x2="520" y2="175" stroke="#94a3b8" stroke-width="2"/>
+                <circle cx="520" cy="140" r="4" fill="#34d399"/>
+
+                <!-- Load & Speaker Branch -->
+                <line x1="520" y1="140" x2="580" y2="140" stroke="#34d399" stroke-width="2"/>
+                <g id="grp-speaker-svg">
+                  <!-- Speaker visual -->
+                  <polygon points="580,130 595,130 610,118 610,162 595,150 580,150" fill="#1e293b" stroke="#fb923c" stroke-width="2"/>
+                  <text id="txt-speaker-val" x="620" y="144" fill="#fb923c" font-size="12" font-weight="bold" font-family="Chakra Petch">🔊 4 Ω</text>
+                  <!-- Sound wave arcs -->
+                  <path id="svg-sound-waves" d="M645,128 A15,15 0 0,1 645,152 M653,122 A22,22 0 0,1 653,158" fill="none" stroke="#fb923c" stroke-width="2"/>
+                </g>
+              </svg>
+            </div>
+
+            <!-- VIEW 2: OSCILLOSCOPE CANVAS -->
+            <div id="view-scope" style="display:none;">
+              <canvas id="canvas-scope" width="700" height="270" style="width:100%;height:auto;background:var(--scope-bg);border-radius:8px;border:1px solid var(--border-color);display:block;"></canvas>
+            </div>
+
+            <!-- VIEW 3: THERMAL DASHBOARD -->
+            <div id="view-thermal" style="display:none;background:#050b14;border-radius:8px;border:1px solid var(--border-color);padding:20px;">
+              <div class="grid-3" style="margin-bottom:15px;">
+                <div class="probe-card" style="border-color:var(--accent-orange);">
+                  <span class="readout-label">อุณหภูมิรอยต่อ ($T_j$)</span>
+                  <span class="readout-val orange" id="gauge-tj">52.4 °C</span>
+                </div>
+                <div class="probe-card" style="border-color:var(--accent-red);">
+                  <span class="readout-label">กำลังสูญเสียความร้อน ($P_D$ รวม)</span>
+                  <span class="readout-val red" id="gauge-pd">6.85 W</span>
+                </div>
+                <div class="probe-card" style="border-color:var(--accent-green);">
+                  <span class="readout-label">สถานะความปลอดภัย (Thermal State)</span>
+                  <span class="readout-val green" id="gauge-status">🟢 ปลอดภัย (Normal)</span>
+                </div>
+              </div>
+              <div class="highlight-box" id="thermal-alert-box" style="margin-bottom:0;">
+                💡 <strong>วิเคราะห์ความร้อน:</strong> เมื่อขับลำโพง 4Ω ทรานซิสเตอร์ต้องจ่ายกระแสสูงขึ้น ส่งผลให้กำลังสูญเสีย $P_D$ เพิ่มขึ้น แผ่นระบายความร้อน Heatsink ช่วยจำกัดอุณหภูมิไม่ให้เกิน $150^\circ\text{C}$
+              </div>
+            </div>
+
+            <!-- Probe Cards Grid -->
+            <div style="margin-top:14px;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent-orange);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">📊 พารามิเตอร์การวัดและกำลังงาน (Live Probes)</div>
+              <div class="grid-4" style="margin-bottom:10px;">
+                <div class="probe-card"><span class="readout-label">กำลังขับเสียง $P_{out}$</span><span class="readout-val orange" id="rd-pout">--- W</span></div>
+                <div class="probe-card"><span class="readout-label">กำลังงานแหล่งจ่าย $P_{DC}$</span><span class="readout-val yellow" id="rd-pdc">--- W</span></div>
+                <div class="probe-card"><span class="readout-label">ประสิทธิภาพ $\eta$</span><span class="readout-val green" id="rd-eff">--- %</span></div>
+                <div class="probe-card"><span class="readout-label">กระแสพีค $I_{p(out)}$</span><span class="readout-val" id="rd-ipeak">--- A</span></div>
+              </div>
+              <div class="grid-3">
+                <div class="probe-card"><span class="readout-label">อัตราขยายแรงดัน $A_v$</span><span class="readout-val" id="rd-av">~0.98 (≈1)</span></div>
+                <div class="probe-card"><span class="readout-label">อิมพีแดนซ์เอาต์พุต $Z_o$</span><span class="readout-val green" id="rd-zo">&lt; 0.5 Ω</span></div>
+                <div class="probe-card"><span class="readout-label">อุณหภูมิรอยต่อ $T_j$</span><span class="readout-val orange" id="rd-tj">--- °C</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: WORKSHEET -->
+    <section id="tab-worksheet" class="tab-pane">
+      <div class="card">
+        <h2 class="card-title">👤 ข้อมูลผู้ทำการทดลอง</h2>
+        <div class="grid-4">
+          <div class="form-group"><label>ชื่อ-นามสกุล:</label><input type="text" id="student-name" class="form-control" placeholder="เช่น นายวิศวกรรม นามสมมุติ"></div>
+          <div class="form-group"><label>รหัสนักศึกษา:</label><input type="text" id="student-id" class="form-control" placeholder="เช่น 66010001"></div>
+          <div class="form-group"><label>กลุ่มเรียน:</label><input type="text" id="student-group" class="form-control" placeholder="เช่น กลุ่ม 1 / Sec 01"></div>
+          <div class="form-group"><label>วันที่ทำการทดลอง:</label><input type="date" id="lab-date" class="form-control"></div>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid rgba(251,146,60,0.35);background:linear-gradient(135deg,rgba(15,23,42,0.85),rgba(30,41,59,0.6));">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div><h2 class="card-title" style="margin-bottom:4px;">⚙️ ระบบกำหนดค่าพารามิเตอร์การทดลอง</h2><p style="font-size:12px;color:var(--text-muted);">เลือกโหมดการทดลอง</p></div>
+          <div style="display:flex;gap:8px;">
+            <button id="btn-ws-fixed" class="btn btn-secondary active" onclick="setWsMode('fixed')">📌 โหมดค่ามาตรฐาน</button>
+            <button id="btn-ws-custom" class="btn btn-secondary" onclick="setWsMode('custom')">🛠️ โหมดกำหนดค่าเอง</button>
+          </div>
+        </div>
+        <div id="ws-alert" class="highlight-box" style="margin-top:14px;">📌 <strong>โหมดค่ามาตรฐาน:</strong> $\pm V_{CC} = \pm 15\text{V}$, $V_{in(p-p)} = 10\text{V}$, เปรียบเทียบโหลดลำโพง 4 Ω vs 8 Ω และ Class AB</div>
+        <div id="ws-custom-bar" style="display:none;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap;" class="no-print">
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="syncFromSim()">⚡ ซิงค์จากแล็บเสมือน</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="randomizeWsParams()">🎲 สุ่มโจทย์ใหม่</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="resetWsToDefault()">⏪ คืนค่ามาตรฐาน</button>
+        </div>
+        <div id="panel-params" style="margin-top:14px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">$\pm V_{CC}$ (V):</label><input type="number" id="ws-vcc" class="form-control" value="15" step="1" disabled style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">$V_{in(p-p)}$ (V):</label><input type="number" id="ws-vin" class="form-control" value="10" step="0.5" disabled style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">โหมดไบแอส:</label><select id="ws-bias" class="form-control" disabled style="background:#090d16;"><option value="AB">Class AB</option><option value="B">Class B</option></select></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">ฮีตซิงก์:</label><select id="ws-heatsink" class="form-control" disabled style="background:#090d16;"><option value="yes">มี Heatsink</option><option value="no">ไม่มี Heatsink</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 1: Power & Efficiency -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
+          <h2 class="card-title" style="margin-bottom:0;">1️⃣ ตอนที่ 1: กำลังขับและประสิทธิภาพเมื่อขับลำโพง 4Ω เทียบกับ 8Ω (3 คะแนน)</h2>
+          <button class="btn btn-secondary no-print" style="font-size:12px;padding:7px 14px;" onclick="autoFillPart1()">⚡ ดึงค่าจากการจำลองอัตโนมัติ</button>
+        </div>
+        <table class="lab-table">
+          <thead>
+            <tr>
+              <th>พารามิเตอร์การวัด</th>
+              <th>สูตรคำนวณ</th>
+              <th>โหลดลำโพง 4 Ω</th>
+              <th>โหลดลำโพง 8 Ω</th>
+              <th>หน่วย</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>แรงดันเอาต์พุตพีค $V_{p(out)}$</td>
+              <td>$\approx V_{in(p-p)} / 2$</td>
+              <td><input type="number" id="ws-vp-4" class="form-control" step="0.01" placeholder="เช่น 4.85" style="width:100px;"></td>
+              <td><input type="number" id="ws-vp-8" class="form-control" step="0.01" placeholder="เช่น 4.90" style="width:100px;"></td>
+              <td>V</td>
+            </tr>
+            <tr>
+              <td>กระแสเอาต์พุตพีค $I_{p}$</td>
+              <td>$V_{p(out)} / R_L$</td>
+              <td><input type="number" id="ws-ip-4" class="form-control" step="0.01" placeholder="เช่น 1.21" style="width:100px;"></td>
+              <td><input type="number" id="ws-ip-8" class="form-control" step="0.01" placeholder="เช่น 0.61" style="width:100px;"></td>
+              <td>A</td>
+            </tr>
+            <tr>
+              <td>กำลังขับเอาต์พุต $P_{out}$</td>
+              <td>$V_{p}^2 / (2 R_L)$</td>
+              <td><input type="number" id="ws-pout-4" class="form-control" step="0.01" placeholder="เช่น 2.94" style="width:100px;"></td>
+              <td><input type="number" id="ws-pout-8" class="form-control" step="0.01" placeholder="เช่น 1.50" style="width:100px;"></td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td>กำลังงานจากแหล่งจ่าย $P_{DC}$</td>
+              <td>$(2 V_{CC} \cdot V_p) / (\pi R_L)$</td>
+              <td><input type="number" id="ws-pdc-4" class="form-control" step="0.01" placeholder="เช่น 11.58" style="width:100px;"></td>
+              <td><input type="number" id="ws-pdc-8" class="form-control" step="0.01" placeholder="เช่น 5.85" style="width:100px;"></td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td>ประสิทธิภาพ $\eta$</td>
+              <td>$(P_{out} / P_{DC}) \times 100\%$</td>
+              <td><input type="number" id="ws-eff-4" class="form-control" step="0.1" placeholder="เช่น 25.4" style="width:100px;"></td>
+              <td><input type="number" id="ws-eff-8" class="form-control" step="0.1" placeholder="เช่น 25.6" style="width:100px;"></td>
+              <td>%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Part 2: Thermal & Heatsink -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
+          <h2 class="card-title" style="margin-bottom:0;">2️⃣ ตอนที่ 2: ความร้อนและผลกระทบของแผ่นระบายความร้อน Heatsink (3 คะแนน)</h2>
+          <button class="btn btn-secondary no-print" style="font-size:12px;padding:7px 14px;" onclick="autoFillPart2()">⚡ ดึงค่าจากการจำลองอัตโนมัติ</button>
+        </div>
+        <table class="lab-table">
+          <thead>
+            <tr>
+              <th>พารามิเตอร์ความร้อน</th>
+              <th>สูตรคำนวณ</th>
+              <th>กรณีติดตั้ง Heatsink</th>
+              <th>กรณีไม่มี Heatsink</th>
+              <th>หน่วย</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>กำลังสูญเสียความร้อนรวม $P_D$</td>
+              <td>$P_{DC} - P_{out}$</td>
+              <td><input type="number" id="ws-pd-hs" class="form-control" step="0.01" placeholder="เช่น 8.64" style="width:100px;"></td>
+              <td><input type="number" id="ws-pd-nohs" class="form-control" step="0.01" placeholder="เช่น 8.64" style="width:100px;"></td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td>อุณหภูมิรอยต่อ $T_j$ ($R_L=4\Omega$)</td>
+              <td>$T_A + P_{D(Q)} \cdot \theta_{total}$</td>
+              <td><input type="number" id="ws-tj-hs" class="form-control" step="0.1" placeholder="เช่น 58.2" style="width:100px;"></td>
+              <td><input type="number" id="ws-tj-nohs" class="form-control" step="0.1" placeholder="เช่น 185.0" style="width:100px;"></td>
+              <td>°C</td>
+            </tr>
+            <tr>
+              <td>การเกิด Crossover Distortion</td>
+              <td>สังเกตรูปคลื่น Class B vs AB</td>
+              <td><select id="ws-cross-ab" class="form-control" style="width:140px;"><option value="">-- เลือก --</option><option value="none">ไม่มี (เสียงใสปกติ)</option><option value="yes">มีรอยบากเพี้ยน</option></select></td>
+              <td><select id="ws-cross-b" class="form-control" style="width:140px;"><option value="">-- เลือก --</option><option value="yes">มีรอยบากเพี้ยน</option><option value="none">ไม่มี (เสียงใสปกติ)</option></select></td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-footer-action no-print" style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" style="border-color:#ef4444;color:#fca5a5;background:rgba(239,68,68,0.08);font-weight:bold;" onclick="resetWorksheetForNewUser()">🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)</button>
+        <button class="btn btn-secondary" onclick="printReport()">🖨️ พิมพ์ใบงาน</button>
+        <button class="btn btn-secondary" style="border-color:var(--accent-yellow);color:var(--accent-yellow);" onclick="previewScore()">🔍 ตรวจคะแนนก่อนส่ง</button>
+        <button class="btn btn-primary" onclick="previewScore()">🚀 ส่งใบงานและตรวจคะแนน</button>
+      </div>
+    </section>
+
+    <!-- TAB 4: ASSESSMENT -->
+    <section id="tab-assessment" class="tab-pane">
+      <div class="card">
+        <h2 class="card-title">❓ ตอนที่ 3: คำถามท้ายการทดลอง (4 คะแนน)</h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">เลือกคำตอบที่ถูกต้องที่สุด (1 คะแนนต่อข้อ)</p>
+        
+        <div class="question-card">
+          <div class="question-title">ข้อ 1: ทำไมภาคขับลำโพงในเครื่องขยายเสียงจึงต้องใช้วงจร Common-Collector (Emitter Follower)?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q1" value="a"> เพื่อขยายแรงดันให้สูงขึ้นอีกหลายร้อยเท่า</label>
+            <label class="option-label"><input type="radio" name="q1" value="b"> เพราะมี $Z_{out}$ ต่ำมาก และขยายกระแส ($A_i$) ได้สูง เหมาะกับการขับลำโพง 4Ω/8Ω</label>
+            <label class="option-label"><input type="radio" name="q1" value="c"> เพื่อกลับเฟสสัญญาณ 180° ป้องกันการออสซิลเลต</label>
+            <label class="option-label"><input type="radio" name="q1" value="d"> เพื่อลดแรงดันไฟเลี้ยงไม่ให้เปลืองพลังงาน</label>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <div class="question-title">ข้อ 2: การเปลี่ยนลำโพงจาก 8 Ω เป็น 4 Ω ส่งผลกระทบต่อวงจรขยายอย่างไร?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q2" value="a"> ได้กำลังขับสูงขึ้น และดึงกระแสจากทรานซิสเตอร์สูงขึ้น 2 เท่า ทำให้ร้อนเร็วขึ้น</label>
+            <label class="option-label"><input type="radio" name="q2" value="b"> กำลังขับลดลงครึ่งหนึ่ง และวงจรเย็นลง</label>
+            <label class="option-label"><input type="radio" name="q2" value="c"> ไม่มีผลกระทบใดๆ เพราะแรงดัน $V_{CC}$ เท่าเดิม</label>
+            <label class="option-label"><input type="radio" name="q2" value="d"> ทำให้อัตราขยายแรงดัน $A_v$ เพิ่มขึ้นเป็น 10 เท่า</label>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <div class="question-title">ข้อ 3: ความเพี้ยนรอยต่อ (Crossover Distortion) ในวงจร Push-Pull Class B เกิดจากสาเหตุใด และแก้อย่างไร?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q3" value="a"> เกิดจากความร้อนสะสม แก้โดยการใส่พัดลม</label>
+            <label class="option-label"><input type="radio" name="q3" value="b"> เกิดจากช่วงแรงดันตกคร่อม $V_{BE} \approx 0.7\text{V}$ ทรานซิสเตอร์ยังไม่นำกระแส แก้โดยจัดไบแอส Class AB ด้วยไดโอด</label>
+            <label class="option-label"><input type="radio" name="q3" value="c"> เกิดจากลำโพง 4Ω ดึงกระแสเกิน แก้โดยถอดลำโพงออก</label>
+            <label class="option-label"><input type="radio" name="q3" value="d"> เกิดจากความต้านทาน $R_E$ ขาด แก้โดยต่อตรงลงกราวด์</label>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <div class="question-title">ข้อ 4: หากทรานซิสเตอร์ภาคเพาเวอร์เอาต์พุตไม่มีแผ่นระบายความร้อน (Heatsink) จะเกิดผลร้ายแรงใด?</div>
+          <div class="options-grid">
+            <label class="option-label"><input type="radio" name="q4" value="a"> เสียงดนตรีจะทุ้มเกินไป</label>
+            <label class="option-label"><input type="radio" name="q4" value="b"> กำลังขับ $P_{out}$ จะเพิ่มขึ้นจนลำโพงระเบิด</label>
+            <label class="option-label"><input type="radio" name="q4" value="c"> อุณหภูมิรอยต่อ $T_j$ จะพุ่งเกิน 150°C เกิด Thermal Runaway และทรานซิสเตอร์ไหม้ช็อตทะลุ</label>
+            <label class="option-label"><input type="radio" name="q4" value="d"> ประสิทธิภาพ $\eta$ จะกลายเป็น 100%</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">✍️ สรุปผลการทดลอง</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">เขียนสรุปด้วยคำพูดของตนเอง อธิบายความแตกต่างของกำลังขับระหว่างลำโพง 4Ω กับ 8Ω, ความสำคัญของ Heatsink และการขจัด Crossover Distortion</p>
+        <textarea id="conclusion-text" rows="5" class="form-control protected-answer" style="resize:vertical;" placeholder="เช่น จากการทดลองวงจรขยายกำลัง Class AB พบว่าเมื่อต่อลำโพง 4Ω..."></textarea>
+      </div>
+
+      <div class="card-footer-action no-print" style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" style="border-color:#ef4444;color:#fca5a5;background:rgba(239,68,68,0.08);font-weight:bold;" onclick="resetWorksheetForNewUser()">🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)</button>
+        <button class="btn btn-secondary" onclick="printReport()">🖨️ พิมพ์ใบงาน PDF</button>
+        <button class="btn btn-secondary" style="border-color:var(--accent-yellow);color:var(--accent-yellow);" onclick="previewScore()">🔍 ตรวจคะแนนก่อนส่ง</button>
+        <button class="btn btn-primary" onclick="previewScore()">🚀 ส่งใบงานและตรวจคะแนน</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- SUBMISSION MODAL OVERLAY -->
+<div id="submission-overlay">
+  <div class="card" style="max-width:580px;width:100%;text-align:center;padding:30px;">
+    <div id="modal-spinner"></div>
+    <div id="modal-title" style="font-size:18px;font-weight:bold;margin-bottom:10px;color:var(--accent-orange);"></div>
+    <div id="modal-body" style="font-size:14px;color:var(--text-muted);margin-bottom:18px;text-align:left;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button id="modal-close-btn" class="btn btn-secondary" onclick="closeModal()" style="display:none;">✏️ กลับไปแก้ไข</button>
+      <button id="modal-confirm-btn" class="btn btn-primary" onclick="confirmAndSubmit()" style="display:none;">🚀 ยืนยันส่งใบงานจริง</button>
+    </div>
+  </div>
+</div>
+<div id="anti-cheat-toast">🔒 ระบบป้องกันการคัดลอก: ห้ามวาง (Paste) กรุณาพิมพ์เอง</div>
+
+<script>
+/**
+ * Power Amplifier & Emitter Follower Circuit Simulation Engine
+ */
+const PAIRS = {
+  'TIP31C/TIP32C': { npn: 'TIP31C', pnp: 'TIP32C', vce_sat: 1.2, r_theta_jc: 3.12, r_theta_ja: 62.5, max_pd: 40 },
+  '2N3055/MJ2955': { npn: '2N3055', pnp: 'MJ2955', vce_sat: 1.0, r_theta_jc: 1.52, r_theta_ja: 35.0, max_pd: 115 }
+};
+
+let currentPair = 'TIP31C/TIP32C';
+let currentSpeaker = 4; // 4, 8, 16, or 999 (open)
+let currentBias = 'AB'; // 'AB' or 'B'
+let hasHeatsink = true;
+let wsMode = 'fixed';
+let scopeAnimId = null;
+let simData = {};
+
+function switchTab(t) {
+  const tabs = ['theory', 'simulator', 'worksheet', 'assessment'];
+  document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', tabs[i] === t));
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === t));
+  if (t === 'simulator') updateSim();
+}
+
+function selectPair(name) {
+  currentPair = name;
+  const mod = PAIRS[name];
+  document.getElementById('badge-pair').textContent = name;
+  document.getElementById('txt-q1-model').textContent = `Q1 (NPN): ${mod.npn}`;
+  document.getElementById('txt-q2-model').textContent = `Q2 (PNP): ${mod.pnp}`;
+  document.querySelectorAll('[id^="btn-p-"]').forEach(b => b.classList.remove('active'));
+  const btn = name.includes('TIP') ? document.getElementById('btn-p-tip') : document.getElementById('btn-p-2n');
+  if (btn) btn.classList.add('active');
+  updateSim();
+}
+
+function setSpeaker(val) {
+  currentSpeaker = val;
+  [4, 8, 16, 999].forEach(r => {
+    const id = r === 999 ? 'btn-rl-open' : `btn-rl-${r}`;
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', r === val);
+  });
+  
+  const statusEl = document.getElementById('val-rl-status');
+  const txtSpk = document.getElementById('txt-speaker-val');
+  const waves = document.getElementById('svg-sound-waves');
+  
+  if (val === 999) {
+    if (statusEl) statusEl.textContent = '❌ ปลดโหลดออก (No-Load / Open)';
+    if (txtSpk) { txtSpk.textContent = 'ปลดออก'; txtSpk.setAttribute('fill', '#f87171'); }
+    if (waves) waves.style.display = 'none';
+  } else {
+    if (statusEl) statusEl.textContent = `ลำโพง ${val} Ω (${val <= 4 ? 'Heavy Load' : 'Standard'})`;
+    if (txtSpk) { txtSpk.textContent = `🔊 ${val} Ω`; txtSpk.setAttribute('fill', '#fb923c'); }
+    if (waves) waves.style.display = 'block';
+  }
+  updateSim();
+}
+
+function setBiasMode(mode) {
+  currentBias = mode;
+  document.getElementById('btn-bias-ab').classList.toggle('active', mode === 'AB');
+  document.getElementById('btn-bias-b').classList.toggle('active', mode === 'B');
+  const grpD = document.getElementById('grp-diodes');
+  if (grpD) {
+    grpD.style.opacity = mode === 'AB' ? '1' : '0.2';
+  }
+  updateSim();
+}
+
+function setHeatsink(has) {
+  hasHeatsink = has;
+  document.getElementById('btn-hs-on').classList.toggle('active', has);
+  document.getElementById('btn-hs-off').classList.toggle('active', !has);
+  
+  const badge = document.getElementById('badge-heatsink');
+  const box = document.getElementById('svg-heatsink-box');
+  const txtHs = document.getElementById('txt-hs-label');
+  
+  if (has) {
+    badge.textContent = '❄️ ติดตั้ง Heatsink';
+    badge.style.background = 'rgba(56,189,248,0.15)';
+    badge.style.borderColor = 'var(--accent-cyan)';
+    badge.style.color = 'var(--accent-cyan)';
+    if (box) { box.setAttribute('stroke', '#38bdf8'); box.setAttribute('fill', 'rgba(56,189,248,0.06)'); }
+    if (txtHs) { txtHs.textContent = '❄️ ALUMINUM HEATSINK'; txtHs.setAttribute('fill', '#38bdf8'); }
+  } else {
+    badge.textContent = '🔥 ไม่มี Heatsink';
+    badge.style.background = 'rgba(239,68,68,0.15)';
+    badge.style.borderColor = 'var(--accent-red)';
+    badge.style.color = 'var(--accent-red)';
+    if (box) { box.setAttribute('stroke', '#ef4444'); box.setAttribute('fill', 'rgba(239,68,68,0.04)'); }
+    if (txtHs) { txtHs.textContent = '⚠️ NO HEATSINK (DANGER)'; txtHs.setAttribute('fill', '#ef4444'); }
+  }
+  updateSim();
+}
+
+function switchSimView(v) {
+  ['circuit', 'scope', 'thermal'].forEach(name => {
+    const el = document.getElementById(`view-${name}`);
+    const btn = document.getElementById(`tbtn-${name}`);
+    if (el) el.style.display = (name === v) ? 'block' : 'none';
+    if (btn) {
+      btn.classList.toggle('active', name === v);
+      btn.style.color = (name === v) ? '#fff' : 'var(--text-muted)';
+      btn.style.background = (name === v) ? 'rgba(251,146,60,0.2)' : '';
+      btn.style.borderColor = (name === v) ? 'var(--accent-orange)' : '';
+    }
+  });
+  if (v === 'scope') renderScope();
+}
+
+function gv(id) { return parseFloat(document.getElementById(id).value); }
+
+function calcPowerAmp(p) {
+  const { vcc, vin, rl, bias, pair, heatsink } = p;
+  const mod = PAIRS[pair] || PAIRS['TIP31C/TIP32C'];
+  const isNoLoad = (rl >= 900);
+  const effectiveRL = isNoLoad ? 100000 : rl;
+  
+  // Peak Input & Output Voltage
+  const vin_peak = vin / 2;
+  const maxSwing = vcc - mod.vce_sat;
+  const vout_peak_ideal = Math.min(vin_peak, maxSwing);
+  const vout_peak = Math.max(0, vout_peak_ideal);
+  const isClip = vin_peak > maxSwing;
+  
+  // Power calculations
+  const pout = isNoLoad ? 0 : (Math.pow(vout_peak, 2) / (2 * effectiveRL));
+  const ipeak = isNoLoad ? 0 : (vout_peak / effectiveRL);
+  const idc = isNoLoad ? (bias === 'AB' ? 0.025 : 0.001) : (bias === 'AB' ? (2 * ipeak / Math.PI + 0.025) : (2 * ipeak / Math.PI));
+  const pdc = (2 * vcc) * idc;
+  const eff = (pdc > 0 && !isNoLoad) ? ((pout / pdc) * 100) : 0;
+  
+  // Thermal calculations
+  const pd_total = Math.max(0, pdc - pout);
+  const pd_per_q = pd_total / 2;
+  const theta_cs = 0.5; // thermal grease
+  const theta_sa = heatsink ? 4.5 : 55.0; // Heatsink vs No Heatsink (°C/W)
+  const theta_total = mod.r_theta_jc + (heatsink ? (theta_cs + theta_sa) : mod.r_theta_ja);
+  const tamb = 28.0; // Ambient temp °C
+  const tj = Math.min(250, tamb + pd_per_q * theta_total);
+  
+  return {
+    vcc, vin_peak, vout_peak, isClip, pout, ipeak, pdc, eff, pd_total, pd_per_q, tj, isNoLoad, bias, heatsink, effectiveRL
+  };
+}
+
+function updateSim() {
+  const vcc = gv('sl-vcc');
+  const vin = gv('sl-vin');
+  const rl = currentSpeaker;
+  const bias = currentBias;
+  const pair = currentPair;
+  const heatsink = hasHeatsink;
+  
+  document.getElementById('val-vcc').textContent = `±${vcc.toFixed(1)} V`;
+  document.getElementById('val-vin').textContent = `${vin.toFixed(1)} V`;
+  document.getElementById('txt-vcc-pos').textContent = `+${vcc.toFixed(1)}V`;
+  document.getElementById('txt-vcc-neg').textContent = `-${vcc.toFixed(1)}V`;
+  
+  const res = calcPowerAmp({ vcc, vin, rl, bias, pair, heatsink });
+  simData = { ...res };
+  
+  const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '---';
+  
+  document.getElementById('rd-pout').textContent = `${f(res.pout, 2)} W`;
+  document.getElementById('rd-pdc').textContent = `${f(res.pdc, 2)} W`;
+  document.getElementById('rd-eff').textContent = `${f(res.eff, 1)} %`;
+  document.getElementById('rd-ipeak').textContent = `${f(res.ipeak, 2)} A`;
+  document.getElementById('rd-tj').textContent = `${f(res.tj, 1)} °C`;
+  
+  // Thermal Dashboard Elements
+  const gtj = document.getElementById('gauge-tj');
+  const gpd = document.getElementById('gauge-pd');
+  const gstat = document.getElementById('gauge-status');
+  const tbox = document.getElementById('thermal-alert-box');
+  
+  if (gtj) gtj.textContent = `${f(res.tj, 1)} °C`;
+  if (gpd) gpd.textContent = `${f(res.pd_total, 2)} W`;
+  
+  if (res.tj > 150) {
+    if (gstat) { gstat.textContent = '🔥 วิกฤต! THERMAL RUNAWAY'; gstat.className = 'readout-val red'; }
+    if (tbox) {
+      tbox.innerHTML = '⚠️ <strong>อันตรายร้ายแรง!</strong> อุณหภูมิ $T_j > 150^\circ\text{C}$ ทรานซิสเตอร์เกิดสภาวะ Thermal Runaway และไหม้ช็อตเสียหายทันทีเนื่องจากไม่มี Heatsink!';
+      tbox.style.borderColor = '#ef4444';
+      tbox.style.background = 'rgba(239,68,68,0.12)';
+    }
+  } else if (res.tj > 90) {
+    if (gstat) { gstat.textContent = '⚠️ ความร้อนสูง (High Temp)'; gstat.className = 'readout-val yellow'; }
+    if (tbox) {
+      tbox.innerHTML = '⚠️ <strong>เตือนความร้อนสูง:</strong> ทรานซิสเตอร์กำลังทำงานหนัก อุณหภูมิสูง ควรขยายขนาดแผ่นระบายความร้อน';
+      tbox.style.borderColor = '#fbbf24';
+      tbox.style.background = 'rgba(251,191,36,0.1)';
+    }
+  } else {
+    if (gstat) { gstat.textContent = '🟢 ปลอดภัย (Normal)'; gstat.className = 'readout-val green'; }
+    if (tbox) {
+      tbox.innerHTML = '💡 <strong>วิเคราะห์ความร้อน:</strong> แผ่นระบายความร้อน Heatsink ช่วยระบายความร้อนสะสม $P_D$ สู่อากาศได้อย่างมีเสถียรภาพ รักษาระดับอุณหภูมิปลอดภัย';
+      tbox.style.borderColor = 'var(--accent-cyan)';
+      tbox.style.background = 'rgba(56,189,248,0.08)';
+    }
+  }
+}
+
+function renderScope() {
+  const canvas = document.getElementById('canvas-scope');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  if (scopeAnimId) cancelAnimationFrame(scopeAnimId);
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#050b14';
+    ctx.fillRect(0, 0, W, H);
+
+    // Oscilloscope Grid
+    ctx.strokeStyle = '#132338';
+    ctx.lineWidth = 0.5;
+    for (let gx = 0; gx <= W; gx += W / 10) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+    for (let gy = 0; gy <= H; gy += H / 8) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+    
+    // Center baseline
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+    
+    const vin = gv('sl-vin') || 10;
+    const vcc = gv('sl-vcc') || 15;
+    const isClip = simData.isClip || false;
+    const bias = simData.bias || 'AB';
+    
+    const centerY = H / 2;
+    const scale = (H * 0.42) / (vcc + 2);
+    
+    // Draw Input (CH1: Yellow dashed line)
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    const vin_p = vin / 2;
+    for (let x = 0; x < W; x++) {
+      const ph = (x / W) * 4 * Math.PI + t;
+      const y = centerY - Math.sin(ph) * vin_p * scale;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Draw Output (CH2: Cyan / Orange / Red with Crossover or Clip)
+    ctx.strokeStyle = isClip ? '#f87171' : (bias === 'B' ? '#fb923c' : '#38bdf8');
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    
+    for (let x = 0; x < W; x++) {
+      const ph = (x / W) * 4 * Math.PI + t;
+      let sineVal = Math.sin(ph) * vin_p;
+      
+      // Simulate Crossover Distortion in Class B (0.65V deadband notch around zero)
+      if (bias === 'B') {
+        if (Math.abs(sineVal) < 0.65) {
+          sineVal = 0;
+        } else {
+          sineVal = sineVal > 0 ? (sineVal - 0.65) : (sineVal + 0.65);
+        }
+      }
+      
+      // Simulate Rail Clipping
+      const maxClip = vcc - 1.2;
+      sineVal = Math.max(-maxClip, Math.min(maxClip, sineVal));
+      
+      const y = centerY - sineVal * scale;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    
+    // Legends
+    ctx.font = '11px Fira Code';
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillText(`CH1 (In): ${vin.toFixed(1)}V(p-p)`, 14, 20);
+    
+    ctx.fillStyle = isClip ? '#f87171' : '#38bdf8';
+    const vout_p_txt = ((simData.vout_peak || 0) * 2).toFixed(1);
+    ctx.fillText(`CH2 (Out): ${vout_p_txt}V(p-p) · Mode: Class ${bias}`, 14, 38);
+    
+    if (bias === 'B') {
+      ctx.fillStyle = '#fb923c';
+      ctx.font = 'bold 11px Chakra Petch';
+      ctx.fillText('⚠️ CROSSOVER NOTCH DISTORTION', W - 240, 22);
+    } else if (isClip) {
+      ctx.fillStyle = '#f87171';
+      ctx.font = 'bold 11px Chakra Petch';
+      ctx.fillText('⚠ SATURATION CLIPPING', W - 200, 22);
+    }
+
+    t += 0.05;
+    scopeAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function setWsMode(mode) {
+  wsMode = mode;
+  const isC = mode === 'custom';
+  document.getElementById('btn-ws-fixed').classList.toggle('active', !isC);
+  document.getElementById('btn-ws-custom').classList.toggle('active', isC);
+  document.querySelectorAll('#panel-params input, #panel-params select').forEach(el => {
+    el.disabled = !isC;
+    el.style.background = isC ? '' : '#090d16';
+  });
+  document.getElementById('ws-custom-bar').style.display = isC ? 'flex' : 'none';
+  const alert = document.getElementById('ws-alert');
+  if (isC) {
+    alert.innerHTML = '🛠️ <strong>โหมดกำหนดค่าเอง:</strong> ปรับแต่งค่าพารามิเตอร์ได้อย่างอิสระ หรือกด <strong>⚡ ซิงค์จากแล็บเสมือน</strong>';
+    alert.style.borderColor = 'rgba(245,158,11,0.4)';
+    alert.style.background = 'rgba(245,158,11,0.08)';
+  } else {
+    alert.innerHTML = '📌 <strong>โหมดค่ามาตรฐาน:</strong> $\pm V_{CC} = \pm 15\text{V}$, $V_{in(p-p)} = 10\text{V}$, เปรียบเทียบโหลดลำโพง 4 Ω vs 8 Ω และ Class AB';
+    alert.style.borderColor = '';
+    alert.style.background = '';
+    resetWsToDefault();
+  }
+}
+
+function syncFromSim() {
+  document.getElementById('ws-vcc').value = document.getElementById('sl-vcc').value;
+  document.getElementById('ws-vin').value = document.getElementById('sl-vin').value;
+  document.getElementById('ws-bias').value = currentBias;
+  document.getElementById('ws-heatsink').value = hasHeatsink ? 'yes' : 'no';
+}
+
+function resetWsToDefault() {
+  document.getElementById('ws-vcc').value = 15;
+  document.getElementById('ws-vin').value = 10;
+  document.getElementById('ws-bias').value = 'AB';
+  document.getElementById('ws-heatsink').value = 'yes';
+}
+
+function randomizeWsParams() {
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  document.getElementById('ws-vcc').value = pick([12, 15, 18, 20]);
+  document.getElementById('ws-vin').value = pick([8, 10, 12, 14]);
+  document.getElementById('ws-bias').value = pick(['AB', 'B']);
+  document.getElementById('ws-heatsink').value = pick(['yes', 'no']);
+}
+
+function autoFillPart1() {
+  const vcc = wsMode === 'fixed' ? 15 : gv('ws-vcc');
+  const vin = wsMode === 'fixed' ? 10 : gv('ws-vin');
+  const bias = wsMode === 'fixed' ? 'AB' : document.getElementById('ws-bias').value;
+  
+  const r4 = calcPowerAmp({ vcc, vin, rl: 4, bias, pair: currentPair, heatsink: true });
+  const r8 = calcPowerAmp({ vcc, vin, rl: 8, bias, pair: currentPair, heatsink: true });
+  
+  const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '';
+  
+  document.getElementById('ws-vp-4').value = f(r4.vout_peak, 2);
+  document.getElementById('ws-vp-8').value = f(r8.vout_peak, 2);
+  document.getElementById('ws-ip-4').value = f(r4.ipeak, 2);
+  document.getElementById('ws-ip-8').value = f(r8.ipeak, 2);
+  document.getElementById('ws-pout-4').value = f(r4.pout, 2);
+  document.getElementById('ws-pout-8').value = f(r8.pout, 2);
+  document.getElementById('ws-pdc-4').value = f(r4.pdc, 2);
+  document.getElementById('ws-pdc-8').value = f(r8.pdc, 2);
+  document.getElementById('ws-eff-4').value = f(r4.eff, 1);
+  document.getElementById('ws-eff-8').value = f(r8.eff, 1);
+}
+
+function autoFillPart2() {
+  const vcc = wsMode === 'fixed' ? 15 : gv('ws-vcc');
+  const vin = wsMode === 'fixed' ? 10 : gv('ws-vin');
+  
+  const r_hs = calcPowerAmp({ vcc, vin, rl: 4, bias: 'AB', pair: currentPair, heatsink: true });
+  const r_nohs = calcPowerAmp({ vcc, vin, rl: 4, bias: 'AB', pair: currentPair, heatsink: false });
+  
+  const f = (v, d = 2) => isFinite(v) ? v.toFixed(d) : '';
+  
+  document.getElementById('ws-pd-hs').value = f(r_hs.pd_total, 2);
+  document.getElementById('ws-pd-nohs').value = f(r_nohs.pd_total, 2);
+  document.getElementById('ws-tj-hs').value = f(r_hs.tj, 1);
+  document.getElementById('ws-tj-nohs').value = f(r_nohs.tj, 1);
+  document.getElementById('ws-cross-ab').value = 'none';
+  document.getElementById('ws-cross-b').value = 'yes';
+}
+
+function getPayload() {
+  return {
+    studentName: document.getElementById('student-name')?.value.trim() || '',
+    studentId: document.getElementById('student-id')?.value.trim() || '',
+    studentGroup: document.getElementById('student-group')?.value.trim() || '',
+    labDate: document.getElementById('lab-date')?.value || '',
+    circuitMode: wsMode,
+    param_vcc: wsMode === 'fixed' ? 15 : gv('ws-vcc'),
+    param_vin: wsMode === 'fixed' ? 10 : gv('ws-vin'),
+    param_bias: wsMode === 'fixed' ? 'AB' : document.getElementById('ws-bias').value,
+    param_heatsink: wsMode === 'fixed' ? 'yes' : document.getElementById('ws-heatsink').value,
+    ws_vp_4: document.getElementById('ws-vp-4')?.value || '',
+    ws_vp_8: document.getElementById('ws-vp-8')?.value || '',
+    ws_ip_4: document.getElementById('ws-ip-4')?.value || '',
+    ws_ip_8: document.getElementById('ws-ip-8')?.value || '',
+    ws_pout_4: document.getElementById('ws-pout-4')?.value || '',
+    ws_pout_8: document.getElementById('ws-pout-8')?.value || '',
+    ws_pdc_4: document.getElementById('ws-pdc-4')?.value || '',
+    ws_pdc_8: document.getElementById('ws-pdc-8')?.value || '',
+    ws_eff_4: document.getElementById('ws-eff-4')?.value || '',
+    ws_eff_8: document.getElementById('ws-eff-8')?.value || '',
+    ws_pd_hs: document.getElementById('ws-pd-hs')?.value || '',
+    ws_pd_nohs: document.getElementById('ws-pd-nohs')?.value || '',
+    ws_tj_hs: document.getElementById('ws-tj-hs')?.value || '',
+    ws_tj_nohs: document.getElementById('ws-tj-nohs')?.value || '',
+    ws_cross_ab: document.getElementById('ws-cross-ab')?.value || '',
+    ws_cross_b: document.getElementById('ws-cross-b')?.value || '',
+    q1: document.querySelector('input[name="q1"]:checked')?.value || '',
+    q2: document.querySelector('input[name="q2"]:checked')?.value || '',
+    q3: document.querySelector('input[name="q3"]:checked')?.value || '',
+    q4: document.querySelector('input[name="q4"]:checked')?.value || '',
+    conclusion: document.getElementById('conclusion-text')?.value.trim() || ''
+  };
+}
+
+function previewScore() {
+  const d = getPayload();
+  if (!d.studentName || !d.studentId) {
+    alert('⚠️ กรุณากรอก "ชื่อ-นามสกุล" และ "รหัสนักศึกษา" ในแท็บตารางบันทึกผลก่อนส่ง');
+    switchTab('worksheet');
+    document.getElementById('student-name')?.focus();
+    return;
+  }
+  
+  const vcc = d.param_vcc, vin = d.param_vin;
+  const r4 = calcPowerAmp({ vcc, vin, rl: 4, bias: 'AB', pair: currentPair, heatsink: true });
+  const r8 = calcPowerAmp({ vcc, vin, rl: 8, bias: 'AB', pair: currentPair, heatsink: true });
+  const r_nohs = calcPowerAmp({ vcc, vin, rl: 4, bias: 'AB', pair: currentPair, heatsink: false });
+  
+  let score = 0;
+  let fb = [];
+  
+  // Part 1: (3 pts)
+  let p1 = 0;
+  if (Math.abs(parseFloat(d.ws_vp_4) - r4.vout_peak) <= 0.5 && Math.abs(parseFloat(d.ws_vp_8) - r8.vout_peak) <= 0.5) p1 += 0.5;
+  if (Math.abs(parseFloat(d.ws_ip_4) - r4.ipeak) <= 0.25 && Math.abs(parseFloat(d.ws_ip_8) - r8.ipeak) <= 0.15) p1 += 0.5;
+  if (Math.abs(parseFloat(d.ws_pout_4) - r4.pout) <= 0.6 && Math.abs(parseFloat(d.ws_pout_8) - r8.pout) <= 0.4) p1 += 1.0;
+  if (Math.abs(parseFloat(d.ws_pdc_4) - r4.pdc) <= 1.5 && Math.abs(parseFloat(d.ws_pdc_8) - r8.pdc) <= 1.0) p1 += 0.5;
+  if (Math.abs(parseFloat(d.ws_eff_4) - r4.eff) <= 6.0 && Math.abs(parseFloat(d.ws_eff_8) - r8.eff) <= 6.0) p1 += 0.5;
+  score += p1;
+  fb.push(`ตอนที่ 1 (กำลังขับและประสิทธิภาพ 4Ω vs 8Ω): ${p1.toFixed(1)} / 3.0 คะแนน`);
+  
+  // Part 2: (3 pts)
+  let p2 = 0;
+  if (Math.abs(parseFloat(d.ws_pd_hs) - r4.pd_total) <= 1.5) p2 += 1.0;
+  if (Math.abs(parseFloat(d.ws_tj_hs) - r4.tj) <= 10.0 && Math.abs(parseFloat(d.ws_tj_nohs) - r_nohs.tj) <= 30.0) p2 += 1.0;
+  if (d.ws_cross_ab === 'none' && d.ws_cross_b === 'yes') p2 += 1.0;
+  score += p2;
+  fb.push(`ตอนที่ 2 (ความร้อน Heatsink และ Crossover): ${p2.toFixed(1)} / 3.0 คะแนน`);
+  
+  // Part 3: (4 pts)
+  let p3 = 0;
+  if (d.q1 === 'b') p3 += 1;
+  if (d.q2 === 'a') p3 += 1;
+  if (d.q3 === 'b') p3 += 1;
+  if (d.q4 === 'c') p3 += 1;
+  score += p3;
+  fb.push(`ตอนที่ 3 (คำถามท้ายแล็บ): ${p3} / 4.0 คะแนน`);
+  
+  const modal = document.getElementById('submission-overlay');
+  document.getElementById('modal-spinner').style.display = 'none';
+  document.getElementById('modal-title').textContent = `📊 ผลการตรวจคะแนนจำลอง: ${score.toFixed(1)} / 10 คะแนน`;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="background:#090d16;padding:14px;border-radius:8px;border:1px solid var(--border-color);line-height:1.7;">
+      <strong>ผู้ทำการทดลอง:</strong> ${d.studentName} (${d.studentId})<br>
+      <strong>คะแนนประเมินรวม:</strong> <span style="font-size:18px;color:var(--accent-orange);font-weight:bold;">${score.toFixed(1)} / 10</span><br><br>
+      ${fb.join('<br>')}
+    </div>
+  `;
+  document.getElementById('modal-close-btn').style.display = 'inline-block';
+  document.getElementById('modal-confirm-btn').style.display = 'inline-block';
+  modal.style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('submission-overlay').style.display = 'none';
+}
+
+function confirmAndSubmit() {
+  const d = getPayload();
+  const modalBody = document.getElementById('modal-body');
+  const modalTitle = document.getElementById('modal-title');
+  document.getElementById('modal-spinner').style.display = 'block';
+  document.getElementById('modal-close-btn').style.display = 'none';
+  document.getElementById('modal-confirm-btn').style.display = 'none';
+  modalTitle.textContent = '🚀 กำลังส่งผลคะแนนเข้าสู่ระบบ Google Sheets...';
+  
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbz_REPLACE_WITH_YOUR_DEPLOY_ID/exec';
+  
+  if (scriptUrl.includes('REPLACE')) {
+    setTimeout(() => {
+      document.getElementById('modal-spinner').style.display = 'none';
+      modalTitle.textContent = '✅ ตรวจสอบและบันทึกคะแนนเรียบร้อย!';
+      modalBody.innerHTML = `
+        <div style="background:rgba(16,185,129,0.1);border:1px solid var(--accent-green);padding:14px;border-radius:8px;color:#34d399;line-height:1.6;">
+          🎉 <strong>บันทึกคะแนนสำเร็จ:</strong> บันทึกคะแนนของคุณเรียบร้อยแล้ว<br>
+          สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อเก็บเป็นหลักฐานการส่งงานได้ครับ
+        </div>
+      `;
+      document.getElementById('modal-close-btn').style.display = 'inline-block';
+      document.getElementById('modal-close-btn').textContent = 'ปิดหน้าต่าง';
+      
+      const submitTime = new Date().toLocaleString('th-TH');
+      localStorage.setItem('submitted_elab_power_amp_' + d.studentId, submitTime);
+      lockFormAsSubmitted(submitTime);
+    }, 1200);
+    return;
+  }
+  
+  fetch(scriptUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(d)
+  }).then(() => {
+    document.getElementById('modal-spinner').style.display = 'none';
+    modalTitle.textContent = '✅ ส่งรายงานเรียบร้อยแล้ว!';
+    modalBody.innerHTML = 'บันทึกข้อมูลเข้าสู่ระบบ Google Sheets สำเร็จ';
+    document.getElementById('modal-close-btn').style.display = 'inline-block';
+    const submitTime = new Date().toLocaleString('th-TH');
+    localStorage.setItem('submitted_elab_power_amp_' + d.studentId, submitTime);
+    lockFormAsSubmitted(submitTime);
+  }).catch(err => {
+    document.getElementById('modal-spinner').style.display = 'none';
+    modalTitle.textContent = '⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ';
+    modalBody.textContent = 'ไม่สามารถส่งข้อมูลได้: ' + err.message;
+    document.getElementById('modal-close-btn').style.display = 'inline-block';
+  });
+}
+
+// Anti-cheat paste prevention
+(function() {
+  let toastTimeout;
+  function showToast(el) {
+    const toast = document.getElementById('anti-cheat-toast');
+    if (toast) {
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)'; }, 10);
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(15px)';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 3000);
+    }
+    if (el) {
+      const ob = el.style.borderColor, os = el.style.boxShadow;
+      el.style.borderColor = '#ef4444';
+      el.style.boxShadow = '0 0 12px rgba(239,68,68,.6)';
+      setTimeout(() => { el.style.borderColor = ob; el.style.boxShadow = os; }, 1200);
+    }
+  }
+  function setup() {
+    document.querySelectorAll('textarea, input[type="text"].protected-answer').forEach(el => {
+      el.addEventListener('paste', e => { e.preventDefault(); showToast(el); });
+      el.addEventListener('drop', e => { e.preventDefault(); showToast(el); });
+      el.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V' || e.keyCode === 86)) { e.preventDefault(); showToast(el); }
+        if (e.shiftKey && (e.key === 'Insert' || e.keyCode === 45)) { e.preventDefault(); showToast(el); }
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();
+
+// SINGLE-SUBMISSION & FORM LOCKING SYSTEM
+const LAB_STORAGE_KEY_PREFIX = 'submitted_elab_power_amp_';
+
+function checkExistingSubmission() {
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  if (studentId) {
+    const prevSubmitTime = localStorage.getItem(LAB_STORAGE_KEY_PREFIX + studentId);
+    if (prevSubmitTime) {
+      lockFormAsSubmitted(prevSubmitTime);
+      return true;
+    }
+  }
+  return false;
+}
+window.checkExistingSubmission = checkExistingSubmission;
+
+function printReport() {
+  const name = (document.getElementById('student-name')?.value || '').trim();
+  const id = (document.getElementById('student-id')?.value || '').trim();
+  if (!name || !id) {
+    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
+    if (!confirmPrint) {
+      if (typeof switchTab === 'function') switchTab('worksheet');
+      document.getElementById('student-name')?.focus();
+      return;
+    }
+  }
+  window.print();
+}
+window.printReport = printReport;
+
+function lockFormAsSubmitted(submittedTime) {
+  const worksheetTab = document.getElementById('tab-worksheet');
+  const assessmentTab = document.getElementById('tab-assessment');
+  const targetTabs = [worksheetTab, assessmentTab].filter(Boolean);
+
+  targetTabs.forEach(tab => {
+    tab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.readOnly = true;
+      }
+    });
+  });
+
+  document.querySelectorAll('button[onclick*="submit"], button[onclick*="previewScore"]').forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.style.cursor = 'default';
+    btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    btn.innerHTML = '✓ ส่งใบงานเรียบร้อยแล้ว (' + submittedTime + ')';
+  });
+
+  targetTabs.forEach((tab, idx) => {
+    const bannerId = idx === 0 ? 'submitted-viewonly-banner' : 'submitted-viewonly-banner-assessment';
+    let banner = document.getElementById(bannerId);
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = bannerId;
+      banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 14px 20px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13.5px; font-family: Sarabun, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 14px; font-weight: 500; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+      const header = tab.querySelector('.card-title') || tab.firstElementChild;
+      if (header && header.nextSibling) {
+        tab.insertBefore(banner, header.nextSibling);
+      } else {
+        tab.prepend(banner);
+      }
+    }
+    banner.innerHTML = '<div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">' +
+      '<span style="font-size: 20px;">🔒</span>' +
+      '<span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>' +
+      '</div>' +
+      '<button type="button" class="btn no-print" onclick="resetWorksheetForNewUser()" style="background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #fca5a5; padding: 8px 16px; font-size: 13px; font-family: Sarabun, sans-serif; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background=\'rgba(239, 68, 68, 0.35)\'" onmouseout="this.style.background=\'rgba(239, 68, 68, 0.2)\'">' +
+      '🔄 สลับผู้ใช้ / เริ่มทำใหม่' +
+      '</button>';
+  });
+}
+window.lockFormAsSubmitted = lockFormAsSubmitted;
+
+function resetWorksheetForNewUser() {
+  const confirmMsg = "⚠️ ยืนยันการเริ่มทำใบงานใหม่สำหรับผู้ใช้อื่น?\n\n" +
+    "• ระบบจะปลดล็อกและเคลียร์ข้อมูลในใบงานทั้งหมด เพื่อให้นักศึกษาคนถัดไปเข้าใช้งาน\n" +
+    "• คะแนนและข้อมูลที่ส่งไปแล้วของนักศึกษาคนเดิมยังคงถูกบันทึกไว้อย่างปลอดภัยใน Google Sheets\n" +
+    "• หากยังไม่ได้บันทึกผลงาน กรุณากด 'Cancel' แล้วกด '🖨️ พิมพ์รายงาน / บันทึก PDF' ก่อน";
+  
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const worksheetTab = document.getElementById('tab-worksheet');
+  const assessmentTab = document.getElementById('tab-assessment');
+  const targetTabs = [worksheetTab, assessmentTab].filter(Boolean);
+
+  targetTabs.forEach(tab => {
+    tab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = false;
+      el.readOnly = false;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+        el.dispatchEvent(new Event('change'));
+      } else if (el.id === 'lab-date') {
+        try {
+          el.value = new Date().toISOString().split('T')[0];
+        } catch (e) {
+          el.value = '';
+        }
+      } else {
+        el.value = '';
+      }
+    });
+  });
+
+  document.querySelectorAll('button[onclick*="submit"], button[onclick*="previewScore"]').forEach(btn => {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.style.background = '';
+    btn.innerHTML = '🚀 ส่งใบงานและตรวจคะแนน';
+  });
+
+  ['submitted-viewonly-banner', 'submitted-viewonly-banner-assessment'].forEach(id => {
+    const banner = document.getElementById(id);
+    if (banner) banner.remove();
+  });
+
+  ['student-id', 'student-name', 'student-group'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+
+  if (typeof switchTab === 'function') switchTab('worksheet');
+  const idInput = document.getElementById('student-id');
+  if (idInput) idInput.focus();
+
+  setSpeaker(4);
+  setBiasMode('AB');
+  setHeatsink(true);
+
+  const overlay = document.getElementById('submission-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+window.resetWorksheetForNewUser = resetWorksheetForNewUser;
+
+// Initialize
+window.addEventListener('DOMContentLoaded', () => {
+  const dateInput = document.getElementById('lab-date');
+  if (dateInput) {
+    try { dateInput.value = new Date().toISOString().split('T')[0]; } catch(e) {}
+  }
+  updateSim();
+});
+</script>
+
+</body>
+</html>
