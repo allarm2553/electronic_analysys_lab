@@ -631,7 +631,7 @@
         <ul style="padding-left: 20px; line-height: 1.8; font-size: 14px;">
           <li>ศึกษาคุณสมบัติของวงจรขยายกระแสแบบ <strong>Common-Collector (Emitter Follower Buffer)</strong></li>
           <li>ศึกษาการทำงานของวงจรขยายกำลังคู่เสริมสมมาตร (Complementary Symmetry Class AB Push-Pull)</li>
-          <li>วิเคราะห์ผลกระทบของอิมพีแดนซ์โหลดลำโพง <strong>4 Ω และ 8 Ω</strong> ต่อกำลังขับ ($P_{out}$), กำลังสูญเสีย ($P_D$), และกระแสเอาต์พุต</li>
+          <li>วิเคราะห์ผลกระทบของอิมพีแดนซ์โหลดลำโพง <strong>4 Ω และ 8 Ω</strong> ต่อกำลังขับ (P<sub>out</sub>), กำลังสูญเสีย (P<sub>D</sub>), และกระแสเอาต์พุต</li>
           <li>ศึกษาและสังเกตความเพี้ยนรอยต่อ (<strong>Crossover Distortion</strong>) ใน Class B และการขจัดความเพี้ยนด้วย Class AB Diode Bias</li>
           <li>ทำความเข้าใจความสำคัญของ <strong>แผ่นระบายความร้อน (Heatsink)</strong> และการป้องกันสภาวะ Thermal Runaway</li>
         </ul>
@@ -640,25 +640,25 @@
       <div class="grid-2">
         <div class="card">
           <h2 class="card-title">⚡ การคำนวณกำลังงานและประสิทธิภาพ</h2>
-          <div class="formula-box" style="font-size:12.5px;line-height:1.9;">
+          <div class="formula-box" style="font-size:12.5px;line-height:2.1;">
             <strong>กำลังขับเอาต์พุตสูงสุด (Output Power):</strong><br>
-            $P_{out} = \frac{V_p^2}{2 R_L} = \frac{V_{rms}^2}{R_L}$ (เมื่อ $V_p \le V_{CC} - V_{sat}$)<br><br>
+            P<sub>out</sub> = V<sub>p</sub><sup>2</sup> / (2R<sub>L</sub>) = V<sub>rms</sub><sup>2</sup> / R<sub>L</sub> <small style="color:var(--text-muted);">(เมื่อ V<sub>p</sub> &le; V<sub>CC</sub> − V<sub>sat</sub>)</small><br><br>
             <strong>กำลังงานจากแหล่งจ่าย (DC Supply Power):</strong><br>
-            $P_{DC} = 2 V_{CC} \cdot I_{avg} = \frac{2 V_{CC} \cdot V_p}{\pi R_L}$<br><br>
-            <strong>ประสิทธิภาพของวงจร (Efficiency $\eta$):</strong><br>
-            $\eta = \frac{P_{out}}{P_{DC}} \times 100\% = \frac{\pi}{4} \left(\frac{V_p}{V_{CC}}\right) \approx 78.5\%\text{ (Max)}$
+            P<sub>DC</sub> = 2V<sub>CC</sub>·I<sub>avg</sub> = (2V<sub>CC</sub>·V<sub>p</sub>) / (&pi;·R<sub>L</sub>)<br><br>
+            <strong>ประสิทธิภาพของวงจร (Efficiency &eta;):</strong><br>
+            &eta; = (P<sub>out</sub> / P<sub>DC</sub>) &times; 100% = (&pi;/4)·(V<sub>p</sub> / V<sub>CC</sub>) &approx; 78.5% (Max)
           </div>
         </div>
 
         <div class="card">
           <h2 class="card-title">🌡️ ความร้อนและแผ่นระบายความร้อน (Heatsink)</h2>
-          <div class="formula-box" style="font-size:12.5px;line-height:1.9;color:#fecdd3;border-color:rgba(244,63,94,0.3);">
+          <div class="formula-box" style="font-size:12.5px;line-height:2.1;color:#fecdd3;border-color:rgba(244,63,94,0.3);">
             <strong>กำลังสูญเสียความร้อนรวม (Power Dissipation):</strong><br>
-            $P_D = P_{DC} - P_{out}$ (แบ่งกระจายใน Q1 และ Q2)<br><br>
-            <strong>อุณหภูมิรอยต่อทรานซิสเตอร์ ($T_j$ Junction Temp):</strong><br>
-            $T_j = T_A + P_{D(Q)} \times (\theta_{jc} + \theta_{cs} + \theta_{sa})$<br>
-            $\theta_{sa}$ = ความต้านทานความร้อนของ Heatsink ($^\circ\text{C/W}$)<br>
-            <span style="color:#fb7185;">⚠️ หากไม่มี Heatsink ($\theta_{sa}$ สูงมาก) $\to T_j > 150^\circ\text{C}$ พังทันที!</span>
+            P<sub>D</sub> = P<sub>DC</sub> − P<sub>out</sub> <small style="color:var(--text-muted);">(แบ่งกระจายใน Q1 และ Q2)</small><br><br>
+            <strong>อุณหภูมิรอยต่อทรานซิสเตอร์ (T<sub>j</sub> Junction Temp):</strong><br>
+            T<sub>j</sub> = T<sub>A</sub> + P<sub>D(Q)</sub> &times; (&theta;<sub>jc</sub> + &theta;<sub>cs</sub> + &theta;<sub>sa</sub>)<br>
+            &theta;<sub>sa</sub> = ความต้านทานความร้อนของ Heatsink (°C/W)<br>
+            <span style="color:#fb7185;">⚠️ หากไม่มี Heatsink (&theta;<sub>sa</sub> สูงมาก) &rarr; T<sub>j</sub> &gt; 150°C พังทันที!</span>
           </div>
         </div>
       </div>
@@ -676,19 +676,19 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>กำลังขับ $P_{out}$</strong></td>
+              <td><strong>กำลังขับ P<sub>out</sub></strong></td>
               <td>สูงกว่า (~2 เท่า) ให้เสียงดังกว่า</td>
               <td>ต่ำกว่า (~ครึ่งหนึ่ง)</td>
               <td>รักษากำลังขับต่อเนื่องได้โดยไม่เกิด Thermal Limiting</td>
             </tr>
             <tr>
-              <td><strong>กระแสสูงสุด $I_{p}$</strong></td>
-              <td>$I_p = V_p / 4\Omega$ (ดึงกระแสสูง 2 เท่า)</td>
-              <td>$I_p = V_p / 8\Omega$ (ดึงกระแสน้อยกว่า)</td>
-              <td>ทรานซิสเตอร์ต้องรองรับพิกัด $I_{C(max)}$</td>
+              <td><strong>กระแสสูงสุด I<sub>p</sub></strong></td>
+              <td>I<sub>p</sub> = V<sub>p</sub> / 4Ω (ดึงกระแสสูง 2 เท่า)</td>
+              <td>I<sub>p</sub> = V<sub>p</sub> / 8Ω (ดึงกระแสน้อยกว่า)</td>
+              <td>ทรานซิสเตอร์ต้องรองรับพิกัด I<sub>C(max)</sub></td>
             </tr>
             <tr>
-              <td><strong>ความร้อนสะสม $P_D$</strong></td>
+              <td><strong>ความร้อนสะสม P<sub>D</sub></strong></td>
               <td>สูงมาก ทรานซิสเตอร์ร้อนเร็ว</td>
               <td>ปานกลาง ทรานซิสเตอร์ทำงานเบาแรง</td>
               <td>ถ่ายเทความร้อนสู่อากาศ ป้องกัน Thermal Runaway</td>
@@ -714,11 +714,11 @@
             
             <div style="font-size:11px;font-weight:700;color:var(--accent-orange);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">🔋 แหล่งจ่ายไฟคู่ (Dual Rail)</div>
             <div class="control-group">
-              <div class="control-label"><span>$\pm V_{CC}$ (Supply Rails)</span><span class="val" id="val-vcc">±15.0 V</span></div>
+              <div class="control-label"><span>&plusmn;V<sub>CC</sub> (Supply Rails)</span><span class="val" id="val-vcc">±15.0 V</span></div>
               <input type="range" id="sl-vcc" min="9" max="24" step="1" value="15" oninput="updateSim()">
             </div>
 
-            <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);letter-spacing:1px;margin-bottom:8px;margin-top:14px;text-transform:uppercase;">🔊 โหลดลำโพง (Speaker Load $R_L$)</div>
+            <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);letter-spacing:1px;margin-bottom:8px;margin-top:14px;text-transform:uppercase;">🔊 โหลดลำโพง (Speaker Load R<sub>L</sub>)</div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;">
               <button id="btn-rl-4" class="btn btn-secondary active" onclick="setSpeaker(4)" style="font-size:11px;padding:6px 2px;">4 Ω</button>
               <button id="btn-rl-8" class="btn btn-secondary" onclick="setSpeaker(8)" style="font-size:11px;padding:6px 2px;">8 Ω</button>
@@ -745,7 +745,7 @@
             </div>
 
             <div class="control-group">
-              <div class="control-label"><span>$V_{in(p-p)}$ (สัญญาณเสียงอินพุต)</span><span class="val" id="val-vin">10.0 V</span></div>
+              <div class="control-label"><span>V<sub>in(p-p)</sub> (สัญญาณเสียงอินพุต)</span><span class="val" id="val-vin">10.0 V</span></div>
               <input type="range" id="sl-vin" min="1" max="24" step="0.5" value="10" oninput="updateSim()">
             </div>
 
@@ -885,11 +885,11 @@
             <div id="view-thermal" style="display:none;background:#050b14;border-radius:8px;border:1px solid var(--border-color);padding:20px;">
               <div class="grid-3" style="margin-bottom:15px;">
                 <div class="probe-card" style="border-color:var(--accent-orange);">
-                  <span class="readout-label">อุณหภูมิรอยต่อ ($T_j$)</span>
+                  <span class="readout-label">อุณหภูมิรอยต่อ (T<sub>j</sub>)</span>
                   <span class="readout-val orange" id="gauge-tj">52.4 °C</span>
                 </div>
                 <div class="probe-card" style="border-color:var(--accent-red);">
-                  <span class="readout-label">กำลังสูญเสียความร้อน ($P_D$ รวม)</span>
+                  <span class="readout-label">กำลังสูญเสียความร้อน (P<sub>D</sub> รวม)</span>
                   <span class="readout-val red" id="gauge-pd">6.85 W</span>
                 </div>
                 <div class="probe-card" style="border-color:var(--accent-green);">
@@ -898,7 +898,7 @@
                 </div>
               </div>
               <div class="highlight-box" id="thermal-alert-box" style="margin-bottom:0;">
-                💡 <strong>วิเคราะห์ความร้อน:</strong> เมื่อขับลำโพง 4Ω ทรานซิสเตอร์ต้องจ่ายกระแสสูงขึ้น ส่งผลให้กำลังสูญเสีย $P_D$ เพิ่มขึ้น แผ่นระบายความร้อน Heatsink ช่วยจำกัดอุณหภูมิไม่ให้เกิน $150^\circ\text{C}$
+                💡 <strong>วิเคราะห์ความร้อน:</strong> เมื่อขับลำโพง 4Ω ทรานซิสเตอร์ต้องจ่ายกระแสสูงขึ้น ส่งผลให้กำลังสูญเสีย P<sub>D</sub> เพิ่มขึ้น แผ่นระบายความร้อน Heatsink ช่วยจำกัดอุณหภูมิไม่ให้เกิน 150°C
               </div>
             </div>
 
@@ -906,15 +906,15 @@
             <div style="margin-top:14px;">
               <div style="font-size:11px;font-weight:700;color:var(--accent-orange);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">📊 พารามิเตอร์การวัดและกำลังงาน (Live Probes)</div>
               <div class="grid-4" style="margin-bottom:10px;">
-                <div class="probe-card"><span class="readout-label">กำลังขับเสียง $P_{out}$</span><span class="readout-val orange" id="rd-pout">--- W</span></div>
-                <div class="probe-card"><span class="readout-label">กำลังงานแหล่งจ่าย $P_{DC}$</span><span class="readout-val yellow" id="rd-pdc">--- W</span></div>
-                <div class="probe-card"><span class="readout-label">ประสิทธิภาพ $\eta$</span><span class="readout-val green" id="rd-eff">--- %</span></div>
-                <div class="probe-card"><span class="readout-label">กระแสพีค $I_{p(out)}$</span><span class="readout-val" id="rd-ipeak">--- A</span></div>
+                <div class="probe-card"><span class="readout-label">กำลังขับเสียง P<sub>out</sub></span><span class="readout-val orange" id="rd-pout">--- W</span></div>
+                <div class="probe-card"><span class="readout-label">กำลังงานแหล่งจ่าย P<sub>DC</sub></span><span class="readout-val yellow" id="rd-pdc">--- W</span></div>
+                <div class="probe-card"><span class="readout-label">ประสิทธิภาพ &eta;</span><span class="readout-val green" id="rd-eff">--- %</span></div>
+                <div class="probe-card"><span class="readout-label">กระแสพีค I<sub>p(out)</sub></span><span class="readout-val" id="rd-ipeak">--- A</span></div>
               </div>
               <div class="grid-3">
-                <div class="probe-card"><span class="readout-label">อัตราขยายแรงดัน $A_v$</span><span class="readout-val" id="rd-av">~0.98 (≈1)</span></div>
-                <div class="probe-card"><span class="readout-label">อิมพีแดนซ์เอาต์พุต $Z_o$</span><span class="readout-val green" id="rd-zo">&lt; 0.5 Ω</span></div>
-                <div class="probe-card"><span class="readout-label">อุณหภูมิรอยต่อ $T_j$</span><span class="readout-val orange" id="rd-tj">--- °C</span></div>
+                <div class="probe-card"><span class="readout-label">อัตราขยายแรงดัน A<sub>v</sub></span><span class="readout-val" id="rd-av">~0.98 (≈1)</span></div>
+                <div class="probe-card"><span class="readout-label">อิมพีแดนซ์เอาต์พุต Z<sub>o</sub></span><span class="readout-val green" id="rd-zo">&lt; 0.5 Ω</span></div>
+                <div class="probe-card"><span class="readout-label">อุณหภูมิรอยต่อ T<sub>j</sub></span><span class="readout-val orange" id="rd-tj">--- °C</span></div>
               </div>
             </div>
           </div>
@@ -942,7 +942,7 @@
             <button id="btn-ws-custom" class="btn btn-secondary" onclick="setWsMode('custom')">🛠️ โหมดกำหนดค่าเอง</button>
           </div>
         </div>
-        <div id="ws-alert" class="highlight-box" style="margin-top:14px;">📌 <strong>โหมดค่ามาตรฐาน:</strong> $\pm V_{CC} = \pm 15\text{V}$, $V_{in(p-p)} = 10\text{V}$, เปรียบเทียบโหลดลำโพง 4 Ω vs 8 Ω และ Class AB</div>
+        <div id="ws-alert" class="highlight-box" style="margin-top:14px;">📌 <strong>โหมดค่ามาตรฐาน:</strong> &plusmn;V<sub>CC</sub> = &plusmn;15V, V<sub>in(p-p)</sub> = 10V, เปรียบเทียบโหลดลำโพง 4 Ω vs 8 Ω และ Class AB</div>
         <div id="ws-custom-bar" style="display:none;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap;" class="no-print">
           <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="syncFromSim()">⚡ ซิงค์จากแล็บเสมือน</button>
           <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="randomizeWsParams()">🎲 สุ่มโจทย์ใหม่</button>
@@ -950,8 +950,8 @@
         </div>
         <div id="panel-params" style="margin-top:14px;">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
-            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">$\pm V_{CC}$ (V):</label><input type="number" id="ws-vcc" class="form-control" value="15" step="1" disabled style="background:#090d16;"></div>
-            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">$V_{in(p-p)}$ (V):</label><input type="number" id="ws-vin" class="form-control" value="10" step="0.5" disabled style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">&plusmn;V<sub>CC</sub> (V):</label><input type="number" id="ws-vcc" class="form-control" value="15" step="1" disabled style="background:#090d16;"></div>
+            <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">V<sub>in(p-p)</sub> (V):</label><input type="number" id="ws-vin" class="form-control" value="10" step="0.5" disabled style="background:#090d16;"></div>
             <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">โหมดไบแอส:</label><select id="ws-bias" class="form-control" disabled style="background:#090d16;"><option value="AB">Class AB</option><option value="B">Class B</option></select></div>
             <div class="form-group" style="margin-bottom:0;"><label style="font-size:11px;">ฮีตซิงก์:</label><select id="ws-heatsink" class="form-control" disabled style="background:#090d16;"><option value="yes">มี Heatsink</option><option value="no">ไม่มี Heatsink</option></select></div>
           </div>
@@ -976,36 +976,36 @@
           </thead>
           <tbody>
             <tr>
-              <td>แรงดันเอาต์พุตพีค $V_{p(out)}$</td>
-              <td>$\approx V_{in(p-p)} / 2$</td>
+              <td>แรงดันเอาต์พุตพีค V<sub>p(out)</sub></td>
+              <td>&approx; V<sub>in(p-p)</sub> / 2</td>
               <td><input type="number" id="ws-vp-4" class="form-control" step="0.01" placeholder="เช่น 4.85" style="width:100px;"></td>
               <td><input type="number" id="ws-vp-8" class="form-control" step="0.01" placeholder="เช่น 4.90" style="width:100px;"></td>
               <td>V</td>
             </tr>
             <tr>
-              <td>กระแสเอาต์พุตพีค $I_{p}$</td>
-              <td>$V_{p(out)} / R_L$</td>
+              <td>กระแสเอาต์พุตพีค I<sub>p</sub></td>
+              <td>V<sub>p(out)</sub> / R<sub>L</sub></td>
               <td><input type="number" id="ws-ip-4" class="form-control" step="0.01" placeholder="เช่น 1.21" style="width:100px;"></td>
               <td><input type="number" id="ws-ip-8" class="form-control" step="0.01" placeholder="เช่น 0.61" style="width:100px;"></td>
               <td>A</td>
             </tr>
             <tr>
-              <td>กำลังขับเอาต์พุต $P_{out}$</td>
-              <td>$V_{p}^2 / (2 R_L)$</td>
+              <td>กำลังขับเอาต์พุต P<sub>out</sub></td>
+              <td>V<sub>p</sub><sup>2</sup> / (2R<sub>L</sub>)</td>
               <td><input type="number" id="ws-pout-4" class="form-control" step="0.01" placeholder="เช่น 2.94" style="width:100px;"></td>
               <td><input type="number" id="ws-pout-8" class="form-control" step="0.01" placeholder="เช่น 1.50" style="width:100px;"></td>
               <td>W</td>
             </tr>
             <tr>
-              <td>กำลังงานจากแหล่งจ่าย $P_{DC}$</td>
-              <td>$(2 V_{CC} \cdot V_p) / (\pi R_L)$</td>
+              <td>กำลังงานจากแหล่งจ่าย P<sub>DC</sub></td>
+              <td>(2V<sub>CC</sub>·V<sub>p</sub>) / (&pi;·R<sub>L</sub>)</td>
               <td><input type="number" id="ws-pdc-4" class="form-control" step="0.01" placeholder="เช่น 11.58" style="width:100px;"></td>
               <td><input type="number" id="ws-pdc-8" class="form-control" step="0.01" placeholder="เช่น 5.85" style="width:100px;"></td>
               <td>W</td>
             </tr>
             <tr>
-              <td>ประสิทธิภาพ $\eta$</td>
-              <td>$(P_{out} / P_{DC}) \times 100\%$</td>
+              <td>ประสิทธิภาพ &eta;</td>
+              <td>(P<sub>out</sub> / P<sub>DC</sub>) &times; 100%</td>
               <td><input type="number" id="ws-eff-4" class="form-control" step="0.1" placeholder="เช่น 25.4" style="width:100px;"></td>
               <td><input type="number" id="ws-eff-8" class="form-control" step="0.1" placeholder="เช่น 25.6" style="width:100px;"></td>
               <td>%</td>
@@ -1032,15 +1032,15 @@
           </thead>
           <tbody>
             <tr>
-              <td>กำลังสูญเสียความร้อนรวม $P_D$</td>
-              <td>$P_{DC} - P_{out}$</td>
+              <td>กำลังสูญเสียความร้อนรวม P<sub>D</sub></td>
+              <td>P<sub>DC</sub> − P<sub>out</sub></td>
               <td><input type="number" id="ws-pd-hs" class="form-control" step="0.01" placeholder="เช่น 8.64" style="width:100px;"></td>
               <td><input type="number" id="ws-pd-nohs" class="form-control" step="0.01" placeholder="เช่น 8.64" style="width:100px;"></td>
               <td>W</td>
             </tr>
             <tr>
-              <td>อุณหภูมิรอยต่อ $T_j$ ($R_L=4\Omega$)</td>
-              <td>$T_A + P_{D(Q)} \cdot \theta_{total}$</td>
+              <td>อุณหภูมิรอยต่อ T<sub>j</sub> (R<sub>L</sub>=4Ω)</td>
+              <td>T<sub>A</sub> + P<sub>D(Q)</sub>·&theta;<sub>total</sub></td>
               <td><input type="number" id="ws-tj-hs" class="form-control" step="0.1" placeholder="เช่น 58.2" style="width:100px;"></td>
               <td><input type="number" id="ws-tj-nohs" class="form-control" step="0.1" placeholder="เช่น 185.0" style="width:100px;"></td>
               <td>°C</td>
@@ -1074,7 +1074,7 @@
           <div class="question-title">ข้อ 1: ทำไมภาคขับลำโพงในเครื่องขยายเสียงจึงต้องใช้วงจร Common-Collector (Emitter Follower)?</div>
           <div class="options-grid">
             <label class="option-label"><input type="radio" name="q1" value="a"> เพื่อขยายแรงดันให้สูงขึ้นอีกหลายร้อยเท่า</label>
-            <label class="option-label"><input type="radio" name="q1" value="b"> เพราะมี $Z_{out}$ ต่ำมาก และขยายกระแส ($A_i$) ได้สูง เหมาะกับการขับลำโพง 4Ω/8Ω</label>
+            <label class="option-label"><input type="radio" name="q1" value="b"> เพราะมี Z<sub>out</sub> ต่ำมาก และขยายกระแส (A<sub>i</sub>) ได้สูง เหมาะกับการขับลำโพง 4Ω/8Ω</label>
             <label class="option-label"><input type="radio" name="q1" value="c"> เพื่อกลับเฟสสัญญาณ 180° ป้องกันการออสซิลเลต</label>
             <label class="option-label"><input type="radio" name="q1" value="d"> เพื่อลดแรงดันไฟเลี้ยงไม่ให้เปลืองพลังงาน</label>
           </div>
@@ -1085,8 +1085,8 @@
           <div class="options-grid">
             <label class="option-label"><input type="radio" name="q2" value="a"> ได้กำลังขับสูงขึ้น และดึงกระแสจากทรานซิสเตอร์สูงขึ้น 2 เท่า ทำให้ร้อนเร็วขึ้น</label>
             <label class="option-label"><input type="radio" name="q2" value="b"> กำลังขับลดลงครึ่งหนึ่ง และวงจรเย็นลง</label>
-            <label class="option-label"><input type="radio" name="q2" value="c"> ไม่มีผลกระทบใดๆ เพราะแรงดัน $V_{CC}$ เท่าเดิม</label>
-            <label class="option-label"><input type="radio" name="q2" value="d"> ทำให้อัตราขยายแรงดัน $A_v$ เพิ่มขึ้นเป็น 10 เท่า</label>
+            <label class="option-label"><input type="radio" name="q2" value="c"> ไม่มีผลกระทบใดๆ เพราะแรงดัน V<sub>CC</sub> เท่าเดิม</label>
+            <label class="option-label"><input type="radio" name="q2" value="d"> ทำให้อัตราขยายแรงดัน A<sub>v</sub> เพิ่มขึ้นเป็น 10 เท่า</label>
           </div>
         </div>
 
@@ -1094,9 +1094,9 @@
           <div class="question-title">ข้อ 3: ความเพี้ยนรอยต่อ (Crossover Distortion) ในวงจร Push-Pull Class B เกิดจากสาเหตุใด และแก้อย่างไร?</div>
           <div class="options-grid">
             <label class="option-label"><input type="radio" name="q3" value="a"> เกิดจากความร้อนสะสม แก้โดยการใส่พัดลม</label>
-            <label class="option-label"><input type="radio" name="q3" value="b"> เกิดจากช่วงแรงดันตกคร่อม $V_{BE} \approx 0.7\text{V}$ ทรานซิสเตอร์ยังไม่นำกระแส แก้โดยจัดไบแอส Class AB ด้วยไดโอด</label>
+            <label class="option-label"><input type="radio" name="q3" value="b"> เกิดจากช่วงแรงดันตกคร่อม V<sub>BE</sub> ≈ 0.7V ทรานซิสเตอร์ยังไม่นำกระแส แก้โดยจัดไบแอส Class AB ด้วยไดโอด</label>
             <label class="option-label"><input type="radio" name="q3" value="c"> เกิดจากลำโพง 4Ω ดึงกระแสเกิน แก้โดยถอดลำโพงออก</label>
-            <label class="option-label"><input type="radio" name="q3" value="d"> เกิดจากความต้านทาน $R_E$ ขาด แก้โดยต่อตรงลงกราวด์</label>
+            <label class="option-label"><input type="radio" name="q3" value="d"> เกิดจากความต้านทาน R<sub>E</sub> ขาด แก้โดยต่อตรงลงกราวด์</label>
           </div>
         </div>
 
@@ -1104,9 +1104,9 @@
           <div class="question-title">ข้อ 4: หากทรานซิสเตอร์ภาคเพาเวอร์เอาต์พุตไม่มีแผ่นระบายความร้อน (Heatsink) จะเกิดผลร้ายแรงใด?</div>
           <div class="options-grid">
             <label class="option-label"><input type="radio" name="q4" value="a"> เสียงดนตรีจะทุ้มเกินไป</label>
-            <label class="option-label"><input type="radio" name="q4" value="b"> กำลังขับ $P_{out}$ จะเพิ่มขึ้นจนลำโพงระเบิด</label>
-            <label class="option-label"><input type="radio" name="q4" value="c"> อุณหภูมิรอยต่อ $T_j$ จะพุ่งเกิน 150°C เกิด Thermal Runaway และทรานซิสเตอร์ไหม้ช็อตทะลุ</label>
-            <label class="option-label"><input type="radio" name="q4" value="d"> ประสิทธิภาพ $\eta$ จะกลายเป็น 100%</label>
+            <label class="option-label"><input type="radio" name="q4" value="b"> กำลังขับ P<sub>out</sub> จะเพิ่มขึ้นจนลำโพงระเบิด</label>
+            <label class="option-label"><input type="radio" name="q4" value="c"> อุณหภูมิรอยต่อ T<sub>j</sub> จะพุ่งเกิน 150°C เกิด Thermal Runaway และทรานซิสเตอร์ไหม้ช็อตทะลุ</label>
+            <label class="option-label"><input type="radio" name="q4" value="d"> ประสิทธิภาพ &eta; จะกลายเป็น 100%</label>
           </div>
         </div>
       </div>
@@ -1326,7 +1326,7 @@ function updateSim() {
   if (res.tj > 150) {
     if (gstat) { gstat.textContent = '🔥 วิกฤต! THERMAL RUNAWAY'; gstat.className = 'readout-val red'; }
     if (tbox) {
-      tbox.innerHTML = '⚠️ <strong>อันตรายร้ายแรง!</strong> อุณหภูมิ $T_j > 150^\circ\text{C}$ ทรานซิสเตอร์เกิดสภาวะ Thermal Runaway และไหม้ช็อตเสียหายทันทีเนื่องจากไม่มี Heatsink!';
+      tbox.innerHTML = '⚠️ <strong>อันตรายร้ายแรง!</strong> อุณหภูมิ T<sub>j</sub> &gt; 150°C ทรานซิสเตอร์เกิดสภาวะ Thermal Runaway และไหม้ช็อตเสียหายทันทีเนื่องจากไม่มี Heatsink!';
       tbox.style.borderColor = '#ef4444';
       tbox.style.background = 'rgba(239,68,68,0.12)';
     }
@@ -1340,7 +1340,7 @@ function updateSim() {
   } else {
     if (gstat) { gstat.textContent = '🟢 ปลอดภัย (Normal)'; gstat.className = 'readout-val green'; }
     if (tbox) {
-      tbox.innerHTML = '💡 <strong>วิเคราะห์ความร้อน:</strong> แผ่นระบายความร้อน Heatsink ช่วยระบายความร้อนสะสม $P_D$ สู่อากาศได้อย่างมีเสถียรภาพ รักษาระดับอุณหภูมิปลอดภัย';
+      tbox.innerHTML = '💡 <strong>วิเคราะห์ความร้อน:</strong> แผ่นระบายความร้อน Heatsink ช่วยระบายความร้อนสะสม P<sub>D</sub> สู่อากาศได้อย่างมีเสถียรภาพ รักษาระดับอุณหภูมิปลอดภัย';
       tbox.style.borderColor = 'var(--accent-cyan)';
       tbox.style.background = 'rgba(56,189,248,0.08)';
     }
@@ -1461,7 +1461,7 @@ function setWsMode(mode) {
     alert.style.borderColor = 'rgba(245,158,11,0.4)';
     alert.style.background = 'rgba(245,158,11,0.08)';
   } else {
-    alert.innerHTML = '📌 <strong>โหมดค่ามาตรฐาน:</strong> $\pm V_{CC} = \pm 15\text{V}$, $V_{in(p-p)} = 10\text{V}$, เปรียบเทียบโหลดลำโพง 4 Ω vs 8 Ω และ Class AB';
+    alert.innerHTML = '📌 <strong>โหมดค่ามาตรฐาน:</strong> &plusmn;V<sub>CC</sub> = &plusmn;15V, V<sub>in(p-p)</sub> = 10V, เปรียบเทียบโหลดลำโพง 4 Ω vs 8 Ω และ Class AB';
     alert.style.borderColor = '';
     alert.style.background = '';
     resetWsToDefault();
