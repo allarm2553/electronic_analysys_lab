@@ -639,7 +639,7 @@
         </ul>
       </div>
 
-      <!-- Theory Grid: Gain & Current Formulas -->
+      <!-- Theory Grid: Row 1 - Gain & Current Formulas -->
       <div class="grid-2">
         <!-- Box 1: Buffer Gain & Impedance -->
         <div class="card">
@@ -676,11 +676,29 @@
         </div>
       </div>
 
-      <!-- Theory Grid: Thermal & Comparison -->
+      <!-- Theory Grid: Row 2 - AC Model Parameters & Thermal Heatsink -->
       <div class="grid-2">
-        <!-- Box 3: Thermal & Heatsink -->
+        <!-- Box 3: Transistor AC re Model Parameters -->
         <div class="card">
-          <h2 class="card-title">🌡️ 3. กำลังสูญเสียความร้อนและแผ่นระบายความร้อน (Heatsink)</h2>
+          <h2 class="card-title">📐 3. แบบจำลองและพารามิเตอร์ AC ของทรานซิสเตอร์ (re Model Parameters)</h2>
+          <div class="formula-box" style="font-size:12px;line-height:2.1;border-color:rgba(192,132,252,0.4);background:rgba(15,23,42,0.85);color:#e9d5ff;">
+            <strong>ความต้านทานรอยต่ออีมิเตอร์ AC (Dynamic Emitter Resistance r<sub>e</sub>):</strong><br>
+            r<sub>e</sub> = V<sub>T</sub> / I<sub>E</sub> = <strong>26 mV / I<sub>E</sub>(mA)</strong> <small style="color:var(--text-muted);">(ที่ 25°C-28°C, V<sub>T</sub> &approx; 26mV)</small><br>
+            • เมื่อกระแสโหลดสูง (I<sub>E</sub> = 1A) &rarr; r<sub>e</sub> = 26mV / 1000mA = <strong>0.026 Ω</strong> (ต่ำมาก)<br>
+            • เมื่อกระแสสงบ (I<sub>Q</sub> = 25mA) &rarr; r<sub>e</sub> = 26mV / 25mA = <strong>1.04 Ω</strong><br><br>
+            <strong>พารามิเตอร์ของแบบจำลองสัญญาณขนาดเล็ก (Small-Signal Parameters):</strong><br>
+            • <strong>อัตราขยายกระแส AC (&beta; หรือ h<sub>fe</sub>):</strong> &beta; = i<sub>c</sub> / i<sub>b</sub> <small style="color:#38bdf8;">(TIP31C &beta;&approx;50, 2N3055 &beta;&approx;35)</small><br>
+            • <strong>ความต้านทานอินพุตขาเบส (r<sub>&pi;</sub> หรือ h<sub>ie</sub>):</strong> r<sub>&pi;</sub> = &beta; &times; r<sub>e</sub><br>
+            • <strong>อิมพีแดนซ์มองเข้าเบสรวมโหลด (Z<sub>b</sub>):</strong> Z<sub>b</sub> = &beta;(r<sub>e</sub> + R<sub>E</sub> + R<sub>L</sub>)<br>
+            • <strong>ความนำข้ามสัญญาณ (Transconductance g<sub>m</sub>):</strong> g<sub>m</sub> = I<sub>C</sub> / V<sub>T</sub> = 1 / r<sub>e</sub> = &beta; / r<sub>&pi;</sub><br>
+            • <strong>แหล่งจ่ายกระแสควบคุม:</strong> i<sub>c</sub> = &beta;&middot;i<sub>b</sub> = g<sub>m</sub>&middot;v<sub>be</sub> และ i<sub>e</sub> = (&beta; + 1)i<sub>b</sub><br>
+            • <strong>ความต้านทานพลวัตไดโอดไบแอส (r<sub>d</sub>):</strong> r<sub>d</sub> = 26mV / I<sub>D</sub> &approx; <strong>1 - 2 Ω</strong> (ลัดวงจรทาง AC)
+          </div>
+        </div>
+
+        <!-- Box 4: Thermal & Heatsink -->
+        <div class="card">
+          <h2 class="card-title">🌡️ 4. กำลังสูญเสียความร้อนและแผ่นระบายความร้อน (Heatsink)</h2>
           <div class="formula-box" style="font-size:12px;line-height:2.1;color:#fecdd3;border-color:rgba(244,63,94,0.3);background:rgba(15,23,42,0.85);">
             <strong>กำลังสูญเสียความร้อนรวม (Power Dissipation P<sub>D</sub>):</strong><br>
             P<sub>D(total)</sub> = P<sub>DC</sub> − P<sub>out</sub> <small style="color:var(--text-muted);">(กระจายใน Q1 และ Q2 คนละครึ่ง: P<sub>D(Q)</sub> = P<sub>D</sub> / 2)</small><br><br>
@@ -692,16 +710,16 @@
             <span style="color:#fb7185;">⚠️ กรณีไม่มี Heatsink (&theta;<sub>ja</sub> &approx; 62.5 °C/W) &rarr; T<sub>j</sub> &gt; 150°C ทรานซิสเตอร์จะไหม้ทะลุ (Thermal Runaway) ทันที!</span>
           </div>
         </div>
+      </div>
 
-        <!-- Box 4: Why Class AB eliminates Crossover -->
-        <div class="card">
-          <h2 class="card-title">🌊 4. ความเพี้ยนรอยต่อ (Crossover Distortion) ใน Class B vs Class AB</h2>
-          <div class="formula-box" style="font-size:12px;line-height:2.0;color:#fed7aa;border-color:rgba(251,146,60,0.3);background:rgba(15,23,42,0.85);">
-            <strong>สาเหตุการเกิด Crossover Notch ใน Class B:</strong><br>
-            ทรานซิสเตอร์ซิลิคอนต้องการแรงดัน V<sub>BE</sub> &ge; 0.65V ถึงจะเริ่มนำกระแส เมื่อสัญญาณเสียงตัดผ่านจุด 0V (Zero-Crossing) ในช่วง -0.65V ถึง +0.65V จะไม่มีทรานซิสเตอร์ตัวใดทำงาน ทำให้รูปคลื่นเกิด <strong>Deadband Notch (รอยบากแบน)</strong> เสียงจะเพี้ยนแหบ<br><br>
-            <strong>การแก้ปัญหาด้วย Class AB Diode Biasing:</strong><br>
-            ต่อไดโอด D1, D2 อนุกรมคั่นระหว่างขาเบส Q1 และ Q2 เพื่อสร้างแรงดันตกคร่อมชดเชย 2 &times; V<sub>D</sub> &approx; 1.4V ดึงขาเบสทั้งสองให้อยู่ที่ขอบเขตพร้อมนำกระแสพอดี (Quiescent Bias) ทำให้รูปคลื่นเสียงเชื่อมต่อกันได้อย่างต่อเนื่องและเรียบเนียนไร้รอยต่อ
-          </div>
+      <!-- Theory Grid: Row 3 - Crossover Distortion Details -->
+      <div class="card">
+        <h2 class="card-title">🌊 5. ความเพี้ยนรอยต่อ (Crossover Distortion) ใน Class B vs Class AB</h2>
+        <div class="formula-box" style="font-size:12px;line-height:2.0;color:#fed7aa;border-color:rgba(251,146,60,0.3);background:rgba(15,23,42,0.85);">
+          <strong>สาเหตุการเกิด Crossover Notch ใน Class B:</strong><br>
+          ทรานซิสเตอร์ซิลิคอนต้องการแรงดัน V<sub>BE</sub> &ge; 0.65V ถึงจะเริ่มนำกระแส เมื่อสัญญาณเสียงตัดผ่านจุด 0V (Zero-Crossing) ในช่วง -0.65V ถึง +0.65V จะไม่มีทรานซิสเตอร์ตัวใดทำงาน ทำให้รูปคลื่นเกิด <strong>Deadband Notch (รอยบากแบน)</strong> เสียงจะเพี้ยนแหบ<br><br>
+          <strong>การแก้ปัญหาด้วย Class AB Diode Biasing:</strong><br>
+          ต่อไดโอด D1, D2 อนุกรมคั่นระหว่างขาเบส Q1 และ Q2 เพื่อสร้างแรงดันตกคร่อมชดเชย 2 &times; V<sub>D</sub> &approx; 1.4V ดึงขาเบสทั้งสองให้อยู่ที่ขอบเขตพร้อมนำกระแสพอดี (Quiescent Bias) ทำให้รูปคลื่นเสียงเชื่อมต่อกันได้อย่างต่อเนื่องและเรียบเนียนไร้รอยต่อ
         </div>
       </div>
 
