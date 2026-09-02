@@ -584,32 +584,162 @@
 
     /* Print styling */
     @media print {
-      body {
-        background: #fff !important;
-        color: #000 !important;
+      @page {
+        size: A4 portrait;
+        margin: 12mm 12mm 12mm 12mm;
       }
-      .sidebar, .btn, .hide-print {
+
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+
+      .app-container, .main-content {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+
+      .sidebar, .btn, .hide-print, .no-print, #anti-cheat-toast, .overlay,
+      #tab-theory, #tab-simulator {
         display: none !important;
       }
-      .main-content {
-        padding: 0 !important;
+
+      * {
+        animation: none !important;
+        transition: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
+
       .tab-pane {
+        display: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        animation: none !important;
+        opacity: 1 !important;
+      }
+
+      #tab-worksheet,
+      #tab-assessment {
         display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
       }
+
+      .content-header {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        margin-bottom: 8px !important;
+      }
+
+      .content-header h1 {
+        font-size: 13pt !important;
+        color: #0f172a !important;
+      }
+
+      .content-header .subtitle {
+        font-size: 9pt !important;
+        color: #475569 !important;
+      }
+
+      #submitted-viewonly-banner button,
+      #submitted-viewonly-banner-assessment button {
+        display: none !important;
+      }
+
       .card {
-        border: 1px solid #ccc !important;
-        background: none !important;
-        color: #000 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
         box-shadow: none !important;
+        padding: 12px 16px !important;
+        margin-bottom: 12px !important;
       }
-      table.lab-table th {
-        background: #eee !important;
-        color: #000 !important;
+
+      .card-title {
+        color: #0f172a !important;
+        border-bottom: 1.5px solid #94a3b8 !important;
+        font-size: 12pt !important;
+        padding-bottom: 5px !important;
+        margin-bottom: 8px !important;
       }
-      table.lab-table th, table.lab-table td {
-        border: 1px solid #999 !important;
-        color: #000 !important;
+
+      .card-title .number {
+        color: #0284c7 !important;
+      }
+
+      .lab-table th, table.lab-table th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #64748b !important;
+        font-weight: bold;
+      }
+
+      .lab-table td, table.lab-table td {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+
+      .lab-table input, .lab-table select, select, input {
+        background: #f8fafc !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+        font-weight: bold;
+      }
+
+      .question-block {
+        background: #ffffff !important;
+        border: 1px solid #94a3b8 !important;
+        color: #0f172a !important;
+        padding: 8px 12px !important;
+        margin-bottom: 8px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .question-title {
+        color: #0f172a !important;
+        font-weight: bold !important;
+        font-size: 9.5pt !important;
+      }
+
+      .option-label {
+        color: #0f172a !important;
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        font-size: 9pt !important;
+        padding: 4px 8px !important;
+        margin-bottom: 3px !important;
+      }
+
+      .option-label span {
+        color: #0f172a !important;
+      }
+
+      textarea {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+      }
+
+      .highlight-box {
+        background: #f8fafc !important;
+        border-left: 4px solid #0284c7 !important;
+        color: #000000 !important;
       }
     }
   </style>
@@ -1434,8 +1564,11 @@
         </div>
 
         <!-- Submission Actions -->
-        <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;">
-          <button type="button" class="btn btn-secondary" onclick="window.print()">
+        <div class="no-print" style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">
+            🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="printReport()">
             🖨️ พิมพ์รายงาน / บันทึก PDF
           </button>
           <button type="button" class="btn btn-secondary" style="border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); font-weight: bold;" onclick="previewScoreBeforeSubmit()">
@@ -2521,21 +2654,38 @@ function checkExistingSubmission() {
 }
 window.checkExistingSubmission = checkExistingSubmission;
 
-function lockFormAsSubmitted(submittedTime) {
-  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
-  if (!reportTab) return;
-
-  // 1. Disable inputs, selects, and textareas inside report / worksheet tab
-  reportTab.querySelectorAll('input, select, textarea').forEach(el => {
-    el.disabled = true;
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.readOnly = true;
+function printReport() {
+  const name = (document.getElementById('student-name')?.value || '').trim();
+  const id = (document.getElementById('student-id')?.value || '').trim();
+  if (!name || !id) {
+    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
+    if (!confirmPrint) {
+      if (typeof switchTab === 'function') switchTab('worksheet');
+      document.getElementById('student-name')?.focus();
+      return;
     }
+  }
+  window.print();
+}
+window.printReport = printReport;
+
+function lockFormAsSubmitted(submittedTime) {
+  // Target BOTH worksheet and assessment tabs
+  const worksheetTab = document.getElementById('tab-worksheet');
+  const assessmentTab = document.getElementById('tab-assessment');
+  const targetTabs = [worksheetTab, assessmentTab].filter(Boolean);
+
+  targetTabs.forEach(tab => {
+    tab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.readOnly = true;
+      }
+    });
   });
 
-  // 2. Disable submission button and update styling
-  const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"]');
-  submitButtons.forEach(btn => {
+  // Disable submission button and update styling
+  document.querySelectorAll('button[onclick*="submit"]').forEach(btn => {
     btn.disabled = true;
     btn.style.opacity = '0.75';
     btn.style.cursor = 'default';
@@ -2543,22 +2693,110 @@ function lockFormAsSubmitted(submittedTime) {
     btn.innerHTML = '✓ ส่งใบงานเรียบร้อยแล้ว (' + submittedTime + ')';
   });
 
-  // 3. Add or update View-Only banner at top of report tab
-  let banner = document.getElementById('submitted-viewonly-banner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'submitted-viewonly-banner';
-    banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 12px 18px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13px; font-family: Sarabun, sans-serif; display: flex; align-items: center; gap: 10px; font-weight: 500;';
-    const reportHeader = reportTab.querySelector('.report-header') || reportTab.firstElementChild;
-    if (reportHeader && reportHeader.nextSibling) {
-      reportTab.insertBefore(banner, reportHeader.nextSibling);
-    } else {
-      reportTab.prepend(banner);
+  // Add or update View-Only banner at top of BOTH worksheetTab and assessmentTab
+  targetTabs.forEach((tab, idx) => {
+    const bannerId = idx === 0 ? 'submitted-viewonly-banner' : 'submitted-viewonly-banner-assessment';
+    let banner = document.getElementById(bannerId);
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = bannerId;
+      banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 14px 20px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13.5px; font-family: Sarabun, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 14px; font-weight: 500; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+      const header = tab.querySelector('.content-header') || tab.firstElementChild;
+      if (header && header.nextSibling) {
+        tab.insertBefore(banner, header.nextSibling);
+      } else {
+        tab.prepend(banner);
+      }
     }
-  }
-  banner.innerHTML = '🔒 <span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>';
+    banner.innerHTML = '<div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">' +
+      '<span style="font-size: 20px;">🔒</span>' +
+      '<span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>' +
+      '</div>' +
+      '<button type="button" class="btn no-print" onclick="resetWorksheetForNewUser()" style="background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #fca5a5; padding: 8px 16px; font-size: 13px; font-family: Sarabun, sans-serif; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background=\'rgba(239, 68, 68, 0.35)\'" onmouseout="this.style.background=\'rgba(239, 68, 68, 0.2)\'">' +
+      '🔄 สลับผู้ใช้ / เริ่มทำใหม่' +
+      '</button>';
+  });
 }
 window.lockFormAsSubmitted = lockFormAsSubmitted;
+
+function resetWorksheetForNewUser() {
+  const confirmMsg = "⚠️ ยืนยันการเริ่มทำใบงานใหม่สำหรับผู้ใช้อื่น?\n\n" +
+    "• ระบบจะปลดล็อกและเคลียร์ข้อมูลในใบงานทั้งหมด เพื่อให้นักศึกษาคนถัดไปเข้าใช้งาน\n" +
+    "• คะแนนและข้อมูลที่ส่งไปแล้วของนักศึกษาคนเดิมยังคงถูกบันทึกไว้อย่างปลอดภัยใน Google Sheets\n" +
+    "• หากยังไม่ได้บันทึกผลงาน กรุณากด 'Cancel' แล้วกด '🖨️ พิมพ์รายงาน / บันทึก PDF' ก่อน";
+  
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const worksheetTab = document.getElementById('tab-worksheet');
+  const assessmentTab = document.getElementById('tab-assessment');
+  const targetTabs = [worksheetTab, assessmentTab].filter(Boolean);
+
+  targetTabs.forEach(tab => {
+    tab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = false;
+      el.readOnly = false;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+        el.dispatchEvent(new Event('change'));
+      } else if (el.id === 'lab-date') {
+        try {
+          el.value = new Date().toISOString().split('T')[0];
+        } catch (e) {
+          el.value = '';
+        }
+      } else {
+        el.value = '';
+      }
+    });
+  });
+
+  // Restore Submit buttons
+  document.querySelectorAll('button[onclick*="submit"]').forEach(btn => {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.style.background = '';
+    btn.innerHTML = '🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ';
+  });
+
+  // Remove View-Only banners
+  ['submitted-viewonly-banner', 'submitted-viewonly-banner-assessment'].forEach(id => {
+    const banner = document.getElementById(id);
+    if (banner) banner.remove();
+  });
+
+  // Ensure header student credentials are completely cleared and unlocked
+  ['student-id', 'student-name', 'student-group'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+
+  // Switch to worksheet tab so student can start from top
+  if (typeof switchTab === 'function') {
+    switchTab('worksheet');
+  }
+
+  // Focus on student-id for immediate next user input
+  const idInput = document.getElementById('student-id');
+  if (idInput) {
+    idInput.focus();
+  }
+
+  // Close any modal dialog if open
+  const overlay = document.getElementById('submission-overlay') || document.getElementById('grading-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+}
+window.resetWorksheetForNewUser = resetWorksheetForNewUser;
 
 </script>
 </body>

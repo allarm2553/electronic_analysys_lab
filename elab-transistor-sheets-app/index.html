@@ -1123,7 +1123,13 @@ body {
 
 
 /* ==========================================================================
-   PRINT STYLES (@media print)
+   PRINT STYLES (@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
    ========================================================================== */
 @media print {
   body {
@@ -1295,6 +1301,9 @@ body {
   }
 }
 
+  #submitted-viewonly-banner button { display: none !important; }
+  .tab-content { animation: none !important; opacity: 1 !important; }
+  #report, #worksheet, #report.tab-content, #worksheet.tab-content { opacity: 1 !important; visibility: visible !important; }
 </style>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1925,7 +1934,8 @@ body {
         <div class="card-footer-action no-print">
           <button class="btn btn-secondary" onclick="switchTab('simulator')">🔬 กลับห้องทดลองแก้ไขข้อมูล</button>
           <div class="footer-buttons-row" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%; margin-top: 10px;">
-            <button type="button" class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF</button>
+            <button type="button" class="btn btn-secondary btn-large" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)</button>
+          <button type="button" class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF</button>
             <button type="button" class="btn btn-secondary btn-large" style="border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); font-weight: bold;" onclick="previewScoreBeforeSubmit()">🔍 ตรวจสอบคะแนนก่อนส่ง</button>
             <button type="button" class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); border-color: #10b981;" onclick="submitReportToGAS()">ส่งใบงานและตรวจคะแนนอัตโนมัติ 🚀</button>
           </div>
@@ -2554,18 +2564,7 @@ function measureCERow(idx) {
 }
 window.measureCERow = measureCERow;
 
-function printReport() {
-  const name = document.getElementById('student-name').value.trim();
-  const id = document.getElementById('student-id').value.trim();
-  
-  if (!name || !id) {
-    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
-    if (!confirmPrint) return;
-  }
-  
-  window.print();
-}
-window.printReport = printReport;
+
 
 
 /* ==========================================================================
@@ -3003,20 +3002,39 @@ function checkExistingSubmission() {
 }
 window.checkExistingSubmission = checkExistingSubmission;
 
+function printReport() {
+  const name = (document.getElementById('student-name')?.value || '').trim();
+  const id = (document.getElementById('student-id')?.value || '').trim();
+  if (!name || !id) {
+    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
+    if (!confirmPrint) {
+      if (typeof switchTab === 'function') switchTab(document.getElementById('worksheet') ? 'worksheet' : 'report');
+      document.getElementById('student-name')?.focus();
+      return;
+    }
+  }
+  window.print();
+}
+window.printReport = printReport;
+
 function lockFormAsSubmitted(submittedTime) {
   const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
   if (!reportTab) return;
 
   // 1. Disable inputs, selects, and textareas inside report / worksheet tab
-  reportTab.querySelectorAll('input, select, textarea').forEach(el => {
+  reportTab.querySelectorAll('input, select, textarea, .model-pill-btn').forEach(el => {
     el.disabled = true;
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
       el.readOnly = true;
     }
+    if (el.classList && el.classList.contains('model-pill-btn')) {
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.7';
+    }
   });
 
   // 2. Disable submission button and update styling
-  const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"]');
+  const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"], button[onclick*="previewScore"]');
   submitButtons.forEach(btn => {
     btn.disabled = true;
     btn.style.opacity = '0.75';
@@ -3030,17 +3048,107 @@ function lockFormAsSubmitted(submittedTime) {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'submitted-viewonly-banner';
-    banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 12px 18px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13px; font-family: Sarabun, sans-serif; display: flex; align-items: center; gap: 10px; font-weight: 500;';
-    const reportHeader = reportTab.querySelector('.report-header') || reportTab.firstElementChild;
+    banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 14px 20px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13.5px; font-family: Sarabun, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 14px; font-weight: 500; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+    const reportHeader = reportTab.querySelector('.content-header') || reportTab.querySelector('.report-header') || reportTab.firstElementChild;
     if (reportHeader && reportHeader.nextSibling) {
       reportTab.insertBefore(banner, reportHeader.nextSibling);
     } else {
       reportTab.prepend(banner);
     }
   }
-  banner.innerHTML = '🔒 <span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>';
+  banner.innerHTML = '<div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">' +
+    '<span style="font-size: 20px;">🔒</span>' +
+    '<span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>' +
+    '</div>' +
+    '<button type="button" class="btn no-print" onclick="resetWorksheetForNewUser()" style="background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #fca5a5; padding: 8px 16px; font-size: 13px; font-family: Sarabun, sans-serif; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background=\'rgba(239, 68, 68, 0.35)\'" onmouseout="this.style.background=\'rgba(239, 68, 68, 0.2)\'">' +
+    '🔄 สลับผู้ใช้ / เริ่มทำใหม่' +
+    '</button>';
 }
 window.lockFormAsSubmitted = lockFormAsSubmitted;
+
+function resetWorksheetForNewUser() {
+  const confirmMsg = "⚠️ ยืนยันการเริ่มทำใบงานใหม่สำหรับผู้ใช้อื่น?\n\n" +
+    "• ระบบจะปลดล็อกและเคลียร์ข้อมูลในใบงานทั้งหมด เพื่อให้นักศึกษาคนถัดไปเข้าใช้งาน\n" +
+    "• คะแนนและข้อมูลที่ส่งไปแล้วของนักศึกษาคนเดิมยังคงถูกบันทึกไว้อย่างปลอดภัยใน Google Sheets\n" +
+    "• หากยังไม่ได้บันทึกผลงาน กรุณากด 'Cancel' แล้วกด '🖨️ พิมพ์รายงาน / บันทึก PDF' ก่อน";
+  
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const reportTab = document.getElementById('report') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  if (reportTab) {
+    reportTab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = false;
+      el.readOnly = false;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+        el.dispatchEvent(new Event('change'));
+      } else if (el.id === 'lab-date') {
+        try {
+          el.value = new Date().toISOString().split('T')[0];
+        } catch (e) {
+          el.value = '';
+        }
+      } else {
+        el.value = '';
+      }
+    });
+
+    reportTab.querySelectorAll('.model-pill-btn').forEach(el => {
+      el.style.pointerEvents = '';
+      el.style.opacity = '';
+    });
+
+    // Restore Submit buttons
+    const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"], button[onclick*="previewScore"]');
+    submitButtons.forEach(btn => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.style.background = '';
+      if (btn.getAttribute('onclick').includes('submit')) {
+        btn.innerHTML = '🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ';
+      }
+    });
+
+    // Remove View-Only banner
+    const banner = document.getElementById('submitted-viewonly-banner');
+    if (banner) {
+      banner.remove();
+    }
+  }
+
+  // Ensure header student credentials are completely cleared and unlocked
+  ['student-id', 'student-name', 'student-group'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+
+  // Switch to report/worksheet tab
+  if (typeof switchTab === 'function') {
+    switchTab(document.getElementById('worksheet') ? 'worksheet' : 'report');
+  }
+
+  // Focus on student-id for immediate next user input
+  const idInput = document.getElementById('student-id');
+  if (idInput) {
+    idInput.focus();
+  }
+
+  // Close any modal dialog if open
+  const overlay = document.getElementById('submission-overlay') || document.getElementById('grading-overlay') || document.getElementById('dialog-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+}
+window.resetWorksheetForNewUser = resetWorksheetForNewUser;
 
 </script>
 
