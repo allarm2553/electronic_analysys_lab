@@ -2114,9 +2114,7 @@
       .catch(err => {
         console.warn('GAS Fetch failed, falling back to local simulation:', err);
         const localRes = localGradeSimulator(data);
-        localRes.feedback = (localRes.feedback || '') + '
-
-⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (' + err.message + ') ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน';
+        localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
         onSuccessGrading(localRes);
       });
     } else {
@@ -2127,18 +2125,60 @@
     }
   }
 }
+  // ========================================================
+  // ANTI-CHEAT & PLAGIARISM PREVENTION SYSTEM
+  // Blocks Copy/Paste/Drop on questions & conclusion textareas
+  // ========================================================
+  (function initAntiCheatSystem() {
+    let pasteAttempts = 0;
+    let toastTimeout = null;
+
+    function showAntiCheatWarning(targetEl) {
+      pasteAttempts++;
+      const toast = document.getElementById('anti-cheat-toast');
+      if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateX(-50%) translateY(0)';
+        }, 10);
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(15px)';
+          setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 3000);
+      }
+
+      if (targetEl) {
+        const originalBorder = targetEl.style.borderColor;
+        const originalShadow = targetEl.style.boxShadow;
+        targetEl.style.borderColor = '#ef4444';
+        targetEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.6)';
+        setTimeout(() => {
+          targetEl.style.borderColor = originalBorder;
+          targetEl.style.boxShadow = originalShadow;
+        }, 1200);
+      }
+    }
 
     function setupAntiCheatListeners() {
       const protectedElements = document.querySelectorAll('textarea, input[type="text"].protected-answer');
       protectedElements.forEach(el => {
+        // 1. Intercept Paste event (Right click / menu / hotkey)
         el.addEventListener('paste', (e) => {
           e.preventDefault();
           showAntiCheatWarning(el);
         });
+
+        // 2. Intercept Drag and Drop text
         el.addEventListener('drop', (e) => {
           e.preventDefault();
           showAntiCheatWarning(el);
         });
+
+        // 3. Intercept Hotkeys: Ctrl+V, Cmd+V, Shift+Insert
         el.addEventListener('keydown', (e) => {
           if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V' || e.keyCode === 86)) {
             e.preventDefault();
@@ -2162,6 +2202,7 @@
       return { pasteAttempts: pasteAttempts };
     };
   })();
+
   
 
 // ========================================================
@@ -2440,7 +2481,7 @@ function saveGasEndpoint() {
     return;
   }
   if (!val.startsWith('https://script.google.com/macros/s/')) {
-    alert('⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้');
+    alert(`⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้`);
   }
   try { localStorage.setItem(key, val); } catch(e){}
   if (badge) {
@@ -2479,7 +2520,7 @@ function testGasEndpoint() {
       badge.style.borderColor = 'var(--accent-green)';
       badge.style.background = 'rgba(16, 185, 129, 0.15)';
     }
-    alert('🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ');
+    alert(`🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ`);
   })
   .catch(err => {
     if (badge) {
@@ -2488,13 +2529,14 @@ function testGasEndpoint() {
       badge.style.borderColor = 'var(--accent-red)';
       badge.style.background = 'rgba(239, 68, 68, 0.15)';
     }
-    alert('⚠️ การทดสอบล้มเหลว: ' + err.message + '\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec');
+    alert(`⚠️ การทดสอบล้มเหลว: ` + err.message + `\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec`);
   });
 }
 window.saveGasEndpoint = saveGasEndpoint;
 window.testGasEndpoint = testGasEndpoint;
 window.initGasEndpointUI = initGasEndpointUI;
 window.addEventListener('DOMContentLoaded', initGasEndpointUI);
+
 
 </script>
 </body>

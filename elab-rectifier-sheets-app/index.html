@@ -2216,9 +2216,7 @@ function submitReportToGAS() {
       .catch(err => {
         console.warn('GAS Fetch failed, falling back to local simulation:', err);
         const localRes = localGradeSimulator(data);
-        localRes.feedback = (localRes.feedback || '') + '
-
-⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (' + err.message + ') ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน';
+        localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
         onSuccessGrading(localRes);
       });
     } else {
@@ -2773,7 +2771,7 @@ function saveGasEndpoint() {
     return;
   }
   if (!val.startsWith('https://script.google.com/macros/s/')) {
-    alert('⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้');
+    alert(`⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้`);
   }
   try { localStorage.setItem(key, val); } catch(e){}
   if (badge) {
@@ -2812,7 +2810,7 @@ function testGasEndpoint() {
       badge.style.borderColor = 'var(--accent-green)';
       badge.style.background = 'rgba(16, 185, 129, 0.15)';
     }
-    alert('🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ');
+    alert(`🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ`);
   })
   .catch(err => {
     if (badge) {
@@ -2821,13 +2819,14 @@ function testGasEndpoint() {
       badge.style.borderColor = 'var(--accent-red)';
       badge.style.background = 'rgba(239, 68, 68, 0.15)';
     }
-    alert('⚠️ การทดสอบล้มเหลว: ' + err.message + '\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec');
+    alert(`⚠️ การทดสอบล้มเหลว: ` + err.message + `\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec`);
   });
 }
 window.saveGasEndpoint = saveGasEndpoint;
 window.testGasEndpoint = testGasEndpoint;
 window.initGasEndpointUI = initGasEndpointUI;
 window.addEventListener('DOMContentLoaded', initGasEndpointUI);
+
 
 </script>
 
