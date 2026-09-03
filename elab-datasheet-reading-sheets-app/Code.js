@@ -182,8 +182,12 @@ function submitWorksheet(data) {
 // 3. AUTO-GRADING RUBRIC ENGINE (10 POINTS TOTAL)
 // -------------------------------------------------------------
 function gradeDatasheetWorksheet(data) {
+  const isHardware = (data.labDataSource === 'hardware');
   var score = 0;
   var feedbackLog = [];
+  feedbackLog.push(isHardware 
+    ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+    : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)');
 
   var diodeModel = data.diodeModel || '1N4007';
   var bjtModel = data.bjtModel || '2N3904';
@@ -323,7 +327,7 @@ function logToGoogleSheet(data, grading) {
       'Student Name',
       'Student ID',
       'Group',
-      'Lab Date',
+      'Lab Date', 'Lab Mode',
       'Worksheet Mode',
       'Diode Model',
       'BJT Model',
@@ -354,6 +358,12 @@ function logToGoogleSheet(data, grading) {
       .setBackground('#0f172a')
       .setFontColor('#38bdf8');
   }
+
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || 'SET-STD';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
 
   var rowData = [
     new Date(),

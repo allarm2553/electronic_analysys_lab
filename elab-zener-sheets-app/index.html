@@ -1753,6 +1753,87 @@ body {
             </div>
           </div>
         </div>
+        <!-- LAB DATA SOURCE SELECTOR (Simulation vs Real Hardware) -->
+        <div class="card" id="lab-mode-card" style="border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.7); padding: 18px 20px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+            <div>
+              <h4 style="margin: 0; font-size: 15px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+                <span>⚙️ แหล่งที่มาของผลการทดลอง (Data Source):</span>
+              </h4>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                เลือกระหว่างการทดลองผ่านห้องแล็บจำลอง (Simulator) หรือต่อวงจรจริงด้วยอุปกรณ์ในห้องปฏิบัติการ (Hardware Lab)
+              </p>
+            </div>
+            <div class="no-print" style="display: flex; gap: 8px; background: rgba(15, 23, 42, 0.9); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <button type="button" id="btn-mode-sim" class="btn btn-secondary active" style="padding: 8px 14px; font-size: 13px; font-weight: bold;" onclick="setLabDataSource('simulation')">
+                🔬 ห้องทดลองจำลอง (Simulator)
+              </button>
+              <button type="button" id="btn-mode-hw" class="btn btn-secondary" style="padding: 8px 14px; font-size: 13px; font-weight: bold;" onclick="setLabDataSource('hardware')">
+                🔌 การทดลองจากอุปกรณ์จริง (Hardware Lab)
+              </button>
+            </div>
+          </div>
+
+          <!-- Component Model Selection Row in Worksheet -->
+          <div class="no-print" style="margin-top: 14px; padding: 12px 16px; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🏷️</span>
+              <div>
+                <strong style="color: #fff; font-size: 13.5px;">เลือกโมเดลซีเนอร์ไดโอดที่ใช้บันทึกผล (Component Model):</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                  เลือกเบอร์อุปกรณ์ที่ทำการทดลอง (ระบบจะปรับสมการจำลองและเกณฑ์ตรวจคะแนนให้ตรงกับเบอร์ที่เลือกโดยอัตโนมัติ)
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <select id="select-component-model-ws" onchange="setComponentModel(this.value)" style="padding: 8px 14px; font-size: 13px; font-weight: bold; background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 6px; color: var(--accent-cyan); cursor: pointer;">
+                <option value="1N4735A">1N4735A (VZ = 6.2V, 1W) - มาตรฐาน</option>
+                <option value="1N4733A">1N4733A (VZ = 5.1V, 1W)</option>
+                <option value="1N4728A">1N4728A (VZ = 3.3V, 1W)</option>
+                <option value="BZX55C4V7">BZX55C4V7 (VZ = 4.7V, 0.5W)</option>
+                <option value="BZX55C9V1">BZX55C9V1 (VZ = 9.1V, 0.5W)</option>
+                <option value="1N4742A">1N4742A (VZ = 12.0V, 1W)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Printable summary line -->
+          <div id="print-lab-mode-badge" style="font-size: 13px; color: var(--text-main); margin-top: 10px; margin-bottom: 8px; font-weight: 500;">
+            <strong>แหล่งที่มาข้อมูล:</strong> <span id="print-mode-text" style="color: var(--accent-cyan); font-weight: bold;">🔬 ห้องทดลองจำลองเสมือน (Virtual Simulator)</span>
+            <span style="margin-left: 15px;"><strong>โมเดลอุปกรณ์:</strong> <span class="dyn-component-name" style="color: var(--accent-cyan); font-weight: bold;">1N4735A</span></span>
+          </div>
+
+          <!-- Dynamic Mode Description & Banner -->
+          <div id="sim-mode-banner" class="no-print" style="margin-top: 12px; background: rgba(56, 189, 248, 0.08); border-left: 4px solid var(--accent-cyan); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.6; color: var(--text-main);">
+            <strong style="color: var(--accent-cyan);">🔬 โหมดห้องทดลองจำลอง:</strong> ค่าที่บันทึกคำนวณจากสมการทางฟิสิกส์ของอุปกรณ์เบอร์ <strong class="dyn-component-name" style="color:var(--accent-cyan);">1N4735A</strong> ในระบบจำลอง (เกณฑ์ความคลาดเคลื่อนยอมรับได้ <span style="color:var(--accent-cyan); font-weight:bold;">±5%</span>) สามารถกดปุ่มดึงค่าจากแท็บห้องทดลองจำลองได้
+          </div>
+
+          <div id="hw-mode-banner" class="no-print" style="display: none; margin-top: 12px; background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--accent-green); padding: 12px 14px; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.6; color: var(--text-main);">
+            <strong style="color: var(--accent-green);">🔌 โหมดการทดลองจากอุปกรณ์จริง (Hardware Lab):</strong> ระบบได้ **ปรับเกณฑ์ความคลาดเคลื่อน (Tolerance ±15-20%)** เพื่อรองรับความคลาดเคลื่อนทางกายภาพของอุปกรณ์จริง (ความต้านทานภายในมิเตอร์, ค่าเผื่ออุปกรณ์ 5-10%, พิกัดรอยต่อจริง) <span style="text-decoration: underline;">กรุณาวัดค่าจาก Breadboard และเครื่องมือวัดจริงแล้วพิมพ์ลงตารางด้วยตนเอง</span>
+            
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(16, 185, 129, 0.3); display: flex; gap: 15px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">เบอร์ซีเนอร์ไดโอดจริงที่ใช้:</label>
+                <input type="text" id="hw-component-model" placeholder="เช่น 1N4735A, 1N4733A" value="1N4735A" oninput="if(window.setComponentModel) setComponentModel(this.value.trim());" style="width: 100%; padding: 6px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">ค่าความต้านทาน RS วัดจริง:</label>
+                <div class="input-unit-group" style="height: 31px;">
+                  <input type="number" id="hw-rs-measured" placeholder="เช่น 328, 335" value="330" style="padding: 6px 10px; font-size: 12px; width:100%;">
+                  <span class="unit" style="font-size: 11px;">Ω</span>
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">แรงดันซีเนอร์ VZ วัดจริง:</label>
+                <div class="input-unit-group" style="height: 31px;">
+                  <input type="number" id="hw-vz-measured" placeholder="เช่น 6.18, 5.08" value="6.2" style="padding: 6px 10px; font-size: 12px; width:100%;">
+                  <span class="unit" style="font-size: 11px;">V</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         
         <!-- PART 1 REPORT -->
         <div class="card report-section">
@@ -2785,6 +2866,10 @@ function updateAnalogMeterNeedle() {
 }
 
 function recordPart1Data() {
+  if (window.STATE && STATE.labDataSource === 'hardware') {
+    const proceed = confirm('⚠️ คุณกำลังอยู่ใน "โหมดการทดลองจากอุปกรณ์จริง (Hardware Lab)"\n\nการกดปุ่มนี้จะนำค่าจากการจำลองเสมือนไปแทนที่ในใบงาน\nคุณต้องการดึงค่าจากการจำลองแทนค่าที่วัดได้จริงหรือไม่?');
+    if (!proceed) return;
+  }
   const rFwdInput = document.getElementById('r-forward');
   const rRevInput = document.getElementById('r-reverse');
   const statusRadio = document.querySelector(`input[name="diode-status"][value="${STATE.diodeCondition}"]`);
@@ -3003,6 +3088,10 @@ window.measureRow = measureRow;
 
 
 function recordPart2Data() {
+  if (window.STATE && STATE.labDataSource === 'hardware') {
+    const proceed = confirm('⚠️ คุณกำลังอยู่ใน "โหมดการทดลองจากอุปกรณ์จริง (Hardware Lab)"\n\nการกดปุ่มนี้จะนำค่าจากการจำลองเสมือนไปแทนที่ในใบงาน\nคุณต้องการดึงค่าจากการจำลองแทนค่าที่วัดได้จริงหรือไม่?');
+    if (!proceed) return;
+  }
   const target = STATE.measuringTarget;
   if (target === 'none') {
     alert('⚠️ กรุณาเลือกเครื่องมือวัด / จุดตรวจวัดก่อนการบันทึกค่า!');
@@ -3091,6 +3180,9 @@ function getWorksheetPayload() {
   
   const activeModel = ZENER_MODELS[STATE.selectedZenerModel || '1N4735A'] || { vz: 6.2 };
   return {
+    labDataSource: (window.STATE && STATE.labDataSource) ? STATE.labDataSource : 'simulation',
+    componentModel: (window.STATE && STATE.componentModel) ? STATE.componentModel : '1N4735A',
+    hwComponentModel: document.getElementById('hw-component-model')?.value.trim() || '1N4735A',
     studentName: document.getElementById('student-name')?.value.trim() || '',
     studentId: document.getElementById('student-id')?.value.trim() || '',
     studentGroup: document.getElementById('student-group')?.value.trim() || '',
@@ -3103,9 +3195,14 @@ function getWorksheetPayload() {
     diodeStatus: diodeStatus,
     diodeReason: document.getElementById('diode-reason')?.value.trim() || '',
     part2Rows: part2Rows,
-    q1Answer: document.getElementById('q1-answer')?.value.trim() || '',
-    q2Answer: document.getElementById('q2-answer')?.value.trim() || '',
-    q3Answer: document.getElementById('q3-answer')?.value.trim() || '',
+    q1Answer: (document.querySelector('input[name="q1"]:checked')?.value || '').trim(),
+    q2Answer: (document.querySelector('input[name="q2"]:checked')?.value || '').trim(),
+    q3Answer: (document.querySelector('input[name="q3"]:checked')?.value || '').trim(),
+    q4Answer: (document.querySelector('input[name="q4"]:checked')?.value || '').trim(),
+    q1: (document.querySelector('input[name="q1"]:checked')?.value || '').trim(),
+    q2: (document.querySelector('input[name="q2"]:checked')?.value || '').trim(),
+    q3: (document.querySelector('input[name="q3"]:checked')?.value || '').trim(),
+    q4: (document.querySelector('input[name="q4"]:checked')?.value || '').trim(),
     labConclusion: document.getElementById('lab-conclusion')?.value.trim() || ''
   };
 }
@@ -3193,33 +3290,63 @@ function submitReportToGAS() {
 window.submitReportToGAS = submitReportToGAS;
 
 function localGradeSimulator(data) {
-  let score = 0;
+  const isHardware = (data.labDataSource === 'hardware');
+let score = 0;
   const maxScore = 10;
-  const feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
 
   let p1Correct = 0;
-  if (parseFloat(data.rForward) > 0) p1Correct++;
-  if (parseFloat(data.rReverse) > 0 || data.rReverse === 'inf') p1Correct++;
+  const rFwd = parseFloat(data.rForward);
+  const rRev = (data.rReverse || '').trim();
+  if (rFwd > 0) p1Correct++;
+  // Accept ∞, inf, Infinity, or a large number as valid reverse resistance
+  if (rRev === '∞' || rRev.toLowerCase() === 'inf' || rRev.toLowerCase() === 'infinity' || parseFloat(rRev) > 0) p1Correct++;
   if (data.diodeStatus !== '') p1Correct++;
-  let p1Score = p1Correct >= 3 ? 3 : p1Correct;
+  let p1Score = p1Correct >= 3 ? 2 : (p1Correct >= 1 ? 1 : 0);
   score += p1Score;
-  feedback.push(`[ตอนที่ 1] ทดสอบซีเนอร์ไดโอดด้วยโอห์มมิเตอร์: ได้ ${p1Score} / 3 คะแนน`);
+  feedback.push(`[ตอนที่ 1] ทดสอบซีเนอร์ไดโอดด้วยโอห์มมิเตอร์: ได้ ${p1Score} / 2 คะแนน`);
 
   let p2Pass = 0;
   if (data.part2Rows) {
     data.part2Rows.forEach(r => {
-      if (parseFloat(r.vr1) >= 0 && parseFloat(r.vd1) >= 0) p2Pass++;
+      // Count row as filled if vr1 or vd1 has been entered (non-empty string)
+      const hasVr1 = r.vr1 !== '' && r.vr1 !== null && r.vr1 !== undefined;
+      const hasVd1 = r.vd1 !== '' && r.vd1 !== null && r.vd1 !== undefined;
+      if (hasVr1 && hasVd1) p2Pass++;
     });
   }
-  let p2Score = p2Pass >= 10 ? 5 : (p2Pass >= 6 ? 3 : (p2Pass >= 3 ? 1 : 0));
+  let p2Score = p2Pass >= 10 ? 4 : (p2Pass >= 6 ? 2 : (p2Pass >= 3 ? 1 : 0));
   score += p2Score;
-  feedback.push(`[ตอนที่ 2] ตารางการรักษาระดับแรงดัน: ได้ ${p2Score} / 5 คะแนน (บันทึกข้อมูล ${p2Pass}/12 แถว)`);
+  feedback.push(`[ตอนที่ 2] ตารางการรักษาระดับแรงดัน: ได้ ${p2Score} / 4 คะแนน (บันทึกข้อมูล ${p2Pass}/12 แถว)`);
 
-  let qScore = 0;
-  if (data.q1Answer && data.q1Answer.length > 5) qScore++;
-  if (data.q2Answer && data.q2Answer.length > 5) qScore++;
-  score += qScore;
-  feedback.push(`[ตอนที่ 3] คำถามและสรุปผล: ได้ ${qScore} / 2 คะแนน`);
+  // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'B');
+      const q2Ok = (ansQ2 === 'C');
+      const q3Ok = (ansQ3 === 'B');
+      const q4Ok = (ansQ4 === 'B');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+
+      score += qScore;
+      feedback.push(`
+[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย C)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
   if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
@@ -3633,6 +3760,57 @@ function resetWorksheetForNewUser() {
   }
 }
 window.resetWorksheetForNewUser = resetWorksheetForNewUser;
+
+
+// --- LAB DATA SOURCE & HARDWARE EXPERIMENT LOGIC ---
+if (!window.STATE) window.STATE = {};
+window.STATE.labDataSource = 'simulation';
+window.STATE.componentModel = '1N4735A';
+
+function setLabDataSource(mode) {
+  if (!window.STATE) window.STATE = {};
+  STATE.labDataSource = mode;
+  const btnSim = document.getElementById('btn-mode-sim');
+  const btnHw = document.getElementById('btn-mode-hw');
+  const bannerSim = document.getElementById('sim-mode-banner');
+  const bannerHw = document.getElementById('hw-mode-banner');
+  const printText = document.getElementById('print-mode-text');
+  
+  if (mode === 'hardware') {
+    if (btnSim) btnSim.classList.remove('active');
+    if (btnHw) btnHw.classList.add('active');
+    if (bannerSim) bannerSim.style.display = 'none';
+    if (bannerHw) bannerHw.style.display = 'block';
+    if (printText) {
+      printText.textContent = '🔌 การทดลองจากอุปกรณ์จริง (Hardware Lab)';
+      printText.style.color = 'var(--accent-green)';
+    }
+  } else {
+    if (btnHw) btnHw.classList.remove('active');
+    if (btnSim) btnSim.classList.add('active');
+    if (bannerHw) bannerHw.style.display = 'none';
+    if (bannerSim) bannerSim.style.display = 'block';
+    if (printText) {
+      printText.textContent = '🔬 ห้องทดลองจำลองเสมือน (Virtual Simulator)';
+      printText.style.color = 'var(--accent-cyan)';
+    }
+  }
+}
+window.setLabDataSource = setLabDataSource;
+
+function setComponentModel(modelKey) {
+  if (!window.STATE) window.STATE = {};
+  STATE.componentModel = modelKey;
+  const selWS = document.getElementById('select-component-model-ws');
+  const hwInput = document.getElementById('hw-component-model');
+  if (selWS) selWS.value = modelKey;
+  if (hwInput) hwInput.value = modelKey;
+  
+  document.querySelectorAll('.dyn-component-name').forEach(el => {
+    el.innerText = modelKey;
+  });
+}
+window.setComponentModel = setComponentModel;
 
 </script>
 

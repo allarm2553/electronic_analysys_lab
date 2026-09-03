@@ -26,9 +26,13 @@ function submitWorksheet(data) {
     const studentEmail = Session.getActiveUser().getEmail() || "offline-student@test.com";
     
     // 2. Perform auto-grading calculations
+    const isHardware = (data.labDataSource === 'hardware');
     let score = 0;
     const maxScore = 13; // 4 rows DMM + 6 rows Scope + 3 questions
     const feedback = [];
+    feedback.push(isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง (±15-20%)' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)');
     
     // Parse input values
     const t1_0 = parseFloat(data.t1Rows[0]); // Input Vrms (AC) -> ~12.00
@@ -91,7 +95,7 @@ function submitWorksheet(data) {
       // Create sheet if not exists, and set header row
       sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Submissions");
       sheet.appendRow([
-        "Timestamp", "Student Name", "Student ID", "Group", "Lab Date", "Student Email",
+        "Timestamp", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode", "Student Email",
         "T1_AC_Input", "T1_Load_Vdc", "T1_Load_Idc", "T1_Diode_Drop",
         "T2_CH1_Vpp", "T2_CH1_Vrms", "T2_CH2_Vmax", "T2_CH2_Vdc", "T2_CH2_Vrms", "T2_CH2_Period",
         "Q1_Ans", "Q2_Ans", "Q3_Ans", "Score", "Max Score", "Evaluation"
@@ -107,12 +111,15 @@ function submitWorksheet(data) {
     else if (percent >= 60) comment = "ผ่านเกณฑ์";
     
     // Log submission row
+    var chosenModel = data.hwComponentModel || data.componentModel || '1N4001x4';
+    var labModeText = isHardware ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')' : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
     sheet.appendRow([
       new Date(),
       data.studentName,
       data.studentId,
       data.studentGroup,
       data.labDate,
+      labModeText,
       studentEmail,
       t1_0, t1_1, t1_2, t1_3,
       t2_0, t2_1, t2_2, t2_3, t2_4, t2_5,

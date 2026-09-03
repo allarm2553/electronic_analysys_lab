@@ -55,13 +55,18 @@ function submitWorksheet(data) {
  * JFET & MOSFET Fixed-Bias Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  const modelName = data.fetModel || data.mosfetType || '2N5458';
+  const isHardware = (data.labDataSource === 'hardware');
+const modelName = data.fetModel || data.mosfetType || '2N5458';
   const model = FET_DEVICE_MODELS[modelName] || FET_DEVICE_MODELS['2N5458'];
   const isJfet = model.category === 'JFET';
   
   let score = 0;
   let maxScore = 10;
-  let feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // --- PART 1: Table 1 - Transfer Characteristics (Vds constant) ---
   const submittedT1 = data.table1Rows || [];
@@ -284,7 +289,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
-      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode",
       "Device Model", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
@@ -297,6 +302,12 @@ function recordToSheet(data, grading) {
   
   var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
   
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '2N7000';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   var rowData = [
     new Date(),
     studentEmail,
@@ -304,6 +315,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     data.fetModel || data.mosfetType,
     grading.score + " / " + grading.maxScore,
     grading.comment,

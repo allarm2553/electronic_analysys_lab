@@ -82,27 +82,51 @@ function checkDuplicateSubmission(sheetName, studentIdColIndex, studentId) {
  * Diode Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  const cond = data.diodeCondition; // 'good', 'open', 'short'
-  const dir = data.diodeDirection;   // 'forward', 'reverse'
+  const cond = data.diodeCondition || 'good'; // 'good', 'open', 'short'
+  const dir = data.diodeDirection || 'forward';   // 'forward', 'reverse'
+  const isHardware = (data.labDataSource === 'hardware');
   
   let score = 0;
   let maxScore = 10;
   let feedback = [];
   
+  if (isHardware) {
+    feedback.push("📌 โหมดการทดลอง: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง");
+    if (data.hwDiodeModel) {
+      feedback.push("   (เบอร์ไดโอดจริง: " + data.hwDiodeModel + ", R1 วัดได้: " + (data.hwR1Measured || 1000) + " Ω)");
+    }
+  } else {
+    feedback.push("📌 โหมดการทดลอง: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)");
+  }
+  
+  const diodeModel = (data.hwDiodeModel || data.diodeModel || '1N4001').toUpperCase();
+  const isSchottky = (diodeModel.indexOf('5819') !== -1 || diodeModel.indexOf('SCHOTTKY') !== -1);
+
   // --- PART 1: DIODE TESTING (Analog Multimeter) ---
   // 1.1 Forward resistance (r-forward)
   const rFwdStr = (data.rForward || '').toString().trim();
   const rFwd = parseFloat(rFwdStr);
   let rFwdCorrect = false;
   if (cond === 'good') {
-    // Expected forward: 100 - 200 ohms (simulator: 152 ohms)
-    if (rFwd >= 100 && rFwd <= 200) rFwdCorrect = true;
+    if (isHardware) {
+      if (isSchottky) {
+        if ((rFwd >= 10 && rFwd <= 300) || (rFwd >= 0.20 && rFwd <= 0.55)) rFwdCorrect = true;
+      } else {
+        if ((rFwd >= 20 && rFwd <= 500) || (rFwd >= 0.40 && rFwd <= 0.85)) rFwdCorrect = true;
+      }
+    } else {
+      if (isSchottky) {
+        if (rFwd >= 50 && rFwd <= 110) rFwdCorrect = true;
+      } else {
+        if (rFwd >= 100 && rFwd <= 200) rFwdCorrect = true;
+      }
+    }
   } else if (cond === 'open') {
     // Expected: Infinity / empty / text '∞' / very high
-    if (rFwdStr === '' || rFwdStr === '∞' || isNaN(rFwd) || rFwd > 100000) rFwdCorrect = true;
+    if (rFwdStr === '' || rFwdStr === '∞' || isNaN(rFwd) || rFwd > 50000) rFwdCorrect = true;
   } else if (cond === 'short') {
-    // Expected: very low, e.g. < 5 ohms (simulator: 0.8 ohms)
-    if (rFwd >= 0 && rFwd <= 5) rFwdCorrect = true;
+    // Expected: very low, < 10 ohms in hardware, < 5 ohms in simulator
+    if (rFwd >= 0 && rFwd <= (isHardware ? 10 : 5)) rFwdCorrect = true;
   }
   
   if (rFwdCorrect) {
@@ -118,10 +142,10 @@ function gradeWorksheet(data) {
   let rRevCorrect = false;
   if (cond === 'good' || cond === 'open') {
     // Expected: Infinity / empty / text '∞' / very high
-    if (rRevStr === '' || rRevStr === '∞' || isNaN(rRev) || rRev > 100000) rRevCorrect = true;
+    if (rRevStr === '' || rRevStr === '∞' || isNaN(rRev) || rRev > 50000) rRevCorrect = true;
   } else if (cond === 'short') {
-    // Expected: very low, < 5 ohms (simulator: 0.8 ohms)
-    if (rRev >= 0 && rRev <= 5) rRevCorrect = true;
+    // Expected: very low, < 10 ohms in hardware, < 5 ohms in simulator
+    if (rRev >= 0 && rRev <= (isHardware ? 10 : 5)) rRevCorrect = true;
   }
   
   if (rRevCorrect) {
@@ -158,108 +182,95 @@ function gradeWorksheet(data) {
   const vD = parseFloat(data.vD) || 0;
   let expectedVD = 0;
   if (cond === 'good') {
-    if (dir === 'forward') {
-      expectedVD = 0.65; // ~ 0.65V
+    if (isSchottky) {
+      expectedVD = (dir === 'forward') ? 0.36 : 5.0; // 1N5819 Schottky (~0.36V)
     } else {
-      expectedVD = 5.0; // ~ 5V
+      // Silicon diodes: 1N4007 (~0.68V), 1N4148 (~0.63V), 1N4001 (~0.65V)
+      expectedVD = (dir === 'forward') ? ((diodeModel.indexOf('1N4007') !== -1 || diodeModel.indexOf('4007') !== -1) ? 0.68 : ((diodeModel.indexOf('1N4148') !== -1 || diodeModel.indexOf('4148') !== -1) ? 0.63 : 0.65)) : 5.0;
     }
   } else if (cond === 'open') {
     expectedVD = 5.0;
   } else if (cond === 'short') {
     expectedVD = 0.0;
   }
-  const tolVD = 0.35;
+  const tolVD = isHardware ? 0.50 : 0.35;
   if (Math.abs(vD - expectedVD) <= tolVD) {
     score += 1;
-    feedback.push("2.2 แรงดัน VD: ถูกต้องตามเกณฑ์");
+    feedback.push("2.2 แรงดัน VD: ถูกต้องตามเกณฑ์ (" + vD.toFixed(2) + " V)");
   } else {
-    feedback.push("2.2 แรงดัน VD: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
+    feedback.push("2.2 แรงดัน VD: ค่าอยู่นอกเกณฑ์ความถูกต้อง (" + vD.toFixed(2) + " V)");
   }
   
   // 2.3 Voltage drop VR
   const vR = parseFloat(data.vR) || 0;
   let expectedVR = 0;
   if (cond === 'good') {
-    if (dir === 'forward') {
-      expectedVR = 5.0 - expectedVD - 1.95; // ~ 2.4V
-    } else {
-      expectedVR = 0.0;
-    }
+    expectedVR = (dir === 'forward') ? (isSchottky ? 2.75 : 2.40) : 0.0;
   } else if (cond === 'open') {
     expectedVR = 0.0;
   } else if (cond === 'short') {
-    if (dir === 'forward') {
-      expectedVR = 5.0 - 1.95; // ~ 3.0V
-    } else {
-      expectedVR = 0.0;
-    }
+    expectedVR = (dir === 'forward') ? 3.05 : 0.0;
   }
-  const tolVR = 0.70;
+  const tolVR = isHardware ? 1.05 : 0.70;
   if (Math.abs(vR - expectedVR) <= tolVR) {
     score += 1;
-    feedback.push("2.3 แรงดัน VR: ถูกต้องตามเกณฑ์");
+    feedback.push("2.3 แรงดัน VR: ถูกต้องตามเกณฑ์ (" + vR.toFixed(2) + " V)");
   } else {
-    feedback.push("2.3 แรงดัน VR: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
+    feedback.push("2.3 แรงดัน VR: ค่าอยู่นอกเกณฑ์ความถูกต้อง (" + vR.toFixed(2) + " V)");
   }
   
   // 2.4 Voltage drop VLED
   const vLed = parseFloat(data.vLed) || 0;
   let expectedVLED = 0;
   if (cond === 'good') {
-    if (dir === 'forward') {
-      expectedVLED = 1.95; // ~ 1.95V
-    } else {
-      expectedVLED = 0.0;
-    }
+    expectedVLED = (dir === 'forward') ? 1.95 : 0.0;
   } else if (cond === 'open') {
     expectedVLED = 0.0;
   } else if (cond === 'short') {
-    if (dir === 'forward') {
-      expectedVLED = 1.95;
-    } else {
-      expectedVLED = 0.0;
-    }
+    expectedVLED = (dir === 'forward') ? 1.95 : 0.0;
   }
-  const tolVLED = 0.50;
+  const tolVLED = isHardware ? 0.65 : 0.50;
   if (Math.abs(vLed - expectedVLED) <= tolVLED) {
     score += 1;
-    feedback.push("2.4 แรงดัน VLED: ถูกต้องตามเกณฑ์");
+    feedback.push("2.4 แรงดัน VLED: ถูกต้องตามเกณฑ์ (" + vLed.toFixed(2) + " V)");
   } else {
-    feedback.push("2.4 แรงดัน VLED: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
+    feedback.push("2.4 แรงดัน VLED: ค่าอยู่นอกเกณฑ์ความถูกต้อง (" + vLed.toFixed(2) + " V)");
   }
   
   // 2.5 Kirchhoff's Voltage Law (Vsum = VD + VR + VLED)
   const vSum = parseFloat(data.vSum) || 0;
   const expectedVSum = 5.0; // Input supply
-  const tolVSum = 0.50;
-  const isKvlValid = Math.abs(vSum - expectedVSum) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= 0.25;
+  const tolVSum = isHardware ? 0.75 : 0.50;
+  const tolKVL = isHardware ? 0.40 : 0.25;
+  const isKvlValid = Math.abs(vSum - expectedVSum) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= tolKVL;
   if (isKvlValid) {
     score += 1;
-    feedback.push("2.5 ผลรวมแรงดัน (KVL): ถูกต้องตามเกณฑ์");
+    feedback.push("2.5 ผลรวมแรงดัน (KVL): ถูกต้องตามเกณฑ์ (" + vSum.toFixed(2) + " V)");
   } else {
-    feedback.push("2.5 ผลรวมแรงดัน (KVL): ไม่สอดคล้องหรือคำนวณคลาดเคลื่อน");
+    feedback.push("2.5 ผลรวมแรงดัน (KVL): ไม่สอดคล้องหรือคำนวณคลาดเคลื่อน (" + vSum.toFixed(2) + " V)");
   }
   
-  // 2.6 Calculated Current Icalc = VR / 1kOhm
+  // 2.6 Calculated Current Icalc = VR / R
   const iCalc = parseFloat(data.iCalc) || 0;
-  const expectedICalc = vR; // in mA (R = 1k, I = VR/1)
-  const tolICalc = 0.20;
+  const rVal = (isHardware && data.hwR1Measured) ? parseFloat(data.hwR1Measured) : 1000;
+  const expectedICalc = (vR / rVal) * 1000; // in mA
+  const tolICalc = isHardware ? 0.35 : 0.20;
   if (Math.abs(iCalc - expectedICalc) <= tolICalc) {
     score += 1;
-    feedback.push("2.6 กระแสคำนวณ Icalc: ถูกต้องตามเกณฑ์");
+    feedback.push("2.6 กระแสคำนวณ Icalc: ถูกต้องตามเกณฑ์ (" + iCalc.toFixed(2) + " mA)");
   } else {
-    feedback.push("2.6 กระแสคำนวณ Icalc: คำนวณคลาดเคลื่อนจากเกณฑ์");
+    feedback.push("2.6 กระแสคำนวณ Icalc: คำนวณคลาดเคลื่อนจากเกณฑ์ (" + iCalc.toFixed(2) + " mA)");
   }
   
   // 2.7 Measured Current Imeas
   const iMeas = parseFloat(data.iMeas) || 0;
   let expectedIMeas = expectedICalc;
-  const tolIMeas = 0.50;
+  const tolIMeas = isHardware ? 0.85 : 0.50;
   if (Math.abs(iMeas - expectedIMeas) <= tolIMeas) {
     score += 1;
-    feedback.push("2.7 กระแสวัดจริง Imeas: ถูกต้องตามเกณฑ์");
+    feedback.push("2.7 กระแสวัดจริง Imeas: ถูกต้องตามเกณฑ์ (" + iMeas.toFixed(2) + " mA)");
   } else {
-    feedback.push("2.7 กระแสวัดจริง Imeas: ค่าอยู่นอกเกณฑ์ความถูกต้อง");
+    feedback.push("2.7 กระแสวัดจริง Imeas: ค่าอยู่นอกเกณฑ์ความถูกต้อง (" + iMeas.toFixed(2) + " mA)");
   }
   
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
@@ -290,20 +301,35 @@ function recordToSheet(data, grading) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
       "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
-      "Diode Condition", "Diode Direction", "Auto Score", "Evaluation", 
+      "Lab Mode", "Diode Condition", "Diode Direction", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
     sheet.appendRow(headers);
     // Format header row
     sheet.getRange(1, 1, 1, headers.length)
          .setFontWeight("bold")
-         .setBackground("#e2e8f0")
+         .setBackground("#0284c7")
+         .setFontColor("#ffffff")
          .setBorder(true, true, true, true, true, true);
+  } else {
+    // Auto-migrate schema if "Lab Mode" header is missing
+    try {
+      var headerVals = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+      if (headerVals.indexOf("Lab Mode") === -1 && headerVals.length >= 7) {
+        sheet.insertColumnBefore(7);
+        sheet.getRange(1, 7).setValue("Lab Mode").setFontWeight("bold").setBackground("#0284c7").setFontColor("#ffffff");
+      }
+    } catch (e) {}
   }
   
   // Automatically retrieve active user email (works in same-domain Google Workspace)
   var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
   
+  var chosenModel = data.hwDiodeModel || data.diodeModel || '1N4001';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   // Append raw submission row
   var rowData = [
     new Date(),
@@ -312,6 +338,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     data.diodeCondition,
     data.diodeDirection,
     grading.score + " / " + grading.maxScore,

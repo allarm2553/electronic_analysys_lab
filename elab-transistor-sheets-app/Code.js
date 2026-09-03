@@ -48,12 +48,17 @@ function submitWorksheet(data) {
  * BJT Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  const model = data.transistorModel;
+  const isHardware = (data.labDataSource === 'hardware');
+const model = data.transistorModel;
   const cond = data.diodeCondition;
   
   let score = 0;
   let maxScore = 13;
-  let feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // --- PART 1: BASE FINDING TABLE (6 Rows) ---
   // Expected combinations for forward bias: Base is Pin 2
@@ -200,7 +205,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
-      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode",
       "Model Tested", "Condition", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
@@ -216,6 +221,12 @@ function recordToSheet(data, grading) {
   var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
   
   // Append raw submission row
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '2N3904';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   var rowData = [
     new Date(),
     studentEmail,
@@ -223,6 +234,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     data.transistorModel,
     data.diodeCondition,
     grading.score + " / " + grading.maxScore,

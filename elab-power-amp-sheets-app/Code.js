@@ -31,6 +31,7 @@ function doPost(e) {
 }
 
 function evaluateLab(data) {
+  const isHardware = (data.labDataSource === 'hardware');
   const vcc = parseFloat(data.param_vcc) || 15;
   const vin = parseFloat(data.param_vin) || 10;
   const mode = data.circuitMode || 'fixed';
@@ -127,7 +128,7 @@ function logToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet('Lab14_PowerAmp_Submissions');
     const headers = [
-      'Timestamp', 'Email', 'ชื่อ-นามสกุล', 'รหัสนักศึกษา', 'กลุ่ม', 'วันที่',
+      'Timestamp', 'Email', 'ชื่อ-นามสกุล', 'รหัสนักศึกษา', 'กลุ่ม', 'วันที่', 'Lab Mode',
       'คะแนนรวม', 'เกณฑ์ประเมิน', 'โหมดวงจร', 'พารามิเตอร์ทดลอง',
       'Pout(4Ω)', 'Pout(8Ω)', 'Eff(4Ω)%', 'Tj(Heatsink)', 'Tj(NoHeatsink)',
       'Q1', 'Q2', 'Q3', 'Q4', 'ข้อสรุปผลการทดลอง'
@@ -145,6 +146,9 @@ function logToSheet(data, grading) {
   const email = Session.getActiveUser().getEmail() || 'Anonymous / Web User';
   const paramSummary = `Vcc=±${data.param_vcc || 15}V, Vin=${data.param_vin || 10}Vpp, Pair=TIP31C/TIP32C`;
 
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + (data.hwComponentModel || data.componentModel || 'TIP31C/TIP32C') + ')'
+    : '🔬 ซิมูเลเตอร์ (' + (data.componentModel || 'TIP31C/TIP32C') + ')';
   const row = [
     new Date(),
     email,
@@ -152,6 +156,7 @@ function logToSheet(data, grading) {
     data.studentId || '',
     data.studentGroup || '',
     data.labDate || '',
+    labModeText,
     grading.score + ' / ' + grading.maxScore,
     grading.comment || '',
     data.circuitMode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',

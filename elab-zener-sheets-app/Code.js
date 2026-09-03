@@ -48,11 +48,16 @@ function submitWorksheet(data) {
  * Zener Diode Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  const cond = data.diodeCondition; // 'good', 'open', 'short'
+  const isHardware = (data.labDataSource === 'hardware');
+const cond = data.diodeCondition; // 'good', 'open', 'short'
   
   let score = 0;
   let maxScore = 10;
-  let feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // --- PART 1: DIODE TESTING (Analog Multimeter, R x 10) ---
   // 1.1 Forward resistance (r-forward)
@@ -246,7 +251,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
-      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode",
       "Zener Model", "Zener Condition", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
@@ -262,6 +267,12 @@ function recordToSheet(data, grading) {
   var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
   
   // Append raw submission row
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '1N4735A';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   var rowData = [
     new Date(),
     studentEmail,
@@ -269,6 +280,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     (data.zenerModel || '1N4735A') + " (Vz=" + (data.zenerVz || 6.2) + "V)",
     data.diodeCondition,
     grading.score + " / " + grading.maxScore,

@@ -78,13 +78,18 @@ function submitWorksheet(data) {
  * BJT Fixed Bias Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  const cond = data.diodeCondition || 'good'; // 'good', 'open', 'short'
+  const isHardware = (data.labDataSource === 'hardware');
+const cond = data.diodeCondition || 'good'; // 'good', 'open', 'short'
   const modelKey = data.bjtModel || data.selectedModel || 'BC108';
   const model = BJT_MODELS[modelKey] || BJT_MODELS['BC108'];
   
   let score = 0;
   let maxScore = 10;
-  let feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // Nominal circuit values
   const Rb = 468400; // 468.4k ohms (measured)
@@ -316,7 +321,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
-      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode",
       "Transistor Model", "Condition", "Auto Score", "Evaluation", 
       "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
@@ -330,6 +335,12 @@ function recordToSheet(data, grading) {
   
   var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
   
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '2N3904';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   var rowData = [
     new Date(),
     studentEmail,
@@ -337,6 +348,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     data.bjtModel || "BC108",
     data.diodeCondition,
     grading.score + " / " + grading.maxScore,

@@ -48,9 +48,14 @@ function submitWorksheet(data) {
  * Half-Wave Rectifier Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  let score = 0;
+  const isHardware = (data.labDataSource === 'hardware');
+let score = 0;
   let maxScore = 13; // 4 (Table 1) + 6 (Table 2) + 3 (Questions)
-  let feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // --- PART 1: TABLE 1 (DMM Readings - 4 Rows) ---
   const t1 = data.t1Rows || [];
@@ -200,7 +205,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     var headers = [
-      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode",
       "Auto Score", "Evaluation", "Feedback Summary", "Q1 Answer", "Q2 Answer", "Q3 Answer", "Conclusion"
     ];
     sheet.appendRow(headers);
@@ -215,6 +220,12 @@ function recordToSheet(data, grading) {
   var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
   
   // Append raw submission row
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '1N4001';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   var rowData = [
     new Date(),
     studentEmail,
@@ -222,6 +233,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     grading.score + " / " + grading.maxScore,
     grading.comment,
     grading.feedback,

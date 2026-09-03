@@ -107,9 +107,14 @@ function solveFetCircuit(p) {
  * FET gm-Model Dynamic Small-Signal Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
+  const isHardware = (data.labDataSource === 'hardware');
   let score = 0;
   const maxScore = 10;
-  const feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
 
   const mode = data.circuitMode || 'fixed';
   const fetModel = data.fetModel || '2N5458';
@@ -234,7 +239,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet("Submissions");
     const headers = [
-      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date",
+      "Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode",
       "Auto Score", "Evaluation", "Circuit Mode", "Circuit Params",
       "DC VG (V)", "DC VS (V)", "DC VGS (V)", "DC ID (mA)", "DC VD (V)", "DC VDS (V)",
       "Extracted gm0 (mS)", "Extracted gm (mS)",
@@ -252,6 +257,12 @@ function recordToSheet(data, grading) {
   const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / Local User";
   const paramSummary = `VDD=${data.param_vdd}V, R1=${data.param_r1}k, R2=${data.param_r2}k, RD=${data.param_rd}k, RS=${data.param_rs}k, IDSS=${data.param_idss}mA, VP=${data.param_vp}V (Model: ${data.fetModel || '2N5458'})`;
 
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '2N5458';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   const rowData = [
     new Date(),
     studentEmail,
@@ -259,6 +270,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     grading.score + " / " + grading.maxScore,
     grading.comment,
     data.circuitMode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',

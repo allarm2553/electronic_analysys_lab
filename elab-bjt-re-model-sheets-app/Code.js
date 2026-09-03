@@ -44,9 +44,14 @@ function submitWorksheet(data) {
  * BJT re-Model Dynamic Small-Signal Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  let score = 0;
+  const isHardware = (data.labDataSource === 'hardware');
+let score = 0;
   const maxScore = 10;
-  const feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // Parameter Mode and Values (Dynamic from client or Default Fixed)
   const mode = data.circuitMode || data.param_mode || 'fixed';
@@ -229,7 +234,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet('Submissions');
     const headers = [
-      'Timestamp', 'Student Email', 'Student Name', 'Student ID', 'Group', 'Lab Date',
+      'Timestamp', 'Student Email', 'Student Name', 'Student ID', 'Group', 'Lab Date', 'Lab Mode',
       'Auto Score', 'Evaluation', 'Circuit Mode', 'Transistor Model', 'Circuit Params',
       'DC Vb (V)', 'DC Ve (V)', 'DC Vc (V)', 'DC Vce (V)', 'DC Ie (mA)', 'Calc re (Ω)',
       'Av (with CE)', 'Zi (with CE)', 'Av (no CE)', 'Zi (no CE)',
@@ -246,6 +251,12 @@ function recordToSheet(data, grading) {
   const studentEmail = Session.getActiveUser().getEmail() || 'Anonymous / Local User';
   const paramSummary = `Vcc=${data.param_vcc || 12}V, R1=${data.param_r1 || 33}k, R2=${data.param_r2 || 6.8}k, Rc=${data.param_rc || 2.2}k, RE=${data.param_re || 560}Ω, β=${data.param_beta || 200}`;
   
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '2N2222';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   const rowData = [
     new Date(),
     studentEmail,
@@ -253,6 +264,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     grading.score + ' / ' + grading.maxScore,
     grading.comment,
     data.circuitMode === 'custom' || data.param_mode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',

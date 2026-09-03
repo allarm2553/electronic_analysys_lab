@@ -44,9 +44,14 @@ function submitWorksheet(data) {
  * 2-Stage Multi-Stage BJT Amplifier Small-Signal Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  let score = 0;
+  const isHardware = (data.labDataSource === 'hardware');
+let score = 0;
   const maxScore = 10;
-  const feedback = [];
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
   
   // Circuit Parameters
   const mode = data.circuitMode || 'fixed';
@@ -226,7 +231,7 @@ function recordToSheet(data, grading) {
   if (!sheet) {
     sheet = ss.insertSheet('Submissions');
     const headers = [
-      'Timestamp', 'Student Email', 'Student Name', 'Student ID', 'Group', 'Lab Date',
+      'Timestamp', 'Student Email', 'Student Name', 'Student ID', 'Group', 'Lab Date', 'Lab Mode',
       'Auto Score', 'Evaluation', 'Circuit Mode', 'Circuit Params',
       'Stage1 VB', 'Stage1 VE', 'Stage1 VC', 'Stage1 VCE', 'Stage1 IE (mA)', 'Stage1 re (Ω)',
       'Stage2 VB', 'Stage2 VE', 'Stage2 VC', 'Stage2 VCE', 'Stage2 IE (mA)', 'Stage2 re (Ω)',
@@ -246,6 +251,12 @@ function recordToSheet(data, grading) {
   const rlSummaryText = isRlConn ? `${data.param_rl || 10}k` : 'ปลดออก (No-Load)';
   const paramSummary = `Vcc=${data.param_vcc || 12}V, R1=${data.param_r1 || 33}k, R2=${data.param_r2 || 6.8}k, RC1=${data.param_rc1 || 3.3}k, RE1=${data.param_re1 || 680}Ω, R5=${data.param_r5 || 33}k, R6=${data.param_r6 || 6.8}k, RC2=${data.param_rc2 || 2.2}k, RE2=${data.param_re2 || 560}Ω, RL=${rlSummaryText}, β=${data.param_beta || 200}`;
   
+  
+  var chosenModel = data.hwComponentModel || data.componentModel || data.bjtModel || data.zenerModel || '2N3904x2';
+  var labModeText = (data.labDataSource === 'hardware')
+    ? '🔌 ฮาร์ดแวร์จริง (' + chosenModel + ')'
+    : '🔬 ซิมูเลเตอร์ (' + chosenModel + ')';
+
   const rowData = [
     new Date(),
     studentEmail,
@@ -253,6 +264,7 @@ function recordToSheet(data, grading) {
     data.studentId,
     data.studentGroup,
     data.labDate,
+    labModeText,
     grading.score + ' / ' + grading.maxScore,
     grading.comment,
     data.circuitMode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset',

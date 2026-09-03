@@ -23,6 +23,7 @@ function submitWorksheet(data) {
     }
 
     // 1. Initialize Grading Parameters
+    const isHardware = (data.labDataSource === 'hardware');
     let scorePart1 = 0; // Table 1 (IRF540) - 2 points
     let scorePart2 = 0; // Table 2 (IRF9540) - 2 points
     let scorePart3 = 0; // Table 3 (Triggering) - 4 points
@@ -166,6 +167,7 @@ function getOrCreateSubmissionsSheet() {
       'รหัสนักศึกษา',
       'กลุ่มเรียน / ตอนเรียน',
       'วันที่ทำการทดลอง',
+      'Lab Mode (แหล่งข้อมูล/โมเดล)',
       'คะแนนรวม (10 คะแนน)',
       'คะแนนตารางที่ 1 (2 คะแนน)',
       'คะแนนตารางที่ 2 (2 คะแนน)',
