@@ -1404,6 +1404,30 @@
           </div>
         </div>
         <!-- LAB DATA SOURCE SELECTOR (Simulation vs Real Hardware) -->
+        
+        <!-- TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION -->
+        <div class="card gas-endpoint-card no-print" style="border: 1px dashed var(--accent-cyan); background: rgba(15, 23, 42, 0.75); padding: 14px 18px; margin-bottom: 20px; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">🔗</span>
+              <div>
+                <strong style="color: var(--accent-cyan); font-size: 13.5px;">เชื่อมต่อ Google Sheets ผู้สอน (Teacher Web App URL):</strong>
+                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                  นำลิงก์ Web App จาก Google Apps Script ของชีตผู้สอนมาวาง เพื่อบันทึกคะแนนเข้าชีตของท่านโดยตรง
+                </p>
+              </div>
+            </div>
+            <span id="gas-status-badge" style="font-size: 11.5px; padding: 3px 10px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-weight: 500;">
+              🌐 โหมดจำลองในเครื่อง (ยังไม่เชื่อมต่อชีต)
+            </span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+            <input type="url" id="gas-endpoint-url" placeholder="วางลิงก์ https://script.google.com/macros/s/.../exec ที่นี่..." style="flex: 1; min-width: 250px; padding: 7px 12px; font-size: 12.5px; background: rgba(10, 15, 28, 0.85); border: 1px solid var(--border-color); border-radius: 5px; color: #f8fafc;">
+            <button type="button" class="btn btn-secondary btn-small" onclick="saveGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">💾 บันทึก URL</button>
+            <button type="button" class="btn btn-primary btn-small" onclick="testGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">🧪 ทดสอบเชื่อมต่อ</button>
+          </div>
+        </div>
+
         <div class="card" id="lab-mode-card" style="border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.7); padding: 18px 20px; margin-bottom: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
             <div>
@@ -2625,290 +2649,43 @@
 
       // Check if running inside Google Apps Script
       if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(onSuccessGrading)
-          .withFailureHandler(onFailureGrading)
-          .submitWorksheet(payload);
-      } else {
-        // Local Simulation Fallback
-        setTimeout(() => {
-          const localRes = localGradeSimulator(payload);
-          onSuccessGrading(localRes);
-        }, 1000);
-      }
-    }
-
-    function localGradeSimulator(data) {
-      const isHardware = (data.labDataSource === 'hardware');
-      let score = 0;
-      const maxScore = 10;
-      const feedback = [
-        isHardware 
-          ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง (±15-20%)' 
-          : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
-      ];
-
-      const mode = data.circuitMode || 'fixed';
-      const fetModel = data.fetModel || '2N5458';
-
-      const Vdd = parseFloat(data.param_vdd) || 18.0;
-      const R1 = (parseFloat(data.param_r1) || 2200.0) * 1000;
-      const R2 = (parseFloat(data.param_r2) || 270.0) * 1000;
-      const Rd = (parseFloat(data.param_rd) || 2.2) * 1000;
-      const Rs = (parseFloat(data.param_rs) || 1.0) * 1000;
-      const Idss = (parseFloat(data.param_idss) || 6.0) / 1000;
-      const Vp = parseFloat(data.param_vp) || -3.5;
-      const absVp = Math.abs(Vp);
-      const rd = 40000;
-
-      const VG = Vdd * (R2 / (R1 + R2));
-      let low = 0, high = Idss;
-      for (let i = 0; i < 60; i++) {
-        const mid = (low + high) / 2;
-        const Vgs = VG - (mid * Rs);
-        if (Vgs <= Vp) { high = mid; continue; }
-        const Id_calc = Idss * Math.pow(1 - (Vgs / Vp), 2);
-        if (Id_calc > mid) low = mid; else high = mid;
-      }
-      const ID = low;
-      const ID_mA = ID * 1000;
-      const VS = ID * Rs;
-      const VGS = VG - VS;
-      const VD = Math.max(0, Vdd - (ID * Rd));
-      const VDS = VD - VS;
-
-      const gm0 = (2 * Idss) / absVp;
-      const gm = gm0 * (1 - (VGS / Vp));
-      const gm0_mS = gm0 * 1000;
-      const gm_mS = gm * 1000;
-
-      const Zi = 1 / (1/R1 + 1/R2);
-      const Zo = (Rd * rd) / (Rd + rd);
-      const Av_bypassed = gm * Zo;
-      const Av_unbypassed = (gm * Rd) / (1 + (gm * Rs));
-
-      feedback.push(`[โหมดการทดลอง]: ${mode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset'} (เบอร์: ${fetModel})`);
-
-      // Part 1: DC & gm
-      const s_vg = parseFloat(data.dc_vg) || 0;
-      const s_vs = parseFloat(data.dc_vs) || 0;
-      const s_vgs = parseFloat(data.dc_vgs) || 0;
-      const s_id = parseFloat(data.dc_id) || 0;
-      const s_vd = parseFloat(data.dc_vd) || 0;
-      const s_vds = parseFloat(data.dc_vds) || 0;
-      const s_gm0 = parseFloat(data.ac_gm0) || 0;
-      const s_gm = parseFloat(data.ac_gm) || 0;
-
-      const vgOk = Math.abs(s_vg - VG) <= 0.35;
-      const vsOk = Math.abs(s_vs - VS) <= 0.35;
-      const vgsOk = Math.abs(s_vgs - VGS) <= 0.35;
-      const idOk = Math.abs(s_id - ID_mA) <= 0.40;
-      const vdOk = Math.abs(s_vd - VD) <= 0.35;
-      const vdsOk = Math.abs(s_vds - VDS) <= 0.35;
-      const gm0Ok = Math.abs(s_gm0 - gm0_mS) <= 0.40;
-      const gmOk = Math.abs(s_gm - gm_mS) <= 0.40;
-
-      const dcPassCount = [vgOk, vsOk, vgsOk, idOk, vdOk, vdsOk, gm0Ok, gmOk].filter(Boolean).length;
-      let p1Score = dcPassCount >= 7 ? 3 : (dcPassCount >= 4 ? 2 : (dcPassCount >= 2 ? 1 : 0));
-      score += p1Score;
-      feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่าความนำข้าม gm: ได้ ${p1Score} / 3 คะแนน (ถูกต้อง ${dcPassCount}/8 ค่า)`);
-
-      // Part 2: AC
-      const s_av_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
-      const s_av_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
-      const s_zi = parseFloat(data.ac_zi_bypassed || data.ac_zi) || 0;
-      const s_zo = parseFloat(data.ac_zo_bypassed || data.ac_zo) || 0;
-
-      const avBypOk = Math.abs(s_av_byp - Av_bypassed) <= Math.max(0.6, Av_bypassed * 0.25);
-      const avUnbypOk = Math.abs(s_av_unbyp - Av_unbypassed) <= Math.max(0.4, Av_unbypassed * 0.25);
-      const zi_k_expected = Zi / 1000;
-      const zo_k_expected = Zo / 1000;
-      const ziOk = Math.abs(s_zi - zi_k_expected) <= Math.max(10, zi_k_expected * 0.25);
-      const zoOk = Math.abs(s_zo - zo_k_expected) <= Math.max(0.5, zo_k_expected * 0.25);
-
-      const acPassCount = [avBypOk, avUnbypOk, ziOk, zoOk].filter(Boolean).length;
-      let p2Score = acPassCount >= 4 ? 3 : (acPassCount >= 3 ? 2 : (acPassCount >= 1 ? 1 : 0));
-      score += p2Score;
-      feedback.push(`\n[ตอนที่ 2] พารามิเตอร์สัญญาณสลับ AC: ได้ ${p2Score} / 3 คะแนน (ถูกต้อง ${acPassCount}/4 ค่า)`);
-
-      // Part 3: Multiple Choice Questions (4 Points Total)
-      const q1 = (data.q1Answer || data.q1 || '').trim().toLowerCase();
-      const q2 = (data.q2Answer || data.q2 || '').trim().toLowerCase();
-      const q3 = (data.q3Answer || data.q3 || '').trim().toLowerCase();
-      const q4 = (data.q4Answer || data.q4 || '').trim().toLowerCase();
-
-      let qScore = 0;
-      const q1Correct = (q1 === 'a');
-      const q2Correct = (q2 === 'b');
-      const q3Correct = (q3 === 'a');
-      const q4Correct = (q4 === 'b');
-
-      if (q1Correct) qScore++;
-      if (q2Correct) qScore++;
-      if (q3Correct) qScore++;
-      if (q4Correct) qScore++;
-
-      score += qScore;
-      feedback.push(`\n[ตอนที่ 3] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
-      feedback.push(`  ข้อ 1 (ความหมายและสูตรคำนวณ gm): ${q1Correct ? '✓ ถูกต้อง (+1 คะแนน)' : (q1 ? '✗ ไม่ถูกต้อง (เฉลย ก.)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 2 (ค่าความนำข้ามสูงสุด gm0): ${q2Correct ? '✓ ถูกต้อง (+1 คะแนน)' : (q2 ? '✗ ไม่ถูกต้อง (เฉลย ข.)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 3 (ผลของการบายพาส CS ขนาน RS): ${q3Correct ? '✓ ถูกต้อง (+1 คะแนน)' : (q3 ? '✗ ไม่ถูกต้อง (เฉลย ก.)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 4 (ข้อได้เปรียบเด่น FET ด้าน Zi เทียบ BJT): ${q4Correct ? '✓ ถูกต้อง (+1 คะแนน)' : (q4 ? '✗ ไม่ถูกต้อง (เฉลย ข.)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-
-      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
-      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
-      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
-
-      return {
-        status: 'success',
-        score: score,
-        maxScore: maxScore,
-        feedback: feedback.join('\n'),
-        comment: comment
-      };
-    }
-
-    function onSuccessGrading(res) {
-  if (res.status === 'duplicate') {
-    const overlay = document.getElementById('submission-overlay');
-    if (overlay) overlay.style.display = 'flex';
-    const title = document.getElementById('modal-title') || document.getElementById('overlay-title');
-    const spinner = document.getElementById('modal-spinner') || document.getElementById('overlay-spinner');
-    const msg = document.getElementById('modal-body') || document.getElementById('overlay-message');
-    const closeBtn = document.getElementById('modal-close-btn') || document.getElementById('overlay-close-btn');
-    const confirmBtn = document.getElementById('modal-confirm-submit-btn') || document.getElementById('overlay-confirm-submit-btn');
-
-    if (title) { title.innerText = '⚠️ ไม่อนุญาตให้ส่งใบงานซ้ำ'; title.style.color = '#f59e0b'; }
-    if (spinner) spinner.style.display = 'none';
-    
-    const formattedMsg = (res.message || 'รหัสนักศึกษานี้ได้เคยทำการส่งใบงานไปแล้ว').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-    
-    if (msg) {
-      msg.innerHTML = '<div style="text-align: left; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 6px; padding: 15px; margin: 15px 0;"><p style="font-size: 15px; font-weight: bold; color: #f59e0b; margin-bottom: 10px;">⚠️ พบประวัติการส่งใบงานในระบบ</p><div style="font-size: 13px; font-family: Sarabun, sans-serif; line-height: 1.8; color: var(--text-main);">' + formattedMsg + '</div></div><p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--text-muted);">โหมดดูอย่างเดียว (View-Only): ท่านสามารถตรวจสอบข้อมูลและกดปุ่ม "🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF" เพื่อเก็บเป็นหลักฐานได้ หรือกดปุ่ม "🔄 เริ่มทำใบงานใหม่" เพื่อสลับผู้ใช้งาน</p>';
-    }
-    if (closeBtn) { closeBtn.innerText = 'รับทราบ ❌'; closeBtn.style.display = 'inline-block'; }
-    if (confirmBtn) confirmBtn.style.display = 'none';
-    
-    const studentId = (document.getElementById('student-id')?.value || '').trim();
-    if (studentId) {
-      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, 'ก่อนหน้านี้');
-    }
-    lockFormAsSubmitted('ก่อนหน้านี้');
-    return;
-  }
-
-      const overlay = document.getElementById('submission-overlay');
-      const card = overlay.querySelector('.modal-card') || overlay.querySelector('.card');
-      const spinner = document.getElementById('modal-spinner');
-      const title = document.getElementById('modal-title');
-      const body = document.getElementById('modal-body');
-      const closeBtn = document.getElementById('modal-close-btn');
-      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
-
-      spinner.style.display = 'none';
-      if (res.status === 'success') {
-    const studentId = (document.getElementById('student-id')?.value || '').trim();
-    const nowFormatted = new Date().toLocaleString('th-TH');
-    if (studentId) {
-      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, nowFormatted);
-    }
-    lockFormAsSubmitted(nowFormatted);
-
-        if (card) {
-          card.style.borderColor = 'var(--accent-green)';
-          card.style.boxShadow = '0 0 35px rgba(16, 185, 129, 0.35)';
+    google.script.run
+      .withSuccessHandler(onSuccessGrading)
+      .withFailureHandler(onFailureGrading)
+      .submitWorksheet(data);
+  } else {
+    const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
+    if (endpointUrl && endpointUrl.startsWith('http')) {
+      fetch(endpointUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && (res.status === 'success' || res.score !== undefined)) {
+          onSuccessGrading(res);
+        } else {
+          throw new Error(res.message || 'Error recording submission');
         }
-        title.innerHTML = '🎉 ผลการตรวจคะแนน: <span style="color:#34d399;">' + res.score + ' / ' + res.maxScore + ' คะแนน</span>';
-        body.innerHTML = '<strong>ระดับผลการประเมิน:</strong> ' + res.comment + '<br><br><div style="text-align: left; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; max-height: 220px; overflow-y: auto; font-family: Sarabun, sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-main);">' + res.feedback.replace(/\n/g, '<br>') + '</div><p style="font-size: 12px; color: var(--accent-green); font-weight: bold; margin-top: 10px;">✓ บันทึกข้อมูลเข้าแผ่นงาน Google Sheets เรียบร้อยแล้ว</p>';
-      } else {
-        if (card) card.style.borderColor = 'var(--accent-red)';
-        title.innerText = '❌ เกิดข้อผิดพลาด';
-        body.innerText = res.message || 'ไม่สามารถประมวลผลคะแนนได้';
-      }
-      closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
-      closeBtn.style.display = 'inline-block';
-      if (confirmBtn) confirmBtn.style.display = 'none';
+      })
+      .catch(err => {
+        console.warn('GAS Fetch failed, falling back to local simulation:', err);
+        const localRes = localGradeSimulator(data);
+        localRes.feedback = (localRes.feedback || '') + '
+
+⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (' + err.message + ') ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน';
+        onSuccessGrading(localRes);
+      });
+    } else {
+      setTimeout(() => {
+        const localRes = localGradeSimulator(data);
+        onSuccessGrading(localRes);
+      }, 800);
     }
-
-    function onFailureGrading(err) {
-      const overlay = document.getElementById('submission-overlay');
-      const card = overlay.querySelector('.modal-card') || overlay.querySelector('.card');
-      const spinner = document.getElementById('modal-spinner');
-      const title = document.getElementById('modal-title');
-      const body = document.getElementById('modal-body');
-      const closeBtn = document.getElementById('modal-close-btn');
-      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
-
-      if (card) card.style.borderColor = 'var(--accent-red)';
-      spinner.style.display = 'none';
-      title.innerText = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อ';
-      body.innerText = err.toString();
-      closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
-      closeBtn.style.display = 'inline-block';
-      if (confirmBtn) confirmBtn.style.display = 'none';
-    }
-
-    function closeModal() {
-      document.getElementById('submission-overlay').style.display = 'none';
-    }
-
-    // --- INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', () => {
-  // Check if student already submitted this lab
-  checkExistingSubmission();
-  document.getElementById('student-id')?.addEventListener('change', checkExistingSubmission);
-  document.getElementById('student-id')?.addEventListener('input', checkExistingSubmission);
-
-      // Set today's date
-      const dateInput = document.getElementById('lab-date');
-      if (dateInput) {
-        dateInput.value = new Date().toISOString().split('T')[0];
-      }
-
-      updateSim();
-      renderScope();
-    });
-  </script>
-
-  <!-- ======================================================== -->
-  <!-- ANTI-CHEAT & PLAGIARISM PREVENTION SYSTEM -->
-  <!-- Blocks Copy/Paste/Drop on questions & conclusion textareas -->
-  <!-- ======================================================== -->
-  <script>
-  (function initAntiCheatSystem() {
-    let pasteAttempts = 0;
-    let toastTimeout = null;
-
-    function showAntiCheatWarning(targetEl) {
-      pasteAttempts++;
-      const toast = document.getElementById('anti-cheat-toast');
-      if (toast) {
-        toast.style.display = 'block';
-        setTimeout(() => {
-          toast.style.opacity = '1';
-          toast.style.transform = 'translateX(-50%) translateY(0)';
-        }, 10);
-        
-        clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-          toast.style.opacity = '0';
-          toast.style.transform = 'translateX(-50%) translateY(15px)';
-          setTimeout(() => { toast.style.display = 'none'; }, 300);
-        }, 3000);
-      }
-
-      if (targetEl) {
-        const originalBorder = targetEl.style.borderColor;
-        const originalShadow = targetEl.style.boxShadow;
-        targetEl.style.borderColor = '#ef4444';
-        targetEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.6)';
-        setTimeout(() => {
-          targetEl.style.borderColor = originalBorder;
-          targetEl.style.boxShadow = originalShadow;
-        }, 1200);
-      }
-    }
+  }
+}
 
     function setupAntiCheatListeners() {
       const protectedElements = document.querySelectorAll('textarea, input[type="text"].protected-answer');
@@ -3163,6 +2940,121 @@ function setComponentModel(modelKey) {
   });
 }
 window.setComponentModel = setComponentModel;
+
+
+
+/* ==========================================================================
+   TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION & DISPATCHER
+   ========================================================================== */
+function getGasStorageKey() {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const labSlug = pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'default_lab';
+  return 'elab_gas_endpoint_' + labSlug;
+}
+
+function getSavedGasEndpoint() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramUrl = urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('sheetUrl');
+    const key = getGasStorageKey();
+    if (paramUrl && paramUrl.trim().startsWith('http')) {
+      localStorage.setItem(key, paramUrl.trim());
+      return paramUrl.trim();
+    }
+    return (localStorage.getItem(key) || '').trim();
+  } catch(e) {
+    return '';
+  }
+}
+
+function initGasEndpointUI() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  const saved = getSavedGasEndpoint();
+  if (input && saved) {
+    input.value = saved;
+    if (badge) {
+      badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+      badge.style.color = 'var(--accent-green)';
+      badge.style.borderColor = 'var(--accent-green)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+  }
+}
+
+function saveGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  if (!input) return;
+  const val = input.value.trim();
+  const key = getGasStorageKey();
+  if (!val) {
+    try { localStorage.removeItem(key); } catch(e){}
+    if (badge) {
+      badge.innerText = '⚪ โหมดจำลองในเครื่อง';
+      badge.style.color = 'var(--text-muted)';
+      badge.style.borderColor = 'var(--border-color)';
+      badge.style.background = 'transparent';
+    }
+    alert('ล้างการเชื่อมต่อเรียบร้อย (ระบบจะทำงานในโหมดตรวจจำลองในเครื่อง)');
+    return;
+  }
+  if (!val.startsWith('https://script.google.com/macros/s/')) {
+    alert('⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้');
+  }
+  try { localStorage.setItem(key, val); } catch(e){}
+  if (badge) {
+    badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+    badge.style.color = 'var(--accent-green)';
+    badge.style.borderColor = 'var(--accent-green)';
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+  }
+  alert('💾 บันทึก URL Google Apps Script สำหรับบันทึกคะแนนเรียบร้อยแล้ว!');
+}
+
+function testGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  if (!input || !input.value.trim()) {
+    alert('⚠️ กรุณากรอก URL Web App ก่อนกดทดสอบ');
+    return;
+  }
+  const url = input.value.trim();
+  const badge = document.getElementById('gas-status-badge');
+  if (badge) {
+    badge.innerText = '⏳ กำลังทดสอบ...';
+    badge.style.color = 'var(--accent-yellow)';
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ping: true, test: true })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (badge) {
+      badge.innerText = '✅ เชื่อมต่อสำเร็จ 100%';
+      badge.style.color = 'var(--accent-green)';
+      badge.style.borderColor = 'var(--accent-green)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+    alert('🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ');
+  })
+  .catch(err => {
+    if (badge) {
+      badge.innerText = '⚠️ เชื่อมต่อขัดข้อง';
+      badge.style.color = 'var(--accent-red)';
+      badge.style.borderColor = 'var(--accent-red)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    }
+    alert('⚠️ การทดสอบล้มเหลว: ' + err.message + '\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec');
+  });
+}
+window.saveGasEndpoint = saveGasEndpoint;
+window.testGasEndpoint = testGasEndpoint;
+window.initGasEndpointUI = initGasEndpointUI;
+window.addEventListener('DOMContentLoaded', initGasEndpointUI);
 
 </script>
 </body>

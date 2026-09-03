@@ -11,6 +11,28 @@ function doGet(e) {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
 }
 
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    if (data.ping || data.test) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        message: 'Connected to Google Apps Script backend successfully!',
+        timestamp: new Date().toISOString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    var result = submitWorksheet(data);
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
 /**
  * Processes the student's lab report submission
  */

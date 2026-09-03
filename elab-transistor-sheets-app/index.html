@@ -1716,6 +1716,30 @@ body {
           </div>
         </div>
         <!-- LAB DATA SOURCE SELECTOR (Simulation vs Real Hardware) -->
+        
+        <!-- TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION -->
+        <div class="card gas-endpoint-card no-print" style="border: 1px dashed var(--accent-cyan); background: rgba(15, 23, 42, 0.75); padding: 14px 18px; margin-bottom: 20px; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">🔗</span>
+              <div>
+                <strong style="color: var(--accent-cyan); font-size: 13.5px;">เชื่อมต่อ Google Sheets ผู้สอน (Teacher Web App URL):</strong>
+                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                  นำลิงก์ Web App จาก Google Apps Script ของชีตผู้สอนมาวาง เพื่อบันทึกคะแนนเข้าชีตของท่านโดยตรง
+                </p>
+              </div>
+            </div>
+            <span id="gas-status-badge" style="font-size: 11.5px; padding: 3px 10px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-weight: 500;">
+              🌐 โหมดจำลองในเครื่อง (ยังไม่เชื่อมต่อชีต)
+            </span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+            <input type="url" id="gas-endpoint-url" placeholder="วางลิงก์ https://script.google.com/macros/s/.../exec ที่นี่..." style="flex: 1; min-width: 250px; padding: 7px 12px; font-size: 12.5px; background: rgba(10, 15, 28, 0.85); border: 1px solid var(--border-color); border-radius: 5px; color: #f8fafc;">
+            <button type="button" class="btn btn-secondary btn-small" onclick="saveGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">💾 บันทึก URL</button>
+            <button type="button" class="btn btn-primary btn-small" onclick="testGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">🧪 ทดสอบเชื่อมต่อ</button>
+          </div>
+        </div>
+
         <div class="card" id="lab-mode-card" style="border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.7); padding: 18px 20px; margin-bottom: 20px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
             <div>
@@ -2897,11 +2921,36 @@ function submitReportToGAS() {
       .withFailureHandler(onFailureGrading)
       .submitWorksheet(data);
   } else {
-    // Simulator local fallback for testing
-    setTimeout(() => {
-      const localRes = localGradeSimulator(data);
-      onSuccessGrading(localRes);
-    }, 1000);
+    const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
+    if (endpointUrl && endpointUrl.startsWith('http')) {
+      fetch(endpointUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && (res.status === 'success' || res.score !== undefined)) {
+          onSuccessGrading(res);
+        } else {
+          throw new Error(res.message || 'Error recording submission');
+        }
+      })
+      .catch(err => {
+        console.warn('GAS Fetch failed, falling back to local simulation:', err);
+        const localRes = localGradeSimulator(data);
+        localRes.feedback = (localRes.feedback || '') + '
+
+⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (' + err.message + ') ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน';
+        onSuccessGrading(localRes);
+      });
+    } else {
+      setTimeout(() => {
+        const localRes = localGradeSimulator(data);
+        onSuccessGrading(localRes);
+      }, 800);
+    }
   }
 }
 window.submitReportToGAS = submitReportToGAS;
@@ -3439,6 +3488,121 @@ function setComponentModel(modelKey) {
   });
 }
 window.setComponentModel = setComponentModel;
+
+
+
+/* ==========================================================================
+   TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION & DISPATCHER
+   ========================================================================== */
+function getGasStorageKey() {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const labSlug = pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'default_lab';
+  return 'elab_gas_endpoint_' + labSlug;
+}
+
+function getSavedGasEndpoint() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramUrl = urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('sheetUrl');
+    const key = getGasStorageKey();
+    if (paramUrl && paramUrl.trim().startsWith('http')) {
+      localStorage.setItem(key, paramUrl.trim());
+      return paramUrl.trim();
+    }
+    return (localStorage.getItem(key) || '').trim();
+  } catch(e) {
+    return '';
+  }
+}
+
+function initGasEndpointUI() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  const saved = getSavedGasEndpoint();
+  if (input && saved) {
+    input.value = saved;
+    if (badge) {
+      badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+      badge.style.color = 'var(--accent-green)';
+      badge.style.borderColor = 'var(--accent-green)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+  }
+}
+
+function saveGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  if (!input) return;
+  const val = input.value.trim();
+  const key = getGasStorageKey();
+  if (!val) {
+    try { localStorage.removeItem(key); } catch(e){}
+    if (badge) {
+      badge.innerText = '⚪ โหมดจำลองในเครื่อง';
+      badge.style.color = 'var(--text-muted)';
+      badge.style.borderColor = 'var(--border-color)';
+      badge.style.background = 'transparent';
+    }
+    alert('ล้างการเชื่อมต่อเรียบร้อย (ระบบจะทำงานในโหมดตรวจจำลองในเครื่อง)');
+    return;
+  }
+  if (!val.startsWith('https://script.google.com/macros/s/')) {
+    alert('⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้');
+  }
+  try { localStorage.setItem(key, val); } catch(e){}
+  if (badge) {
+    badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+    badge.style.color = 'var(--accent-green)';
+    badge.style.borderColor = 'var(--accent-green)';
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+  }
+  alert('💾 บันทึก URL Google Apps Script สำหรับบันทึกคะแนนเรียบร้อยแล้ว!');
+}
+
+function testGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  if (!input || !input.value.trim()) {
+    alert('⚠️ กรุณากรอก URL Web App ก่อนกดทดสอบ');
+    return;
+  }
+  const url = input.value.trim();
+  const badge = document.getElementById('gas-status-badge');
+  if (badge) {
+    badge.innerText = '⏳ กำลังทดสอบ...';
+    badge.style.color = 'var(--accent-yellow)';
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ping: true, test: true })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (badge) {
+      badge.innerText = '✅ เชื่อมต่อสำเร็จ 100%';
+      badge.style.color = 'var(--accent-green)';
+      badge.style.borderColor = 'var(--accent-green)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+    alert('🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ');
+  })
+  .catch(err => {
+    if (badge) {
+      badge.innerText = '⚠️ เชื่อมต่อขัดข้อง';
+      badge.style.color = 'var(--accent-red)';
+      badge.style.borderColor = 'var(--accent-red)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    }
+    alert('⚠️ การทดสอบล้มเหลว: ' + err.message + '\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec');
+  });
+}
+window.saveGasEndpoint = saveGasEndpoint;
+window.testGasEndpoint = testGasEndpoint;
+window.initGasEndpointUI = initGasEndpointUI;
+window.addEventListener('DOMContentLoaded', initGasEndpointUI);
 
 </script>
 
