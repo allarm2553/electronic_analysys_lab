@@ -1996,6 +1996,83 @@
     }
 
     // --- PREVIEW SCORE BEFORE SUBMISSION ---
+    function localGradeSimulator(data) {
+      const isHardware = (data.labDataSource === 'hardware');
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [
+        isHardware 
+          ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+          : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+      ];
+
+      // Diode Section (2 pts)
+      let dPass = 0;
+      if (data.d_pkg && data.d_pkg.includes('DO-41')) dPass++;
+      if (data.d_vr && (data.d_vr.includes('50') || data.d_vr.includes('1000'))) dPass++;
+      if (data.d_if && data.d_if.includes('1')) dPass++;
+      if (data.d_vf && (data.d_vf.includes('1.1') || data.d_vf.includes('1.0'))) dPass++;
+      let dScore = dPass >= 3 ? 2 : (dPass >= 1 ? 1 : 0);
+      score += dScore;
+      feedback.push(`[ตอนที่ 1] ข้อมูล Data Sheet ไดโอด: ได้ ${dScore} / 2 คะแนน (กรอกถูกต้อง ${dPass}/4 รายการ)`);
+
+      // Transistor Section (2 pts)
+      let tPass = 0;
+      if (data.t_pkg && (data.t_pkg.includes('TO-92') || data.t_pkg.includes('TO-18'))) tPass++;
+      if (data.t_vceo && (data.t_vceo.includes('45') || data.t_vceo.includes('25') || data.t_vceo.includes('30'))) tPass++;
+      if (data.t_ic && (data.t_ic.includes('100') || data.t_ic.includes('800') || data.t_ic.includes('500'))) tPass++;
+      if (data.t_hfe && (data.t_hfe.includes('110') || data.t_hfe.includes('100') || data.t_hfe.includes('200'))) tPass++;
+      let tScore = tPass >= 3 ? 2 : (tPass >= 1 ? 1 : 0);
+      score += tScore;
+      feedback.push(`[ตอนที่ 2] ข้อมูล Data Sheet ทรานซิสเตอร์ BJT: ได้ ${tScore} / 2 คะแนน (กรอกถูกต้อง ${tPass}/4 รายการ)`);
+
+      // MOSFET Section (2 pts)
+      let mPass = 0;
+      if (data.m_pkg && data.m_pkg.includes('TO-220')) mPass++;
+      if (data.m_vds && (data.m_vds.includes('100') || data.m_vds.includes('50') || data.m_vds.includes('60'))) mPass++;
+      if (data.m_id && (data.m_id.includes('33') || data.m_id.includes('28') || data.m_id.includes('19'))) mPass++;
+      if (data.m_rds && (data.m_rds.includes('0.07') || data.m_rds.includes('0.04') || data.m_rds.includes('77'))) mPass++;
+      let mScore = mPass >= 3 ? 2 : (mPass >= 1 ? 1 : 0);
+      score += mScore;
+      feedback.push(`[ตอนที่ 3] ข้อมูล Data Sheet เพาเวอร์มอสเฟต: ได้ ${mScore} / 2 คะแนน (กรอกถูกต้อง ${mPass}/4 รายการ)`);
+
+      // Part 4: MCQ (4 pts)
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'B');
+      const q2Ok = (ansQ2 === 'B');
+      const q3Ok = (ansQ3 === 'A');
+      const q4Ok = (ansQ4 === 'A');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 4] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+      return {
+        status: 'success',
+        score: score,
+        maxScore: maxScore,
+        comment: comment,
+        feedback: feedback.join('\n')
+      };
+    }
+
     function previewScoreBeforeSubmit() {
       const payload = getWorksheetPayload();
       const res = localGradeSimulator(payload);

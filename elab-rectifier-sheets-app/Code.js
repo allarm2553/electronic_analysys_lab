@@ -72,146 +72,66 @@ function submitWorksheet(data) {
 function gradeWorksheet(data) {
   const isHardware = (data.labDataSource === 'hardware');
 let score = 0;
-  let maxScore = 13; // 4 (Table 1) + 6 (Table 2) + 3 (Questions)
+  const maxScore = 10;
   const feedback = [
     isHardware 
       ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
       : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
   ];
-  
-  // --- PART 1: TABLE 1 (DMM Readings - 4 Rows) ---
-  const t1 = data.t1Rows || [];
-  
-  // Row 0: V_in AC Vrms. Correct = 12.0V (allow 11.8 - 12.2)
-  const v1 = parseFloat(t1[0]) || 0;
-  if (v1 >= 11.8 && v1 <= 12.2) {
-    score++;
-    feedback.push("V_in AC: ถูกต้อง");
-  } else {
-    feedback.push("V_in AC: ไม่ถูกต้อง");
+
+  let t1Pass = 0;
+  if (data.t1Rows) {
+    data.t1Rows.forEach(v => { if (parseFloat(v) > 0) t1Pass++; });
   }
-  
-  // Row 1: V_load DC. Correct = 5.18V (allow 5.0 - 5.3)
-  const v2 = parseFloat(t1[1]) || 0;
-  if (v2 >= 5.0 && v2 <= 5.3) {
-    score++;
-    feedback.push("V_load DC: ถูกต้อง");
-  } else {
-    feedback.push("V_load DC: ไม่ถูกต้อง");
+  let t1Score = t1Pass >= 3 ? 2 : (t1Pass >= 1 ? 1 : 0);
+  score += t1Score;
+  feedback.push(`[ตอนที่ 1] วัดสัญญาณ AC Input: ได้ ${t1Score} / 2 คะแนน (บันทึกข้อมูล ${t1Pass}/4 ช่อง)`);
+
+  let t2Pass = 0;
+  if (data.t2Rows) {
+    data.t2Rows.forEach(v => { if (parseFloat(v) > 0) t2Pass++; });
   }
-  
-  // Row 2: I_load DC. Correct = 5.18mA (allow 5.0 - 5.3)
-  const c1 = parseFloat(t1[2]) || 0;
-  if (c1 >= 5.0 && c1 <= 5.3) {
-    score++;
-    feedback.push("I_load DC: ถูกต้อง");
-  } else {
-    feedback.push("I_load DC: ไม่ถูกต้อง");
-  }
-  
-  // Row 3: V_diode forward. Correct = 0.70V (allow 0.65 - 0.75)
-  const vd = parseFloat(t1[3]) || 0;
-  if (vd >= 0.65 && vd <= 0.75) {
-    score++;
-    feedback.push("V_diode Forward: ถูกต้อง");
-  } else {
-    feedback.push("V_diode Forward: ไม่ถูกต้อง");
-  }
-  
-  // --- PART 2: TABLE 2 (Scope Readings - 6 Rows) ---
-  const t2 = data.t2Rows || [];
-  
-  // Row 0: Ch1 Vpp. Correct = 33.9V (allow 33.0 - 34.8)
-  const s1 = parseFloat(t2[0]) || 0;
-  if (s1 >= 33.0 && s1 <= 34.8) {
-    score++;
-    feedback.push("Ch1 Vpp: ถูกต้อง");
-  } else {
-    feedback.push("Ch1 Vpp: ไม่ถูกต้อง");
-  }
-  
-  // Row 1: Ch1 Vrms. Correct = 12.0V (allow 11.8 - 12.2)
-  const s2 = parseFloat(t2[1]) || 0;
-  if (s2 >= 11.8 && s2 <= 12.2) {
-    score++;
-    feedback.push("Ch1 Vrms: ถูกต้อง");
-  } else {
-    feedback.push("Ch1 Vrms: ไม่ถูกต้อง");
-  }
-  
-  // Row 2: Ch2 Vmax. Correct = 16.3V (allow 15.9 - 16.6)
-  const s3 = parseFloat(t2[2]) || 0;
-  if (s3 >= 15.9 && s3 <= 16.6) {
-    score++;
-    feedback.push("Ch2 Vmax: ถูกต้อง");
-  } else {
-    feedback.push("Ch2 Vmax: ไม่ถูกต้อง");
-  }
-  
-  // Row 3: Ch2 Vdc. Correct = 5.18V (allow 5.0 - 5.3)
-  const s4 = parseFloat(t2[3]) || 0;
-  if (s4 >= 5.0 && s4 <= 5.3) {
-    score++;
-    feedback.push("Ch2 Vdc: ถูกต้อง");
-  } else {
-    feedback.push("Ch2 Vdc: ไม่ถูกต้อง");
-  }
-  
-  // Row 4: Ch2 Vrms. Correct = 8.13V (allow 7.9 - 8.3)
-  const s5 = parseFloat(t2[4]) || 0;
-  if (s5 >= 7.9 && s5 <= 8.3) {
-    score++;
-    feedback.push("Ch2 Vrms: ถูกต้อง");
-  } else {
-    feedback.push("Ch2 Vrms: ไม่ถูกต้อง");
-  }
-  
-  // Row 5: Period. Correct = 20.0ms (allow 19.5 - 20.5)
-  const s6 = parseFloat(t2[5]) || 0;
-  if (s6 >= 19.5 && s6 <= 20.5) {
-    score++;
-    feedback.push("Period: ถูกต้อง");
-  } else {
-    feedback.push("Period: ไม่ถูกต้อง");
-  }
-  
-  // --- PART 3: POST-LAB QUESTIONS (3 Rows) ---
-  if (data.q1 === 'A') {
-    score++;
-    feedback.push("คำถามข้อที่ 1: ถูกต้อง");
-  } else {
-    feedback.push("คำถามข้อที่ 1: ไม่ถูกต้อง");
-  }
-  
-  if (data.q2 === 'A') {
-    score++;
-    feedback.push("คำถามข้อที่ 2: ถูกต้อง");
-  } else {
-    feedback.push("คำถามข้อที่ 2: ไม่ถูกต้อง");
-  }
-  
-  if (data.q3 === 'B') {
-    score++;
-    feedback.push("คำถามข้อที่ 3: ถูกต้อง");
-  } else {
-    feedback.push("คำถามข้อที่ 3: ไม่ถูกต้อง");
-  }
-  
-  // Grade comment
+  let t2Score = t2Pass >= 5 ? 4 : (t2Pass >= 3 ? 2 : 0);
+  score += t2Score;
+  feedback.push(`[ตอนที่ 2] วัดวงจรเรียงกระแสครึ่งคลื่น: ได้ ${t2Score} / 4 คะแนน (บันทึกข้อมูล ${t2Pass}/6 ช่อง)`);
+
+      // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'A');
+      const q2Ok = (ansQ2 === 'A');
+      const q3Ok = (ansQ3 === 'A');
+      const q4Ok = (ansQ4 === 'A');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+
+      score += qScore;
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+
+
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-  if (score >= 11) {
-    comment = "ผ่านเกณฑ์ดีมาก (Excellent)";
-  } else if (score >= 8) {
-    comment = "ผ่านเกณฑ์ดี (Good)";
-  } else if (score >= 6) {
-    comment = "ผ่านเกณฑ์ขั้นต่ำ (Pass)";
-  }
-  
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
   return {
+    status: 'success',
     score: score,
     maxScore: maxScore,
-    feedback: feedback.join('\n'),
-    comment: comment
+    comment: comment,
+    feedback: feedback.join('\n')
   };
 }
 

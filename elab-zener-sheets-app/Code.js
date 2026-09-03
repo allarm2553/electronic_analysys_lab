@@ -71,193 +71,74 @@ function submitWorksheet(data) {
  */
 function gradeWorksheet(data) {
   const isHardware = (data.labDataSource === 'hardware');
-const cond = data.diodeCondition; // 'good', 'open', 'short'
-  
-  let score = 0;
-  let maxScore = 10;
+let score = 0;
+  const maxScore = 10;
   const feedback = [
     isHardware 
       ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
       : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
   ];
-  
-  // --- PART 1: DIODE TESTING (Analog Multimeter, R x 10) ---
-  // 1.1 Forward resistance (r-forward)
-  const rFwdStr = (data.rForward || '').toString().trim();
-  const rFwd = parseFloat(rFwdStr);
-  let rFwdCorrect = false;
-  if (cond === 'good') {
-    // Expected forward: 100 - 200 ohms (simulator: 148 ohms)
-    if (rFwd >= 100 && rFwd <= 200) rFwdCorrect = true;
-  } else if (cond === 'open') {
-    // Expected: Infinity / empty / text '∞' / very high
-    if (rFwdStr === '' || rFwdStr === '∞' || isNaN(rFwd) || rFwd > 100000) rFwdCorrect = true;
-  } else if (cond === 'short') {
-    // Expected: very low, e.g. < 5 ohms (simulator: 0.8 ohms)
-    if (rFwd >= 0 && rFwd <= 5) rFwdCorrect = true;
+
+  let p1Correct = 0;
+  const rFwd = parseFloat(data.rForward);
+  const rRev = (data.rReverse || '').trim();
+  if (rFwd > 0) p1Correct++;
+  // Accept ∞, inf, Infinity, or a large number as valid reverse resistance
+  if (rRev === '∞' || rRev.toLowerCase() === 'inf' || rRev.toLowerCase() === 'infinity' || parseFloat(rRev) > 0) p1Correct++;
+  if (data.diodeStatus !== '') p1Correct++;
+  let p1Score = p1Correct >= 3 ? 2 : (p1Correct >= 1 ? 1 : 0);
+  score += p1Score;
+  feedback.push(`[ตอนที่ 1] ทดสอบซีเนอร์ไดโอดด้วยโอห์มมิเตอร์: ได้ ${p1Score} / 2 คะแนน`);
+
+  let p2Pass = 0;
+  if (data.part2Rows) {
+    data.part2Rows.forEach(r => {
+      // Count row as filled if vr1 or vd1 has been entered (non-empty string)
+      const hasVr1 = r.vr1 !== '' && r.vr1 !== null && r.vr1 !== undefined;
+      const hasVd1 = r.vd1 !== '' && r.vd1 !== null && r.vd1 !== undefined;
+      if (hasVr1 && hasVd1) p2Pass++;
+    });
   }
-  
-  if (rFwdCorrect) {
-    score += 1;
-    feedback.push("1.1 ความต้านทานไบอัสตรง: ถูกต้อง");
-  } else {
-    feedback.push("1.1 ความต้านทานไบอัสตรง: ไม่สอดคล้องกับสภาพซีเนอร์ไดโอด (" + (rFwdStr || 'ว่าง') + " Ω)");
-  }
-  
-  // 1.2 Reverse resistance (r-reverse)
-  const rRevStr = (data.rReverse || '').toString().trim();
-  const rRev = parseFloat(rRevStr);
-  let rRevCorrect = false;
-  if (cond === 'good' || cond === 'open') {
-    // Expected: Infinity / empty / text '∞' / very high
-    if (rRevStr === '' || rRevStr === '∞' || isNaN(rRev) || rRev > 100000) rRevCorrect = true;
-  } else if (cond === 'short') {
-    // Expected: very low, < 5 ohms (simulator: 0.8 ohms)
-    if (rRev >= 0 && rRev <= 5) rRevCorrect = true;
-  }
-  
-  if (rRevCorrect) {
-    score += 1;
-    feedback.push("1.2 ความต้านทานไบอัสกลับ: ถูกต้อง");
-  } else {
-    feedback.push("1.2 ความต้านทานไบอัสกลับ: ไม่สอดคล้องกับสภาพซีเนอร์ไดโอด (" + (rRevStr || 'ว่าง') + " Ω)");
-  }
-  
-  // 1.3 Zener status selection
-  const ansStatus = data.diodeStatus;
-  if (ansStatus === cond) {
-    score += 1;
-    feedback.push("1.3 ระบุสรุปสภาพซีเนอร์ไดโอด: ถูกต้องตามเกณฑ์");
-  } else {
-    feedback.push("1.3 ระบุสรุปสภาพซีเนอร์ไดโอด: ไม่ถูกต้อง");
-  }
-  
-  // --- PART 2: ACTIVE CIRCUIT TESTING (12 Rows) ---
-  const zenerModelKey = data.zenerModel || '1N4735A';
-  const zenerMap = {
-    '1N4728A': { name: '1N4728A', vz: 3.3, vz_sim: 3.315, vinList: [0.0, 1.0, 2.0, 2.8, 3.0, 3.2, 3.3, 3.4, 3.6, 4.0, 5.0, 6.0] },
-    '1N4733A': { name: '1N4733A', vz: 5.1, vz_sim: 5.120, vinList: [0.0, 2.0, 3.5, 4.5, 4.8, 5.0, 5.1, 5.3, 5.5, 6.0, 7.0, 8.0] },
-    '1N4735A': { name: '1N4735A', vz: 6.2, vz_sim: 6.225, vinList: [0.0, 2.0, 4.0, 5.0, 5.8, 6.0, 6.2, 6.4, 6.6, 7.0, 8.0, 10.0] },
-    '1N4739A': { name: '1N4739A', vz: 9.1, vz_sim: 9.130, vinList: [0.0, 3.0, 6.0, 8.0, 8.6, 8.9, 9.1, 9.3, 9.6, 10.0, 12.0, 14.0] },
-    '1N4742A': { name: '1N4742A', vz: 12.0, vz_sim: 12.050, vinList: [0.0, 4.0, 8.0, 10.5, 11.4, 11.8, 12.0, 12.2, 12.6, 13.5, 15.0, 18.0] }
-  };
-  const activeZener = zenerMap[zenerModelKey] || zenerMap['1N4735A'];
-  const expectedVz = activeZener.vz;
-  const vinList = activeZener.vinList;
-  
-  const submittedRows = data.part2Rows || [];
-  let correctRowsCount = 0;
-  
-  for (let idx = 0; idx < 12; idx++) {
-    const vin = vinList[idx];
-    const sRow = submittedRows[idx] || { vr1: '', vd1: '', iCalc: '', iMeas: '' };
-    
-    const vr1 = parseFloat(sRow.vr1) || 0;
-    const vd1 = parseFloat(sRow.vd1) || 0;
-    const iCalc = parseFloat(sRow.iCalc) || 0;
-    const iMeas = parseFloat(sRow.iMeas) || 0;
-    
-    // Compute expected values piecewise
-    let expVR1 = 0;
-    let expVD1 = vin;
-    let expIz = 0;
-    
-    if (cond === 'open') {
-      expVR1 = 0.0;
-      expVD1 = vin;
-      expIz = 0.0;
-    } else if (cond === 'short') {
-      expVR1 = vin;
-      expVD1 = 0.0;
-      expIz = vin; // since R = 1k, I = VR1/1k in mA
-    } else {
-      // cond === 'good'
-      if (vin <= expectedVz) {
-        expVR1 = 0.0;
-        expVD1 = vin;
-        expIz = 0.0;
-      } else {
-        expVD1 = activeZener.vz_sim || expectedVz;
-        expVR1 = vin - expVD1;
-        expIz = expVR1; // mA
-      }
-    }
-    
-    // Check tolerances (Simulation checking)
-    const tolV = 0.35; // ±0.35V
-    const tolI = 0.45; // ±0.45mA
-    
-    const simVr1Ok = Math.abs(vr1 - expVR1) <= tolV;
-    const simVd1Ok = Math.abs(vd1 - expVD1) <= (cond === 'good' && Math.abs(vin - expectedVz) <= 0.6 ? 0.55 : tolV);
-    const simICalcOk = Math.abs(iCalc - vr1) <= 0.20; // Icalc must match VR1/1k
-    const simIMeasOk = Math.abs(iMeas - expIz) <= tolI;
-    
-    const simRowOk = simVr1Ok && simVd1Ok && simICalcOk && simIMeasOk;
-    
-    // Physical circuit constraints checking (permits physical lab experimental values)
-    let physicalRowOk = false;
-    if (cond === 'good') {
-      const kvlDiff = Math.abs((vr1 + vd1) - vin);
-      const kvlOk = kvlDiff <= 0.8; // 0.8V tolerance for meter rounding
-      
-      const impliedRc = iCalc > 0 ? (vr1 / (iCalc * 1e-3)) : 0;
-      const rcOk = impliedRc >= 600 && impliedRc <= 1300; // nominal 1k resistor
-      
-      const iCalcMeasDiff = Math.abs(iCalc - iMeas);
-      const currentOk = iCalcMeasDiff <= 0.5;
-      
-      let zenerBehaviorOk = false;
-      if (vin < expectedVz * 0.85) {
-        // Zener not in breakdown yet: Vr1 should be very small
-        zenerBehaviorOk = vr1 <= 0.8 && vd1 >= vin - 0.8;
-      } else if (vin >= expectedVz * 1.15) {
-        // Zener in breakdown: Vd1 should stabilize in breakdown region
-        zenerBehaviorOk = vd1 >= expectedVz * 0.85 && vd1 <= expectedVz * 1.25 && vr1 >= (vin - vd1 - 0.8);
-      } else {
-        // Transition region: accept if KVL and current checks pass
-        zenerBehaviorOk = true;
-      }
-      
-      physicalRowOk = kvlOk && rcOk && currentOk && zenerBehaviorOk;
-    } else if (cond === 'open') {
-      physicalRowOk = Math.abs(vd1 - vin) <= 0.8 && vr1 === 0 && iCalc === 0 && iMeas === 0;
-    } else if (cond === 'short') {
-      physicalRowOk = Math.abs(vr1 - vin) <= 0.8 && vd1 <= 0.6 && Math.abs(iMeas - vin) <= 0.5;
-    }
-    
-    if (simRowOk || physicalRowOk) {
-      correctRowsCount++;
-    }
-  }
-  
-  // Award points based on correct rows
-  let p2Score = 0;
-  if (correctRowsCount >= 11) {
-    p2Score = 7;
-  } else if (correctRowsCount >= 8) {
-    p2Score = 5;
-  } else if (correctRowsCount >= 5) {
-    p2Score = 3;
-  } else if (correctRowsCount >= 2) {
-    p2Score = 1;
-  }
-  
+  let p2Score = p2Pass >= 10 ? 4 : (p2Pass >= 6 ? 2 : (p2Pass >= 3 ? 1 : 0));
   score += p2Score;
-  feedback.push(`[เบอร์ซีเนอร์ไดโอด]: ${activeZener.name}`);
-  feedback.push("ตอนที่ 2 ตารางการรักษาระดับแรงดัน: ถูกต้อง " + correctRowsCount + " จาก 12 ระดับแรงดัน (ได้ " + p2Score + " / 7 คะแนน)");
-  
+  feedback.push(`[ตอนที่ 2] ตารางการรักษาระดับแรงดัน: ได้ ${p2Score} / 4 คะแนน (บันทึกข้อมูล ${p2Pass}/12 แถว)`);
+
+  // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'B');
+      const q2Ok = (ansQ2 === 'C');
+      const q3Ok = (ansQ3 === 'B');
+      const q4Ok = (ansQ4 === 'B');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+
+      score += qScore;
+      feedback.push(`
+[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย C)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-  if (score >= 9) {
-    comment = "ผ่านเกณฑ์ดีมาก (Excellent)";
-  } else if (score >= 7) {
-    comment = "ผ่านเกณฑ์ดี (Good)";
-  }
-  
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
   return {
+    status: 'success',
     score: score,
     maxScore: maxScore,
-    feedback: feedback.join('\n'),
-    comment: comment
+    comment: comment,
+    feedback: feedback.join('\n')
   };
 }
 

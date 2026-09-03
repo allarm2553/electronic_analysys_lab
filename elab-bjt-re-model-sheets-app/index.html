@@ -2364,6 +2364,144 @@
     }
 
     // --- PREVIEW SCORE BEFORE SUBMISSION ---
+    function localGradeSimulator(data) {
+      const isHardware = (data.labDataSource === 'hardware');
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [
+        isHardware 
+          ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+          : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+      ];
+
+      const mode = data.circuitMode || 'fixed';
+      const Vcc = parseFloat(data.param_vcc) || 12.0;
+      const R1 = (parseFloat(data.param_r1) || 33.0) * 1000;
+      const R2 = (parseFloat(data.param_r2) || 6.8) * 1000;
+      const Rc = (parseFloat(data.param_rc) || 2.2) * 1000;
+      const Re = parseFloat(data.param_re) || 560;
+      const Beta = parseFloat(data.param_beta) || 200;
+      const Vbe = 0.70;
+
+      const Vth = Vcc * (R2 / (R1 + R2));
+      const Rth = (R1 * R2) / (R1 + R2);
+      let Ib = (Vth - Vbe) / (Rth + (Beta + 1) * Re);
+      if (Ib < 0) Ib = 0;
+      const Ie = (Beta + 1) * Ib;
+      const Ic = Beta * Ib;
+      const Ve = Ie * Re;
+      const Vb = Ve + (Ib > 0 ? Vbe : 0);
+      const Vc = Math.max(0, Vcc - Ic * Rc);
+      const Vce = Vc - Ve;
+      const Ie_mA = Ie * 1000;
+      const re_calc = Ie_mA > 0 ? (26.0 / Ie_mA) : 9999;
+
+      const Zb_bypassed = Beta * re_calc;
+      const Zi_bypassed = 1 / (1/R1 + 1/R2 + 1/Zb_bypassed);
+      const Av_bypassed = re_calc > 0 ? (Rc / re_calc) : 0;
+
+      const Zb_unbypassed = Beta * (re_calc + Re);
+      const Zi_unbypassed = 1 / (1/R1 + 1/R2 + 1/Zb_unbypassed);
+      const Av_unbypassed = Rc / (re_calc + Re);
+
+      feedback.push(`[โหมดการทดลอง]: ${mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)'}`);
+
+      // Part 1: DC & re (3 pts)
+      const sVb = parseFloat(data.dc_vb) || 0;
+      const sVe = parseFloat(data.dc_ve) || 0;
+      const sVc = parseFloat(data.dc_vc) || 0;
+      const sVce = parseFloat(data.dc_vce) || 0;
+      const sIe = parseFloat(data.dc_ie) || 0;
+      const sRe = parseFloat(data.dc_re) || 0;
+
+      const vbOk = Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15);
+      const veOk = Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
+      const vcOk = Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
+      const vceOk = Math.abs(sVce - Vce) <= Math.max(0.70, Math.abs(Vce) * 0.15) || Math.abs(sVce - (sVc - sVe)) <= 0.35;
+      const ieOk = Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+
+      let studentImpliedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
+      const reOk = Math.abs(sRe - re_calc) <= Math.max(3.0, re_calc * 0.20) || Math.abs(sRe - studentImpliedRe) <= Math.max(2.5, studentImpliedRe * 0.18);
+
+      let dcVoltagesScore = (vbOk && veOk && vcOk && vceOk) ? 1 : 0;
+      let dcCurrentScore = ieOk ? 1 : 0;
+      let reScore = reOk ? 1 : 0;
+      let part1Score = dcVoltagesScore + dcCurrentScore + reScore;
+      score += part1Score;
+
+      feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่า re: ได้ ${part1Score} / 3 คะแนน`);
+      if (dcVoltagesScore) feedback.push(`  ✓ แรงดันไฟตรง (Vb, Ve, Vc, Vce): ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ แรงดันไฟตรง: ค่าอยู่นอกเกณฑ์ความถูกต้อง`);
+      if (dcCurrentScore) feedback.push(`  ✓ กระแสอิมิตเตอร์ Ie: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ กระแสอิมิตเตอร์ Ie: คลาดเคลื่อนจากเกณฑ์`);
+      if (reScore) feedback.push(`  ✓ ค่าความต้านทานไดนามิก re: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ ค่าความต้านทานไดนามิก re: คลาดเคลื่อนจากเกณฑ์`);
+
+      // Part 2: AC Performance (Bypassed & Unbypassed) (3 pts)
+      const sAv_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
+      const sZi_byp = parseFloat(data.ac_zi_bypassed) || 0;
+      const sPhase_byp = parseInt(data.ac_phase_bypassed) || 0;
+      const avBypOk = sAv_byp >= (Av_bypassed * 0.70) && sAv_byp <= (Av_bypassed * 1.30);
+      const ziByp_k = sZi_byp > 50 ? sZi_byp / 1000 : sZi_byp;
+      const ziBypOk = Math.abs(ziByp_k - (Zi_bypassed/1000)) <= Math.max(0.6, (Zi_bypassed/1000) * 0.40);
+      const phaseBypOk = sPhase_byp === 180;
+
+      const sAv_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
+      const sZi_unbyp = parseFloat(data.ac_zi_unbypassed) || 0;
+      const sPhase_unbyp = parseInt(data.ac_phase_unbypassed) || 0;
+      const avUnbypOk = sAv_unbyp >= (Av_unbypassed * 0.70) && sAv_unbyp <= (Av_unbypassed * 1.30);
+      const ziUnbyp_k = sZi_unbyp > 50 ? sZi_unbyp / 1000 : sZi_unbyp;
+      const ziUnbypOk = Math.abs(ziUnbyp_k - (Zi_unbypassed/1000)) <= Math.max(0.6, (Zi_unbypassed/1000) * 0.40);
+      const phaseUnbypOk = sPhase_unbyp === 180;
+
+      let bypScore = (avBypOk ? 0.5 : 0) + (ziBypOk ? 0.5 : 0) + (phaseBypOk ? 0.5 : 0);
+      let unbypScore = (avUnbypOk ? 0.5 : 0) + (ziUnbypOk ? 0.5 : 0) + (phaseUnbypOk ? 0.5 : 0);
+      let part2Score = Math.round(bypScore + unbypScore);
+      score += part2Score;
+
+      feedback.push(`\n[ตอนที่ 2] พารามิเตอร์สัญญาณ AC (มี/ไม่มี CE): ได้ ${part2Score} / 3 คะแนน`);
+      if (avBypOk) feedback.push(`  ✓ อัตราขยายกรณีมี CE: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ อัตราขยายกรณีมี CE: คลาดเคลื่อนจากเกณฑ์`);
+      if (avUnbypOk) feedback.push(`  ✓ อัตราขยายกรณีไม่มี CE: ถูกต้องตามเกณฑ์`);
+      else feedback.push(`  ✗ อัตราขยายกรณีไม่มี CE: คลาดเคลื่อนจากเกณฑ์`);
+
+      // Part 3: MCQ (4 pts)
+      const ansQ1 = (data.q1_choice || data.q1Answer || data.q1 || '').trim().toLowerCase();
+      const ansQ2 = (data.q2_choice || data.q2Answer || data.q2 || '').trim().toLowerCase();
+      const ansQ3 = (data.q3_choice || data.q3Answer || data.q3 || '').trim().toLowerCase();
+      const ansQ4 = (data.q4_choice || data.q4Answer || data.q4 || '').trim().toLowerCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'b');
+      const q2Ok = (ansQ2 === 'c');
+      const q3Ok = (ansQ3 === 'a');
+      const q4Ok = (ansQ4 === 'b');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 3] คำถามท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย C)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+      return {
+        status: 'success',
+        score: score,
+        maxScore: maxScore,
+        comment: comment,
+        feedback: feedback.join('\n')
+      };
+    }
+
     function previewScoreBeforeSubmit() {
       const payload = getWorksheetPayload();
       const res = localGradeSimulator(payload);

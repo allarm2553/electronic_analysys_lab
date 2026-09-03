@@ -101,235 +101,86 @@ function submitWorksheet(data) {
  */
 function gradeWorksheet(data) {
   const isHardware = (data.labDataSource === 'hardware');
-const cond = data.diodeCondition || 'good'; // 'good', 'open', 'short'
-  const modelKey = data.bjtModel || data.selectedModel || 'BC108';
-  const model = BJT_MODELS[modelKey] || BJT_MODELS['BC108'];
-  
-  let score = 0;
-  let maxScore = 10;
+let score = 0;
+  const maxScore = 10;
   const feedback = [
     isHardware 
       ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
       : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
   ];
-  
-  // Nominal circuit values
-  const Rb = 468400; // 468.4k ohms (measured)
-  const Rc = 1012;   // 1012 ohms (measured)
+
+  const modelKey = data.bjtModel || data.selectedModel || 'BC108';
+  const model = BJT_MODELS[modelKey] || BJT_MODELS['BC108'];
+  const cond = data.diodeCondition || 'good';
   const hfe = model.beta;
   const VbeNom = model.vbe;
-  
-  // --- PART 1: MEASUREMENT TABLE (6 Rows) ---
-  const vinList = [5.0, 6.0, 8.0, 10.0, 12.0, 15.0];
-  const submittedRows = data.part2Rows || [];
-  let correctRowsCount = 0;
-  
-  // Track student's entries for Vcc = 12.0 V to check calculations in Part 2
-  let student12V_vce = null;
-  let student12V_ic = null;
-  let student12V_ib = null;
-  
-  for (let idx = 0; idx < 6; idx++) {
-    const vcc = vinList[idx];
-    const sRow = submittedRows[idx] || { vrb: '', vbe: '', ib: '', vrc: '', vce: '', ic: '' };
-    
-    const vrb = parseFloat(sRow.vrb) || 0;
-    const vbe = parseFloat(sRow.vbe) || 0;
-    const ib = parseFloat(sRow.ib) || 0;
-    const vrc = parseFloat(sRow.vrc) || 0;
-    const vce = parseFloat(sRow.vce) || 0;
-    const ic = parseFloat(sRow.ic) || 0;
-    
-    if (idx === 4) { // Vcc = 12.0 V
-      student12V_vce = vce;
-      student12V_ic = ic;
-      student12V_ib = ib;
-    }
-    
-    // --- CHECK 1: Theoretical simulation values ---
-    let expVrb = 0, expVbe = 0, expIb = 0, expVrc = 0, expVce = 0, expIc = 0;
-    
-    if (cond === 'open') {
-      expVbe = vcc;
-      expVce = vcc;
-    } else if (cond === 'short') {
-      if (vcc > VbeNom) {
-        expVbe = VbeNom;
-        expIb = (vcc - VbeNom) / Rb;
-        expVrb = vcc - expVbe;
-      } else {
-        expVbe = vcc;
-      }
-      expIc = vcc / Rc;
-      expVrc = vcc;
-      expVce = 0.0;
-    } else {
-      // 'good'
-      if (vcc <= VbeNom) {
-        expVbe = vcc;
-        expVce = vcc;
-      } else {
-        const ibApprox = (vcc - VbeNom) / Rb;
-        expVbe = VbeNom + 0.015 * Math.log(1 + ibApprox * 1e6);
-        expVbe = Math.min(expVbe, vcc - 0.01);
-        
-        expIb = (vcc - expVbe) / Rb;
-        expVrb = vcc - expVbe;
-        
-        const icActive = hfe * expIb;
-        const icSat = (vcc - 0.2) / Rc;
-        
-        if (icActive < icSat) {
-          expIc = icActive;
-          expVce = vcc - expIc * Rc;
-          expVrc = expIc * Rc;
-        } else {
-          expIc = icSat;
-          expVce = 0.2;
-          expVrc = vcc - expVce;
-        }
-      }
-    }
-    
-    const tolV = 0.35; // Tolerance
-    const tolIb = 5.0; // uA
-    const tolIc = 0.5; // mA
-    
-    const expIb_uA = expIb * 1e6;
-    const expIc_mA = expIc * 1e3;
-    
-    const simVrbOk = Math.abs(vrb - expVrb) <= tolV;
-    const simVbeOk = Math.abs(vbe - expVbe) <= tolV;
-    const simIbOk = Math.abs(ib - expIb_uA) <= tolIb;
-    const simVrcOk = Math.abs(vrc - expVrc) <= tolV;
-    const simVceOk = Math.abs(vce - expVce) <= tolV;
-    const simIcOk = Math.abs(ic - expIc_mA) <= tolIc;
-    
-    const simRowOk = simVrbOk && simVbeOk && simIbOk && simVrcOk && simVceOk && simIcOk;
-    
-    // --- CHECK 2: Physical circuit laws (KVL/Ohm's Law) ---
-    let physicalRowOk = false;
-    
-    if (cond === 'good') {
-      const kvlBaseDiff = Math.abs((vrb + vbe) - vcc);
-      const kvlCollectorDiff = Math.abs((vrc + vce) - vcc);
-      
-      const impliedRb = ib > 0 ? (vrb / (ib * 1e-6)) : 0;
-      const impliedRc = ic > 0 ? (vrc / (ic * 1e-3)) : 0;
-      
-      const rbOk = impliedRb >= 250000 && impliedRb <= 700000;
-      const rcOk = impliedRc >= 500 && impliedRc <= 1500;
-      
-      const kvlBaseOk = kvlBaseDiff <= 1.2;
-      const kvlCollectorOk = kvlCollectorDiff <= 1.2;
-      
-      const ibPos = ib >= 0;
-      const icPos = ic >= 0;
-      const vbeRange = vbe >= 0.1 && vbe <= 1.0;
-      
-      let bjtBehaviorOk = false;
-      const betaImplied = ib > 0 ? (ic * 1e-3) / (ib * 1e-6) : 0;
-      
-      if (vce <= 0.8) {
-        bjtBehaviorOk = betaImplied <= 700 && betaImplied > 0;
-      } else {
-        bjtBehaviorOk = betaImplied >= 50 && betaImplied <= 700;
-      }
-      
-      physicalRowOk = kvlBaseOk && kvlCollectorOk && rbOk && rcOk && ibPos && icPos && vbeRange && bjtBehaviorOk;
-    } else if (cond === 'open') {
-      physicalRowOk = Math.abs(vbe - vcc) <= 1.0 && Math.abs(vce - vcc) <= 1.0 && ib === 0 && ic === 0;
-    } else if (cond === 'short') {
-      const impliedRc = ic > 0 ? (vcc / (ic * 1e-3)) : 0;
-      const rcOk = impliedRc >= 500 && impliedRc <= 1500;
-      physicalRowOk = Math.abs(vce - 0) <= 0.6 && rcOk && Math.abs(vrc - vcc) <= 1.0;
-    }
-    
-    if (simRowOk || physicalRowOk) {
-      correctRowsCount++;
-    }
+
+  // 1. Table Data Check (3 pts)
+  let rowCorrect = 0;
+  if (data.part2Rows && data.part2Rows.length >= 6) {
+    data.part2Rows.forEach(row => {
+      if (parseFloat(row.vrb) > 0 || parseFloat(row.vbe) > 0 || parseFloat(row.ib) > 0) rowCorrect++;
+    });
   }
-  
-  score += correctRowsCount;
-  feedback.push(`ตารางบันทึกผลการทดลอง (${model.name}): ถูกต้อง ${correctRowsCount} จาก 6 แถวระดับแรงดัน (ได้ ${correctRowsCount} คะแนน)`);
-  
-  // --- PART 2: Q-POINT & BETA CALCULATIONS (at Vcc = 12.0 V) ---
-  if (cond === 'good') {
-    const ansVceQ = parseFloat(data.ansVceQ) || 0;
-    const ansIcQ = parseFloat(data.ansIcQ) || 0;
-    const ansBeta = parseFloat(data.ansBetaCalc) || 0;
-    
-    // Theoretical targets for the active model
-    const expIb12 = (12.0 - VbeNom) / Rb;
-    const expIc12 = Math.min(hfe * expIb12, (12.0 - 0.2) / Rc) * 1e3;
-    const expVce12 = 12.0 - (expIc12 * 1e-3) * Rc;
-    
-    let targetVce = expVce12;
-    let targetIc = expIc12;
-    let targetBeta = hfe;
-    
-    if (student12V_vce !== null && student12V_ic !== null && student12V_ib !== null && student12V_ib > 0) {
-      targetVce = student12V_vce;
-      targetIc = student12V_ic;
-      targetBeta = (student12V_ic * 1000) / student12V_ib;
-    }
-    
-    const vceQOk = Math.abs(ansVceQ - targetVce) <= 0.6;
-    const icQOk = Math.abs(ansIcQ - targetIc) <= 0.6;
-    const betaOk = Math.abs(ansBeta - targetBeta) <= 50;
-    
-    if (vceQOk) {
-      score += 1;
-      feedback.push(`✓ พิกัด Vce,Q (เอาต์พุต Q-point): ถูกต้องตามเกณฑ์`);
-    } else {
-      feedback.push(`✗ พิกัด Vce,Q: คลาดเคลื่อนจากเกณฑ์`);
-    }
-    
-    if (icQOk) {
-      score += 1;
-      feedback.push(`✓ พิกัด Ic,Q (เอาต์พุต Q-point): ถูกต้องตามเกณฑ์`);
-    } else {
-      feedback.push(`✗ พิกัด Ic,Q: คลาดเคลื่อนจากเกณฑ์`);
-    }
-    
-    if (betaOk) {
-      score += 1;
-      feedback.push(`✓ คำนวณอัตราขยายกระแส Beta (β = ${targetBeta.toFixed(0)}): ถูกต้องตามเกณฑ์`);
-    } else {
-      feedback.push(`✗ คำนวณอัตราขยายกระแส Beta: คลาดเคลื่อนจากเกณฑ์`);
-    }
-  } else {
-    score += 3;
-    feedback.push("การหาจุด Q-point และคำนวณอัตราขยาย: ผ่านการประเมิน (เนื่องจากอุปกรณ์ชำรุด)");
-  }
-  
-  // --- PART 3: BJT PINOUT IDENTIFICATION ---
-  const p1 = data.ansPin1;
-  const p2 = data.ansPin2;
-  const p3 = data.ansPin3;
-  const expP = model.pins;
-  
-  if (p1 === expP.p1 && p2 === expP.p2 && p3 === expP.p3) {
-    score += 1;
-    feedback.push(`✓ ระบุขั้วตำแหน่งขา ${model.name} (${model.package}): ถูกต้อง (1:${p1}, 2:${p2}, 3:${p3})`);
-  } else {
-    feedback.push(`✗ ระบุขั้วตำแหน่งขา ${model.name} (${model.package}): ไม่ถูกต้อง (เฉลยคือ 1:${expP.p1}, 2:${expP.p2}, 3:${expP.p3})`);
-  }
-  
+  let tableScore = rowCorrect >= 6 ? 3 : (rowCorrect >= 4 ? 2 : (rowCorrect >= 2 ? 1 : 0));
+  score += tableScore;
+  feedback.push(`[ตอนที่ 1] ตารางบันทึกผลการทดลอง: ได้ ${tableScore} / 3 คะแนน (บันทึกข้อมูลถูกต้อง ${rowCorrect}/6 แถว)`);
+
+  // 2. Q-point & Beta (2 pts)
+  let qScore = 0;
+  if (parseFloat(data.ansVceQ) > 0) qScore += 0.5;
+  if (parseFloat(data.ansIcQ) > 0) qScore += 0.5;
+  if (parseFloat(data.ansBetaCalc) > 50) qScore += 1.0;
+  score += qScore;
+  feedback.push(`[ตอนที่ 2] พิกัดจุดทำงาน Q-point และอัตราขยาย Beta (ทรานซิสเตอร์ ${model.name}): ได้ ${qScore} / 2 คะแนน`);
+
+  // 3. Pinout (1 pt)
+  let pinScore = 0;
+  const expPins = model.pins;
+  if (data.ansPin1 === expPins.p1) pinScore += 0.33;
+  if (data.ansPin2 === expPins.p2) pinScore += 0.33;
+  if (data.ansPin3 === expPins.p3) pinScore += 0.34;
+  let part3Score = pinScore >= 0.9 ? 1 : (pinScore >= 0.3 ? 0.5 : 0);
+  score += part3Score;
+  feedback.push(`[ตอนที่ 3] ระบุขั้วขา ${model.name} (${model.package}): ได้ ${part3Score} / 1 คะแนน`);
+
+      // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let mcScore = 0;
+      const q1Ok = (ansQ1 === 'A');
+      const q2Ok = (ansQ2 === 'B');
+      const q3Ok = (ansQ3 === 'A');
+      const q4Ok = (ansQ4 === 'B');
+
+      if (q1Ok) mcScore++;
+      if (q2Ok) mcScore++;
+      if (q3Ok) mcScore++;
+      if (q4Ok) mcScore++;
+
+      score += mcScore;
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${mcScore} จาก 4 ข้อ (ได้ ${mcScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+
+
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-  if (score >= 9) {
-    comment = "ผ่านเกณฑ์ดีมาก (Excellent)";
-  } else if (score >= 7) {
-    comment = "ผ่านเกณฑ์ดี (Good)";
-  } else if (score >= 5) {
-    comment = "ผ่านเกณฑ์พอใช้ (Fair)";
-  }
-  
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
   return {
+    status: 'success',
     score: score,
     maxScore: maxScore,
-    feedback: feedback.join('\n'),
-    comment: comment
+    comment: comment,
+    feedback: feedback.join('\n')
   };
 }
 

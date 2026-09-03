@@ -71,147 +71,85 @@ function submitWorksheet(data) {
  */
 function gradeWorksheet(data) {
   const isHardware = (data.labDataSource === 'hardware');
-const model = data.transistorModel;
-  const cond = data.diodeCondition;
-  
-  let score = 0;
-  let maxScore = 13;
+let score = 0;
+  const maxScore = 10;
   const feedback = [
     isHardware 
       ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
       : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
   ];
-  
-  // --- PART 1: BASE FINDING TABLE (6 Rows) ---
-  // Expected combinations for forward bias: Base is Pin 2
-  // Row indices:
-  // 0: Black 1, Red 2  |  1: Black 1, Red 3
-  // 2: Black 2, Red 1  |  3: Black 2, Red 3
-  // 4: Black 3, Red 1  |  5: Black 3, Red 2
-  let p1Correct = 0;
-  const p1Rows = data.part1Rows || [];
-  
-  for (let idx = 0; idx < 6; idx++) {
-    const row = p1Rows[idx] || { rVal: '', deflection: '' };
-    const rVal = parseFloat(row.rVal) || Infinity;
-    const defl = row.deflection;
-    
-    let expectedForward = false;
-    let expectedShort = false;
-    
-    if (cond === 'good') {
-      if (model === 'BD139') {
-        // NPN (BD139): Black (+) on Base (3), Red (-) on 1 or 2 => Forward Bias
-        if (idx === 4 || idx === 5) expectedForward = true;
-      } else if (model === 'BD140') {
-        // PNP (BD140): Red (-) on Base (3), Black (+) on 1 or 2 => Forward Bias
-        if (idx === 1 || idx === 3) expectedForward = true;
-      }
-    } else if (cond === 'short') {
-      // Short between 1 and 3 (Row 1: Black 1, Red 3; Row 4: Black 3, Red 1)
-      if (idx === 1 || idx === 4) expectedShort = true;
-    }
-    
-    // Check match
-    let isCorrect = false;
-    if (expectedForward) {
-      // Forward biased: low resistance (e.g. 100-200 ohms) and deflection UP
-      if (rVal < 1000 && defl === 'up') isCorrect = true;
-    } else if (expectedShort) {
-      // Shorted: very low resistance (<10 ohms) and deflection UP
-      if (rVal < 20 && defl === 'up') isCorrect = true;
-    } else {
-      // Reversed/Infinity: high resistance and deflection DOWN
-      if ((rVal >= 1000 || isNaN(rVal) || row.rVal === '∞') && defl === 'down') isCorrect = true;
-    }
-    
-    if (isCorrect) p1Correct++;
+
+  let p1Pass = 0;
+  if (data.part1Rows) {
+    data.part1Rows.forEach(r => {
+      if (r.deflection && r.deflection !== 'none') p1Pass++;
+    });
   }
-  
-  score += p1Correct;
-  feedback.push(`ตารางที่ 1 (หาขาเบส): ถูกต้อง ${p1Correct} จาก 6 จุดวัด`);
-  
-  // --- PART 2: BASE PIN & TYPE SELECTIONS ---
-  const ansBase = parseInt(data.ansBasePin) || 0;
-  if (ansBase === 3) {
-    score += 1;
-    feedback.push("ระบุขาเบส: ถูกต้อง");
-  } else {
-    feedback.push("ระบุขาเบส: ไม่ถูกต้อง");
+  let p1Score = p1Pass >= 5 ? 2 : (p1Pass >= 3 ? 1 : 0);
+  score += p1Score;
+  feedback.push(`[ตอนที่ 1] ตารางที่ 1 การวัดหาขาเบส: ได้ ${p1Score} / 2 คะแนน (บันทึกข้อมูล ${p1Pass}/6 ครั้ง)`);
+
+  let baseScore = (data.ansBasePin && data.ansBasePin !== '') ? 0.5 : 0;
+  let typeScore = (data.ansType && data.ansType !== '') ? 0.5 : 0;
+  let idScore = Math.round(baseScore + typeScore);
+  score += idScore;
+  feedback.push(`[ตอนที่ 1] ระบุขาเบสและชนิดทรานซิสเตอร์: ได้ ${idScore} / 1 คะแนน`);
+
+  let p2Pass = 0;
+  if (data.part2Rows) {
+    data.part2Rows.forEach(r => {
+      if (parseFloat(r.rBefore) > 0 || parseFloat(r.rAfter) > 0) p2Pass++;
+    });
   }
-  
-  const ansType = data.ansType;
-  // Map model name to expected type: BD139 = NPN, BD140 = PNP
-  const expectedType = (model === 'BD139') ? 'NPN' : (model === 'BD140') ? 'PNP' : model;
-  if (cond === 'good') {
-    if (ansType === expectedType) {
-      score += 1;
-      feedback.push("ระบุชนิดสาร: ถูกต้อง");
-    } else {
-      feedback.push("ระบุชนิดสาร: ไม่ถูกต้อง");
-    }
-  } else {
-    // For faulty transistors, type check is marked correct automatically if base search matches
-    score += 1;
-    feedback.push("ระบุชนิดสาร: ผ่านการทดสอบ");
-  }
-  
-  // --- PART 3: COLLECTOR / EMITTER TABLE (2 Rows) ---
-  // Row 1: สมมติฐาน 1 (ดำ 1, แดง 3 หรือ แดง 1, ดำ 3 depending on type) -> Correct bias
-  // Row 2: สมมติฐาน 2 (ดำ 3, แดง 1 หรือ แดง 3, ดำ 1) -> Wrong bias
-  const p2Rows = data.part2Rows || [];
-  let p2Correct = 0;
-  
-  if (cond === 'good') {
-    // Row 1 (Correct bias): before touch should be high/Infinity (e.g. >5k), after touch should be low (e.g. <35k due to skin contact resistance variations)
-    const r1 = p2Rows[0] || { rBefore: '', rAfter: '' };
-    const bBefore = r1.rBefore === '∞' || parseFloat(r1.rBefore) > 5;
-    const bAfter = parseFloat(r1.rAfter) < 35 && r1.rAfter !== '∞' && parseFloat(r1.rAfter) >= 0;
-    if (bBefore && bAfter) p2Correct++;
-    
-    // Row 2 (Wrong bias): before and after touch should both be high/Infinity (>5k)
-    const r2 = p2Rows[1] || { rBefore: '', rAfter: '' };
-    const wBefore = r2.rBefore === '∞' || parseFloat(r2.rBefore) > 5;
-    const wAfter = r2.rAfter === '∞' || parseFloat(r2.rAfter) > 5;
-    if (wBefore && wAfter) p2Correct++;
-  } else {
-    // Faulty conditions are marked correct if database entries matches open/short behaviors
-    p2Correct = 2;
-  }
-  
-  score += p2Correct;
-  feedback.push(`ตารางที่ 2 (สัมผัสหา C/E): ถูกต้อง ${p2Correct} จาก 2 สมมติฐาน`);
-  
-  // --- PART 4: PIN MAP CONCLUSIONS ---
-  const p1 = data.ansPin1;
-  const p2 = data.ansPin2;
-  const p3 = data.ansPin3;
-  
-  if (cond === 'good') {
-    // Expected pins for BD139/BD140: Pin 1 = E, Pin 2 = C, Pin 3 = B
-    let pinFeedback = [];
-    if (p1 === 'E') { score += 1; pinFeedback.push("ขา 1 ถูก"); } else pinFeedback.push("ขา 1 ผิด");
-    if (p2 === 'C') { score += 1; pinFeedback.push("ขา 2 ถูก"); } else pinFeedback.push("ขา 2 ผิด");
-    if (p3 === 'B') { score += 1; pinFeedback.push("ขา 3 ถูก"); } else pinFeedback.push("ขา 3 ผิด");
-    feedback.push(`สรุปตำแหน่งขา: ${pinFeedback.join(', ')}`);
-  } else {
-    score += 3;
-    feedback.push("สรุปตำแหน่งขา: ผ่านการทดสอบ (อุปกรณ์ชำรุด)");
-  }
-  
-  // Grade comments
+  let p2Score = p2Pass >= 2 ? 1 : 0;
+  score += p2Score;
+  feedback.push(`[ตอนที่ 2] ตารางที่ 2 การทดสอบหาขา C และ E: ได้ ${p2Score} / 1 คะแนน`);
+
+  let pinCount = 0;
+  if (data.ansPin1 && data.ansPin1 !== '') pinCount++;
+  if (data.ansPin2 && data.ansPin2 !== '') pinCount++;
+  if (data.ansPin3 && data.ansPin3 !== '') pinCount++;
+  let pinScore = pinCount >= 3 ? 2 : (pinCount >= 1 ? 1 : 0);
+  score += pinScore;
+  feedback.push(`[ตอนที่ 3] สรุปตำแหน่งขาทรานซิสเตอร์ทั้ง 3 ขา: ได้ ${pinScore} / 2 คะแนน`);
+
+      // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'B');
+      const q2Ok = (ansQ2 === 'B');
+      const q3Ok = (ansQ3 === 'B');
+      const q4Ok = (ansQ4 === 'B');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+
+      score += qScore;
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+
+
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-  if (score >= 11) {
-    comment = "ผ่านเกณฑ์ดีมาก (Excellent)";
-  } else if (score >= 8) {
-    comment = "ผ่านเกณฑ์ดี (Good)";
-  }
-  
+  if (score >= 11) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 8) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
   return {
+    status: 'success',
     score: score,
     maxScore: maxScore,
-    feedback: feedback.join('\n'),
-    comment: comment
+    comment: comment,
+    feedback: feedback.join('\n')
   };
 }
 

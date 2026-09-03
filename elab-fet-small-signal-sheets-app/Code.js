@@ -129,126 +129,246 @@ function solveFetCircuit(p) {
  * FET gm-Model Dynamic Small-Signal Mathematical Solver & Auto-Grading Engine
  */
 function gradeWorksheet(data) {
-  const isHardware = (data.labDataSource === 'hardware');
-  let score = 0;
-  const maxScore = 10;
-  const feedback = [
-    isHardware 
-      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
-      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
-  ];
+      const isHardware = (data.labDataSource === 'hardware');
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [
+        isHardware 
+          ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+          : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+      ];
 
-  const mode = data.circuitMode || 'fixed';
-  const fetModel = data.fetModel || '2N5458';
+      const mode = data.circuitMode || 'fixed';
+      const Vdd = parseFloat(data.param_vdd) || 20.0;
+      const Rd = (parseFloat(data.param_rd) || 2.2) * 1000;
+      const Rs = (parseFloat(data.param_rs) || 1.0) * 1000;
+      const Rg = (parseFloat(data.param_rg) || 1.0) * 1000000;
+      const Idss = (parseFloat(data.param_idss) || 10.0) / 1000;
+      const Vp = parseFloat(data.param_vp) || -4.0;
+      const rd_val = (parseFloat(data.param_rd_internal) || 50.0) * 1000;
 
-  const params = {
-    vdd: data.param_vdd,
-    r1: data.param_r1,
-    r2: data.param_r2,
-    rd: data.param_rd,
-    rs: data.param_rs,
-    idss: data.param_idss,
-    vp: data.param_vp
-  };
+      // Solve DC: Vgs = -Id * Rs, Id = Idss * (1 - Vgs/Vp)^2
+      let a = Rs * Rs * Idss / (Vp * Vp);
+      let b = -(1 + 2 * Rs * Idss / -Vp);
+      let c_val = Idss;
+      let disc = b * b - 4 * a * c_val;
+      let Id_sol = 0;
+      if (disc >= 0) {
+        let Id1 = (-b - Math.sqrt(disc)) / (2 * a);
+        let Id2 = (-b + Math.sqrt(disc)) / (2 * a);
+        let Vgs1 = -Id1 * Rs;
+        let Vgs2 = -Id2 * Rs;
+        if (Vgs1 <= 0 && Vgs1 >= Vp) Id_sol = Id1;
+        else if (Vgs2 <= 0 && Vgs2 >= Vp) Id_sol = Id2;
+      }
+      const Vgs_sol = -Id_sol * Rs;
+      const Vds_sol = Vdd - Id_sol * (Rd + Rs);
+      const gm0 = (2 * Idss) / Math.abs(Vp);
+      const gm_sol = gm0 * (1 - Vgs_sol / Vp);
+      const Id_mA = Id_sol * 1000;
+      const gm_mS = gm_sol * 1000;
 
-  const th = solveFetCircuit(params);
+      const Av_byp = -gm_sol * Rd;
+      const Av_unbyp = -gm_sol * Rd / (1 + gm_sol * Rs);
+      const Zi_val = Rg / 1000000; // in MΩ
 
-  feedback.push(`[ระบบโหมดการทดลอง]: ${mode === 'custom' ? 'Custom Dynamic' : 'Fixed Preset'} (เบอร์ FET: ${fetModel})`);
+      feedback.push(`[โหมดการทดลอง]: ${mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)'}`);
 
-  // --- PART 1: DC OPERATING POINT & gm EXTRACTION ---
-  const s_vg = parseFloat(data.dc_vg) || 0;
-  const s_vs = parseFloat(data.dc_vs) || 0;
-  const s_vgs = parseFloat(data.dc_vgs) || 0;
-  const s_id = parseFloat(data.dc_id) || 0;
-  const s_vd = parseFloat(data.dc_vd) || 0;
-  const s_vds = parseFloat(data.dc_vds) || 0;
-  const s_gm0 = parseFloat(data.ac_gm0) || 0;
-  const s_gm = parseFloat(data.ac_gm) || 0;
+      // Part 1: DC & gm (3 pts)
+      const sVgs = parseFloat(data.dc_vgs) || 0;
+      const sId = parseFloat(data.dc_id) || 0;
+      const sVds = parseFloat(data.dc_vds) || 0;
+      const sGm = parseFloat(data.dc_gm) || 0;
 
-  const tolV = 0.35;
-  const tolI = 0.40;
+      const vgsOk = Math.abs(sVgs - Vgs_sol) <= Math.max(0.40, Math.abs(Vgs_sol) * 0.20);
+      const idOk = Math.abs(sId - Id_mA) <= Math.max(0.40, Id_mA * 0.20);
+      const vdsOk = Math.abs(sVds - Vds_sol) <= Math.max(0.80, Math.abs(Vds_sol) * 0.20);
+      const gmOk = Math.abs(sGm - gm_mS) <= Math.max(0.50, gm_mS * 0.25);
 
-  const vgOk = Math.abs(s_vg - th.VG) <= tolV;
-  const vsOk = Math.abs(s_vs - th.VS) <= tolV;
-  const vgsOk = Math.abs(s_vgs - th.VGS) <= tolV;
-  const idOk = Math.abs(s_id - th.ID) <= tolI;
-  const vdOk = Math.abs(s_vd - th.VD) <= tolV;
-  const vdsOk = Math.abs(s_vds - th.VDS) <= tolV;
-  const gm0Ok = Math.abs(s_gm0 - th.gm0) <= 0.40;
-  const gmOk = Math.abs(s_gm - th.gm) <= 0.40;
+      let p1Pass = (vgsOk ? 1 : 0) + (idOk ? 1 : 0) + (vdsOk ? 1 : 0) + (gmOk ? 1 : 0);
+      let part1Score = p1Pass >= 4 ? 3 : (p1Pass >= 2 ? 2 : (p1Pass >= 1 ? 1 : 0));
+      score += part1Score;
+      feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่าความนำข้าม gm: ได้ ${part1Score} / 3 คะแนน`);
 
-  const dcPassCount = [vgOk, vsOk, vgsOk, idOk, vdOk, vdsOk, gm0Ok, gmOk].filter(Boolean).length;
-  let p1Score = 0;
-  if (dcPassCount >= 7) p1Score = 3;
-  else if (dcPassCount >= 4) p1Score = 2;
-  else if (dcPassCount >= 2) p1Score = 1;
+      // Part 2: AC Performance (3 pts)
+      const sAv_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
+      const sAv_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
+      const sZi = parseFloat(data.ac_zi_bypassed || data.ac_zi) || 0;
 
-  score += p1Score;
-  feedback.push(`\n[ตอนที่ 1] จุดทำงาน DC และค่าความนำข้าม gm: ได้ ${p1Score} / 3 คะแนน (ถูกต้อง ${dcPassCount}/8 ค่า)`);
+      const avBypOk = sAv_byp >= Math.abs(Av_byp) * 0.70 && sAv_byp <= Math.abs(Av_byp) * 1.30;
+      const avUnbypOk = sAv_unbyp >= Math.abs(Av_unbyp) * 0.70 && sAv_unbyp <= Math.abs(Av_unbyp) * 1.30;
+      const ziOk = sZi >= (Zi_val * 0.5) && sZi <= (Zi_val * 1.5);
 
-  // --- PART 2: AC SMALL-SIGNAL PERFORMANCE (3 Points) ---
-  const s_av_bypassed = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
-  const s_av_unbypassed = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
-  const s_zi_bypassed = parseFloat(data.ac_zi_bypassed) || 0;
-  const s_zo_bypassed = parseFloat(data.ac_zo_bypassed) || 0;
-  const s_phase_bypassed = parseInt(data.ac_phase_bypassed) || 0;
-  const s_phase_unbypassed = parseInt(data.ac_phase_unbypassed) || 0;
+      let p2Pass = (avBypOk ? 1 : 0) + (avUnbypOk ? 1 : 0) + (ziOk ? 1 : 0);
+      let part2Score = p2Pass >= 3 ? 3 : (p2Pass >= 2 ? 2 : (p2Pass >= 1 ? 1 : 0));
+      score += part2Score;
+      feedback.push(`\n[ตอนที่ 2] พารามิเตอร์สัญญาณ AC (Av, Zi, Zo): ได้ ${part2Score} / 3 คะแนน`);
 
-  const expAvBypassed = th.Av_bypassed;
-  const expAvUnbypassed = th.Av_unbypassed;
+      // Part 3: MCQ (4 pts)
+      const ansQ1 = (data.q1_choice || data.q1Answer || data.q1 || '').trim().toLowerCase();
+      const ansQ2 = (data.q2_choice || data.q2Answer || data.q2 || '').trim().toLowerCase();
+      const ansQ3 = (data.q3_choice || data.q3Answer || data.q3 || '').trim().toLowerCase();
+      const ansQ4 = (data.q4_choice || data.q4Answer || data.q4 || '').trim().toLowerCase();
 
-  const avBypassedOk = Math.abs(s_av_bypassed - expAvBypassed) <= (expAvBypassed * 0.35) || (s_av_bypassed > 0 && Math.abs(s_av_bypassed - (th.gm * parseFloat(params.rd))) <= 1.5);
-  const avUnbypassedOk = Math.abs(s_av_unbypassed - expAvUnbypassed) <= (expAvUnbypassed * 0.35) || (s_av_unbypassed > 0 && Math.abs(s_av_unbypassed - expAvUnbypassed) <= 0.8);
-  const ziOk = Math.abs(s_zi_bypassed - th.Zi_k) <= (th.Zi_k * 0.30);
-  const zoOk = Math.abs(s_zo_bypassed - th.Zo_k) <= (th.Zo_k * 0.30);
-  const phaseBypassedOk = s_phase_bypassed === 180;
-  const phaseUnbypassedOk = s_phase_unbypassed === 180;
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'a');
+      const q2Ok = (ansQ2 === 'b');
+      const q3Ok = (ansQ3 === 'a');
+      const q4Ok = (ansQ4 === 'b');
 
-  const acPassCount = [avBypassedOk, avUnbypassedOk, ziOk, zoOk, phaseBypassedOk, phaseUnbypassedOk].filter(Boolean).length;
-  let p2Score = 0;
-  if (acPassCount >= 5) p2Score = 3;
-  else if (acPassCount >= 3) p2Score = 2;
-  else if (acPassCount >= 1) p2Score = 1;
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 3] คำถามท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
-  score += p2Score;
-  feedback.push(`\n[ตอนที่ 2] การทดสอบวงจรขยายสัญญาณ AC: ได้ ${p2Score} / 3 คะแนน (ถูกต้อง ${acPassCount}/6 ค่า)`);
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
 
-  // --- PART 3: POST-LAB CONCEPTUAL ASSESSMENT (4 Points) ---
-  const q1 = (data.q1Answer || '').trim().toLowerCase();
-  const q2 = (data.q2Answer || '').trim().toLowerCase();
-  const q3 = (data.q3Answer || '').trim().toLowerCase();
-  const q4 = (data.q4Answer || '').trim().toLowerCase();
+      return {
+        status: 'success',
+        score: score,
+        maxScore: maxScore,
+        comment: comment,
+        feedback: feedback.join('\n')
+      };
+    }
 
-  let qScore = 0;
-  const q1Correct = q1 === 'a';
-  const q2Correct = q2 === 'b';
-  const q3Correct = q3 === 'a';
-  const q4Correct = q4 === 'b';
+    function previewScoreBeforeSubmit() {
+      const payload = getWorksheetPayload();
+      const res = localGradeSimulator(payload);
 
-  if (q1Correct) qScore++;
-  if (q2Correct) qScore++;
-  if (q3Correct) qScore++;
-  if (q4Correct) qScore++;
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.modal-card') || overlay.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
 
-  score += qScore;
-  feedback.push(`\n[ตอนที่ 3] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} คะแนน)`);
-  feedback.push(`  ข้อ 1 (ความหมายและสูตรคำนวณ gm): ${q1Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
-  feedback.push(`  ข้อ 2 (ค่าความนำข้ามสูงสุด gm0): ${q2Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ข.)'}`);
-  feedback.push(`  ข้อ 3 (ผลของการบายพาส CS ขนาน RS): ${q3Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ก.)'}`);
-  feedback.push(`  ข้อ 4 (ข้อได้เปรียบเด่น FET ด้าน Zi เทียบ BJT): ${q4Correct ? '✓ ถูกต้อง' : '✗ ไม่ถูกต้อง (เฉลย ข.)'}`);
+      if (card) {
+        card.style.borderColor = 'var(--accent-cyan)';
+        card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
+      }
+      spinner.style.display = 'none';
+      title.innerText = '🔍 ตรวจสอบคะแนนก่อนส่ง (Score Preview)';
+      title.style.color = 'var(--accent-cyan)';
 
-  // Evaluation Comment
-  let comment = "ต้องปรับปรุงแก้ไขใบงาน";
-  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
-  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
-  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+      let scoreColor = 'var(--accent-green)';
+      if (res.score < 5) scoreColor = 'var(--accent-red)';
+      else if (res.score < 7) scoreColor = 'var(--accent-yellow)';
+      else if (res.score < 9) scoreColor = 'var(--accent-cyan)';
 
-  return {
-    score,
-    maxScore,
-    feedback: feedback.join('\n'),
-    comment
-  };
+      const formattedFeedback = res.feedback.replace(/\n/g, '<br>');
+
+      body.innerHTML = `
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px dashed var(--accent-cyan); border-radius: 8px; padding: 10px 14px; margin-bottom: 15px; color: var(--accent-cyan); font-size: 13px; text-align: left;">
+          ℹ️ <strong>โหมดทดลองตรวจคำตอบ:</strong> รายละเอียดคะแนนด้านล่างเป็นผลประเมินเบื้องต้น <u>ยังไม่ได้บันทึกส่ง</u> ข้อมูลเข้า Google Sheets ของผู้สอน
+        </div>
+        <div style="text-align: left; background: rgba(15,23,42,0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin: 12px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: bold; color: var(--text-main);">คะแนนประเมินที่ได้:</span>
+            <span style="font-size: 24px; font-weight: bold; color: ${scoreColor};">${res.score} / ${res.maxScore}</span>
+          </div>
+          <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-cyan);">
+            ระดับผลการประเมิน: ${res.comment}
+          </p>
+          <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+          <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</p>
+          <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${formattedFeedback}</div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+          💡 หากต้องการแก้ไข สามารถกด <strong>"✏️ กลับไปแก้ไขคำตอบ"</strong> หรือกด <strong>"🚀 ยืนยันส่งใบงานจริง"</strong> ได้ทันที
+        </p>
+      `;
+
+      closeBtn.innerText = '✏️ กลับไปแก้ไขคำตอบ';
+      closeBtn.style.display = 'inline-block';
+      if (confirmBtn) confirmBtn.style.display = 'inline-block';
+
+      overlay.style.display = 'flex';
+    }
+
+    function confirmSubmitFromPreview() {
+      closeModal();
+      submitReportToGAS();
+    }
+
+    // --- SUBMISSION & AUTO-GRADING HANDLER ---
+    function submitReportToGAS() {
+      const payload = getWorksheetPayload();
+
+      if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
+        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+        switchTab('tab-worksheet');
+        document.getElementById('student-name')?.focus();
+        return;
+      }
+
+      // Show Loading Modal
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.modal-card') || overlay.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
+
+      if (card) {
+        card.style.borderColor = 'var(--accent-cyan)';
+        card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
+      }
+      overlay.style.display = 'flex';
+      spinner.style.display = 'block';
+      title.innerText = '🚀 กำลังส่งใบงานและตรวจคำตอบ...';
+      title.style.color = 'var(--accent-cyan)';
+      body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...';
+      closeBtn.style.display = 'none';
+      if (confirmBtn) confirmBtn.style.display = 'none';
+
+      // Check if running inside Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(onSuccessGrading)
+      .withFailureHandler(onFailureGrading)
+      .submitWorksheet(data);
+  } else {
+    const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
+    if (endpointUrl && endpointUrl.startsWith('http')) {
+      fetch(endpointUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && (res.status === 'success' || res.score !== undefined)) {
+          onSuccessGrading(res);
+        } else {
+          throw new Error(res.message || 'Error recording submission');
+        }
+      })
+      .catch(err => {
+        console.warn('GAS Fetch failed, falling back to local simulation:', err);
+        const localRes = localGradeSimulator(data);
+        localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
+        onSuccessGrading(localRes);
+      });
+    } else {
+      setTimeout(() => {
+        const localRes = localGradeSimulator(data);
+        onSuccessGrading(localRes);
+      }, 800);
+    }
+  }
 }
 
 /**

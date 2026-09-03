@@ -1,231 +1,51 @@
 /**
- * MOSFET Pinout & Characteristics Lab - GAS Backend Controller & Auto-Grading Engine
- * Google Apps Script backend for elab-mosfet-pinout-sheets-app
+ * Google Apps Script Backend for MOSFET Pinout Lab
+ * Handles 10-point automated grading rubric, sheets logging, and real-time feedback.
  */
 
 function doGet(e) {
-  return HtmlService.createTemplateFromFile('index')
-    .evaluate()
-    .setTitle('ใบงานการทดลองที่ 5: การหาตำแหน่งขาและทดสอบ MOSFET (IRF540 & IRF9540)')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return HtmlService.createHtmlOutputFromFile('index')
+    .setTitle('ใบงานการทดลอง: การหาตำแหน่งขาและทดสอบมอสเฟต')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
-    if (data.ping || data.test) {
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'success',
-        message: 'Connected to Google Apps Script backend successfully!',
-        timestamp: new Date().toISOString()
-      })).setMimeType(ContentService.MimeType.JSON);
+    const data = JSON.parse(e.postData.contents);
+    if (data.ping) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'pong' })).setMimeType(ContentService.MimeType.JSON);
     }
-    var result = submitWorksheet(data);
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
+    const result = submitWorksheet(data);
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: 'error',
-      message: err.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-
-/**
- * Handle student submission and perform auto-grading
- */
 function submitWorksheet(data) {
   try {
-    // 0. Check duplicate submission
-    const duplicateCheck = checkDuplicateSubmission("Submissions", 4, data.studentId);
-    if (duplicateCheck) {
-      return duplicateCheck;
-    }
+    var duplicateCheck = checkDuplicateSubmission("Submissions", 4, data.studentId);
+    if (duplicateCheck) return duplicateCheck;
 
-    // 1. Initialize Grading Parameters
-    const isHardware = (data.labDataSource === 'hardware');
-    let scorePart1 = 0; // Table 1 (IRF540) - 2 points
-    let scorePart2 = 0; // Table 2 (IRF9540) - 2 points
-    let scorePart3 = 0; // Table 3 (Triggering) - 4 points
-    let scorePart4 = 0; // Part 4 (Pins & Type ID) - 2 points
-    
-    let feedbackDetails = [];
-
-    // 2. Grade Table 1: IRF540 N-Ch measurement (6 rows)
-    // Expected: Only Row 5 (Black 3, Red 2) is "up" (diode conducts). All others are "down" (OL).
-    const t1Expected = ['down', 'down', 'down', 'down', 'down', 'up'];
-    let t1Correct = 0;
-    
-    if (data.part1Rows && data.part1Rows.length === 6) {
-      for (let i = 0; i < 6; i++) {
-        if (data.part1Rows[i].deflect === t1Expected[i]) {
-          t1Correct++;
-        }
-      }
-    }
-    scorePart1 = (t1Correct / 6) * 2;
-    feedbackDetails.push(`ตารางที่ 1 (หาขา IRF540): ถูกต้อง ${t1Correct} จาก 6 แถว (ได้ ${scorePart1.toFixed(2)} คะแนน)`);
-
-    // 3. Grade Table 2: IRF9540 P-Ch measurement (6 rows)
-    // Expected: Only Row 3 (Black 2, Red 3) is "up" (diode conducts). All others are "down" (OL).
-    const t2Expected = ['down', 'down', 'down', 'up', 'down', 'down'];
-    let t2Correct = 0;
-    
-    if (data.part2Rows && data.part2Rows.length === 6) {
-      for (let i = 0; i < 6; i++) {
-        if (data.part2Rows[i].deflect === t2Expected[i]) {
-          t2Correct++;
-        }
-      }
-    }
-    scorePart2 = (t2Correct / 6) * 2;
-    feedbackDetails.push(`ตารางที่ 2 (หาขา IRF9540): ถูกต้อง ${t2Correct} จาก 6 แถว (ได้ ${scorePart2.toFixed(2)} คะแนน)`);
-
-    // 4. Grade Table 3: Gate Triggering & Discharge Test (6 steps)
-    // Expected:
-    // Step 0 (IRF540 trigger): down (OL)
-    // Step 1 (IRF540 ON): up (conducting)
-    // Step 2 (IRF540 OFF): down (OL)
-    // Step 3 (IRF9540 trigger): down (OL)
-    // Step 4 (IRF9540 ON): up (conducting)
-    // Step 5 (IRF9540 OFF): down (OL)
-    const t3Expected = ['down', 'up', 'down', 'down', 'up', 'down'];
-    let t3Correct = 0;
-    
-    if (data.part3Rows && data.part3Rows.length === 6) {
-      for (let i = 0; i < 6; i++) {
-        if (data.part3Rows[i].deflect === t3Expected[i]) {
-          t3Correct++;
-        }
-      }
-    }
-    scorePart3 = (t3Correct / 6) * 4;
-    feedbackDetails.push(`ตารางที่ 3 (การทดสอบกระตุ้นเกต): ถูกต้อง ${t3Correct} จาก 6 ขั้นตอน (ได้ ${scorePart3.toFixed(2)} คะแนน)`);
-
-    // 5. Grade Part 4: Pin Mapping & Type Identification
-    // Expected: Pin 1 = G, Pin 2 = D, Pin 3 = S. Model 1 = n-ch, Model 2 = p-ch.
-    let t4Correct = 0;
-    if (data.ansPin1 === 'G') t4Correct++;
-    if (data.ansPin2 === 'D') t4Correct++;
-    if (data.ansPin3 === 'S') t4Correct++;
-    if (data.ansModel1Type === 'n-ch') t4Correct++;
-    if (data.ansModel2Type === 'p-ch') t4Correct++;
-    
-    scorePart4 = (t4Correct / 5) * 2;
-    feedbackDetails.push(`ส่วนระบุขาและชนิดสาร: ถูกต้อง ${t4Correct} จาก 5 คำถาม (ได้ ${scorePart4.toFixed(2)} คะแนน)`);
-
-    // 6. Calculate Total Score
-    const totalScore = scorePart1 + scorePart2 + scorePart3 + scorePart4;
-    const finalScore = Number(totalScore.toFixed(1));
-    
-    // Evaluate summary comment
-    let comment = 'ต้องปรับปรุงแก้ไข (Need Improvement)';
-    if (finalScore >= 9.0) {
-      comment = 'ดีเยี่ยม (Excellent)';
-    } else if (finalScore >= 7.0) {
-      comment = 'ดีมาก (Very Good)';
-    } else if (finalScore >= 5.0) {
-      comment = 'ผ่านเกณฑ์ขั้นต่ำ (Pass)';
-    }
-
-    // 7. Write to Google Sheet Database
-    const sheet = getOrCreateSubmissionsSheet();
-    const timestamp = new Date();
-    const studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
-    
-    // Append row
-    sheet.appendRow([
-      timestamp,
-      studentEmail,
-      data.studentName,
-      "'" + data.studentId, // Prepend quote to preserve ID format as text
-      data.studentGroup,
-      data.labDate,
-      finalScore,
-      Number(scorePart1.toFixed(2)),
-      Number(scorePart2.toFixed(2)),
-      Number(scorePart3.toFixed(2)),
-      Number(scorePart4.toFixed(2)),
-      data.q1Answer,
-      data.q2Answer,
-      data.q3Answer,
-      data.labConclusion,
-      comment
-    ]);
+    var gradingResults = gradeWorksheet(data);
+    recordToSheet(data, gradingResults);
 
     return {
       status: 'success',
-      score: finalScore,
-      maxScore: 10,
-      comment: comment,
-      feedback: feedbackDetails.join('\n')
+      score: gradingResults.score,
+      maxScore: gradingResults.maxScore,
+      feedback: gradingResults.feedback,
+      comment: gradingResults.comment
     };
-
-  } catch (err) {
+  } catch (error) {
     return {
       status: 'error',
-      message: err.toString()
+      message: error.toString()
     };
   }
 }
 
-/**
- * Open Spreadsheet and get or create Submissions sheet styled in Teal
- */
-function getOrCreateSubmissionsSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName('Submissions');
-  
-  if (!sheet) {
-    sheet = ss.insertSheet('Submissions');
-    
-    // Define Headers
-    const headers = [
-      'Timestamp (วันเวลาที่ส่ง)',
-      'อีเมลนักศึกษา',
-      'ชื่อ-นามสกุลนักศึกษา',
-      'รหัสนักศึกษา',
-      'กลุ่มเรียน / ตอนเรียน',
-      'วันที่ทำการทดลอง',
-      'Lab Mode (แหล่งข้อมูล/โมเดล)',
-      'คะแนนรวม (10 คะแนน)',
-      'คะแนนตารางที่ 1 (2 คะแนน)',
-      'คะแนนตารางที่ 2 (2 คะแนน)',
-      'คะแนนตารางที่ 3 (4 คะแนน)',
-      'คะแนนส่วนระบุขา (2 คะแนน)',
-      'คำถามท้ายการทดลอง ข้อ 1',
-      'คำถามท้ายการทดลอง ข้อ 2',
-      'คำถามท้ายการทดลอง ข้อ 3',
-      'สรุปผลการทดลอง',
-      'เกณฑ์ประเมินการตรวจ'
-    ];
-    
-    sheet.appendRow(headers);
-    
-    // Style headers (Teal Theme representing MOSFET/FET styling)
-    const headerRange = sheet.getRange(1, 1, 1, headers.length);
-    headerRange.setBackground('#0f766e') // Dark Teal background
-               .setFontColor('#ffffff')  // White text
-               .setFontWeight('bold')
-               .setHorizontalAlignment('center')
-               .setFontFamily('Sarabun');
-               
-    sheet.setFrozenRows(1);
-    
-    // Auto-adjust column widths
-    for (let col = 1; col <= headers.length; col++) {
-      sheet.autoResizeColumn(col);
-    }
-  }
-  return sheet;
-}
-
-
-/**
- * Checks if this student ID has already submitted a report
- */
 function checkDuplicateSubmission(sheetName, studentIdColIndex, studentId) {
   if (!studentId) return null;
   try {
@@ -248,11 +68,125 @@ function checkDuplicateSubmission(sheetName, studentIdColIndex, studentId) {
             score: 0,
             maxScore: 10,
             feedback: "เคยส่งใบงานนี้แล้ว",
-            message: "⚠️ รหัสนักศึกษา " + targetId + " ได้ส่งใบงานนี้ไปแล้วเมื่อ " + prevTime + "\nระบบอนุญาตให้ส่งได้เพียง 1 ครั้งเท่านั้น (หากต้องการส่งใหม่ กรุณาติดต่ออาจารย์ผู้สอน)"
+            message: "⚠️ รหัสนักศึกษา " + targetId + " ได้ส่งใบงานนี้ไปแล้วเมื่อ " + prevTime + "\nระบบอนุญาตให้ส่งได้เพียง 1 ครั้งเท่านั้น"
           };
         }
       }
     }
   } catch (e) {}
   return null;
+}
+
+function gradeWorksheet(data) {
+  const isHardware = (data.labDataSource === 'hardware');
+let score = 0;
+  const maxScore = 10;
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
+
+  let t1Pass = 0;
+  if (data.part1Rows) {
+    data.part1Rows.forEach(r => { if (r.deflect && r.deflect !== '') t1Pass++; });
+  }
+  let t1Score = t1Pass >= 5 ? 1 : (t1Pass >= 3 ? 0.5 : 0);
+  score += t1Score;
+  feedback.push(`[ตอนที่ 1] ตารางที่ 1 (หาขา IRF540): ได้ ${t1Score} / 1 คะแนน (กรอกข้อมูล ${t1Pass}/6 แถว)`);
+
+  let t2Pass = 0;
+  if (data.part2Rows) {
+    data.part2Rows.forEach(r => { if (r.deflect && r.deflect !== '') t2Pass++; });
+  }
+  let t2Score = t2Pass >= 5 ? 1 : (t2Pass >= 3 ? 0.5 : 0);
+  score += t2Score;
+  feedback.push(`[ตอนที่ 2] ตารางที่ 2 (หาขา IRF9540): ได้ ${t2Score} / 1 คะแนน (กรอกข้อมูล ${t2Pass}/6 แถว)`);
+
+  let t3Pass = 0;
+  if (data.part3Rows) {
+    data.part3Rows.forEach(r => { if (r.deflect && r.deflect !== '') t3Pass++; });
+  }
+  let t3Score = t3Pass >= 5 ? 2 : (t3Pass >= 3 ? 1 : 0);
+  score += t3Score;
+  feedback.push(`[ตอนที่ 3] ตารางที่ 3 (ทดสอบทริกเกต): ได้ ${t3Score} / 2 คะแนน (กรอกข้อมูล ${t3Pass}/6 แถว)`);
+
+  let pinScore = 0;
+  if (data.ansPin1 === 'Gate' || data.ansPin1 === '1') pinScore += 0.5;
+  if (data.ansPin2 === 'Drain' || data.ansPin2 === '2') pinScore += 0.5;
+  if (data.ansPin3 === 'Source' || data.ansPin3 === '3') pinScore += 0.5;
+  if (data.ansModel1Type === 'N-Channel' || data.ansModel1Type === 'N-Ch') pinScore += 0.25;
+  if (data.ansModel2Type === 'P-Channel' || data.ansModel2Type === 'P-Ch') pinScore += 0.25;
+  let p4Score = Math.round(pinScore);
+  score += p4Score;
+  feedback.push(`[ตอนที่ 4] สรุปขาและชนิดสาร MOSFET: ได้ ${p4Score} / 2 คะแนน`);
+
+      // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'B');
+      const q2Ok = (ansQ2 === 'B');
+      const q3Ok = (ansQ3 === 'B');
+      const q4Ok = (ansQ4 === 'B');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+
+      score += qScore;
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+
+
+  let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+
+  return {
+    status: 'success',
+    score: score,
+    maxScore: maxScore,
+    comment: comment,
+    feedback: feedback.join('\n')
+  };
+}
+
+function recordToSheet(data, grading) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Submissions");
+  if (!sheet) {
+    sheet = ss.insertSheet("Submissions");
+    var headers = ["Timestamp", "Student Email", "Student Name", "Student ID", "Group", "Lab Date", "Lab Mode", "Score", "Evaluation", "Feedback", "Q1", "Q2", "Q3", "Q4", "Conclusion"];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#0284c7").setFontColor("#ffffff");
+  }
+  var studentEmail = Session.getActiveUser().getEmail() || "Anonymous / No Permission";
+  var labModeText = (data.labDataSource === 'hardware') ? '🔌 ฮาร์ดแวร์จริง' : '🔬 ซิมูเลเตอร์';
+  sheet.appendRow([
+    new Date(),
+    studentEmail,
+    data.studentName,
+    data.studentId,
+    data.studentGroup,
+    data.labDate,
+    labModeText,
+    grading.score + " / " + grading.maxScore,
+    grading.comment,
+    grading.feedback,
+    data.q1 || data.q1Answer,
+    data.q2 || data.q2Answer,
+    data.q3 || data.q3Answer,
+    data.q4 || data.q4Answer,
+    data.conclusion || ''
+  ]);
 }

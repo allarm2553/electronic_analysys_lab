@@ -203,140 +203,216 @@ function submitWorksheet(data) {
 // -------------------------------------------------------------
 // 3. AUTO-GRADING RUBRIC ENGINE (10 POINTS TOTAL)
 // -------------------------------------------------------------
-function gradeDatasheetWorksheet(data) {
-  const isHardware = (data.labDataSource === 'hardware');
-  var score = 0;
-  var feedbackLog = [];
-  feedbackLog.push(isHardware 
-    ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
-    : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)');
+function gradeWorksheet(data) {
+      const isHardware = (data.labDataSource === 'hardware');
+      let score = 0;
+      const maxScore = 10;
+      const feedback = [
+        isHardware 
+          ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+          : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+      ];
 
-  var diodeModel = data.diodeModel || '1N4007';
-  var bjtModel = data.bjtModel || '2N3904';
-  var mosfetModel = data.mosfetModel || '2N7000';
+      // Diode Section (2 pts)
+      let dPass = 0;
+      if (data.d_pkg && data.d_pkg.includes('DO-41')) dPass++;
+      if (data.d_vr && (data.d_vr.includes('50') || data.d_vr.includes('1000'))) dPass++;
+      if (data.d_if && data.d_if.includes('1')) dPass++;
+      if (data.d_vf && (data.d_vf.includes('1.1') || data.d_vf.includes('1.0'))) dPass++;
+      let dScore = dPass >= 3 ? 2 : (dPass >= 1 ? 1 : 0);
+      score += dScore;
+      feedback.push(`[ตอนที่ 1] ข้อมูล Data Sheet ไดโอด: ได้ ${dScore} / 2 คะแนน (กรอกถูกต้อง ${dPass}/4 รายการ)`);
 
-  var gtDiode = DATASHEET_DB[diodeModel] || DATASHEET_DB['1N4007'];
-  var gtBjt = DATASHEET_DB[bjtModel] || DATASHEET_DB['2N3904'];
-  var gtMos = DATASHEET_DB[mosfetModel] || DATASHEET_DB['2N7000'];
+      // Transistor Section (2 pts)
+      let tPass = 0;
+      if (data.t_pkg && (data.t_pkg.includes('TO-92') || data.t_pkg.includes('TO-18'))) tPass++;
+      if (data.t_vceo && (data.t_vceo.includes('45') || data.t_vceo.includes('25') || data.t_vceo.includes('30'))) tPass++;
+      if (data.t_ic && (data.t_ic.includes('100') || data.t_ic.includes('800') || data.t_ic.includes('500'))) tPass++;
+      if (data.t_hfe && (data.t_hfe.includes('110') || data.t_hfe.includes('100') || data.t_hfe.includes('200'))) tPass++;
+      let tScore = tPass >= 3 ? 2 : (tPass >= 1 ? 1 : 0);
+      score += tScore;
+      feedback.push(`[ตอนที่ 2] ข้อมูล Data Sheet ทรานซิสเตอร์ BJT: ได้ ${tScore} / 2 คะแนน (กรอกถูกต้อง ${tPass}/4 รายการ)`);
 
-  // PART 1: DIODE EXTRACTION (2.5 pts)
-  var dScore = 0;
-  // Package
-  if (data.d_pkg && (data.d_pkg.toUpperCase().indexOf(gtDiode.package.split('/')[0].trim().toUpperCase()) !== -1 || data.d_pkg.toUpperCase().indexOf('DO') !== -1)) {
-    dScore += 0.5;
-  }
-  // VRRM / PIV (Tolerance +-20% or match)
-  var d_vrrm = parseFloat(data.d_vrrm);
-  if (!isNaN(d_vrrm) && Math.abs(d_vrrm - gtDiode.vrrm) / gtDiode.vrrm <= 0.2) {
-    dScore += 0.5;
-  }
-  // IF(avg) (Accept A or mA correctly within tolerance)
-  var d_if = parseFloat(data.d_if);
-  var gtIf = gtDiode.if_avg;
-  if (!isNaN(d_if) && (Math.abs(d_if - gtIf) <= 0.3 || Math.abs(d_if - gtIf * 1000) <= 300)) {
-    dScore += 0.5;
-  }
-  // VF(max)
-  var d_vf = parseFloat(data.d_vf);
-  if (!isNaN(d_vf) && Math.abs(d_vf - gtDiode.vf_max) <= 0.35) {
-    dScore += 0.5;
-  }
-  // IR(max) or PD
-  var d_ir = parseFloat(data.d_ir);
-  if (!isNaN(d_ir) && d_ir > 0) {
-    dScore += 0.5;
-  }
-  score += dScore;
-  feedbackLog.push('ตอนที่ 1 (Diode: ' + diodeModel + '): ได้ ' + dScore.toFixed(1) + ' / 2.5 คะแนน');
+      // MOSFET Section (2 pts)
+      let mPass = 0;
+      if (data.m_pkg && data.m_pkg.includes('TO-220')) mPass++;
+      if (data.m_vds && (data.m_vds.includes('100') || data.m_vds.includes('50') || data.m_vds.includes('60'))) mPass++;
+      if (data.m_id && (data.m_id.includes('33') || data.m_id.includes('28') || data.m_id.includes('19'))) mPass++;
+      if (data.m_rds && (data.m_rds.includes('0.07') || data.m_rds.includes('0.04') || data.m_rds.includes('77'))) mPass++;
+      let mScore = mPass >= 3 ? 2 : (mPass >= 1 ? 1 : 0);
+      score += mScore;
+      feedback.push(`[ตอนที่ 3] ข้อมูล Data Sheet เพาเวอร์มอสเฟต: ได้ ${mScore} / 2 คะแนน (กรอกถูกต้อง ${mPass}/4 รายการ)`);
 
-  // PART 2: BJT EXTRACTION (2.5 pts)
-  var bScore = 0;
-  // Type NPN/PNP
-  if (data.b_type && data.b_type.toUpperCase().indexOf(gtBjt.type) !== -1) {
-    bScore += 0.5;
-  }
-  // VCEO
-  var b_vceo = parseFloat(data.b_vceo);
-  if (!isNaN(b_vceo) && Math.abs(b_vceo - gtBjt.vceo) / gtBjt.vceo <= 0.2) {
-    bScore += 0.5;
-  }
-  // IC(max)
-  var b_ic = parseFloat(data.b_ic);
-  if (!isNaN(b_ic) && (Math.abs(b_ic - gtBjt.ic_max) <= 0.3 || Math.abs(b_ic - gtBjt.ic_max * 1000) <= 300)) {
-    bScore += 0.5;
-  }
-  // hFE (min/max)
-  var b_hfe = parseFloat(data.b_hfe);
-  if (!isNaN(b_hfe) && b_hfe >= (gtBjt.hfe_min * 0.7) && b_hfe <= (gtBjt.hfe_max * 1.3)) {
-    bScore += 0.5;
-  }
-  // VCE(sat) or PD
-  var b_vcesat = parseFloat(data.b_vcesat);
-  if (!isNaN(b_vcesat) && b_vcesat > 0 && b_vcesat <= 1.0) {
-    bScore += 0.5;
-  }
-  score += bScore;
-  feedbackLog.push('ตอนที่ 2 (BJT: ' + bjtModel + '): ได้ ' + bScore.toFixed(1) + ' / 2.5 คะแนน');
+      // Part 4: MCQ (4 pts)
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
 
-  // PART 3: MOSFET / FET EXTRACTION (2.5 pts)
-  var mScore = 0;
-  // Type (N-Ch / P-Ch)
-  if (data.m_type && data.m_type.toUpperCase().indexOf('N') !== -1) {
-    mScore += 0.5;
-  }
-  // VDSS
-  var m_vdss = parseFloat(data.m_vdss);
-  if (!isNaN(m_vdss) && Math.abs(m_vdss - gtMos.vdss) / gtMos.vdss <= 0.2) {
-    mScore += 0.5;
-  }
-  // ID(max)
-  var m_id = parseFloat(data.m_id);
-  if (!isNaN(m_id) && (Math.abs(m_id - gtMos.id_max) <= 5.0 || Math.abs(m_id - gtMos.id_max * 1000) <= 300)) {
-    mScore += 0.5;
-  }
-  // VGS(th)
-  var m_vgsth = parseFloat(data.m_vgsth);
-  if (!isNaN(m_vgsth) && Math.abs(m_vgsth) >= Math.abs(gtMos.vgsth_min * 0.7) && Math.abs(m_vgsth) <= Math.abs(gtMos.vgsth_max * 1.4)) {
-    mScore += 0.5;
-  }
-  // RDS(on) or gfs
-  var m_rdson = parseFloat(data.m_rdson);
-  if (!isNaN(m_rdson) && m_rdson > 0) {
-    mScore += 0.5;
-  }
-  score += mScore;
-  feedbackLog.push('ตอนที่ 3 (MOSFET: ' + mosfetModel + '): ได้ ' + mScore.toFixed(1) + ' / 2.5 คะแนน');
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'B');
+      const q2Ok = (ansQ2 === 'B');
+      const q3Ok = (ansQ3 === 'A');
+      const q4Ok = (ansQ4 === 'A');
 
-  // PART 4 & 5: QUESTIONS & CONCLUSION (2.5 pts)
-  var qScore = 0;
-  if (data.q1Answer && data.q1Answer.trim().length >= 10) qScore += 0.5;
-  if (data.q2Answer && data.q2Answer.trim().length >= 10) qScore += 0.5;
-  if (data.q3Answer && data.q3Answer.trim().length >= 10) qScore += 0.5;
-  if (data.q4Answer && data.q4Answer.trim().length >= 10) qScore += 0.5;
-  if (data.labConclusion && data.labConclusion.trim().length >= 15) qScore += 0.5;
-  score += qScore;
-  feedbackLog.push('ตอนที่ 4 & 5 (คำถามและสรุปผล): ได้ ' + qScore.toFixed(1) + ' / 2.5 คะแนน');
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+      score += qScore;
+      feedback.push(`\n[ตอนที่ 4] คำถามวัดความเข้าใจท้ายการทดลอง: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
-  var finalScore = Math.min(10, Math.round(score * 10) / 10);
-  var percentage = (finalScore / 10) * 100;
+      let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+      if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+      else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+      else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
 
-  var comment = 'ผ่านเกณฑ์ดีมาก (Excellent)';
-  if (finalScore < 5) comment = 'ควรทบทวนและฝึกอ่านค่า Data Sheet เพิ่มเติม (Needs Improvement)';
-  else if (finalScore < 7.5) comment = 'ผ่านเกณฑ์ระดับพอใช้ (Fair)';
-  else if (finalScore < 9.0) comment = 'ผ่านเกณฑ์ระดับดี (Good)';
+      return {
+        status: 'success',
+        score: score,
+        maxScore: maxScore,
+        comment: comment,
+        feedback: feedback.join('\n')
+      };
+    }
 
-  return {
-    score: finalScore,
-    maxScore: 10,
-    percentage: percentage,
-    comment: comment,
-    feedback: feedbackLog.join('\n')
-  };
+    function previewScoreBeforeSubmit() {
+      const payload = getWorksheetPayload();
+      const res = localGradeSimulator(payload);
+
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.modal-card') || overlay.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
+
+      if (card) {
+        card.style.borderColor = 'var(--accent-cyan)';
+        card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
+      }
+      spinner.style.display = 'none';
+      title.innerText = '🔍 ตรวจสอบคะแนนก่อนส่ง (Score Preview)';
+      title.style.color = 'var(--accent-cyan)';
+
+      let scoreColor = 'var(--accent-green)';
+      if (res.score < 5) scoreColor = 'var(--accent-red)';
+      else if (res.score < 7) scoreColor = 'var(--accent-yellow)';
+      else if (res.score < 9) scoreColor = 'var(--accent-cyan)';
+
+      const formattedFeedback = res.feedback.replace(/\n/g, '<br>');
+
+      body.innerHTML = `
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px dashed var(--accent-cyan); border-radius: 8px; padding: 10px 14px; margin-bottom: 15px; color: var(--accent-cyan); font-size: 13px; text-align: left;">
+          ℹ️ <strong>โหมดทดลองตรวจคำตอบ:</strong> รายละเอียดคะแนนด้านล่างเป็นผลประเมินเบื้องต้น <u>ยังไม่ได้บันทึกส่ง</u> ข้อมูลเข้า Google Sheets ของผู้สอน
+        </div>
+        <div style="text-align: left; background: rgba(15,23,42,0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin: 12px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: bold; color: var(--text-main);">คะแนนประเมินที่ได้:</span>
+            <span style="font-size: 24px; font-weight: bold; color: ${scoreColor};">${res.score} / ${res.maxScore}</span>
+          </div>
+          <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-cyan);">
+            ระดับผลการประเมิน: ${res.comment}
+          </p>
+          <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+          <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</p>
+          <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${formattedFeedback}</div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+          💡 หากต้องการแก้ไข สามารถกด <strong>"✏️ กลับไปแก้ไขคำตอบ"</strong> หรือกด <strong>"🚀 ยืนยันส่งใบงานจริง"</strong> ได้ทันที
+        </p>
+      `;
+
+      closeBtn.innerText = '✏️ กลับไปแก้ไขคำตอบ';
+      closeBtn.style.display = 'inline-block';
+      if (confirmBtn) confirmBtn.style.display = 'inline-block';
+
+      overlay.style.display = 'flex';
+    }
+
+    function confirmSubmitFromPreview() {
+      closeModal();
+      submitReportToGAS();
+    }
+
+    // --- SUBMISSION TO GOOGLE APPS SCRIPT ---
+    function submitReportToGAS() {
+      const payload = getWorksheetPayload();
+
+      if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
+        alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่ม และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
+        switchTab('worksheet');
+        document.getElementById('student-name')?.focus();
+        return;
+      }
+
+      // Show Loading Modal
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay.querySelector('.modal-card') || overlay.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
+
+      if (card) {
+        card.style.borderColor = 'var(--accent-cyan)';
+        card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
+      }
+      overlay.style.display = 'flex';
+      spinner.style.display = 'block';
+      title.innerText = '🚀 กำลังส่งใบงานและตรวจคำตอบ...';
+      title.style.color = 'var(--accent-cyan)';
+      body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...';
+      closeBtn.style.display = 'none';
+      if (confirmBtn) confirmBtn.style.display = 'none';
+
+      // Check if running inside Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(onSuccessGrading)
+      .withFailureHandler(onFailureGrading)
+      .submitWorksheet(data);
+  } else {
+    const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
+    if (endpointUrl && endpointUrl.startsWith('http')) {
+      fetch(endpointUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && (res.status === 'success' || res.score !== undefined)) {
+          onSuccessGrading(res);
+        } else {
+          throw new Error(res.message || 'Error recording submission');
+        }
+      })
+      .catch(err => {
+        console.warn('GAS Fetch failed, falling back to local simulation:', err);
+        const localRes = localGradeSimulator(data);
+        localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
+        onSuccessGrading(localRes);
+      });
+    } else {
+      setTimeout(() => {
+        const localRes = localGradeSimulator(data);
+        onSuccessGrading(localRes);
+      }, 800);
+    }
+  }
 }
 
-// -------------------------------------------------------------
-// 4. GOOGLE SHEETS LOGGING
-// -------------------------------------------------------------
+/**
+ * Appends the graded worksheet details into the Google Sheets database
+ */
 function logToGoogleSheet(data, grading) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheetName = 'Submissions';
