@@ -1948,6 +1948,10 @@ function submitToGAS() {
 }
 
 function onGradeSuccess(res) {
+  if (!res || res.status === 'error') {
+    onGradeError(res ? (res.message || 'เกิดข้อผิดพลาดในการประมวลผล') : 'ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์');
+    return;
+  }
   if (res.status === 'duplicate') {
     const overlay = document.getElementById('submission-overlay');
     const card = overlay?.querySelector('.card');

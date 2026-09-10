@@ -2491,6 +2491,10 @@ function showGradingOverlay(show) {
 }
 
 function onSuccessGrading(res) {
+  if (!res || res.status === 'error') {
+    onFailureGrading(res ? (res.message || 'เกิดข้อผิดพลาดในการประมวลผล') : 'ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์');
+    return;
+  }
   showGradingOverlay(true);
   const title = document.getElementById('overlay-title');
   const spinner = document.getElementById('overlay-spinner');

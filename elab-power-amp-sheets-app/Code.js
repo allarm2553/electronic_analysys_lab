@@ -13,21 +13,83 @@ function doGet(e) {
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const grading = evaluateLab(data);
-    logToSheet(data, grading);
-    return ContentService.createTextOutput(JSON.stringify({
-      status: 'success',
-      score: grading.score,
-      maxScore: grading.maxScore,
-      breakdown: grading.breakdown,
-      feedback: grading.feedback
-    })).setMimeType(ContentService.MimeType.JSON);
+    if (data.ping || data.test) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        message: 'Connected to Google Apps Script backend successfully!',
+        timestamp: new Date().toISOString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    const result = submitWorksheet(data);
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({
       status: 'error',
       message: err.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+/**
+ * Handles submission from google.script.run or doPost
+ */
+function submitWorksheet(data) {
+  try {
+    const duplicateCheck = checkDuplicateSubmission("Lab14_PowerAmp_Submissions", 4, data.studentId);
+    if (duplicateCheck) {
+      return duplicateCheck;
+    }
+    const grading = evaluateLab(data);
+    logToSheet(data, grading);
+    return {
+      status: 'success',
+      score: grading.score,
+      maxScore: grading.maxScore,
+      breakdown: grading.breakdown,
+      feedback: Array.isArray(grading.feedback) ? grading.feedback.join('\n') : grading.feedback,
+      comment: grading.comment
+    };
+  } catch (err) {
+    return {
+      status: 'error',
+      message: err.toString()
+    };
+  }
+}
+
+/**
+ * Checks duplicate submission
+ */
+function checkDuplicateSubmission(sheetName, studentIdColIndex, studentId) {
+  if (!studentId) return null;
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (!ss) return null;
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return null;
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      const idValues = sheet.getRange(2, studentIdColIndex, lastRow - 1, 1).getValues();
+      const timestampValues = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      const targetId = studentId.toString().trim();
+      for (let i = 0; i < idValues.length; i++) {
+        if (idValues[i][0] && idValues[i][0].toString().trim() === targetId) {
+          const prevTime = timestampValues[i][0]
+            ? Utilities.formatDate(new Date(timestampValues[i][0]), "Asia/Bangkok", "dd/MM/yyyy HH:mm")
+            : "ก่อนหน้านี้";
+          return {
+            status: "duplicate",
+            score: 0,
+            maxScore: 10,
+            feedback: "เคยส่งใบงานนี้แล้ว",
+            message: "⚠️ รหัสนักศึกษา " + targetId + " ได้ส่งใบงานนี้ไปแล้วเมื่อ " + prevTime + "\nระบบอนุญาตให้ส่งได้เพียง 1 ครั้งเท่านั้น (หากต้องการส่งใหม่ กรุณาติดต่ออาจารย์ผู้สอน)"
+          };
+        }
+      }
+    }
+  } catch (e) {}
+  return null;
 }
 
 function evaluateLab(data) {

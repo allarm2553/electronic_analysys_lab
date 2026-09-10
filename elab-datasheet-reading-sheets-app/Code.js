@@ -182,7 +182,7 @@ function submitWorksheet(data) {
       return duplicateCheck;
     }
 
-    var grading = gradeDatasheetWorksheet(data);
+    var grading = gradeWorksheet(data);
     logToGoogleSheet(data, grading);
     return {
       status: 'success',

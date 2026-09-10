@@ -2356,6 +2356,10 @@ function hideSubmittingDialog() {
 }
 
 function onSuccessGrading(res) {
+  if (!res || res.status === 'error') {
+    onFailureGrading(res ? (res.message || 'เกิดข้อผิดพลาดในการประมวลผล') : 'ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์');
+    return;
+  }
   if (res.status === 'duplicate') {
     const title = document.getElementById('overlay-title');
     const spinner = document.getElementById('overlay-spinner');
