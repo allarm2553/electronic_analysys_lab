@@ -1932,13 +1932,24 @@ body {
                 </p>
               </div>
             </div>
-            <span id="gas-status-badge" style="font-size: 11.5px; padding: 3px 10px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-weight: 500;">
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              <a href="./Code.gs" download="Code_elab-bjt-bias-sheets-app.gs" class="btn btn-secondary btn-small" style="padding: 4px 10px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: #93c5fd; border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.15);" title="ดาวน์โหลดไฟล์ Code.gs ของแล็บนี้">
+                📥 โหลด Code.gs
+              </a>
+              <button type="button" class="btn btn-secondary btn-small" onclick="copyCodeGsContent('elab-bjt-bias-sheets-app')" style="padding: 4px 10px; font-size: 11.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: #d8b4fe; border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.15);" title="คัดลอกโค้ด Code.gs ไปวางใน Google Apps Script">
+                📋 คัดลอก Code.gs
+              </button>
+              <span id="gas-status-badge" style="font-size: 11.5px; padding: 3px 10px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-weight: 500;">
               🌐 โหมดจำลองในเครื่อง (ยังไม่เชื่อมต่อชีต)
             </span>
+            </div>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
             <input type="url" id="gas-endpoint-url" placeholder="วางลิงก์ https://script.google.com/macros/s/.../exec ที่นี่..." style="flex: 1; min-width: 250px; padding: 7px 12px; font-size: 12.5px; background: rgba(10, 15, 28, 0.85); border: 1px solid var(--border-color); border-radius: 5px; color: #f8fafc;">
             <button type="button" class="btn btn-secondary btn-small" onclick="saveGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">💾 บันทึก URL</button>
+            <button type="button" class="btn btn-small" onclick="copyStudentShareLink('elab-bjt-bias-sheets-app')" style="padding: 7px 12px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="คัดลอกลิงก์ที่แนบ Google Apps Script ส่งให้นักเรียน">
+              🔗 คัดลอกลิงก์ให้นักเรียน
+            </button>
             <button type="button" class="btn btn-primary btn-small" onclick="testGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">🧪 ทดสอบเชื่อมต่อ</button>
           </div>
         </div>
@@ -3804,10 +3815,44 @@ function getGasStorageKey() {
   return 'elab_gas_endpoint_' + labSlug;
 }
 
+
+function copyCodeGsContent(labId) {
+  fetch('./Code.gs')
+    .then(res => {
+      if (!res.ok) throw new Error("Network error");
+      return res.text();
+    })
+    .then(code => {
+      navigator.clipboard.writeText(code).then(() => {
+        alert("คัดลอก Code.gs สำเร็จ! 🎉\n\nคัดลอกโค้ด Google Apps Script ประจำแล็บนี้ลง Clipboard เรียบร้อยแล้ว\nสามารถเปิด Google Apps Script แล้วกด Ctrl+V วางเพื่อ Deploy ได้ทันที!");
+      }).catch(() => {
+        prompt("คัดลอกโค้ดด้านล่างนี้ไปวางใน Code.gs:", code);
+      });
+    })
+    .catch(() => {
+      window.open("https://github.com/allarm2553/electronic_analysys_lab/blob/main/" + labId + "/Code.gs", "_blank");
+    });
+}
+
+function copyStudentShareLink(labId) {
+  const input = document.getElementById("gas-endpoint-url");
+  const val = (input && input.value.trim()) || (typeof getSavedGasEndpoint === "function" ? getSavedGasEndpoint() : "");
+  if (!val || !val.startsWith("https://script.google.com")) {
+    alert("กรุณากรอกหรือวาง Web App URL ในช่อง แล้วกดบันทึกก่อนคัดลอกลิงก์ส่งให้นักเรียนครับ");
+    return;
+  }
+  const shareUrl = window.location.origin + window.location.pathname + "?gas=" + encodeURIComponent(val);
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    alert("คัดลอกลิงก์สำหรับส่งให้นักเรียนเรียบร้อยแล้ว! 🎉\n\n" + shareUrl + "\n\nเมื่อนักเรียนคลิกลิงก์นี้ ระบบจะเชื่อมต่อส่งคะแนนเข้า Google Sheets ของอาจารย์โดยอัตโนมัติ!");
+  }).catch(() => {
+    prompt("คัดลอกลิงก์นี้ส่งให้นักเรียน:", shareUrl);
+  });
+}
+
 function getSavedGasEndpoint() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    const paramUrl = urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('sheetUrl');
+    const paramUrl = urlParams.get('gas') || urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('sheetUrl');
     const key = getGasStorageKey();
     if (paramUrl && paramUrl.trim().startsWith('http')) {
       localStorage.setItem(key, paramUrl.trim());

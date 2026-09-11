@@ -278,7 +278,107 @@
       color: var(--text-muted);
       background: rgba(15, 23, 42, 0.3);
     }
+  
+    .gas-btn-mini {
+      padding: 3px 8px;
+      font-size: 11px;
+      border-radius: 5px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #93c5fd;
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .gas-btn-mini:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .gas-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4, 8, 16, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+    .gas-modal {
+      background: #0f172a;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 850px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    .gas-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .gas-modal-header h3 {
+      font-family: 'Chakra Petch', sans-serif;
+      color: #38bdf8;
+      font-size: 1.15rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gas-modal-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+    .gas-modal-close:hover { color: #fff; }
+    .gas-modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .gas-modal-row {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .gas-modal-name {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: #f8fafc;
+    }
+    .gas-modal-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -291,6 +391,7 @@
       <!-- Filter and Search -->
       <div class="filter-container">
         <button class="filter-btn active" onclick="filterCategory('all', event)">ทั้งหมด (14 แล็บ)</button>
+        <button type="button" class="filter-btn" style="border-color: #6366f1; color: #a5b4fc; background: rgba(99, 102, 241, 0.15);" onclick="openGasModal()"><i class="fa-solid fa-code"></i> โหลด / คัดลอก Code.gs (14 Labs)</button>
         <button class="filter-btn" onclick="filterCategory('diode', event)">⚡ ไดโอด (Diodes)</button>
         <button class="filter-btn" onclick="filterCategory('bjt', event)">📻 ทรานซิสเตอร์ (BJT)</button>
         <button class="filter-btn" onclick="filterCategory('mosfet', event)">🌊 มอสเฟต & FET</button>
@@ -308,6 +409,10 @@
         <div class="card-top">
           <span class="lab-icon">🔌</span>
           <span class="lab-badge badge-diode">Diode</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-diode-sheets-app/Code.gs" download="Code_elab-diode-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-diode-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">1. คุณสมบัติของไดโอด (Diode Characteristics)</h3>
         <p class="lab-desc">ศึกษารอยต่อ P-N จำลองการวัดค่าแรงดันและกระแสไฟฟ้าเมื่อจ่ายไบแอสตรงและไบแอสกลับให้กับไดโอด พร้อมพล็อตกราฟ IV Curve</p>
@@ -319,6 +424,10 @@
         <div class="card-top">
           <span class="lab-icon">🛡️</span>
           <span class="lab-badge badge-diode">Zener</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-zener-sheets-app/Code.gs" download="Code_elab-zener-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-zener-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">2. วงจรรักษาระดับแรงดันด้วยซีเนอร์ไดโอด (Zener Regulator)</h3>
         <p class="lab-desc">ศึกษาการพังทลายแบบซีเนอร์เพื่อรักษาระดับแรงดันเอาต์พุตให้คงที่ รองรับตัวเลือกซีเนอร์ 5 พิกัด (3.3V, 5.1V, 6.2V, 9.1V, 12.0V)</p>
@@ -330,6 +439,10 @@
         <div class="card-top">
           <span class="lab-icon">〰️</span>
           <span class="lab-badge badge-diode">Rectifier</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-rectifier-sheets-app/Code.gs" download="Code_elab-rectifier-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-rectifier-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">3. วงจรเรียงกระแสแบบครึ่งคลื่นและเต็มคลื่น (Rectifiers)</h3>
         <p class="lab-desc">จำลองและวิเคราะห์วงจรเรียงกระแส AC 12V เป็น DC ตกคร่อมโหลด 1kΩ พร้อมออสซิลโลสโคปเปรียบเทียบรูปคลื่นอินพุตและเอาต์พุต</p>
@@ -341,6 +454,10 @@
         <div class="card-top">
           <span class="lab-icon">🌉</span>
           <span class="lab-badge badge-diode">Bridge</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-bridge-rectifier-sheets-app/Code.gs" download="Code_elab-bridge-rectifier-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-bridge-rectifier-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">4. วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier & Filter)</h3>
         <p class="lab-desc">จำลองการทำงานของไดโอดบริดจ์ วิเคราะห์ความถี่ริปเปิล 100Hz พร้อมตัวเก็บประจุฟิลเตอร์กรองระลอกคลื่นให้เรียบ</p>
@@ -352,6 +469,10 @@
         <div class="card-top">
           <span class="lab-icon">📈</span>
           <span class="lab-badge badge-bjt">BJT Curves</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-transistor-sheets-app/Code.gs" download="Code_elab-transistor-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-transistor-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">5. การตรวจสอบขาและลักษณะสมบัติเอาต์พุต BJT (BJT Curves)</h3>
         <p class="lab-desc">ทดสอบความสัมพันธ์ของกระแส Ic และแรงดัน Vce ที่ระดับกระแสเบส Ib ต่าง ๆ วิเคราะห์ย่าน Active, Saturation และ Cut-off</p>
@@ -363,6 +484,10 @@
         <div class="card-top">
           <span class="lab-icon">📊</span>
           <span class="lab-badge badge-bjt">BJT Bias</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-bjt-bias-sheets-app/Code.gs" download="Code_elab-bjt-bias-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-bjt-bias-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">6. การจัดไบแอสกระแสตรงทรานซิสเตอร์ (BJT DC Biasing & Load Line)</h3>
         <p class="lab-desc">วิเคราะห์แรงดันและกระแสประจำจุดทำงาน Q-point บนเส้นโหลดไลน์กระแสตรง พร้อมตัวเลือกทรานซิสเตอร์ 4 รุ่น (2N2222, BC108, BD137, BC547)</p>
@@ -374,6 +499,10 @@
         <div class="card-top">
           <span class="lab-icon">📻</span>
           <span class="lab-badge badge-bjt">BJT re Model</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-bjt-re-model-sheets-app/Code.gs" download="Code_elab-bjt-re-model-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-bjt-re-model-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">7. การวิเคราะห์วงจรขยายสัญญาณด้วยแบบจำลอง re (BJT re Model)</h3>
         <p class="lab-desc">จำลองสัญญาณขนาดเล็ก AC วิเคราะห์อัตราขยาย Av, อิมพีแดนซ์ Zi/Zo, สวิตช์สลับ CE Bypass และ Dual-Trace Live Oscilloscope</p>
@@ -385,6 +514,10 @@
         <div class="card-top">
           <span class="lab-icon">🎛️</span>
           <span class="lab-badge badge-bjt">h-Parameter</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-bjt-h-parameter-sheets-app/Code.gs" download="Code_elab-bjt-h-parameter-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-bjt-h-parameter-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">8. การวิเคราะห์วงจรขยายด้วยแบบจำลอง h-Parameter ของ BJT</h3>
         <p class="lab-desc">จำลองวิเคราะห์ Two-Port Hybrid Model สกัดค่า hie, hfe, hre, hoe คำนวณอัตราขยาย Av, อิมพีแดนซ์ และตรวจให้คะแนนอัตโนมัติ</p>
@@ -396,6 +529,10 @@
         <div class="card-top">
           <span class="lab-icon">🔍</span>
           <span class="lab-badge badge-mosfet">MOSFET Pinout</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-mosfet-pinout-sheets-app/Code.gs" download="Code_elab-mosfet-pinout-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-mosfet-pinout-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">9. การระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต (MOSFET)</h3>
         <p class="lab-desc">ตรวจสอบการจัดขา (Pinout Identification) ของ N-Channel MOSFET และวิเคราะห์กระแสเดรนเปรียบเทียบกับแรงดันเกต</p>
@@ -407,6 +544,10 @@
         <div class="card-top">
           <span class="lab-icon">🌊</span>
           <span class="lab-badge badge-mosfet">Fixed-Bias</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-mosfet-bias-sheets-app/Code.gs" download="Code_elab-mosfet-bias-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-mosfet-bias-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">10. การจัดไบอัสคงที่ของ JFET และ MOSFET (Fixed-Bias Configuration)</h3>
         <p class="lab-desc">ศึกษาการควบคุมกระแสเดรน (Id) ด้วยวงจร Fixed-Bias ลูปเกต IG ≈ 0A พล็อตกราฟ Transfer & Drain Curves พร้อมโมเดล JFET (2N5458, 2N5484, BF245B) และ E-MOSFET (2N7000, BS170, IRF540)</p>
@@ -418,6 +559,10 @@
         <div class="card-top">
           <span class="lab-icon">📡</span>
           <span class="lab-badge badge-mosfet">FET Small-Signal</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-fet-small-signal-sheets-app/Code.gs" download="Code_elab-fet-small-signal-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-fet-small-signal-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">11. แบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET (gm Model)</h3>
         <p class="lab-desc">วิเคราะห์ Transconductance (gm), อัตราขยาย Av, สวิตช์ CS Bypass, ออสซิลโลสโคปกลับเฟส 180° พร้อม FET 5 รุ่น (2N5458, 2N5484, BF245B, 2N7000, BS170)</p>
@@ -429,6 +574,10 @@
         <div class="card-top">
           <span class="lab-icon">📑</span>
           <span class="lab-badge badge-datasheet">Data Sheet Lab</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-datasheet-reading-sheets-app/Code.gs" download="Code_elab-datasheet-reading-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-datasheet-reading-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">12. การอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์ (Datasheet Reading)</h3>
         <p class="lab-desc">คลัง Data Sheet เสมือนจริง 10 เบอร์ (Diode, BJT, MOSFET) สกัดค่า Absolute Maximum Ratings, Electrical Specs, และตำแหน่งขา</p>
@@ -440,6 +589,10 @@
         <div class="card-top">
           <span class="lab-icon">⚡</span>
           <span class="lab-badge badge-bjt">Multi-Stage BJT</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-multistage-sheets-app/Code.gs" download="Code_elab-multistage-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-multistage-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">13. วงจรขยายสัญญาณหลายภาค (Multi-Stage BJT Amplifier)</h3>
         <p class="lab-desc">จำลองการต่อวงจรขยาย CE 2 ภาค แบบ RC-Coupling คำนวณอัตราขยายรวม Av(total) = Av1 × Av2 และสังเกตสัญญาณ In-Phase (0°) บน Live Oscilloscope</p>
@@ -451,6 +604,10 @@
         <div class="card-top">
           <span class="lab-icon">🔊</span>
           <span class="lab-badge badge-bjt">Power Amp & Buffer</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-power-amp-sheets-app/Code.gs" download="Code_elab-power-amp-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-power-amp-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
         </div>
         <h3 class="lab-title">14. วงจรขยายกำลังและวงจรกันชน (Power Amplifier & Emitter Follower)</h3>
         <p class="lab-desc">ศึกษาภาคขับโหลดลำโพง 4Ω/8Ω แบบ Class AB Push-Pull คำนวณกำลังขับ Pout, ประสิทธิภาพ η, สังเกต Crossover Distortion และจำลองความร้อน Heatsink</p>
@@ -491,5 +648,153 @@
       });
     }
   </script>
+
+  <!-- GAS Code.gs Modal -->
+  <div id="gasModal" class="gas-modal-overlay" onclick="handleModalBgClick(event)">
+    <div class="gas-modal">
+      <div class="gas-modal-header">
+        <h3><i class="fa-solid fa-sliders"></i> คลัง Code.gs & ลิงก์เชื่อมต่อ Google Sheets (14 Labs)</h3>
+        <button type="button" class="gas-modal-close" onclick="closeGasModal()">&times;</button>
+      </div>
+      <div class="gas-modal-body">
+        <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 8px 0;">
+          💡 <strong>สำหรับอาจารย์:</strong> กดปุ่ม <strong>[📥 โหลด Code.gs]</strong> เพื่อโหลดไฟล์ หรือกด <strong>[📋 คัดลอก Code.gs]</strong> เพื่อนำโค้ดไปวางใน Google Apps Script แล้ว Deploy ได้ทันทีโดยไม่ต้องเปิด GitHub
+        </p>
+        <div id="gasModalList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ELEC_LABS = [
+  {
+    "id": "elab-diode-sheets-app",
+    "num": "1",
+    "name": "คุณสมบัติของไดโอด"
+  },
+  {
+    "id": "elab-zener-sheets-app",
+    "num": "2",
+    "name": "วงจรรักษาระดับแรงดันด้วยซีเนอร์ไดโอด"
+  },
+  {
+    "id": "elab-rectifier-sheets-app",
+    "num": "3",
+    "name": "วงจรเรียงกระแสแบบครึ่งคลื่นและเต็มคลื่น"
+  },
+  {
+    "id": "elab-bridge-rectifier-sheets-app",
+    "num": "4",
+    "name": "วงจรเรียงกระแสแบบบริดจ์และการกรองกระแส"
+  },
+  {
+    "id": "elab-transistor-sheets-app",
+    "num": "5",
+    "name": "การตรวจสอบและคุณลักษณะของทรานซิสเตอร์"
+  },
+  {
+    "id": "elab-bjt-bias-sheets-app",
+    "num": "6",
+    "name": "การจัดไบอัสทรานซิสเตอร์"
+  },
+  {
+    "id": "elab-bjt-re-model-sheets-app",
+    "num": "7",
+    "name": "การวิเคราะห์วงจรขยายสัญญาณด้วยแบบจำลอง re"
+  },
+  {
+    "id": "elab-bjt-h-parameter-sheets-app",
+    "num": "8",
+    "name": "การวิเคราะห์วงจรขยายด้วยแบบจำลอง h-Parameter"
+  },
+  {
+    "id": "elab-mosfet-pinout-sheets-app",
+    "num": "9",
+    "name": "การระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต"
+  },
+  {
+    "id": "elab-mosfet-bias-sheets-app",
+    "num": "10",
+    "name": "การจัดไบอัสคงที่ของ JFET และ MOSFET"
+  },
+  {
+    "id": "elab-fet-small-signal-sheets-app",
+    "num": "11",
+    "name": "แบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET"
+  },
+  {
+    "id": "elab-datasheet-reading-sheets-app",
+    "num": "12",
+    "name": "การอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์"
+  },
+  {
+    "id": "elab-multistage-sheets-app",
+    "num": "13",
+    "name": "วงจรขยายสัญญาณหลายภาค"
+  },
+  {
+    "id": "elab-power-amp-sheets-app",
+    "num": "14",
+    "name": "วงจรขยายกำลังและวงจรกันชน"
+  }
+];
+
+    function openGasModal() {
+      renderGasModalRows();
+      document.getElementById('gasModal').style.display = 'flex';
+    }
+
+    function closeGasModal() {
+      document.getElementById('gasModal').style.display = 'none';
+    }
+
+    function handleModalBgClick(e) {
+      if (e.target.id === 'gasModal') closeGasModal();
+    }
+
+    function renderGasModalRows() {
+      const container = document.getElementById('gasModalList');
+      if (!container) return;
+      container.innerHTML = ELEC_LABS.map(lab => {
+        return `
+          <div class="gas-modal-row">
+            <div class="gas-modal-name">
+              <span style="color:#38bdf8; font-weight:700;">Lab ${lab.num}:</span> ${lab.name}
+            </div>
+            <div class="gas-modal-actions">
+              <a href="./${lab.id}/Code.gs" download="Code_${lab.id}.gs" class="gas-btn-mini" style="padding:5px 10px; font-size:12px;" title="ดาวน์โหลด Code.gs ประจำแล็บนี้">
+                <i class="fa-solid fa-download"></i> โหลด Code.gs
+              </a>
+              <button type="button" class="gas-btn-mini" onclick="copyCodeGsFromPortal('${lab.id}')" style="padding:5px 10px; font-size:12px;" title="คัดลอก Code.gs ไปวางใน Apps Script">
+                <i class="fa-solid fa-copy"></i> คัดลอก Code.gs
+              </button>
+              <a href="./${lab.id}/index.html" class="gas-btn-mini" style="background:rgba(16,185,129,0.15); border-color:#10b981; color:#6ee7b7; padding:5px 10px; font-size:12px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> เข้าแล็บ
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function copyCodeGsFromPortal(labId) {
+      fetch('./' + labId + '/Code.gs')
+        .then(res => {
+          if (!res.ok) throw new Error("Network error");
+          return res.text();
+        })
+        .then(code => {
+          navigator.clipboard.writeText(code).then(() => {
+            alert("📋 คัดลอก Code.gs สำหรับ " + labId + " สำเร็จแล้ว!\nนำไปเปิดใน Google Apps Script แล้วกด Ctrl+V วางเพื่อ Deploy ได้ทันที");
+          }).catch(() => {
+            prompt("คัดลอกโค้ดด้านล่างนี้สำหรับ " + labId + ":", code);
+          });
+        })
+        .catch(() => {
+          window.open("https://github.com/allarm2553/electronic_analysys_lab/blob/main/" + labId + "/Code.gs", "_blank");
+        });
+    }
+  </script>
+
 </body>
 </html>
