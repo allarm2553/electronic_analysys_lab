@@ -1762,8 +1762,10 @@ function initUI() {
   scopeCanvas = document.getElementById('osc-screen');
   if (scopeCanvas) {
     scopeCtx = scopeCanvas.getContext('2d');
-    scopeCanvas.width = scopeCanvas.clientWidth;
-    scopeCanvas.height = scopeCanvas.clientHeight;
+    const clientW = scopeCanvas.clientWidth;
+    const clientH = scopeCanvas.clientHeight;
+    scopeCanvas.width = (clientW > 0) ? clientW : 450;
+    scopeCanvas.height = (clientH > 0) ? clientH : 220;
   }
   
   updateSimulation();
@@ -1807,12 +1809,20 @@ function switchTab(tabId) {
     }
   });
 
-  if (tabId === 'simulator' && scopeCanvas) {
+  if (tabId === 'simulator') {
     setTimeout(() => {
-      scopeCanvas.width = scopeCanvas.clientWidth;
-      scopeCanvas.height = scopeCanvas.clientHeight;
+      if (!scopeCanvas) {
+        scopeCanvas = document.getElementById('osc-screen');
+      }
+      if (scopeCanvas) {
+        if (!scopeCtx) scopeCtx = scopeCanvas.getContext('2d');
+        const clientW = scopeCanvas.clientWidth;
+        const clientH = scopeCanvas.clientHeight;
+        scopeCanvas.width = (clientW > 0) ? clientW : (scopeCanvas.width || 450);
+        scopeCanvas.height = (clientH > 0) ? clientH : (scopeCanvas.height || 220);
+      }
       updateSimulation();
-    }, 50);
+    }, 60);
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1973,8 +1983,25 @@ function updateSimulation() {
  * Draws Grid, Divisions, and Waves on the Canvas
  */
 function drawOscilloscope() {
-  const w = scopeCanvas.width;
-  const h = scopeCanvas.height;
+  if (!scopeCanvas) {
+    scopeCanvas = document.getElementById('osc-screen');
+  }
+  if (!scopeCanvas) return;
+  if (!scopeCtx) scopeCtx = scopeCanvas.getContext('2d');
+  if (!scopeCtx) return;
+
+  const clientW = scopeCanvas.clientWidth;
+  const clientH = scopeCanvas.clientHeight;
+  if (clientW > 0 && scopeCanvas.width !== clientW) {
+    scopeCanvas.width = clientW;
+  }
+  if (clientH > 0 && scopeCanvas.height !== clientH) {
+    scopeCanvas.height = clientH;
+  }
+
+  const w = scopeCanvas.width || 450;
+  const h = scopeCanvas.height || 220;
+  if (w <= 0 || h <= 0) return;
   
   scopeCtx.fillStyle = '#080c10';
   scopeCtx.fillRect(0, 0, w, h);
@@ -2040,12 +2067,18 @@ function drawOscilloscope() {
   scopeCtx.stroke();
   
   // Update Digital Readings
-  document.getElementById('meas-ch1-vpp').innerText = waveData.measurements.ch1Vpp + ' V';
-  document.getElementById('meas-ch1-vrms').innerText = waveData.measurements.ch1Vrms + ' V';
-  document.getElementById('meas-ch2-vmax').innerText = waveData.measurements.ch2Vmax + ' V';
-  document.getElementById('meas-ch2-vdc').innerText = waveData.measurements.ch2Vdc + ' V';
-  document.getElementById('meas-ch2-vrms').innerText = waveData.measurements.ch2Vrms + ' V';
-  document.getElementById('meas-freq').innerText = waveData.measurements.frequency + ' Hz';
+  const ch1VppEl = document.getElementById('meas-ch1-vpp');
+  const ch1VrmsEl = document.getElementById('meas-ch1-vrms');
+  const ch2VmaxEl = document.getElementById('meas-ch2-vmax');
+  const ch2VdcEl = document.getElementById('meas-ch2-vdc');
+  const ch2VrmsEl = document.getElementById('meas-ch2-vrms');
+  const freqEl = document.getElementById('meas-freq');
+  if (ch1VppEl) ch1VppEl.innerText = waveData.measurements.ch1Vpp + ' V';
+  if (ch1VrmsEl) ch1VrmsEl.innerText = waveData.measurements.ch1Vrms + ' V';
+  if (ch2VmaxEl) ch2VmaxEl.innerText = waveData.measurements.ch2Vmax + ' V';
+  if (ch2VdcEl) ch2VdcEl.innerText = waveData.measurements.ch2Vdc + ' V';
+  if (ch2VrmsEl) ch2VrmsEl.innerText = waveData.measurements.ch2Vrms + ' V';
+  if (freqEl) freqEl.innerText = waveData.measurements.frequency + ' Hz';
 }
 
 /**
@@ -2103,8 +2136,9 @@ function measureTable2Row(idx) {
   STATE.isJumperClosed = true;
   updateSimulation();
   
-  const w = scopeCanvas.width;
-  const h = scopeCanvas.height;
+  if (!scopeCanvas) scopeCanvas = document.getElementById('osc-screen');
+  const w = (scopeCanvas && scopeCanvas.width > 0) ? scopeCanvas.width : 450;
+  const h = (scopeCanvas && scopeCanvas.height > 0) ? scopeCanvas.height : 220;
   const waveData = getOscilloscopeWaveforms(w, h);
   const meas = waveData.measurements;
   
@@ -2130,6 +2164,25 @@ function measureTable2Row(idx) {
 /**
  * Triggers browser print dialog for PDF saving
  */
+function printReport() {
+  window.print();
+}
+window.printReport = printReport;
+
+// Bind DOM loaded and resize listeners
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initUI);
+} else {
+  initUI();
+}
+
+window.addEventListener('resize', () => {
+  if (scopeCanvas && scopeCanvas.clientWidth > 0) {
+    scopeCanvas.width = scopeCanvas.clientWidth;
+    scopeCanvas.height = scopeCanvas.clientHeight || 220;
+    if (scopeCtx) drawOscilloscope();
+  }
+});
 
 
 
