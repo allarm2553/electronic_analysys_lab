@@ -390,11 +390,12 @@
       
       <!-- Filter and Search -->
       <div class="filter-container">
-        <button class="filter-btn active" onclick="filterCategory('all', event)">ทั้งหมด (14 แล็บ)</button>
-        <button type="button" class="filter-btn" style="border-color: #6366f1; color: #a5b4fc; background: rgba(99, 102, 241, 0.15);" onclick="openGasModal()"><i class="fa-solid fa-code"></i> โหลด / คัดลอก Code.gs (14 Labs)</button>
+        <button class="filter-btn active" onclick="filterCategory('all', event)">ทั้งหมด (15 แล็บ)</button>
+        <button type="button" class="filter-btn" style="border-color: #6366f1; color: #a5b4fc; background: rgba(99, 102, 241, 0.15);" onclick="openGasModal()"><i class="fa-solid fa-code"></i> โหลด / คัดลอก Code.gs (15 Labs)</button>
         <button class="filter-btn" onclick="filterCategory('diode', event)">⚡ ไดโอด (Diodes)</button>
         <button class="filter-btn" onclick="filterCategory('bjt', event)">📻 ทรานซิสเตอร์ (BJT)</button>
         <button class="filter-btn" onclick="filterCategory('mosfet', event)">🌊 มอสเฟต & FET</button>
+        <button class="filter-btn" onclick="filterCategory('filter', event)">〰️ วงจรกรอง (Filters)</button>
         <button class="filter-btn" onclick="filterCategory('datasheet', event)">📑 อ่าน Data Sheet</button>
         <input type="text" class="search-input" id="search-box" placeholder="🔍 ค้นหาแล็บหรือหัวข้อ..." oninput="searchLabs()">
       </div>
@@ -613,6 +614,21 @@
         <p class="lab-desc">ศึกษาภาคขับโหลดลำโพง 4Ω/8Ω แบบ Class AB Push-Pull คำนวณกำลังขับ Pout, ประสิทธิภาพ η, สังเกต Crossover Distortion และจำลองความร้อน Heatsink</p>
         <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
       </a>
+
+      <!-- Lab 15: Passive RC Filters -->
+      <a href="./elab-passive-filter-sheets-app/index.html" class="lab-card" data-category="filter">
+        <div class="card-top">
+          <span class="lab-icon">〰️</span>
+          <span class="lab-badge badge-diode" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3); color: #c084fc;">RC Filter</span>
+          <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+            <object><a href="./elab-passive-filter-sheets-app/Code.gs" download="Code_elab-passive-filter-sheets-app.gs" class="gas-btn-mini" onclick="event.stopPropagation();" title="ดาวน์โหลด Code.gs ประจำแล็บนี้"><i class="fa-solid fa-download"></i> Code.gs</a></object>
+            <button type="button" class="gas-btn-mini" onclick="event.preventDefault(); event.stopPropagation(); copyCodeGsFromPortal('elab-passive-filter-sheets-app')" title="คัดลอก Code.gs ไปวางใน Google Apps Script"><i class="fa-solid fa-copy"></i> คัดลอก</button>
+          </div>
+        </div>
+        <h3 class="lab-title">15. วงจรกรองความถี่ต่ำและความถี่สูงแบบพาสซีฟ (Passive RC Filters)</h3>
+        <p class="lab-desc">ศึกษาการตอบสนองความถี่ของวงจร RC LPF & HPF, คำนวณความถี่คัทออฟ -3dB (fc), วิเคราะห์แบนด์วิดท์, กราฟ Bode Plot และสังเกตมุมเลื่อนเฟสบนออสซิลโลสโคป</p>
+        <span class="lab-btn">เข้าห้องทดลอง 🔬</span>
+      </a>
     </div>
   </main>
 
@@ -736,6 +752,11 @@
     "id": "elab-power-amp-sheets-app",
     "num": "14",
     "name": "วงจรขยายกำลังและวงจรกันชน"
+  },
+  {
+    "id": "elab-passive-filter-sheets-app",
+    "num": "15",
+    "name": "วงจรกรองความถี่ต่ำและความถี่สูงแบบพาสซีฟ"
   }
 ];
 
