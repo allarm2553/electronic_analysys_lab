@@ -89,7 +89,7 @@ let score = 0;
 
   let t1Pass = 0;
   if (data.part1Rows) {
-    data.part1Rows.forEach(r => { if (r.deflect && r.deflect !== '') t1Pass++; });
+    data.part1Rows.forEach(r => { if (r.deflect && r.deflect !== '' && r.deflect !== '0' && r.deflect !== 'inf') t1Pass++; });
   }
   let t1Score = t1Pass >= 5 ? 1 : (t1Pass >= 3 ? 0.5 : 0);
   score += t1Score;
@@ -97,7 +97,7 @@ let score = 0;
 
   let t2Pass = 0;
   if (data.part2Rows) {
-    data.part2Rows.forEach(r => { if (r.deflect && r.deflect !== '') t2Pass++; });
+    data.part2Rows.forEach(r => { if (r.deflect && r.deflect !== '' && r.deflect !== '0' && r.deflect !== 'inf') t2Pass++; });
   }
   let t2Score = t2Pass >= 5 ? 1 : (t2Pass >= 3 ? 0.5 : 0);
   score += t2Score;
@@ -105,18 +105,18 @@ let score = 0;
 
   let t3Pass = 0;
   if (data.part3Rows) {
-    data.part3Rows.forEach(r => { if (r.deflect && r.deflect !== '') t3Pass++; });
+    data.part3Rows.forEach(r => { if (r.deflect && r.deflect !== '' && r.deflect !== '0' && r.deflect !== 'inf') t3Pass++; });
   }
   let t3Score = t3Pass >= 5 ? 2 : (t3Pass >= 3 ? 1 : 0);
   score += t3Score;
   feedback.push(`[ตอนที่ 3] ตารางที่ 3 (ทดสอบทริกเกต): ได้ ${t3Score} / 2 คะแนน (กรอกข้อมูล ${t3Pass}/6 แถว)`);
 
   let pinScore = 0;
-  if (data.ansPin1 === 'Gate' || data.ansPin1 === '1') pinScore += 0.5;
-  if (data.ansPin2 === 'Drain' || data.ansPin2 === '2') pinScore += 0.5;
-  if (data.ansPin3 === 'Source' || data.ansPin3 === '3') pinScore += 0.5;
-  if (data.ansModel1Type === 'N-Channel' || data.ansModel1Type === 'N-Ch') pinScore += 0.25;
-  if (data.ansModel2Type === 'P-Channel' || data.ansModel2Type === 'P-Ch') pinScore += 0.25;
+  if (data.ansPin1 && data.ansPin1 !== '0' && (data.ansPin1 === 'Gate' || data.ansPin1 === '1' || data.ansPin1.toUpperCase() === 'G')) pinScore += 0.5;
+  if (data.ansPin2 && data.ansPin2 !== '0' && (data.ansPin2 === 'Drain' || data.ansPin2 === '2' || data.ansPin2.toUpperCase() === 'D')) pinScore += 0.5;
+  if (data.ansPin3 && data.ansPin3 !== '0' && (data.ansPin3 === 'Source' || data.ansPin3 === '3' || data.ansPin3.toUpperCase() === 'S')) pinScore += 0.5;
+  if (data.ansModel1Type && data.ansModel1Type !== '0' && (data.ansModel1Type === 'N-Channel' || data.ansModel1Type === 'N-Ch' || data.ansModel1Type === 'n-ch')) pinScore += 0.25;
+  if (data.ansModel2Type && data.ansModel2Type !== '0' && (data.ansModel2Type === 'P-Channel' || data.ansModel2Type === 'P-Ch' || data.ansModel2Type === 'p-ch')) pinScore += 0.25;
   let p4Score = Math.round(pinScore);
   score += p4Score;
   feedback.push(`[ตอนที่ 4] สรุปขาและชนิดสาร MOSFET: ได้ ${p4Score} / 2 คะแนน`);
@@ -140,10 +140,10 @@ let score = 0;
 
       score += qScore;
       feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
-      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
 
 

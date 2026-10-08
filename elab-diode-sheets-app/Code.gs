@@ -122,36 +122,40 @@ function gradeWorksheet(data) {
   const rFwdStr = (data.rForward || '').toString().trim();
   const rFwd = parseFloat(rFwdStr);
   let rFwdCorrect = false;
-  if (cond === 'good') {
-    if (isHardware) {
-      if (isSchottky) {
-        if ((rFwd >= 10 && rFwd <= 300) || (rFwd >= 0.20 && rFwd <= 0.55)) rFwdCorrect = true;
+  if (rFwdStr !== '') {
+    if (cond === 'good') {
+      if (isHardware) {
+        if (isSchottky) {
+          if ((rFwd >= 10 && rFwd <= 300) || (rFwd >= 0.20 && rFwd <= 0.55)) rFwdCorrect = true;
+        } else {
+          if ((rFwd >= 20 && rFwd <= 500) || (rFwd >= 0.40 && rFwd <= 0.85)) rFwdCorrect = true;
+        }
       } else {
-        if ((rFwd >= 20 && rFwd <= 500) || (rFwd >= 0.40 && rFwd <= 0.85)) rFwdCorrect = true;
+        if (isSchottky) {
+          if (rFwd >= 50 && rFwd <= 110) rFwdCorrect = true;
+        } else {
+          if (rFwd >= 100 && rFwd <= 200) rFwdCorrect = true;
+        }
       }
-    } else {
-      if (isSchottky) {
-        if (rFwd >= 50 && rFwd <= 110) rFwdCorrect = true;
-      } else {
-        if (rFwd >= 100 && rFwd <= 200) rFwdCorrect = true;
-      }
+    } else if (cond === 'open') {
+      if (rFwdStr === '∞' || isNaN(rFwd) || rFwd > 50000) rFwdCorrect = true;
+    } else if (cond === 'short') {
+      if (rFwd >= 0 && rFwd <= (isHardware ? 10 : 5)) rFwdCorrect = true;
     }
-  } else if (cond === 'open') {
-    if (rFwdStr === '' || rFwdStr === '∞' || isNaN(rFwd) || rFwd > 50000) rFwdCorrect = true;
-  } else if (cond === 'short') {
-    if (rFwd >= 0 && rFwd <= (isHardware ? 10 : 5)) rFwdCorrect = true;
   }
 
   const rRevStr = (data.rReverse || '').toString().trim();
   const rRev = parseFloat(rRevStr);
   let rRevCorrect = false;
-  if (cond === 'good' || cond === 'open') {
-    if (rRevStr === '' || rRevStr === '∞' || isNaN(rRev) || rRev > 50000) rRevCorrect = true;
-  } else if (cond === 'short') {
-    if (rRev >= 0 && rRev <= (isHardware ? 10 : 5)) rRevCorrect = true;
+  if (rRevStr !== '') {
+    if (cond === 'good' || cond === 'open') {
+      if (rRevStr === '∞' || isNaN(rRev) || rRev > 50000) rRevCorrect = true;
+    } else if (cond === 'short') {
+      if (rRev >= 0 && rRev <= (isHardware ? 10 : 5)) rRevCorrect = true;
+    }
   }
 
-  const statusCorrect = (data.diodeStatus === cond);
+  const statusCorrect = (data.diodeStatus && data.diodeStatus !== '' && data.diodeStatus === cond);
 
   let p1CorrectCount = 0;
   if (rFwdCorrect) p1CorrectCount++;
@@ -163,9 +167,10 @@ function gradeWorksheet(data) {
 
   // --- PART 2: CIRCUIT TESTING (4 Points) ---
   let expectedLed = (dir === 'forward' && cond === 'good') ? 'on' : 'off';
-  const ledCorrect = (data.ledState === expectedLed);
+  const ledCorrect = (data.ledState && data.ledState !== '' && data.ledState === expectedLed);
 
-  const vD = parseFloat(data.vD) || 0;
+  const vdStr = (data.vD || '').toString().trim();
+  const vD = parseFloat(vdStr);
   let expectedVD = 0;
   if (cond === 'good') {
     if (isSchottky) {
@@ -177,35 +182,40 @@ function gradeWorksheet(data) {
   else if (cond === 'open') expectedVD = 5.0;
   else if (cond === 'short') expectedVD = 0.0;
   const tolVD = isHardware ? 0.50 : 0.35;
-  const vdCorrect = Math.abs(vD - expectedVD) <= tolVD;
+  const vdCorrect = (vdStr !== '' && !isNaN(vD) && Math.abs(vD - expectedVD) <= tolVD);
 
-  const vR = parseFloat(data.vR) || 0;
+  const vrStr = (data.vR || '').toString().trim();
+  const vR = parseFloat(vrStr);
   let expectedVR = 0;
   if (cond === 'good') expectedVR = (dir === 'forward') ? (isSchottky ? 2.75 : 2.40) : 0.0;
   else if (cond === 'open') expectedVR = 0.0;
   else if (cond === 'short') expectedVR = (dir === 'forward') ? 3.05 : 0.0;
   const tolVR = isHardware ? 1.05 : 0.70;
-  const vrCorrect = Math.abs(vR - expectedVR) <= tolVR;
+  const vrCorrect = (vrStr !== '' && !isNaN(vR) && Math.abs(vR - expectedVR) <= tolVR);
 
-  const vLed = parseFloat(data.vLed) || 0;
+  const vledStr = (data.vLed || '').toString().trim();
+  const vLed = parseFloat(vledStr);
   let expectedVLED = (dir === 'forward' && (cond === 'good' || cond === 'short')) ? 1.95 : 0.0;
   const tolVLED = isHardware ? 0.65 : 0.50;
-  const vledCorrect = Math.abs(vLed - expectedVLED) <= tolVLED;
+  const vledCorrect = (vledStr !== '' && !isNaN(vLed) && Math.abs(vLed - expectedVLED) <= tolVLED);
 
-  const vSum = parseFloat(data.vSum) || 0;
+  const vsumStr = (data.vSum || '').toString().trim();
+  const vSum = parseFloat(vsumStr);
   const tolVSum = isHardware ? 0.75 : 0.50;
   const tolKVL = isHardware ? 0.40 : 0.25;
-  const kvlCorrect = Math.abs(vSum - 5.0) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= tolKVL;
+  const kvlCorrect = (vsumStr !== '' && !isNaN(vSum) && Math.abs(vSum - 5.0) <= tolVSum && Math.abs(vSum - (vD + vR + vLed)) <= tolKVL);
 
-  const iCalc = parseFloat(data.iCalc) || 0;
+  const icalcStr = (data.iCalc || '').toString().trim();
+  const iCalc = parseFloat(icalcStr);
   const rVal = (isHardware && data.hwR1Measured) ? parseFloat(data.hwR1Measured) : 1000;
   const expectedICalc = (vR / rVal) * 1000; // mA
   const tolICalc = isHardware ? 0.35 : 0.20;
-  const icalcCorrect = Math.abs(iCalc - expectedICalc) <= tolICalc;
+  const icalcCorrect = (icalcStr !== '' && !isNaN(iCalc) && vrStr !== '' && Math.abs(iCalc - expectedICalc) <= tolICalc);
 
-  const iMeas = parseFloat(data.iMeas) || 0;
+  const imeasStr = (data.iMeas || '').toString().trim();
+  const iMeas = parseFloat(imeasStr);
   const tolIMeas = isHardware ? 0.85 : 0.50;
-  const imeasCorrect = Math.abs(iMeas - expectedICalc) <= tolIMeas;
+  const imeasCorrect = (imeasStr !== '' && !isNaN(iMeas) && vrStr !== '' && Math.abs(iMeas - expectedICalc) <= tolIMeas);
 
   let p2ItemCorrect = 0;
   if (ledCorrect) p2ItemCorrect++;
@@ -239,12 +249,11 @@ function gradeWorksheet(data) {
       if (q4Ok) qScore++;
 
       score += qScore;
-      feedback.push(`
-[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
-      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
   if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
