@@ -2734,6 +2734,12 @@
       overlay.style.display = 'flex';
     }
 
+    function closeModal() {
+      const overlay = document.getElementById('submission-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+    window.closeModal = closeModal;
+
     function confirmSubmitFromPreview() {
       closeModal();
       submitReportToGAS();

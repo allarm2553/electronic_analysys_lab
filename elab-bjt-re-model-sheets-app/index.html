@@ -2583,16 +2583,23 @@
       overlay.style.display = 'flex';
     }
 
+    function closeModal() {
+      const overlay = document.getElementById('submission-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+    window.closeModal = closeModal;
+
     function confirmSubmitFromPreview() {
       closeModal();
       submitReportToGAS();
     }
+    window.confirmSubmitFromPreview = confirmSubmitFromPreview;
 
     // --- SUBMISSION & AUTO-GRADING HANDLER ---
     function submitReportToGAS() {
-      const payload = getWorksheetPayload();
+      const data = getWorksheetPayload();
 
-      if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
+      if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
         alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');
         switchTab('tab-worksheet');
         document.getElementById('student-name')?.focus();
@@ -2601,60 +2608,147 @@
 
       // Show Loading Modal
       const overlay = document.getElementById('submission-overlay');
-      const card = overlay.querySelector('.card');
+      const card = overlay?.querySelector('.card');
       const spinner = document.getElementById('modal-spinner');
       const title = document.getElementById('modal-title');
       const body = document.getElementById('modal-body');
       const closeBtn = document.getElementById('modal-close-btn');
       const confirmBtn = document.getElementById('modal-confirm-submit-btn');
 
-      card.style.borderColor = 'var(--accent-cyan)';
-      card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
-      overlay.style.display = 'flex';
-      spinner.style.display = 'block';
-      title.innerText = '🚀 กำลังส่งใบงานและตรวจคำตอบ...';
-      title.style.color = 'var(--accent-cyan)';
-      body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...';
-      closeBtn.style.display = 'none';
+      if (card) {
+        card.style.borderColor = 'var(--accent-cyan)';
+        card.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.35)';
+      }
+      if (overlay) overlay.style.display = 'flex';
+      if (spinner) spinner.style.display = 'block';
+      if (title) {
+        title.innerText = '🚀 กำลังส่งใบงานและตรวจคำตอบ...';
+        title.style.color = 'var(--accent-cyan)';
+      }
+      if (body) body.innerHTML = 'ระบบกำลังส่งข้อมูลไปยัง Google Apps Script และประมวลผลคะแนนอัตโนมัติ...';
+      if (closeBtn) closeBtn.style.display = 'none';
       if (confirmBtn) confirmBtn.style.display = 'none';
 
       // Check if running inside Google Apps Script
       if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run
-      .withSuccessHandler(onSuccessGrading)
-      .withFailureHandler(onFailureGrading)
-      .submitWorksheet(data);
-  } else {
-    const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
-    if (endpointUrl && endpointUrl.startsWith('http')) {
-      fetch(endpointUrl, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(data)
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res && (res.status === 'success' || res.score !== undefined)) {
-          onSuccessGrading(res);
+        google.script.run
+          .withSuccessHandler(onSuccessGrading)
+          .withFailureHandler(onFailureGrading)
+          .submitWorksheet(data);
+      } else {
+        const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
+        if (endpointUrl && endpointUrl.startsWith('http')) {
+          fetch(endpointUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(data)
+          })
+          .then(r => r.json())
+          .then(res => {
+            if (res && (res.status === 'success' || res.score !== undefined)) {
+              onSuccessGrading(res);
+            } else {
+              throw new Error(res.message || 'Error recording submission');
+            }
+          })
+          .catch(err => {
+            console.warn('GAS Fetch failed, falling back to local simulation:', err);
+            const localRes = localGradeSimulator(data);
+            localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
+            onSuccessGrading(localRes);
+          });
         } else {
-          throw new Error(res.message || 'Error recording submission');
+          setTimeout(() => {
+            const localRes = localGradeSimulator(data);
+            onSuccessGrading(localRes);
+          }, 800);
         }
-      })
-      .catch(err => {
-        console.warn('GAS Fetch failed, falling back to local simulation:', err);
-        const localRes = localGradeSimulator(data);
-        localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
-        onSuccessGrading(localRes);
-      });
-    } else {
-      setTimeout(() => {
-        const localRes = localGradeSimulator(data);
-        onSuccessGrading(localRes);
-      }, 800);
+      }
     }
-  }
-}
+
+    function onSuccessGrading(res) {
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay?.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
+
+      if (!overlay || !body) return;
+
+      if (spinner) spinner.style.display = 'none';
+      if (confirmBtn) confirmBtn.style.display = 'none';
+      if (closeBtn) {
+        closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
+        closeBtn.style.display = 'inline-block';
+      }
+
+      if (!res || res.status === 'error') {
+        onFailureGrading(res ? (res.message || 'เกิดข้อผิดพลาดในการประมวลผล') : 'ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์');
+        return;
+      }
+
+      if (card) {
+        card.style.borderColor = 'var(--accent-green)';
+        card.style.boxShadow = '0 0 35px rgba(16, 185, 129, 0.35)';
+      }
+      if (title) {
+        title.innerText = '🎉 ตรวจใบงานและบันทึกข้อมูลคะแนนสำเร็จ!';
+        title.style.color = 'var(--accent-green)';
+      }
+
+      const formattedFeedback = (res.feedback || '').replace(/\n/g, '<br>');
+      body.innerHTML = `
+        <div style="text-align: left; background: rgba(15,23,42,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin: 15px 0;">
+          <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: var(--text-main);">
+            คะแนนสอบ: <span style="font-size: 24px; color: var(--accent-green);">${res.score}</span> / ${res.maxScore || 10}
+          </p>
+          <p style="font-size: 14px; font-weight: bold; margin-bottom: 15px; color: var(--text-muted);">
+            ผลประเมินสรุป: <span style="color: var(--accent-cyan);">${res.comment || '-'}</span>
+          </p>
+          <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 15px;">
+          <p style="font-size: 13px; font-weight: bold; color: var(--accent-cyan); margin-bottom: 8px;">ผลวิเคราะห์คะแนน:</p>
+          <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto;">${formattedFeedback}</div>
+        </div>
+        <p style="font-size: 13px; font-family: 'Sarabun', sans-serif; color: var(--accent-green); font-weight: bold;">✓ บันทึกผลการทดลองสำเร็จแล้ว!</p>
+      `;
+    }
+    window.onSuccessGrading = onSuccessGrading;
+
+    function onFailureGrading(error) {
+      const overlay = document.getElementById('submission-overlay');
+      const card = overlay?.querySelector('.card');
+      const spinner = document.getElementById('modal-spinner');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      const closeBtn = document.getElementById('modal-close-btn');
+      const confirmBtn = document.getElementById('modal-confirm-submit-btn');
+
+      if (!overlay || !body) return;
+
+      if (card) {
+        card.style.borderColor = 'var(--accent-red)';
+        card.style.boxShadow = '0 0 35px rgba(239, 68, 68, 0.35)';
+      }
+      if (spinner) spinner.style.display = 'none';
+      if (confirmBtn) confirmBtn.style.display = 'none';
+      if (title) {
+        title.innerText = '❌ เกิดข้อผิดพลาดในการส่งข้อมูล';
+        title.style.color = 'var(--accent-red)';
+      }
+
+      body.innerHTML = `
+        <div style="color: var(--accent-red); margin: 15px 0;">${error || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'}</div>
+        <p style="font-size: 13px; font-family: 'Sarabun', sans-serif; color: var(--text-muted);">กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต และลองใหม่อีกครั้ง</p>
+      `;
+      if (closeBtn) {
+        closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
+        closeBtn.style.display = 'inline-block';
+      }
+    }
+    window.onFailureGrading = onFailureGrading;
   // ========================================================
   // ANTI-CHEAT & PLAGIARISM PREVENTION SYSTEM
   // Blocks Copy/Paste/Drop on questions & conclusion textareas
