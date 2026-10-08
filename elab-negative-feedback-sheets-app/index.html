@@ -612,6 +612,37 @@
       box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
     }
 
+    .btn-secondary {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+      color: #fff;
+    }
+
+    @media print {
+      .no-print, nav, .tab-nav, .sidebar, .btn-fetch, .card-footer-action {
+        display: none !important;
+      }
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .tab-content {
+        display: block !important;
+      }
+      .card {
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+        color: #000 !important;
+        break-inside: avoid;
+        margin-bottom: 20px !important;
+      }
+    }
+
     /* Question Radio Items */
     .quiz-card {
       background: rgba(15, 23, 42, 0.6);
@@ -1335,8 +1366,17 @@
           </div>
         </div>
 
-        <div style="text-align: center; margin-top: 15px;">
-          <button class="btn btn-primary" onclick="switchTab('tab-assessment')">
+        <div class="card-footer-action no-print" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">
+            🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="printReport()">
+            🖨️ พิมพ์ใบงาน PDF
+          </button>
+          <button type="button" class="btn btn-secondary" style="border-color: var(--accent-yellow, #f59e0b); color: var(--accent-yellow, #f59e0b); font-weight: bold;" onclick="previewScoreBeforeSubmit()">
+            🔍 ตรวจคะแนนก่อนส่ง
+          </button>
+          <button type="button" class="btn btn-primary" onclick="switchTab('tab-assessment')">
             ไปทำคำถามท้ายแล็บและสรุปผล ❓ <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
@@ -1460,12 +1500,18 @@
           </p>
           <textarea id="lab-conclusion" placeholder="เขียนสรุปผลการทดลอง เช่น จากการทดลองพบว่าเมื่อต่อลูปป้อนกลับลบ อัตราขยายวงปิด Af จะลดลงเหลือประมาณ 1/beta แต่ส่งผลให้แบนด์วิดท์ขยายกว้างขึ้นเป็น (1+A*beta) เท่า..."></textarea>
 
-          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="previewScoreBeforeSubmit()">
-              <i class="fa-solid fa-magnifying-glass"></i> ตรวจสอบคะแนนก่อนส่ง (Score Preview)
+          <div class="card-footer-action no-print" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">
+              🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)
             </button>
-            <button class="btn btn-success" onclick="submitReportToGAS()">
-              <i class="fa-solid fa-paper-plane"></i> ส่งใบงานและบันทึกคะแนน (Submit to Sheets)
+            <button type="button" class="btn btn-secondary" onclick="printReport()">
+              🖨️ พิมพ์ใบงาน PDF
+            </button>
+            <button type="button" class="btn btn-secondary" style="border-color: var(--accent-yellow, #f59e0b); color: var(--accent-yellow, #f59e0b); font-weight: bold;" onclick="previewScoreBeforeSubmit()">
+              🔍 ตรวจสอบคะแนนก่อนส่ง
+            </button>
+            <button type="button" class="btn btn-primary" onclick="submitReportToGAS()">
+              🚀 ส่งใบงานและตรวจคะแนน
             </button>
           </div>
         </div>
@@ -2180,19 +2226,90 @@ function previewScoreBeforeSubmit() {
         ${res.feedback.join('\n')}
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px;">
-        <button class="btn btn-chip" onclick="document.getElementById('grading-modal').style.display='none'">ปิดหน้าต่าง</button>
-        <button class="btn btn-success" onclick="document.getElementById('grading-modal').style.display='none'; submitReportToGAS();">ส่งใบงานจริง 🚀</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('grading-modal').style.display='none'">✏️ กลับไปแก้ไขคำตอบ</button>
+        <button class="btn btn-primary" onclick="document.getElementById('grading-modal').style.display='none'; submitReportToGAS();">🚀 ยืนยันส่งใบงานจริง</button>
       </div>
     </div>
   `;
   modal.style.display = 'flex';
 }
 
+function printReport() {
+  const name = (document.getElementById('student-name')?.value || '').trim();
+  const id = (document.getElementById('student-id')?.value || '').trim();
+  if (!name || !id) {
+    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
+    if (!confirmPrint) {
+      if (typeof switchTab === 'function') switchTab('tab-worksheet');
+      document.getElementById('student-name')?.focus();
+      return;
+    }
+  }
+  window.print();
+}
+window.printReport = printReport;
+
+function resetWorksheetForNewUser() {
+  const confirmMsg = "⚠️ ยืนยันการเริ่มทำใบงานใหม่สำหรับผู้ใช้อื่น?\n\n" +
+    "• ระบบจะปลดล็อกและเคลียร์ข้อมูลในใบงานทั้งหมด เพื่อให้นักศึกษาคนถัดไปเข้าใช้งาน\n" +
+    "• คะแนนและข้อมูลที่ส่งไปแล้วของนักศึกษาคนเดิมยังคงถูกบันทึกไว้อย่างปลอดภัยใน Google Sheets\n" +
+    "• หากยังไม่ได้บันทึกผลงาน กรุณากด 'Cancel' แล้วกด '🖨️ พิมพ์รายงาน / บันทึก PDF' ก่อน";
+  
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const worksheetTab = document.getElementById('tab-worksheet');
+  const assessmentTab = document.getElementById('tab-assessment');
+  const targetTabs = [worksheetTab, assessmentTab].filter(Boolean);
+
+  targetTabs.forEach(tab => {
+    tab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = false;
+      el.readOnly = false;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+        el.dispatchEvent(new Event('change'));
+      } else if (el.id === 'lab-date') {
+        try {
+          el.value = new Date().toISOString().split('T')[0];
+        } catch (e) {
+          el.value = '';
+        }
+      } else {
+        el.value = '';
+      }
+    });
+  });
+
+  ['student-id', 'student-name', 'student-group'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  if (studentId) {
+    localStorage.removeItem('elab-negative-feedback-sheets-app_submitted_' + studentId);
+  }
+
+  alert("✅ เคลียร์ข้อมูลเรียบร้อยแล้ว พร้อมสำหรับนักศึกษาคนถัดไป");
+  if (typeof switchTab === 'function') switchTab('tab-worksheet');
+  document.getElementById('student-name')?.focus();
+}
+window.resetWorksheetForNewUser = resetWorksheetForNewUser;
+
 function submitReportToGAS() {
   const data = getWorksheetPayload();
   if (!data.studentName || !data.studentId) {
     alert('⚠️ กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษาก่อนส่งใบงาน!');
     switchTab('tab-worksheet');
+    document.getElementById('student-name')?.focus();
     return;
   }
 
