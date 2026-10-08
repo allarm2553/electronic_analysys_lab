@@ -108,21 +108,28 @@ function gradeWorksheet(data) {
       feedback.push(`[โหมดการทดลอง]: ${mode === 'custom' ? 'โหมดกำหนดค่าเอง (Custom)' : 'โหมดค่ามาตรฐาน (Fixed)'}`);
 
       // Part 1: DC & re (3 pts)
-      const sVb = parseFloat(data.dc_vb) || 0;
-      const sVe = parseFloat(data.dc_ve) || 0;
-      const sVc = parseFloat(data.dc_vc) || 0;
-      const sVce = parseFloat(data.dc_vce) || 0;
-      const sIe = parseFloat(data.dc_ie) || 0;
-      const sRe = parseFloat(data.dc_re) || 0;
+      const sVb_str = (data.dc_vb !== undefined ? data.dc_vb : '').toString().trim();
+      const sVe_str = (data.dc_ve !== undefined ? data.dc_ve : '').toString().trim();
+      const sVc_str = (data.dc_vc !== undefined ? data.dc_vc : '').toString().trim();
+      const sVce_str = (data.dc_vce !== undefined ? data.dc_vce : '').toString().trim();
+      const sIe_str = (data.dc_ie !== undefined ? data.dc_ie : '').toString().trim();
+      const sRe_str = (data.dc_re !== undefined ? data.dc_re : '').toString().trim();
 
-      const vbOk = Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15);
-      const veOk = Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
-      const vcOk = Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
-      const vceOk = Math.abs(sVce - Vce) <= Math.max(0.70, Math.abs(Vce) * 0.15) || Math.abs(sVce - (sVc - sVe)) <= 0.35;
-      const ieOk = Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+      const sVb = parseFloat(sVb_str) || 0;
+      const sVe = parseFloat(sVe_str) || 0;
+      const sVc = parseFloat(sVc_str) || 0;
+      const sVce = parseFloat(sVce_str) || 0;
+      const sIe = parseFloat(sIe_str) || 0;
+      const sRe = parseFloat(sRe_str) || 0;
 
-      let studentImpliedRe = sIe > 0 ? (26.0 / sIe) : re_calc;
-      const reOk = Math.abs(sRe - re_calc) <= Math.max(3.0, re_calc * 0.20) || Math.abs(sRe - studentImpliedRe) <= Math.max(2.5, studentImpliedRe * 0.18);
+      const vbOk = sVb_str !== '' && (Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15));
+      const veOk = sVe_str !== '' && Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
+      const vcOk = sVc_str !== '' && Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
+      const vceOk = sVce_str !== '' && (Math.abs(sVce - Vce) <= Math.max(0.70, Math.abs(Vce) * 0.15) || Math.abs(sVce - (sVc - sVe)) <= 0.35);
+      const ieOk = sIe_str !== '' && Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+
+      let studentImpliedRe = (sIe_str !== '' && sIe > 0) ? (26.0 / sIe) : re_calc;
+      const reOk = sRe_str !== '' && (Math.abs(sRe - re_calc) <= Math.max(3.0, re_calc * 0.20) || Math.abs(sRe - studentImpliedRe) <= Math.max(2.5, studentImpliedRe * 0.18));
 
       let dcVoltagesScore = (vbOk && veOk && vcOk && vceOk) ? 1 : 0;
       let dcCurrentScore = ieOk ? 1 : 0;
@@ -139,24 +146,32 @@ function gradeWorksheet(data) {
       else feedback.push(`  ✗ ค่าความต้านทานไดนามิก re: คลาดเคลื่อนจากเกณฑ์`);
 
       // Part 2: AC Performance (Bypassed & Unbypassed) (3 pts)
-      const sAv_byp = Math.abs(parseFloat(data.ac_av_bypassed) || 0);
-      const sZi_byp = parseFloat(data.ac_zi_bypassed) || 0;
-      const sPhase_byp = parseInt(data.ac_phase_bypassed) || 0;
-      const avBypOk = sAv_byp >= (Av_bypassed * 0.70) && sAv_byp <= (Av_bypassed * 1.30);
+      const sAv_byp_str = (data.ac_av_bypassed !== undefined ? data.ac_av_bypassed : '').toString().trim();
+      const sZi_byp_str = (data.ac_zi_bypassed !== undefined ? data.ac_zi_bypassed : '').toString().trim();
+      const sPhase_byp_str = (data.ac_phase_bypassed !== undefined ? data.ac_phase_bypassed : '').toString().trim();
+
+      const sAv_unbyp_str = (data.ac_av_unbypassed !== undefined ? data.ac_av_unbypassed : '').toString().trim();
+      const sZi_unbyp_str = (data.ac_zi_unbypassed !== undefined ? data.ac_zi_unbypassed : '').toString().trim();
+      const sPhase_unbyp_str = (data.ac_phase_unbypassed !== undefined ? data.ac_phase_unbypassed : '').toString().trim();
+
+      const sAv_byp = Math.abs(parseFloat(sAv_byp_str) || 0);
+      const sZi_byp = parseFloat(sZi_byp_str) || 0;
+      const sPhase_byp = sPhase_byp_str !== '' ? parseInt(sPhase_byp_str) : null;
+      const avBypOk = sAv_byp_str !== '' && sAv_byp >= (Av_bypassed * 0.70) && sAv_byp <= (Av_bypassed * 1.30);
       const ziByp_k = sZi_byp > 50 ? sZi_byp / 1000 : sZi_byp;
-      const ziBypOk = Math.abs(ziByp_k - (Zi_bypassed/1000)) <= Math.max(0.6, (Zi_bypassed/1000) * 0.40);
-      const phaseBypOk = sPhase_byp === 180;
+      const ziBypOk = sZi_byp_str !== '' && Math.abs(ziByp_k - (Zi_bypassed/1000)) <= Math.max(0.6, (Zi_bypassed/1000) * 0.40);
+      const phaseBypOk = sPhase_byp_str !== '' && sPhase_byp === 180;
 
-      const sAv_unbyp = Math.abs(parseFloat(data.ac_av_unbypassed) || 0);
-      const sZi_unbyp = parseFloat(data.ac_zi_unbypassed) || 0;
-      const sPhase_unbyp = parseInt(data.ac_phase_unbypassed) || 0;
-      const avUnbypOk = sAv_unbyp >= (Av_unbypassed * 0.70) && sAv_unbyp <= (Av_unbypassed * 1.30);
+      const sAv_unbyp = Math.abs(parseFloat(sAv_unbyp_str) || 0);
+      const sZi_unbyp = parseFloat(sZi_unbyp_str) || 0;
+      const sPhase_unbyp = sPhase_unbyp_str !== '' ? parseInt(sPhase_unbyp_str) : null;
+      const avUnbypOk = sAv_unbyp_str !== '' && sAv_unbyp >= (Av_unbypassed * 0.70) && sAv_unbyp <= (Av_unbypassed * 1.30);
       const ziUnbyp_k = sZi_unbyp > 50 ? sZi_unbyp / 1000 : sZi_unbyp;
-      const ziUnbypOk = Math.abs(ziUnbyp_k - (Zi_unbypassed/1000)) <= Math.max(0.6, (Zi_unbypassed/1000) * 0.40);
-      const phaseUnbypOk = sPhase_unbyp === 180;
+      const ziUnbypOk = sZi_unbyp_str !== '' && Math.abs(ziUnbyp_k - (Zi_unbypassed/1000)) <= Math.max(0.6, (Zi_unbypassed/1000) * 0.40);
+      const phaseUnbypOk = sPhase_unbyp_str !== '' && sPhase_unbyp === 180;
 
-      let bypScore = (avBypOk ? 0.5 : 0) + (ziBypOk ? 0.5 : 0) + (phaseBypOk ? 0.5 : 0);
-      let unbypScore = (avUnbypOk ? 0.5 : 0) + (ziUnbypOk ? 0.5 : 0) + (phaseUnbypOk ? 0.5 : 0);
+      let bypScore = (avBypOk ? 0.5 : 0) + (ziBypOk ? 0.5 : 0) + ((phaseBypOk && (avBypOk || ziBypOk)) ? 0.5 : 0);
+      let unbypScore = (avUnbypOk ? 0.5 : 0) + (ziUnbypOk ? 0.5 : 0) + ((phaseUnbypOk && (avUnbypOk || ziUnbypOk)) ? 0.5 : 0);
       let part2Score = Math.round(bypScore + unbypScore);
       score += part2Score;
 
