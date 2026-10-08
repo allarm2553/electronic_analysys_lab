@@ -108,22 +108,29 @@ let score = 0;
       feedback.push(`[ระบบโหมดการทดลอง]: ${modeLabel}`);
 
       // Part 1: DC & h-parameters
-      const sVb = parseFloat(data.dc_vb) || 0;
-      const sVe = parseFloat(data.dc_ve) || 0;
-      const sVc = parseFloat(data.dc_vc) || 0;
-      const sIe = parseFloat(data.dc_ie) || 0;
-      const sHfe = parseFloat(data.h_fe) || 0;
-      const sHie = parseFloat(data.h_ie) || 0;
+      const sVb_str = (data.dc_vb !== undefined ? data.dc_vb : '').toString().trim();
+      const sVe_str = (data.dc_ve !== undefined ? data.dc_ve : '').toString().trim();
+      const sVc_str = (data.dc_vc !== undefined ? data.dc_vc : '').toString().trim();
+      const sIe_str = (data.dc_ie !== undefined ? data.dc_ie : '').toString().trim();
+      const sHfe_str = (data.h_fe !== undefined ? data.h_fe : '').toString().trim();
+      const sHie_str = (data.h_ie !== undefined ? data.h_ie : '').toString().trim();
 
-      const vbOk = Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15);
-      const veOk = Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
-      const vcOk = Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
-      const ieOk = Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+      const sVb = parseFloat(sVb_str) || 0;
+      const sVe = parseFloat(sVe_str) || 0;
+      const sVc = parseFloat(sVc_str) || 0;
+      const sIe = parseFloat(sIe_str) || 0;
+      const sHfe = parseFloat(sHfe_str) || 0;
+      const sHie = parseFloat(sHie_str) || 0;
 
-      const hfeOk = Math.abs(sHfe - hfe_calc) <= Math.max(30, hfe_calc * 0.20);
+      const vbOk = sVb_str !== '' && (Math.abs(sVb - Vb) <= Math.max(0.35, Vb * 0.15) || Math.abs(sVb - Vth) <= Math.max(0.35, Vth * 0.15));
+      const veOk = sVe_str !== '' && Math.abs(sVe - Ve) <= Math.max(0.35, Ve * 0.15);
+      const vcOk = sVc_str !== '' && Math.abs(sVc - Vc) <= Math.max(0.60, Vc * 0.15);
+      const ieOk = sIe_str !== '' && Math.abs(sIe - Ie_mA) <= Math.max(0.40, Ie_mA * 0.18);
+
+      const hfeOk = sHfe_str !== '' && Math.abs(sHfe - hfe_calc) <= Math.max(30, hfe_calc * 0.20);
       const studentHie_k = sHie > 50 ? sHie / 1000 : sHie;
-      const studentCalculatedHie_k = (sIe > 0 && sHfe > 0) ? (sHfe * 26.0 / sIe / 1000) : hie_k;
-      const hieOk = Math.abs(studentHie_k - hie_k) <= Math.max(0.45, hie_k * 0.25) || Math.abs(studentHie_k - studentCalculatedHie_k) <= Math.max(0.35, studentCalculatedHie_k * 0.20);
+      const studentCalculatedHie_k = (sIe_str !== '' && sIe > 0 && sHfe_str !== '' && sHfe > 0) ? (sHfe * 26.0 / sIe / 1000) : hie_k;
+      const hieOk = sHie_str !== '' && (Math.abs(studentHie_k - hie_k) <= Math.max(0.45, hie_k * 0.25) || Math.abs(studentHie_k - studentCalculatedHie_k) <= Math.max(0.35, studentCalculatedHie_k * 0.20));
 
       let dcScore = (vbOk && veOk && vcOk && ieOk) ? 1 : 0;
       let hfeScore = hfeOk ? 1 : 0;
@@ -140,32 +147,37 @@ let score = 0;
       else feedback.push(`  ✗ ค่าความต้านทานอินพุต hie: คลาดเคลื่อนจากเกณฑ์`);
 
       // Part 2: AC Performance via h-Model
-      const sAv = Math.abs(parseFloat(data.ac_av) || 0);
-      const sZi = parseFloat(data.ac_zi) || 0;
-      const sZo = parseFloat(data.ac_zo) || 0;
-      const sPhase = parseInt(data.ac_phase) || 0;
+      const sAv_str = (data.ac_av !== undefined ? data.ac_av : '').toString().trim();
+      const sZi_str = (data.ac_zi !== undefined ? data.ac_zi : '').toString().trim();
+      const sZo_str = (data.ac_zo !== undefined ? data.ac_zo : '').toString().trim();
+      const sPhase_str = (data.ac_phase !== undefined ? data.ac_phase : '').toString().trim();
 
-      const avOk = sAv >= (Av_calc * 0.70) && sAv <= (Av_calc * 1.30);
+      const sAv = Math.abs(parseFloat(sAv_str) || 0);
+      const sZi = parseFloat(sZi_str) || 0;
+      const sZo = parseFloat(sZo_str) || 0;
+      const sPhase = sPhase_str !== '' ? parseInt(sPhase_str) : null;
+
+      const avOk = sAv_str !== '' && sAv >= (Av_calc * 0.70) && sAv <= (Av_calc * 1.30);
       const studentZi_k = sZi > 50 ? sZi / 1000 : sZi;
       const zi_k_expected = Zi_calc / 1000;
-      const ziOk = Math.abs(studentZi_k - zi_k_expected) <= Math.max(0.6, zi_k_expected * 0.40);
+      const ziOk = sZi_str !== '' && Math.abs(studentZi_k - zi_k_expected) <= Math.max(0.6, zi_k_expected * 0.40);
       const studentZo_k = sZo > 50 ? sZo / 1000 : sZo;
       const zo_k_expected = Zo_calc / 1000;
-      const zoOk = Math.abs(studentZo_k - zo_k_expected) <= Math.max(0.6, zo_k_expected * 0.35);
-      const phaseOk = sPhase === 180;
+      const zoOk = sZo_str !== '' && Math.abs(studentZo_k - zo_k_expected) <= Math.max(0.6, zo_k_expected * 0.35);
+      const phaseOk = sPhase_str !== '' && sPhase === 180;
 
       let part2Score = 0;
       if (avOk) part2Score += 1;
       if (ziOk && zoOk) part2Score += 1;
       else if (ziOk || zoOk) part2Score += 0.5;
-      if (phaseOk) part2Score += 1;
+      if (phaseOk && (avOk || ziOk || zoOk)) part2Score += 1;
       score += Math.round(part2Score);
 
       feedback.push(`\n[ตอนที่ 2] พารามิเตอร์วงจรขยายจากแบบจำลอง h-Model: ได้ ${Math.round(part2Score)} / 3 คะแนน`);
       if (avOk) feedback.push(`  ✓ อัตราขยายแรงดัน Av: ถูกต้องตามเกณฑ์`);
       else feedback.push(`  ✗ อัตราขยายแรงดัน Av: คลาดเคลื่อนจากเกณฑ์`);
       if (ziOk) feedback.push(`  ✓ ความต้านทานอินพุต Zi: ถูกต้องตามเกณฑ์`);
-      if (phaseOk) feedback.push(`  ✓ เฟสสัญญาณกลับ 180 องศา: ถูกต้อง`);
+      if (phaseOk && (avOk || ziOk || zoOk)) feedback.push(`  ✓ เฟสสัญญาณกลับ 180 องศา: ถูกต้อง`);
 
       // Part 3: Post-lab questions
       let qScore = 0;
