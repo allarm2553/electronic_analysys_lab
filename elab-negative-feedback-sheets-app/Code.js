@@ -92,9 +92,12 @@ function gradeWorksheet(data) {
   if (data.t1Rows && Array.isArray(data.t1Rows)) {
     data.t1Rows.forEach(row => {
       if (Array.isArray(row)) {
-        if (parseFloat(row[1]) > 0 || parseFloat(row[2]) > 0) t1Pass++;
-      } else if (parseFloat(row) > 0) {
-        t1Pass++;
+        const af = parseFloat(row[0]);
+        const bw = parseFloat(row[1]);
+        if (!isNaN(af) && af > 0 && !isNaN(bw) && bw > 0) t1Pass++;
+      } else {
+        const v = parseFloat(row);
+        if (!isNaN(v) && v > 0) t1Pass++;
       }
     });
   }
@@ -107,9 +110,13 @@ function gradeWorksheet(data) {
   if (data.t2Rows && Array.isArray(data.t2Rows)) {
     data.t2Rows.forEach(row => {
       if (Array.isArray(row)) {
-        if (parseFloat(row[1]) > 0 || parseFloat(row[2]) > 0) t2Pass++;
-      } else if (parseFloat(row) > 0) {
-        t2Pass++;
+        const d = parseFloat(row[0]);
+        const zin = parseFloat(row[1]);
+        const zout = parseFloat(row[2]);
+        if (!isNaN(d) && !isNaN(zin) && zin > 0 && !isNaN(zout) && zout > 0) t2Pass++;
+      } else {
+        const v = parseFloat(row);
+        if (!isNaN(v) && v > 0) t2Pass++;
       }
     });
   }
@@ -136,10 +143,10 @@ function gradeWorksheet(data) {
 
   score += qScore;
   feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore.toFixed(0)} จาก 4 ข้อ (ได้ ${qScore.toFixed(1)} / 4.0 คะแนน)`);
-  feedback.push(`  ข้อ 1 (ข้อดีและผลของการป้อนกลับลบ): ${q1Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย C)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-  feedback.push(`  ข้อ 2 (สมการอัตราขยายวงปิด Af): ${q2Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-  feedback.push(`  ข้อ 3 (ผลต่ออิมพีแดนซ์แบบ Voltage-Series): ${q3Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B: Zin เพิ่ม, Zout ลด)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-  feedback.push(`  ข้อ 4 (การลดความเพี้ยน Harmonic Distortion): ${q4Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย D: ลดลงด้วยตัวหาร 1+A*beta)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 1 (ข้อดีและผลของการป้อนกลับลบ): ${q1Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 2 (สมการอัตราขยายวงปิด Af): ${q2Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 3 (ผลต่ออิมพีแดนซ์แบบ Voltage-Series): ${q3Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 4 (การลดความเพี้ยน Harmonic Distortion): ${q4Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
   if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";

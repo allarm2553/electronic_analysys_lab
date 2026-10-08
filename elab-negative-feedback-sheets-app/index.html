@@ -2101,7 +2101,9 @@ function localGradeSimulator(data) {
   let t1Pass = 0;
   if (data.t1Rows) {
     data.t1Rows.forEach(row => {
-      if (parseFloat(row[0]) > 0 || parseFloat(row[1]) > 0) t1Pass++;
+      const af = parseFloat(row[0]);
+      const bw = parseFloat(row[1]);
+      if (!isNaN(af) && af > 0 && !isNaN(bw) && bw > 0) t1Pass++;
     });
   }
   let t1Score = (t1Pass >= 5) ? 3.0 : ((t1Pass >= 3) ? 2.0 : ((t1Pass >= 1) ? 1.0 : 0.0));
@@ -2112,7 +2114,10 @@ function localGradeSimulator(data) {
   let t2Pass = 0;
   if (data.t2Rows) {
     data.t2Rows.forEach(row => {
-      if (parseFloat(row[0]) > 0 || parseFloat(row[1]) > 0) t2Pass++;
+      const d = parseFloat(row[0]);
+      const zin = parseFloat(row[1]);
+      const zout = parseFloat(row[2]);
+      if (!isNaN(d) && !isNaN(zin) && zin > 0 && !isNaN(zout) && zout > 0) t2Pass++;
     });
   }
   let t2Score = (t2Pass >= 3) ? 3.0 : ((t2Pass >= 2) ? 2.0 : ((t2Pass >= 1) ? 1.0 : 0.0));
@@ -2133,10 +2138,10 @@ function localGradeSimulator(data) {
   score += qScore;
 
   feedback.push(`[คำถามวัดความเข้าใจ]: ได้ ${qScore.toFixed(1)} / 4.0 คะแนน`);
-  feedback.push(`  ข้อ 1 (ข้อดีและผลของการป้อนกลับลบ): ${q1Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย C)'}`);
-  feedback.push(`  ข้อ 2 (สมการอัตราขยายวงปิด Af): ${q2Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย A)'}`);
-  feedback.push(`  ข้อ 3 (ผลต่ออิมพีแดนซ์ Zin และ Zout): ${q3Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย B)'}`);
-  feedback.push(`  ข้อ 4 (การลดความเพี้ยน 20% -> 2%): ${q4Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย D)'}`);
+  feedback.push(`  ข้อ 1 (ข้อดีและผลของการป้อนกลับลบ): ${q1Ok ? '✓ ถูกต้อง (+1.0)' : (data.q1Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 2 (สมการอัตราขยายวงปิด Af): ${q2Ok ? '✓ ถูกต้อง (+1.0)' : (data.q2Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 3 (ผลต่ออิมพีแดนซ์ Zin และ Zout): ${q3Ok ? '✓ ถูกต้อง (+1.0)' : (data.q3Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 4 (การลดความเพี้ยน 20% -> 2%): ${q4Ok ? '✓ ถูกต้อง (+1.0)' : (data.q4Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
   return {
     score: score,

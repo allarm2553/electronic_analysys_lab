@@ -2244,7 +2244,9 @@ function localGradeSimulator(data) {
   let t1Pass = 0;
   if (data.t1Rows) {
     data.t1Rows.forEach(row => {
-      if (parseFloat(row[0]) > 0 || parseFloat(row[2]) !== 0) t1Pass++;
+      const vout = parseFloat(row[0]);
+      const db = parseFloat(row[2]);
+      if (!isNaN(vout) && vout > 0 && !isNaN(db)) t1Pass++;
     });
   }
   let t1Score = (t1Pass >= 5) ? 3.0 : ((t1Pass >= 3) ? 2.0 : ((t1Pass >= 1) ? 1.0 : 0.0));
@@ -2255,7 +2257,9 @@ function localGradeSimulator(data) {
   let t2Pass = 0;
   if (data.t2Rows) {
     data.t2Rows.forEach(row => {
-      if (parseFloat(row[0]) > 0 || parseFloat(row[2]) !== 0) t2Pass++;
+      const vout = parseFloat(row[0]);
+      const db = parseFloat(row[2]);
+      if (!isNaN(vout) && vout > 0 && !isNaN(db)) t2Pass++;
     });
   }
   let t2Score = (t2Pass >= 5) ? 3.0 : ((t2Pass >= 3) ? 2.0 : ((t2Pass >= 1) ? 1.0 : 0.0));
@@ -2276,10 +2280,10 @@ function localGradeSimulator(data) {
   score += qScore;
 
   feedback.push(`[คำถามวัดความเข้าใจ]: ได้ ${qScore.toFixed(1)} / 4.0 คะแนน`);
-  feedback.push(`  ข้อ 1 (นิยามจุดตัด -3dB): ${q1Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย B)'}`);
-  feedback.push(`  ข้อ 2 (Roll-off Rate): ${q2Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย C: -20 dB/dec)'}`);
-  feedback.push(`  ข้อ 3 (Phase Shift LPF ที่ fc): ${q3Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย A: -45°)'}`);
-  feedback.push(`  ข้อ 4 (การปรับแบนด์วิดท์ 2 เท่า): ${q4Ok ? '✓ ถูกต้อง (+1.0)' : '✗ ยังไม่ถูกต้อง (เฉลย D: ลด R หรือ C)'}`);
+  feedback.push(`  ข้อ 1 (นิยามจุดตัด -3dB): ${q1Ok ? '✓ ถูกต้อง (+1.0)' : (data.q1Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 2 (Roll-off Rate): ${q2Ok ? '✓ ถูกต้อง (+1.0)' : (data.q2Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 3 (Phase Shift LPF ที่ fc): ${q3Ok ? '✓ ถูกต้อง (+1.0)' : (data.q3Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 4 (การปรับแบนด์วิดท์ 2 เท่า): ${q4Ok ? '✓ ถูกต้อง (+1.0)' : (data.q4Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
   return {
     score: score,

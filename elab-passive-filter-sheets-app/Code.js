@@ -93,9 +93,12 @@ function gradeWorksheet(data) {
     data.t1Rows.forEach(row => {
       // row has Vout, Av, dB, Phase
       if (Array.isArray(row)) {
-        if (parseFloat(row[0]) > 0 || parseFloat(row[2]) !== 0) t1Pass++;
-      } else if (parseFloat(row) > 0) {
-        t1Pass++;
+        const vout = parseFloat(row[0]);
+        const db = parseFloat(row[2]);
+        if (!isNaN(vout) && vout > 0 && !isNaN(db)) t1Pass++;
+      } else {
+        const v = parseFloat(row);
+        if (!isNaN(v) && v > 0) t1Pass++;
       }
     });
   }
@@ -108,9 +111,12 @@ function gradeWorksheet(data) {
   if (data.t2Rows && Array.isArray(data.t2Rows)) {
     data.t2Rows.forEach(row => {
       if (Array.isArray(row)) {
-        if (parseFloat(row[0]) > 0 || parseFloat(row[2]) !== 0) t2Pass++;
-      } else if (parseFloat(row) > 0) {
-        t2Pass++;
+        const vout = parseFloat(row[0]);
+        const db = parseFloat(row[2]);
+        if (!isNaN(vout) && vout > 0 && !isNaN(db)) t2Pass++;
+      } else {
+        const v = parseFloat(row);
+        if (!isNaN(v) && v > 0) t2Pass++;
       }
     });
   }
@@ -137,10 +143,10 @@ function gradeWorksheet(data) {
 
   score += qScore;
   feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore.toFixed(0)} จาก 4 ข้อ (ได้ ${qScore.toFixed(1)} / 4.0 คะแนน)`);
-  feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B: 0.707 เท่า / -3dB)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-  feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย C: -20 dB/decade)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-  feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย A: -45 องศา)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-  feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย D: ลด R หรือ C ลงครึ่งหนึ่ง)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1.0 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
   let comment = "ต้องปรับปรุงแก้ไขใบงาน";
   if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
