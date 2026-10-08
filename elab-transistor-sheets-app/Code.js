@@ -82,15 +82,15 @@ let score = 0;
   let p1Pass = 0;
   if (data.part1Rows) {
     data.part1Rows.forEach(r => {
-      if (r.deflection && r.deflection !== 'none') p1Pass++;
+      if (r.deflection && r.deflection !== 'none' && r.deflection !== '0' && r.deflection !== '') p1Pass++;
     });
   }
   let p1Score = p1Pass >= 5 ? 2 : (p1Pass >= 3 ? 1 : 0);
   score += p1Score;
   feedback.push(`[ตอนที่ 1] ตารางที่ 1 การวัดหาขาเบส: ได้ ${p1Score} / 2 คะแนน (บันทึกข้อมูล ${p1Pass}/6 ครั้ง)`);
 
-  let baseScore = (data.ansBasePin && data.ansBasePin !== '') ? 0.5 : 0;
-  let typeScore = (data.ansType && data.ansType !== '') ? 0.5 : 0;
+  let baseScore = (data.ansBasePin && data.ansBasePin !== '' && data.ansBasePin !== '0') ? 0.5 : 0;
+  let typeScore = (data.ansType && data.ansType !== '' && data.ansType !== '0') ? 0.5 : 0;
   let idScore = Math.round(baseScore + typeScore);
   score += idScore;
   feedback.push(`[ตอนที่ 1] ระบุขาเบสและชนิดทรานซิสเตอร์: ได้ ${idScore} / 1 คะแนน`);
@@ -98,7 +98,9 @@ let score = 0;
   let p2Pass = 0;
   if (data.part2Rows) {
     data.part2Rows.forEach(r => {
-      if (parseFloat(r.rBefore) > 0 || parseFloat(r.rAfter) > 0) p2Pass++;
+      const bStr = (r.rBefore || '').toString().trim();
+      const aStr = (r.rAfter || '').toString().trim();
+      if (bStr !== '' && aStr !== '') p2Pass++;
     });
   }
   let p2Score = p2Pass >= 2 ? 1 : 0;
@@ -106,9 +108,9 @@ let score = 0;
   feedback.push(`[ตอนที่ 2] ตารางที่ 2 การทดสอบหาขา C และ E: ได้ ${p2Score} / 1 คะแนน`);
 
   let pinCount = 0;
-  if (data.ansPin1 && data.ansPin1 !== '') pinCount++;
-  if (data.ansPin2 && data.ansPin2 !== '') pinCount++;
-  if (data.ansPin3 && data.ansPin3 !== '') pinCount++;
+  if (data.ansPin1 && data.ansPin1 !== '' && data.ansPin1 !== '0') pinCount++;
+  if (data.ansPin2 && data.ansPin2 !== '' && data.ansPin2 !== '0') pinCount++;
+  if (data.ansPin3 && data.ansPin3 !== '' && data.ansPin3 !== '0') pinCount++;
   let pinScore = pinCount >= 3 ? 2 : (pinCount >= 1 ? 1 : 0);
   score += pinScore;
   feedback.push(`[ตอนที่ 3] สรุปตำแหน่งขาทรานซิสเตอร์ทั้ง 3 ขา: ได้ ${pinScore} / 2 คะแนน`);
@@ -132,10 +134,10 @@ let score = 0;
 
       score += qScore;
       feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
-      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
-      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
 
 
 
