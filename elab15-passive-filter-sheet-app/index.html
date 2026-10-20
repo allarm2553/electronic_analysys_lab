@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 15: วงจรกรองความถี่ต่ำและความถี่สูงแบบพาสซีฟ (Passive RC Filters)</title>
+
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Fira+Code:wght@400;500&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+  <style>
+    :root {
+      --bg-primary: #080c14;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.5);
+      --border-color: rgba(71, 85, 105, 0.35);
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+      --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
+      --accent-purple: #a855f7;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Sarabun', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    /* Top Header */
+    header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-title-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      font-size: 26px;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      filter: drop-shadow(0 0 10px var(--accent-cyan-glow));
+    }
+
+    h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .portal-link {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-size: 13px;
+      font-family: 'Chakra Petch', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.1);
+      transition: all var(--transition-speed);
+    }
+
+    .portal-link:hover {
+      background: rgba(56, 189, 248, 0.25);
+      box-shadow: 0 0 12px var(--accent-cyan-glow);
+    }
+
+    /* Main Container with Sidebar */
+    .app-container {
+      display: flex;
+      flex-grow: 1;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 260px;
+      background: rgba(15, 23, 42, 0.5);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 14px;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      text-align: left;
+    }
+
+    .nav-btn i {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .nav-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Content Area */
+    .content-area {
+      flex-grow: 1;
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: var(--accent-cyan);
+    }
+
+    /* Theory Math & Tables */
+    .formula-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-left: 4px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 15px;
+      overflow-x: auto;
+    }
+
+    .theory-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 992px) {
+      .app-container { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); display: flex; overflow-x: auto; padding: 10px; gap: 8px; }
+      .nav-btn { width: auto; white-space: nowrap; margin-bottom: 0; }
+      .theory-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Simulator 2-Column Grid */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 1100px) {
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Simulator Controls */
+    .control-group {
+      margin-bottom: 16px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .control-value {
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 6px;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+      cursor: pointer;
+    }
+
+    .quick-btn-group {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-chip {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: 'Fira Code', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-chip:hover {
+      color: #fff;
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .btn-chip.active {
+      color: #fff;
+      background: rgba(56, 189, 248, 0.3);
+      border-color: var(--accent-cyan);
+    }
+
+    /* Filter Mode Toggle */
+    .filter-type-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 18px;
+    }
+
+    .type-btn {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .type-btn:hover {
+      color: #fff;
+    }
+
+    .type-btn.active.lpf {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .type-btn.active.hpf {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: var(--accent-purple);
+      color: #c084fc;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
+    }
+
+    /* Live 6-Card Metrics */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .metric-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .metric-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .metric-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .metric-val.highlight {
+      color: var(--accent-cyan);
+    }
+
+    .metric-val.gold {
+      color: var(--accent-yellow);
+    }
+
+    .metric-val.purple {
+      color: #c084fc;
+    }
+
+    /* View Switcher Tabs inside Simulator */
+    .view-switcher-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .view-btn-group {
+      display: flex;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .view-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-tab-btn:hover {
+      color: #fff;
+    }
+
+    .view-tab-btn.active {
+      color: #fff;
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--accent-cyan);
+    }
+
+    /* View Panes Container */
+    .sim-viewport {
+      background: #080c10;
+      border: 2px solid #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: 290px;
+      position: relative;
+    }
+
+    .sim-view-pane {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .sim-view-pane.active {
+      display: block;
+    }
+
+    /* Canvas Elements */
+    .scope-canvas, .bode-canvas {
+      display: block;
+      width: 100%;
+      height: 280px;
+      background: #080c10;
+    }
+
+    /* Oscilloscope Controls Under Screen */
+    .scope-knob-panel {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .scope-knob-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .scope-knob-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .knob-btn-row {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .btn-step {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-step:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+    }
+
+    .scope-scale-text {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--accent-cyan);
+    }
+
+    /* Table Styles */
+    .lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 12px 0 20px 0;
+    }
+
+    .lab-table th {
+      background: rgba(30, 41, 59, 0.9);
+      color: var(--accent-cyan);
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px 8px;
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+    }
+
+    .lab-table td {
+      border: 1px solid var(--border-color);
+      padding: 8px 6px;
+      text-align: center;
+      font-family: 'Fira Code', monospace;
+      color: #e2e8f0;
+    }
+
+    .lab-table tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .table-input {
+      width: 90px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(71, 85, 105, 0.6);
+      color: #fff;
+      padding: 5px 8px;
+      border-radius: 6px;
+      text-align: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .table-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan-glow);
+    }
+
+    .btn-fetch {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent-cyan);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-fetch:hover {
+      background: rgba(56, 189, 248, 0.35);
+      color: #fff;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--accent-cyan-glow);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+      color: #fff;
+    }
+
+    @media print {
+      .no-print, nav, .tab-nav, .sidebar, .btn-fetch, .card-footer-action {
+        display: none !important;
+      }
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .tab-content {
+        display: block !important;
+      }
+      .card {
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+        color: #000 !important;
+        break-inside: avoid;
+        margin-bottom: 20px !important;
+      }
+    }
+    .quiz-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .quiz-question {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(71, 85, 105, 0.4);
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .quiz-option input[type="radio"] {
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    /* Textarea & Anti Cheat */
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      outline: none;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    }
+
+    /* Hardware Mode Card */
+    .mode-select-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Student Form Row */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 868px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .form-input-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .form-input-group input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'Sarabun', sans-serif;
+      outline: none;
+    }
+
+    .form-input-group input:focus {
+      border-color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-title-box">
+      <div class="header-logo"><i class="fa-solid fa-wave-square" style="color: #38bdf8;"></i></div>
+      <div>
+        <h1>ใบงานการทดลองที่ 15: วงจรกรองความถี่ต่ำและความถี่สูงแบบพาสซีฟ</h1>
+        <div class="header-sub">Passive RC Low-Pass & High-Pass Filters (Frequency Response & Bode Plot)</div>
+      </div>
+    </div>
+    <a href="../index.html" class="portal-link"><i class="fa-solid fa-arrow-left"></i> กลับสู่ E-Lab Portal</a>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <button class="nav-btn active" data-tab="tab-theory" onclick="switchTab('tab-theory')">
+        <i class="fa-solid fa-book-open"></i> 1. ทฤษฎีและคู่มือแล็บ
+      </button>
+      <button class="nav-btn" data-tab="tab-simulator" onclick="switchTab('tab-simulator')">
+        <i class="fa-solid fa-microchip"></i> 2. ห้องทดลองจำลอง
+      </button>
+      <button class="nav-btn" data-tab="tab-worksheet" onclick="switchTab('tab-worksheet')">
+        <i class="fa-solid fa-clipboard-list"></i> 3. ตารางบันทึกผล
+      </button>
+      <button class="nav-btn" data-tab="tab-assessment" onclick="switchTab('tab-assessment')">
+        <i class="fa-solid fa-circle-question"></i> 4. คำถามและสรุปผล
+      </button>
+    </nav>
+
+    <!-- Content Area -->
+    <main class="content-area">
+
+      <!-- ====================================================================
+           TAB 1: ทฤษฎีและคู่มือแล็บ (THEORY)
+           ==================================================================== -->
+      <section id="tab-theory" class="tab-content active">
+        <div class="card">
+          <h2 class="card-title"><i class="fa-solid fa-bullseye"></i> วัตถุประสงค์การทดลอง (Objectives)</h2>
+          <ul style="padding-left: 20px; line-height: 1.8; color: #cbd5e1; font-size: 14px;">
+            <li>เพื่อศึกษาหลักการทำงานและการตอบสนองต่อความถี่ของวงจรกรองความถี่ต่ำ (RC Low-Pass Filter) และความถี่สูง (RC High-Pass Filter) แบบพาสซีฟ</li>
+            <li>เพื่อคำนวณและทดสอบหาความถี่คัทออฟ (Cutoff Frequency, \(f_c\)) หรือจุดตัด \(-3\text{ dB}\) จากสูตร \(f_c = \frac{1}{2\pi RC}\)</li>
+            <li>เพื่อวิเคราะห์อัตราขยายแรงดันในหน่วยอัตราส่วนสัมบูรณ์ (\(A_v = V_{out}/V_{in}\)) และหน่วยเดซิเบล (\(A_v(\text{dB}) = 20\log_{10}(A_v)\))</li>
+            <li>เพื่อสังเกตการเลื่อนเฟส (Phase Shift, \(\theta\)) ระหว่างสัญญาณแรงดันอินพุตและเอาต์พุตบนออสซิลโลสโคปคู่</li>
+            <li>เพื่อศึกษาการเปลี่ยนแปลงจุดตัด \(f_c\) เมื่อปรับเปลี่ยนค่าความต้านทาน \(R\) และตัวเก็บประจุ \(C\)</li>
+          </ul>
+        </div>
+
+        <div class="theory-grid">
+          <!-- Low-Pass Filter -->
+          <div class="card">
+            <h2 class="card-title"><i class="fa-solid fa-arrow-down-wide-short"></i> 1. วงจรกรองความถี่ต่ำ (RC Low-Pass Filter: LPF)</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+              วงจร LPF ประกอบด้วยตัวต้านทาน \(R\) ต่ออนุกรม และตัวเก็บประจุ \(C\) ต่อขนานกับสัญญาณเอาต์พุต ที่ความถี่ต่ำ \(X_C = \frac{1}{2\pi f C}\) จะมีค่าสูงมาก แรงดันส่วนใหญ่จึงตกคร่อมที่ \(C\) (\(V_{out} \approx V_{in}\)) ขณะที่ความถี่สูง \(X_C\) จะลดลงจนชอร์ตสัญญาณลงกราวด์
+            </p>
+            <div class="formula-box">
+              <strong>ความถี่คัทออฟ (Cutoff Frequency):</strong><br>
+              \[f_c = \frac{1}{2\pi R C}\]<br>
+              <strong>อัตราขยายแรงดัน (Voltage Gain):</strong><br>
+              \[|A_v| = \frac{V_{out}}{V_{in}} = \frac{1}{\sqrt{1 + (f / f_c)^2}}\]<br>
+              <strong>อัตราขยายในหน่วยเดซิเบล (dB):</strong><br>
+              \[A_v(\text{dB}) = 20 \log_{10}(|A_v|)\]<br>
+              <strong>มุมต่างเฟส (Phase Shift):</strong><br>
+              \[\theta = -\arctan\left(\frac{f}{f_c}\right) \quad (\text{ที่ } f=f_c \implies \theta = -45^\circ)\]
+            </div>
+            <p style="font-size: 13px; color: var(--accent-cyan);">
+              💡 <strong>แบนด์วิดท์ (Bandwidth):</strong> สำหรับ LPF แบนด์วิดท์มีค่าเท่ากับ \(BW = f_c\) (ช่วง \(0\text{ Hz}\) ถึง \(f_c\))
+            </p>
+          </div>
+
+          <!-- High-Pass Filter -->
+          <div class="card">
+            <h2 class="card-title"><i class="fa-solid fa-arrow-up-wide-short"></i> 2. วงจรกรองความถี่สูง (RC High-Pass Filter: HPF)</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+              วงจร HPF ประกอบด้วยตัวเก็บประจุ \(C\) ต่ออนุกรมทางอินพุต และตัวต้านทาน \(R\) ตกคร่อมเอาต์พุตลงกราวด์ ที่ความถี่ต่ำ \(C\) ทำหน้าที่เป็นตัวกั้นไฟ DC/ความถี่ต่ำ (\(X_C\) สูงมาก) จึงไม่มีสัญญาณออก แต่ที่ความถี่สูง \(X_C\) จะต่ำมาก สัญญาณจึงผ่านไปยัง \(R\) ได้เกือบทั้งหมด
+            </p>
+            <div class="formula-box">
+              <strong>ความถี่คัทออฟ (Cutoff Frequency):</strong><br>
+              \[f_c = \frac{1}{2\pi R C}\]<br>
+              <strong>อัตราขยายแรงดัน (Voltage Gain):</strong><br>
+              \[|A_v| = \frac{V_{out}}{V_{in}} = \frac{(f / f_c)}{\sqrt{1 + (f / f_c)^2}} = \frac{1}{\sqrt{1 + (f_c / f)^2}}\]<br>
+              <strong>อัตราขยายในหน่วยเดซิเบล (dB):</strong><br>
+              \[A_v(\text{dB}) = 20 \log_{10}(|A_v|)\]<br>
+              <strong>มุมต่างเฟส (Phase Shift):</strong><br>
+              \[\theta = +\arctan\left(\frac{f_c}{f}\right) \quad (\text{ที่ } f=f_c \implies \theta = +45^\circ)\]
+            </div>
+            <p style="font-size: 13px; color: #c084fc;">
+              💡 <strong>มุมเฟส HPF:</strong> เอาต์พุตจะนำหน้าอินพุต \(+45^\circ\) ที่จุดคัทออฟ และนำหน้า \(+90^\circ\) ที่ความถี่ต่ำมาก
+            </p>
+          </div>
+        </div>
+
+        <!-- Decibel and 3dB Cutoff Concept -->
+        <div class="card">
+          <h2 class="card-title"><i class="fa-solid fa-chart-line"></i> 3. ทฤษฎีเดซิเบล (Decibel) และความหมายของจุดตัด -3 dB</h2>
+          <div style="font-size: 14px; line-height: 1.7; color: #cbd5e1;">
+            <p>
+              ในทางวิศวกรรมอิเล็กทรอนิกส์ การใช้อัตราส่วนแบบลอการิทึม (Logarithmic Scale) ในหน่วย **เดซิเบล (Decibel: dB)** ช่วยให้สามารถวิเคราะห์สัญญาณที่มีช่วงความถี่กว้างขวางหลายทศวรรษ (Decades) ได้อย่างสะดวก:
+            </p>
+            <ul style="padding-left: 20px; margin: 10px 0;">
+              <li><strong>ที่ย่านส่งผ่าน (Passband):</strong> \(A_v = 1.00 \implies A_v(\text{dB}) = 20\log_{10}(1) = \mathbf{0\text{ dB}}\) (สัญญาณผ่านได้ 100%)</li>
+              <li><strong>ที่จุดความถี่คัทออฟ (\(f = f_c\)):</strong> \(A_v = \frac{1}{\sqrt{2}} \approx 0.7071 \implies A_v(\text{dB}) = 20\log_{10}(0.7071) = \mathbf{-3.01\text{ dB} \approx -3\text{ dB}}\)</li>
+              <li><strong>กำลังไฟฟ้าครึ่งหนึ่ง (Half-Power Point):</strong> เนื่องจากกำลังไฟฟ้าแปรผันตามแรงดันยกกำลังสอง (\(P \propto V^2\)) ดังนั้นที่จุด \(-3\text{ dB}\) กำลังไฟฟ้าที่โหลดได้รับจะลดลงเหลือ **\(50\%\)** หรือครึ่งหนึ่งของค่าสูงสุด</li>
+              <li><strong>อัตราความชันการลดทอน (Roll-off Rate):</strong> สำหรับวงจรกรองอันดับที่ 1 (First-Order RC Filter) เมื่อความถี่พ้นจุดคัทออฟไป อัตราการลดทอนจะมีความชันคงที่เท่ากับ **\(-20\text{ dB/decade}\)** หรือ **\(-6\text{ dB/octave}\)**</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 15px;">
+          <button class="btn btn-primary" onclick="switchTab('tab-simulator')">
+            เข้าสู่ห้องทดลองจำลองเสมือนจริง 🔬 <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 2: ห้องทดลองจำลองเสมือน (SIMULATOR)
+           ==================================================================== -->
+      <section id="tab-simulator" class="tab-content">
+        
+        <!-- Live Metric Cards -->
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-name">ความถี่คัทออฟ (\(f_c\))</div>
+            <div id="m-fc" class="metric-val highlight">1.59 kHz</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-name">ความถี่อินพุต (\(f_{in}\))</div>
+            <div id="m-fin" class="metric-val">1.00 kHz</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-name">แรงดันเอาต์พุต (\(V_{out(p-p)}\))</div>
+            <div id="m-vout" class="metric-val gold">4.23 V</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-name">อัตราขยาย (\(A_v = V_o/V_i\))</div>
+            <div id="m-av" class="metric-val">0.846</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-name">อัตราขยายเดซิเบล (\(A_v\text{ dB}\))</div>
+            <div id="m-db" class="metric-val highlight">-1.45 dB</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-name">มุมต่างเฟส (\(\theta\))</div>
+            <div id="m-phase" class="metric-val purple">-32.1°</div>
+          </div>
+        </div>
+
+        <div class="sim-grid">
+          <!-- LEFT: Controls Column -->
+          <div class="card">
+            <h2 class="card-title"><i class="fa-solid fa-sliders"></i> แผงปรับพารามิเตอร์วงจร</h2>
+
+            <!-- Filter Type Switch -->
+            <div class="control-label" style="margin-bottom: 6px;">เลือกชนิดวงจรกรอง (Filter Mode):</div>
+            <div class="filter-type-switch">
+              <button id="btn-type-lpf" class="type-btn active lpf" onclick="setFilterType('lpf')">
+                <i class="fa-solid fa-arrow-down-wide-short"></i> Low-Pass (LPF)
+              </button>
+              <button id="btn-type-hpf" class="type-btn hpf" onclick="setFilterType('hpf')">
+                <i class="fa-solid fa-arrow-up-wide-short"></i> High-Pass (HPF)
+              </button>
+            </div>
+
+            <!-- Resistor R -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">ความต้านทาน \(R\):</span>
+                <span id="txt-r" class="control-value">1.0 kΩ</span>
+              </div>
+              <input type="range" id="slider-r" min="100" max="47000" step="100" value="1000" oninput="onParamChange()">
+              <div class="quick-btn-group">
+                <button class="btn-chip active" onclick="setR(1000)">1kΩ</button>
+                <button class="btn-chip" onclick="setR(2200)">2.2kΩ</button>
+                <button class="btn-chip" onclick="setR(4700)">4.7kΩ</button>
+                <button class="btn-chip" onclick="setR(10000)">10kΩ</button>
+                <button class="btn-chip" onclick="setR(22000)">22kΩ</button>
+              </div>
+            </div>
+
+            <!-- Capacitor C -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">ตัวเก็บประจุ \(C\):</span>
+                <span id="txt-c" class="control-value">100 nF</span>
+              </div>
+              <input type="range" id="slider-c" min="1" max="1000" step="1" value="100" oninput="onParamChange()">
+              <div class="quick-btn-group">
+                <button class="btn-chip" onclick="setC(10)">10nF</button>
+                <button class="btn-chip" onclick="setC(22)">22nF</button>
+                <button class="btn-chip" onclick="setC(47)">47nF</button>
+                <button class="btn-chip active" onclick="setC(100)">100nF</button>
+                <button class="btn-chip" onclick="setC(220)">220nF</button>
+              </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 16px 0;">
+
+            <!-- Function Generator Frequency -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">ความถี่อินพุต \(f_{in}\):</span>
+                <span id="txt-fin" class="control-value">1,000 Hz</span>
+              </div>
+              <input type="range" id="slider-fin" min="1" max="500" step="1" value="200" oninput="onFreqSliderChange()">
+              <div class="control-label" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">ปุ่มลัดตั้งความถี่เทียบกับจุดตัด \(f_c\):</div>
+              <div class="quick-btn-group">
+                <button class="btn-chip" onclick="setFreqRatio(0.1)">0.1 fc</button>
+                <button class="btn-chip" onclick="setFreqRatio(0.5)">0.5 fc</button>
+                <button class="btn-chip active" style="color: var(--accent-yellow); border-color: var(--accent-yellow);" onclick="setFreqRatio(1.0)">1.0 fc (-3dB)</button>
+                <button class="btn-chip" onclick="setFreqRatio(2.0)">2.0 fc</button>
+                <button class="btn-chip" onclick="setFreqRatio(5.0)">5.0 fc</button>
+                <button class="btn-chip" onclick="setFreqRatio(10.0)">10 fc</button>
+              </div>
+            </div>
+
+            <!-- Vin p-p -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">แรงดันอินพุต \(V_{in(p-p)}\):</span>
+                <span id="txt-vin" class="control-value">5.0 V</span>
+              </div>
+              <input type="range" id="slider-vin" min="1.0" max="10.0" step="0.5" value="5.0" oninput="onParamChange()">
+            </div>
+
+          </div>
+
+          <!-- RIGHT: Multi-View Display (Schematic / Bode Plot / Scope) -->
+          <div class="card">
+            
+            <div class="view-switcher-bar">
+              <h2 class="card-title" style="margin-bottom: 0;">
+                <span id="view-title-icon"><i class="fa-solid fa-diagram-project"></i></span> 
+                <span id="view-title-text">แผนภาพวงจรและการต่อวัด</span>
+              </h2>
+              <div class="view-btn-group">
+                <button id="btn-view-schem" class="view-tab-btn active" onclick="switchSimView('schematic')">
+                  <i class="fa-solid fa-diagram-project"></i> วงจร (Circuit)
+                </button>
+                <button id="btn-view-bode" class="view-tab-btn" onclick="switchSimView('bode')">
+                  <i class="fa-solid fa-chart-area"></i> กราฟตอบสนอง (Bode)
+                </button>
+                <button id="btn-view-scope" class="view-tab-btn" onclick="switchSimView('scope')">
+                  <i class="fa-solid fa-wave-square"></i> ออสซิลโลสโคป (Scope)
+                </button>
+              </div>
+            </div>
+
+            <!-- Viewport Container -->
+            <div class="sim-viewport">
+              
+              <!-- 1. SVG Schematic View -->
+              <div id="pane-schematic" class="sim-view-pane active" style="padding: 15px; display: flex; justify-content: center; align-items: center;">
+                <svg id="svg-schem" viewBox="0 0 540 260" style="width: 100%; max-height: 250px;">
+                  <!-- Background grid -->
+                  <defs>
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#grid)" />
+
+                  <!-- Vin Generator Symbol -->
+                  <circle cx="70" cy="120" r="24" fill="#0f172a" stroke="#f59e0b" stroke-width="2.5" />
+                  <path d="M 58 120 Q 64 110, 70 120 T 82 120" fill="none" stroke="#f59e0b" stroke-width="2" />
+                  <text id="svg-lbl-vin" x="70" y="86" fill="#f59e0b" font-size="13" font-family="Chakra Petch" font-weight="bold" text-anchor="middle">Vin: 5.0 Vp-p</text>
+                  <text id="svg-lbl-fin" x="70" y="165" fill="#f59e0b" font-size="12" font-family="Fira Code" text-anchor="middle">f = 1.00 kHz</text>
+
+                  <!-- Ground connection for Gen -->
+                  <line x1="70" y1="144" x2="70" y2="210" stroke="#64748b" stroke-width="2" />
+                  <line x1="70" y1="210" x2="470" y2="210" stroke="#64748b" stroke-width="2" />
+                  <line x1="270" y1="210" x2="270" y2="225" stroke="#64748b" stroke-width="2" />
+                  <line x1="255" y1="225" x2="285" y2="225" stroke="#64748b" stroke-width="2.5" />
+                  <line x1="260" y1="230" x2="280" y2="230" stroke="#64748b" stroke-width="2" />
+                  <line x1="265" y1="235" x2="275" y2="235" stroke="#64748b" stroke-width="1.5" />
+                  <text x="270" y="250" fill="#64748b" font-size="11" font-family="Chakra Petch" text-anchor="middle">GND</text>
+
+                  <!-- Wire from Vin to Series Component -->
+                  <line x1="70" y1="96" x2="70" y2="60" stroke="#f59e0b" stroke-width="2" />
+                  <line x1="70" y1="60" x2="160" y2="60" stroke="#38bdf8" stroke-width="2" />
+
+                  <!-- Series Component (Box/Capacitor based on mode) -->
+                  <g id="svg-series-comp">
+                    <!-- Dynamic rendering in JS -->
+                  </g>
+
+                  <!-- Middle Node -->
+                  <circle cx="270" cy="60" r="4.5" fill="#38bdf8" />
+                  <line x1="270" y1="60" x2="270" y2="100" stroke="#38bdf8" stroke-width="2" />
+
+                  <!-- Shunt Component (to Ground) -->
+                  <g id="svg-shunt-comp">
+                    <!-- Dynamic rendering in JS -->
+                  </g>
+
+                  <!-- Output Wire & Terminals -->
+                  <line x1="270" y1="60" x2="470" y2="60" stroke="#38bdf8" stroke-width="2" />
+                  
+                  <!-- Probe CH1 Indicator (Input) -->
+                  <circle cx="110" cy="60" r="5" fill="#f59e0b" />
+                  <text x="110" y="45" fill="#f59e0b" font-size="11" font-family="Chakra Petch" font-weight="bold" text-anchor="middle">CH1 (Vin)</text>
+
+                  <!-- Probe CH2 Indicator (Output) -->
+                  <circle cx="470" cy="60" r="5" fill="#38bdf8" />
+                  <circle cx="470" cy="210" r="5" fill="#64748b" />
+                  <text x="470" y="45" fill="#38bdf8" font-size="12" font-family="Chakra Petch" font-weight="bold" text-anchor="middle">CH2 (Vout)</text>
+                  <text id="svg-lbl-vout" x="470" y="85" fill="#38bdf8" font-size="13" font-family="Fira Code" font-weight="bold" text-anchor="middle">Vout: 4.23 Vp-p</text>
+                  <text id="svg-lbl-db" x="470" y="105" fill="#a855f7" font-size="12" font-family="Fira Code" text-anchor="middle">-1.45 dB</text>
+                </svg>
+              </div>
+
+              <!-- 2. Bode Plot View (Frequency Response) -->
+              <div id="pane-bode" class="sim-view-pane">
+                <canvas id="bode-canvas" class="bode-canvas"></canvas>
+              </div>
+
+              <!-- 3. Dual-Trace Oscilloscope View -->
+              <div id="pane-scope" class="sim-view-pane">
+                <canvas id="scope-canvas" class="scope-canvas"></canvas>
+                <div class="scope-knob-panel">
+                  <div class="scope-knob-item">
+                    <span class="scope-knob-label">TIME / DIV</span>
+                    <div class="knob-btn-row">
+                      <button class="btn-step" onclick="stepTimebase(-1)">-</button>
+                      <button class="btn-step" onclick="stepTimebase(1)">+</button>
+                    </div>
+                    <span id="scope-txt-timebase" class="scope-scale-text">0.2 ms/div</span>
+                  </div>
+                  <div class="scope-knob-item">
+                    <span class="scope-knob-label" style="color: #f59e0b;">CH1 VOLTS/DIV (Vin)</span>
+                    <div class="knob-btn-row">
+                      <button class="btn-step" onclick="stepVoltsDiv(1, -1)">-</button>
+                      <button class="btn-step" onclick="stepVoltsDiv(1, 1)">+</button>
+                    </div>
+                    <span id="scope-txt-ch1v" class="scope-scale-text" style="color: #f59e0b;">1 V/div</span>
+                  </div>
+                  <div class="scope-knob-item">
+                    <span class="scope-knob-label" style="color: #38bdf8;">CH2 VOLTS/DIV (Vout)</span>
+                    <div class="knob-btn-row">
+                      <button class="btn-step" onclick="stepVoltsDiv(2, -1)">-</button>
+                      <button class="btn-step" onclick="stepVoltsDiv(2, 1)">+</button>
+                    </div>
+                    <span id="scope-txt-ch2v" class="scope-scale-text">1 V/div</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <button class="btn btn-primary" onclick="switchTab('tab-worksheet')">
+            ไปทำตารางบันทึกผลการทดลอง 📝 <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           TAB 3: ตารางบันทึกผลการทดลอง (WORKSHEET)
+           ==================================================================== -->
+      <section id="tab-worksheet" class="tab-content">
+        
+        <!-- Student Info Card -->
+        <div class="card">
+          <h2 class="card-title"><i class="fa-solid fa-user-graduate"></i> ข้อมูลนักศึกษาผู้ทำการทดลอง</h2>
+          <div class="form-grid">
+            <div class="form-input-group">
+              <label>ชื่อ-นามสกุล:</label>
+              <input type="text" id="student-name" placeholder="นายสมชาย รักเรียน">
+            </div>
+            <div class="form-input-group">
+              <label>รหัสนักศึกษา (Student ID):</label>
+              <input type="text" id="student-id" placeholder="66010012">
+            </div>
+            <div class="form-input-group">
+              <label>กลุ่มเรียน / ตอนเรียน (Section):</label>
+              <input type="text" id="student-group" placeholder="กลุ่ม 1 (วศ.บ. อิเล็กทรอนิกส์)">
+            </div>
+            <div class="form-input-group">
+              <label>วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date">
+            </div>
+          </div>
+        </div>
+
+                <!-- TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION -->
+        <div class="card gas-endpoint-card no-print" style="border: 1px dashed var(--accent-cyan, #38bdf8); background: rgba(15, 23, 42, 0.75); padding: 14px 18px; margin-bottom: 20px; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">🔗</span>
+              <div>
+                <strong style="color: var(--accent-cyan, #38bdf8); font-size: 13.5px;">เชื่อมต่อ Google Sheets ผู้สอน (Teacher Web App URL):</strong>
+                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted, #94a3b8); font-family: 'Sarabun', sans-serif;">
+                  นำลิงก์ Web App จาก Google Apps Script ของชีตผู้สอนมาวาง เพื่อบันทึกคะแนนเข้าชีตของท่านโดยตรง
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              <a href="./Code.gs" download="Code_elab15-passive-filter-sheet-app.gs" class="btn btn-secondary btn-small" style="padding: 4px 10px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); background: rgba(59,130,246,0.15); border-radius: 5px;" title="ดาวน์โหลดไฟล์ Code.gs ของแล็บนี้">
+                📥 โหลด Code.gs
+              </a>
+              <button type="button" class="btn btn-secondary btn-small" onclick="copyCodeGsContent('elab15-passive-filter-sheet-app')" style="padding: 4px 10px; font-size: 11.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.4); background: rgba(168,85,247,0.15); border-radius: 5px;" title="คัดลอกโค้ด Code.gs ไปวางใน Google Apps Script">
+                📋 คัดลอก Code.gs
+              </button>
+              <span id="gas-status-badge" style="font-size: 11.5px; padding: 3px 10px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan, #38bdf8); border: 1px solid var(--accent-cyan, #38bdf8); font-weight: 500;">
+                🌐 โหมดจำลองในเครื่อง (ยังไม่เชื่อมต่อชีต)
+              </span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+            <input type="url" id="gas-endpoint-url" placeholder="วางลิงก์ https://script.google.com/macros/s/.../exec ที่นี่..." style="flex: 1; min-width: 250px; padding: 7px 12px; font-size: 12.5px; background: rgba(10, 15, 28, 0.85); border: 1px solid var(--border-color, rgba(71,85,105,0.35)); border-radius: 5px; color: #f8fafc;">
+            <button type="button" class="btn btn-secondary btn-small" onclick="saveGasEndpoint()" style="padding: 7px 12px; font-size: 12px; cursor: pointer; border-radius: 5px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8;">💾 บันทึก URL</button>
+            <button type="button" class="btn btn-small" onclick="copyStudentShareLink('elab15-passive-filter-sheet-app')" style="padding: 7px 12px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="คัดลอกลิงก์ที่แนบ Google Apps Script ส่งให้นักเรียน">
+              🔗 คัดลอกลิงก์ให้นักเรียน
+            </button>
+            <button type="button" class="btn btn-primary btn-small" onclick="testGasEndpoint()" style="padding: 7px 12px; font-size: 12px; cursor: pointer; border-radius: 5px; background: #0284c7; border: none; color: #fff;">🧪 ทดสอบเชื่อมต่อ</button>
+          </div>
+        </div>
+
+        <!-- Mode Selector Card (Dual-Mode Architecture) -->
+        <div class="mode-select-card" id="lab-mode-card">
+          <div>
+            <span style="font-weight: 700; font-family: 'Chakra Petch'; color: #fff; font-size: 15px;">
+              <i class="fa-solid fa-network-wired" style="color: var(--accent-cyan);"></i> โหมดการทดลอง (Experiment Data Source):
+            </span>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+              เลือกแหล่งที่มาของข้อมูลการทดลองเพื่อปรับเกณฑ์ความคลาดเคลื่อนในการตรวจประเมิน
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btn-mode-sim" class="btn btn-chip active" style="font-size: 13px; padding: 6px 14px;" onclick="setLabMode('simulation')">
+              🔬 Virtual Simulator (ซิมูเลเตอร์)
+            </button>
+            <button id="btn-mode-hw" class="btn btn-chip" style="font-size: 13px; padding: 6px 14px;" onclick="setLabMode('hardware')">
+              🔌 Hardware Lab (อุปกรณ์จริง)
+            </button>
+          </div>
+        </div>
+
+        <!-- Hardware Components Info (Visible in Hardware Mode) -->
+        <div id="hw-components-panel" class="card" style="display: none; background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3);">
+          <h2 class="card-title" style="color: #34d399;"><i class="fa-solid fa-microchip"></i> ค่าอุปกรณ์จริงที่ใช้วัดในห้องปฏิบัติการ</h2>
+          <div class="form-grid">
+            <div class="form-input-group">
+              <label>ความต้านทาน \(R_{measured}\) (โอห์ม):</label>
+              <input type="number" id="hw-r-val" placeholder="เช่น 992" value="1000">
+            </div>
+            <div class="form-input-group">
+              <label>ตัวเก็บประจุ \(C_{measured}\) (nF):</label>
+              <input type="number" id="hw-c-val" placeholder="เช่น 98.4" value="100">
+            </div>
+            <div class="form-input-group">
+              <label>ความถี่คัทออฟคำนวณจริง \(f_{c(calc)}\) (Hz):</label>
+              <input type="text" id="hw-fc-val" readonly style="color: #34d399; font-weight: bold;" value="1591 Hz">
+            </div>
+          </div>
+        </div>
+
+        <!-- Table 1: Low-Pass Filter Response -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              <i class="fa-solid fa-table"></i> ตารางที่ 1: การตอบสนองความถี่ของวงจรกรองความถี่ต่ำ RC (Low-Pass Filter)
+            </h2>
+            <button class="btn btn-fetch" onclick="autoFillTable(1)">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> ดึงค่าวัด LPF อัตโนมัติ
+            </button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 8px 0 12px 0;">
+            กำหนด \(R = 1.0\text{ k}\Omega, C = 100\text{ nF}\) ค่าความถี่คัทออฟทางทฤษฎี \(f_c = 1.59\text{ kHz}\), ปรับ \(V_{in(p-p)} = 5.0\text{ V}\)
+          </p>
+
+          <div style="overflow-x: auto;">
+            <table class="lab-table" id="table-lpf">
+              <thead>
+                <tr>
+                  <th>จุดทดสอบความถี่</th>
+                  <th>ความถี่ \(f\) (Hz)</th>
+                  <th>\(V_{in(p-p)}\) (V)</th>
+                  <th>\(V_{out(p-p)}\) (V)</th>
+                  <th>อัตราขยาย \(A_v\)</th>
+                  <th>อัตราขยาย \(A_v\) (dB)</th>
+                  <th>มุมเฟส \(\theta\) (°)</th>
+                  <th>ดึงค่าวัด</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Rows dynamically filled or manually input -->
+                <tr data-ratio="0.1">
+                  <td>\(0.1 f_c\) (159 Hz)</td>
+                  <td>159</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t1-vout-0" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-av-0" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-db-0" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-phase-0" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(1, 0, 0.1)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="0.5">
+                  <td>\(0.5 f_c\) (796 Hz)</td>
+                  <td>796</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t1-vout-1" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-av-1" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-db-1" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-phase-1" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(1, 1, 0.5)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="1.0" style="background: rgba(56, 189, 248, 0.1);">
+                  <td style="color: var(--accent-cyan); font-weight: bold;">\(1.0 f_c\) (1,592 Hz) ★จุดตัด</td>
+                  <td style="color: var(--accent-cyan);">1,592</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t1-vout-2" placeholder="-" style="border-color: var(--accent-cyan);"></td>
+                  <td><input type="text" class="table-input" id="t1-av-2" placeholder="-" style="border-color: var(--accent-cyan);"></td>
+                  <td><input type="text" class="table-input" id="t1-db-2" placeholder="-" style="border-color: var(--accent-cyan);"></td>
+                  <td><input type="text" class="table-input" id="t1-phase-2" placeholder="-" style="border-color: var(--accent-cyan);"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(1, 2, 1.0)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="2.0">
+                  <td>\(2.0 f_c\) (3,183 Hz)</td>
+                  <td>3,183</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t1-vout-3" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-av-3" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-db-3" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-phase-3" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(1, 3, 2.0)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="5.0">
+                  <td>\(5.0 f_c\) (7,958 Hz)</td>
+                  <td>7,958</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t1-vout-4" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-av-4" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-db-4" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-phase-4" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(1, 4, 5.0)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="10.0">
+                  <td>\(10.0 f_c\) (15,915 Hz)</td>
+                  <td>15,915</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t1-vout-5" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-av-5" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-db-5" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t1-phase-5" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(1, 5, 10.0)">ดึงค่า</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Table 2: High-Pass Filter Response -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h2 class="card-title" style="margin-bottom: 0;">
+              <i class="fa-solid fa-table"></i> ตารางที่ 2: การตอบสนองความถี่ของวงจรกรองความถี่สูง RC (High-Pass Filter)
+            </h2>
+            <button class="btn btn-fetch" onclick="autoFillTable(2)">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> ดึงค่าวัด HPF อัตโนมัติ
+            </button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 8px 0 12px 0;">
+            กำหนด \(R = 1.0\text{ k}\Omega, C = 100\text{ nF}\) สลับตำแหน่ง \(C\) เป็นตัวอนุกรม และ \(R\) ต่อลงกราวด์ (\(f_c = 1.59\text{ kHz}\))
+          </p>
+
+          <div style="overflow-x: auto;">
+            <table class="lab-table" id="table-hpf">
+              <thead>
+                <tr>
+                  <th>จุดทดสอบความถี่</th>
+                  <th>ความถี่ \(f\) (Hz)</th>
+                  <th>\(V_{in(p-p)}\) (V)</th>
+                  <th>\(V_{out(p-p)}\) (V)</th>
+                  <th>อัตราขยาย \(A_v\)</th>
+                  <th>อัตราขยาย \(A_v\) (dB)</th>
+                  <th>มุมเฟส \(\theta\) (°)</th>
+                  <th>ดึงค่าวัด</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-ratio="0.1">
+                  <td>\(0.1 f_c\) (159 Hz)</td>
+                  <td>159</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t2-vout-0" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-av-0" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-db-0" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-phase-0" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(2, 0, 0.1)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="0.5">
+                  <td>\(0.5 f_c\) (796 Hz)</td>
+                  <td>796</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t2-vout-1" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-av-1" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-db-1" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-phase-1" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(2, 1, 0.5)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="1.0" style="background: rgba(168, 85, 247, 0.1);">
+                  <td style="color: #c084fc; font-weight: bold;">\(1.0 f_c\) (1,592 Hz) ★จุดตัด</td>
+                  <td style="color: #c084fc;">1,592</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t2-vout-2" placeholder="-" style="border-color: #c084fc;"></td>
+                  <td><input type="text" class="table-input" id="t2-av-2" placeholder="-" style="border-color: #c084fc;"></td>
+                  <td><input type="text" class="table-input" id="t2-db-2" placeholder="-" style="border-color: #c084fc;"></td>
+                  <td><input type="text" class="table-input" id="t2-phase-2" placeholder="-" style="border-color: #c084fc;"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(2, 2, 1.0)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="2.0">
+                  <td>\(2.0 f_c\) (3,183 Hz)</td>
+                  <td>3,183</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t2-vout-3" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-av-3" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-db-3" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-phase-3" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(2, 3, 2.0)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="5.0">
+                  <td>\(5.0 f_c\) (7,958 Hz)</td>
+                  <td>7,958</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t2-vout-4" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-av-4" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-db-4" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-phase-4" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(2, 4, 5.0)">ดึงค่า</button></td>
+                </tr>
+                <tr data-ratio="10.0">
+                  <td>\(10.0 f_c\) (15,915 Hz)</td>
+                  <td>15,915</td>
+                  <td>5.0</td>
+                  <td><input type="text" class="table-input" id="t2-vout-5" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-av-5" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-db-5" placeholder="-"></td>
+                  <td><input type="text" class="table-input" id="t2-phase-5" placeholder="-"></td>
+                  <td><button class="btn-fetch" onclick="measureRow(2, 5, 10.0)">ดึงค่า</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card-footer-action no-print" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">
+            🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="printReport()">
+            🖨️ พิมพ์ใบงาน PDF
+          </button>
+          <button type="button" class="btn btn-secondary" style="border-color: var(--accent-yellow, #f59e0b); color: var(--accent-yellow, #f59e0b); font-weight: bold;" onclick="previewScoreBeforeSubmit()">
+            🔍 ตรวจคะแนนก่อนส่ง
+          </button>
+          <button type="button" class="btn btn-primary" onclick="switchTab('tab-assessment')">
+            ไปทำคำถามท้ายแล็บและสรุปผล ❓ <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           TAB 4: คำถามและสรุปผล (ASSESSMENT)
+           ==================================================================== -->
+      <section id="tab-assessment" class="tab-content">
+        <div class="card">
+          <h2 class="card-title"><i class="fa-solid fa-square-check"></i> คำถามวัดความเข้าใจท้ายการทดลอง (4.0 คะแนน)</h2>
+
+          <!-- Q1 -->
+          <div class="quiz-card">
+            <div class="quiz-question">
+              <strong>ข้อที่ 1:</strong> ความถี่คัทออฟ (Cutoff Frequency, \(f_c\)) หรือจุดตัด \(-3\text{ dB}\) ของวงจรกรอง หมายถึงสภาวะใดต่อไปนี้?
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-option">
+                <input type="radio" name="q1" value="A">
+                <span>A) จุดที่แรงดันเอาต์พุตลดลงเหลือ 0 โวลต์ (หยุดนำสัญญาณโดยสิ้นเชิง)</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q1" value="B">
+                <span>B) จุดที่อัตราขยายแรงดันลดลงเหลือ \(0.707\) เท่า (\(1/\sqrt{2}\)) และกำลังไฟฟ้าลดลงเหลือ \(50\%\) ของย่าน Passband</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q1" value="C">
+                <span>C) จุดที่อัตราขยายแรงดันเพิ่มขึ้นเป็น 2 เท่าจากสัญญาณอินพุต</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q1" value="D">
+                <span>D) จุดที่มุมต่างเฟสระหว่างอินพุตและเอาต์พุตมีค่าเท่ากับ \(0^\circ\) เสมอ</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="quiz-card">
+            <div class="quiz-question">
+              <strong>ข้อที่ 2:</strong> สำหรับวงจรกรองแบบพาสซีฟ RC อันดับที่ 1 (First-Order Filter) ในย่านความถี่ Stopband อัตราการลดทอนของสัญญาณ (Roll-off Rate) มีค่าความชันตามข้อใด?
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-option">
+                <input type="radio" name="q2" value="A">
+                <span>A) \(-3\text{ dB/decade}\) หรือ \(-1\text{ dB/octave}\)</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q2" value="B">
+                <span>B) \(-10\text{ dB/decade}\) หรือ \(-3\text{ dB/octave}\)</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q2" value="C">
+                <span>C) \(-20\text{ dB/decade}\) หรือ \(-6\text{ dB/octave}\)</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q2" value="D">
+                <span>D) \(-40\text{ dB/decade}\) หรือ \(-12\text{ dB/octave}\)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="quiz-card">
+            <div class="quiz-question">
+              <strong>ข้อที่ 3:</strong> ในวงจรกรองความถี่ต่ำ RC (Low-Pass Filter) ที่ความถี่คัทออฟ \(f = f_c\) มุมต่างเฟส (Phase Shift, \(\theta\)) ระหว่างสัญญาณเอาต์พุตและอินพุตมีค่าเท่าใด?
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-option">
+                <input type="radio" name="q3" value="A">
+                <span>A) \(-45^\circ\) (สัญญาณเอาต์พุตล้าหลังอินพุต \(45^\circ\))</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q3" value="B">
+                <span>B) \(+45^\circ\) (สัญญาณเอาต์พุตนำหน้าอินพุต \(45^\circ\))</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q3" value="C">
+                <span>C) \(-90^\circ\) (สัญญาณกลับเฟสตรงข้าม)</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q3" value="D">
+                <span>D) \(0^\circ\) (สัญญาณอินพุตและเอาต์พุตอินเฟสกัน)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="quiz-card">
+            <div class="quiz-question">
+              <strong>ข้อที่ 4:</strong> หากวิศวกรต้องการเพิ่มความถี่คัทออฟ \(f_c\) ของวงจรกรองให้สูงขึ้นเป็น 2 เท่า (ขยายแบนด์วิดท์ LPF) จะต้องปรับเปลี่ยนค่าอุปกรณ์อย่างไร?
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-option">
+                <input type="radio" name="q4" value="A">
+                <span>A) เพิ่มค่าตัวต้านทาน \(R\) ขึ้นเป็น 2 เท่า</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q4" value="B">
+                <span>B) เพิ่มค่าตัวเก็บประจุ \(C\) ขึ้นเป็น 2 เท่า</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q4" value="C">
+                <span>C) เพิ่มแรงดันไฟอินพุต \(V_{in}\) ขึ้นเป็น 2 เท่า</span>
+              </label>
+              <label class="quiz-option">
+                <input type="radio" name="q4" value="D">
+                <span>D) ลดค่าความต้านทาน \(R\) ลงครึ่งหนึ่ง หรือลดค่าตัวเก็บประจุ \(C\) ลงครึ่งหนึ่ง</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Conclusion Card -->
+        <div class="card">
+          <h2 class="card-title"><i class="fa-solid fa-pen-nib"></i> สรุปและวิจารณ์ผลการทดลอง (Lab Discussion & Conclusion)</h2>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+            กรุณาเขียนสรุปผลการทดลอง อธิบายเปรียบเทียบพฤติกรรมระหว่าง LPF และ HPF, ผลของจุดตัด \(-3\text{ dB}\), แบนด์วิดท์ และการเลื่อนเฟสด้วยความเข้าใจตนเอง (มีระบบ Anti-Cheat ป้องกันการ Copy/Paste):
+          </p>
+          <textarea id="lab-conclusion" placeholder="เขียนสรุปผลการทดลอง เช่น จากการทดลองพบว่าวงจร RC Low-Pass Filter ยอมให้สัญญาณความถี่ต่ำกว่าจุดคัทออฟผ่านได้ โดยที่จุด fc มีอัตราขยายลดลง -3dB..."></textarea>
+
+          <div class="card-footer-action no-print" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">
+              🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="printReport()">
+              🖨️ พิมพ์ใบงาน PDF
+            </button>
+            <button type="button" class="btn btn-secondary" style="border-color: var(--accent-yellow, #f59e0b); color: var(--accent-yellow, #f59e0b); font-weight: bold;" onclick="previewScoreBeforeSubmit()">
+              🔍 ตรวจสอบคะแนนก่อนส่ง
+            </button>
+            <button type="button" class="btn btn-primary" onclick="submitReportToGAS()">
+              🚀 ส่งใบงานและตรวจคะแนน
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Anti-Cheat Warning Toast -->
+  <div id="anti-cheat-toast" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(15px); background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.95)); color: #fff; padding: 12px 24px; border-radius: 10px; font-family: 'Chakra Petch', sans-serif; font-size: 14px; font-weight: bold; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5); z-index: 100000; border: 1px solid rgba(255, 255, 255, 0.3); pointer-events: none; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center;">
+    🚫 ไม่อนุญาตให้คัดลอก/วางข้อความ (Anti-Cheat Protection)<br>
+    <span style="font-size: 12px; font-weight: normal; font-family: 'Sarabun'; opacity: 0.95;">กรุณาคิด วิเคราะห์ และพิมพ์สรุปผลการทดลองด้วยตนเอง</span>
+  </div>
+
+  <!-- Core Javascript Engines -->
+  <script>
+/* ==========================================================================
+   Passive Filter Lab - Mathematical & Circuit Simulation Engine
+   ========================================================================== */
+
+const STATE = {
+  // Circuit Components
+  filterType: 'lpf',     // 'lpf' or 'hpf'
+  rOhms: 1000.0,         // Resistor in Ohms (Default 1k)
+  cFarads: 100e-9,       // Capacitor in Farads (Default 100nF)
+  
+  // Signal Generator
+  frequency: 1000.0,     // Input frequency in Hz
+  vinPkPk: 5.0,          // Input Peak-to-Peak Voltage in Volts
+  
+  // Oscilloscope Settings
+  timebaseMsDiv: 0.2,    // ms per division
+  ch1VoltsDiv: 1.0,      // Volts per division for CH1 (Vin)
+  ch2VoltsDiv: 1.0,      // Volts per division for CH2 (Vout)
+  
+  // Active sub-view in Simulator tab
+  simView: 'schematic',  // 'schematic', 'bode', 'scope'
+  labDataSource: 'simulation' // 'simulation' or 'hardware'
+};
+
+// Calculate Cutoff Frequency fc = 1 / (2 * pi * R * C)
+function getCutoffFrequency() {
+  return 1.0 / (2.0 * Math.PI * STATE.rOhms * STATE.cFarads);
+}
+
+// Calculate Filter Response at frequency f
+function calculateResponse(f) {
+  const fc = getCutoffFrequency();
+  const ratio = f / fc;
+  let av = 0;
+  let phaseDeg = 0;
+
+  if (STATE.filterType === 'lpf') {
+    // Low-Pass Filter
+    av = 1.0 / Math.sqrt(1.0 + Math.pow(ratio, 2));
+    phaseDeg = -Math.atan(ratio) * (180.0 / Math.PI);
+  } else {
+    // High-Pass Filter
+    av = ratio / Math.sqrt(1.0 + Math.pow(ratio, 2));
+    phaseDeg = Math.atan(1.0 / ratio) * (180.0 / Math.PI);
+  }
+
+  const voutPkPk = STATE.vinPkPk * av;
+  const gainDb = 20.0 * Math.log10(Math.max(1e-6, av));
+
+  return {
+    f: f,
+    fc: fc,
+    ratio: ratio,
+    av: av,
+    voutPkPk: voutPkPk,
+    gainDb: gainDb,
+    phaseDeg: phaseDeg
+  };
+}
+
+/* ==========================================================================
+   UI & Rendering Logic
+   ========================================================================== */
+
+let scopeCanvas = null;
+let scopeCtx = null;
+let bodeCanvas = null;
+let bodeCtx = null;
+
+function initUI() {
+  // Bind Scope & Bode canvases
+  scopeCanvas = document.getElementById('scope-canvas');
+  if (scopeCanvas) scopeCtx = scopeCanvas.getContext('2d');
+  
+  bodeCanvas = document.getElementById('bode-canvas');
+  if (bodeCanvas) bodeCtx = bodeCanvas.getContext('2d');
+
+  // Set today date
+  const dateInput = document.getElementById('lab-date');
+  if (dateInput && !dateInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+
+  updateAll();
+}
+
+function updateAll() {
+  const fc = getCutoffFrequency();
+  const res = calculateResponse(STATE.frequency);
+
+  // Update Metric Cards
+  document.getElementById('m-fc').innerText = formatFreq(fc);
+  document.getElementById('m-fin').innerText = formatFreq(STATE.frequency);
+  document.getElementById('m-vout').innerText = res.voutPkPk.toFixed(2) + ' V';
+  document.getElementById('m-av').innerText = res.av.toFixed(3);
+  document.getElementById('m-db').innerText = res.gainDb.toFixed(2) + ' dB';
+  document.getElementById('m-phase').innerText = (res.phaseDeg > 0 ? '+' : '') + res.phaseDeg.toFixed(1) + '°';
+
+  // Update slider label texts
+  document.getElementById('txt-r').innerText = formatResistance(STATE.rOhms);
+  document.getElementById('txt-c').innerText = formatCapacitance(STATE.cFarads);
+  document.getElementById('txt-fin').innerText = formatFreq(STATE.frequency);
+  document.getElementById('txt-vin').innerText = STATE.vinPkPk.toFixed(1) + ' V';
+
+  // Auto-tune scope timebase for best view
+  const periodMs = 1000.0 / STATE.frequency;
+  autoAdjustTimebase(periodMs);
+
+  // Render SVG schematic
+  renderSchematic(res);
+
+  // Render Bode Plot
+  if (STATE.simView === 'bode' || !bodeCanvas) {
+    drawBodePlot();
+  }
+
+  // Render Oscilloscope
+  if (STATE.simView === 'scope' || !scopeCanvas) {
+    drawOscilloscope(res);
+  }
+}
+
+function formatFreq(f) {
+  if (f >= 1000) return (f / 1000).toFixed(2) + ' kHz';
+  return f.toFixed(1) + ' Hz';
+}
+
+function formatResistance(r) {
+  if (r >= 1000) return (r / 1000).toFixed(1) + ' kΩ';
+  return r.toFixed(0) + ' Ω';
+}
+
+function formatCapacitance(c) {
+  const nF = c * 1e9;
+  if (nF >= 1000) return (nF / 1000).toFixed(2) + ' µF';
+  return nF.toFixed(0) + ' nF';
+}
+
+/* ==========================================================================
+   Tab Navigation & Multi-View Switcher
+   ========================================================================== */
+
+function switchTab(tabId) {
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === tabId);
+  });
+
+  if (tabId === 'tab-simulator') {
+    setTimeout(() => {
+      ensureCanvasSize();
+      updateAll();
+    }, 60);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchSimView(view) {
+  STATE.simView = view;
+  document.getElementById('btn-view-schem').classList.toggle('active', view === 'schematic');
+  document.getElementById('btn-view-bode').classList.toggle('active', view === 'bode');
+  document.getElementById('btn-view-scope').classList.toggle('active', view === 'scope');
+
+  document.getElementById('pane-schematic').classList.toggle('active', view === 'schematic');
+  document.getElementById('pane-bode').classList.toggle('active', view === 'bode');
+  document.getElementById('pane-scope').classList.toggle('active', view === 'scope');
+
+  const titleIcon = document.getElementById('view-title-icon');
+  const titleText = document.getElementById('view-title-text');
+
+  if (view === 'schematic') {
+    titleIcon.innerHTML = '<i class="fa-solid fa-diagram-project"></i>';
+    titleText.innerText = 'แผนภาพวงจรและการต่อวัด (Schematic)';
+  } else if (view === 'bode') {
+    titleIcon.innerHTML = '<i class="fa-solid fa-chart-area"></i>';
+    titleText.innerText = 'กราฟการตอบสนองความถี่ (Frequency Response / Bode Plot)';
+    setTimeout(() => { ensureCanvasSize(); drawBodePlot(); }, 50);
+  } else if (view === 'scope') {
+    titleIcon.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
+    titleText.innerText = 'ออสซิลโลสโคป 2 ช่องสัญญาณ (Dual-Trace Oscilloscope)';
+    setTimeout(() => { ensureCanvasSize(); updateAll(); }, 50);
+  }
+}
+
+function ensureCanvasSize() {
+  if (scopeCanvas && scopeCanvas.clientWidth > 0) {
+    scopeCanvas.width = scopeCanvas.clientWidth;
+    scopeCanvas.height = scopeCanvas.clientHeight || 280;
+  }
+  if (bodeCanvas && bodeCanvas.clientWidth > 0) {
+    bodeCanvas.width = bodeCanvas.clientWidth;
+    bodeCanvas.height = bodeCanvas.clientHeight || 280;
+  }
+}
+
+/* ==========================================================================
+   Filter Component Parameters Manipulation
+   ========================================================================== */
+
+function setFilterType(type) {
+  STATE.filterType = type;
+  document.getElementById('btn-type-lpf').classList.toggle('active', type === 'lpf');
+  document.getElementById('btn-type-hpf').classList.toggle('active', type === 'hpf');
+  updateAll();
+}
+
+function setR(val) {
+  STATE.rOhms = val;
+  document.getElementById('slider-r').value = val;
+  updateChipSelection('slider-r', val);
+  updateAll();
+}
+
+function setC(nF) {
+  STATE.cFarads = nF * 1e-9;
+  document.getElementById('slider-c').value = nF;
+  updateChipSelection('slider-c', nF);
+  updateAll();
+}
+
+function updateChipSelection(sliderId, val) {
+  const container = document.getElementById(sliderId).nextElementSibling;
+  if (!container) return;
+  const chips = container.querySelectorAll('.btn-chip');
+  chips.forEach(chip => {
+    chip.classList.toggle('active', chip.getAttribute('onclick')?.includes(`(${val})`));
+  });
+}
+
+function onParamChange() {
+  STATE.rOhms = parseFloat(document.getElementById('slider-r').value);
+  STATE.cFarads = parseFloat(document.getElementById('slider-c').value) * 1e-9;
+  STATE.vinPkPk = parseFloat(document.getElementById('slider-vin').value);
+  updateAll();
+}
+
+// Map linear slider 1..500 to logarithmic frequency 10 Hz..100,000 Hz
+function onFreqSliderChange() {
+  const sliderVal = parseFloat(document.getElementById('slider-fin').value);
+  // Log scale: min 10Hz (log10=1), max 100kHz (log10=5)
+  const logMin = Math.log10(10);
+  const logMax = Math.log10(100000);
+  const logFreq = logMin + (sliderVal / 500) * (logMax - logMin);
+  STATE.frequency = Math.pow(10, logFreq);
+  updateAll();
+}
+
+function setFreqRatio(ratio) {
+  const fc = getCutoffFrequency();
+  STATE.frequency = Math.max(10, Math.min(100000, fc * ratio));
+  // Sync slider
+  const logMin = Math.log10(10);
+  const logMax = Math.log10(100000);
+  const sliderVal = ((Math.log10(STATE.frequency) - logMin) / (logMax - logMin)) * 500;
+  document.getElementById('slider-fin').value = sliderVal;
+  updateAll();
+}
+
+/* ==========================================================================
+   SVG Schematic Dynamic Renderer
+   ========================================================================== */
+
+function renderSchematic(res) {
+  document.getElementById('svg-lbl-vin').textContent = `Vin: ${STATE.vinPkPk.toFixed(1)} Vp-p`;
+  document.getElementById('svg-lbl-fin').textContent = `f = ${formatFreq(STATE.frequency)}`;
+  document.getElementById('svg-lbl-vout').textContent = `Vout: ${res.voutPkPk.toFixed(2)} Vp-p`;
+  document.getElementById('svg-lbl-db').textContent = `${res.gainDb.toFixed(2)} dB (${(res.phaseDeg > 0 ? '+' : '') + res.phaseDeg.toFixed(1)}°)`;
+
+  const seriesG = document.getElementById('svg-series-comp');
+  const shuntG = document.getElementById('svg-shunt-comp');
+  if (!seriesG || !shuntG) return;
+
+  if (STATE.filterType === 'lpf') {
+    // LPF: Series is Resistor R, Shunt is Capacitor C
+    seriesG.innerHTML = `
+      <rect x="160" y="48" width="55" height="24" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4" />
+      <line x1="215" y1="60" x2="270" y2="60" stroke="#38bdf8" stroke-width="2" />
+      <text x="187" y="40" fill="#bae6fd" font-size="12" font-family="Fira Code" font-weight="bold" text-anchor="middle">R = ${formatResistance(STATE.rOhms)}</text>
+    `;
+    shuntG.innerHTML = `
+      <line x1="270" y1="100" x2="270" y2="135" stroke="#38bdf8" stroke-width="2" />
+      <line x1="252" y1="135" x2="288" y2="135" stroke="#a855f7" stroke-width="2.5" />
+      <line x1="252" y1="143" x2="288" y2="143" stroke="#a855f7" stroke-width="2.5" />
+      <line x1="270" y1="143" x2="270" y2="210" stroke="#64748b" stroke-width="2" />
+      <text x="302" y="143" fill="#d8b4fe" font-size="12" font-family="Fira Code" font-weight="bold">C = ${formatCapacitance(STATE.cFarads)}</text>
+    `;
+  } else {
+    // HPF: Series is Capacitor C, Shunt is Resistor R
+    seriesG.innerHTML = `
+      <line x1="160" y1="60" x2="198" y2="60" stroke="#38bdf8" stroke-width="2" />
+      <line x1="198" y1="46" x2="198" y2="74" stroke="#a855f7" stroke-width="2.5" />
+      <line x1="206" y1="46" x2="206" y2="74" stroke="#a855f7" stroke-width="2.5" />
+      <line x1="206" y1="60" x2="270" y2="60" stroke="#38bdf8" stroke-width="2" />
+      <text x="202" y="38" fill="#d8b4fe" font-size="12" font-family="Fira Code" font-weight="bold" text-anchor="middle">C = ${formatCapacitance(STATE.cFarads)}</text>
+    `;
+    shuntG.innerHTML = `
+      <line x1="270" y1="100" x2="270" y2="120" stroke="#38bdf8" stroke-width="2" />
+      <rect x="258" y="120" width="24" height="55" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4" />
+      <line x1="270" y1="175" x2="270" y2="210" stroke="#64748b" stroke-width="2" />
+      <text x="296" y="152" fill="#bae6fd" font-size="12" font-family="Fira Code" font-weight="bold">R = ${formatResistance(STATE.rOhms)}</text>
+    `;
+  }
+}
+
+/* ==========================================================================
+   Bode Plot Canvas Renderer
+   ========================================================================== */
+
+function drawBodePlot() {
+  if (!bodeCanvas) bodeCanvas = document.getElementById('bode-canvas');
+  if (!bodeCanvas) return;
+  if (!bodeCtx) bodeCtx = bodeCanvas.getContext('2d');
+  if (!bodeCtx) return;
+
+  const w = bodeCanvas.width || 500;
+  const h = bodeCanvas.height || 280;
+  if (w <= 0 || h <= 0) return;
+
+  // Background
+  bodeCtx.fillStyle = '#080c10';
+  bodeCtx.fillRect(0, 0, w, h);
+
+  const paddingLeft = 55;
+  const paddingRight = 30;
+  const paddingTop = 25;
+  const paddingBottom = 40;
+  const plotW = w - paddingLeft - paddingRight;
+  const plotH = h - paddingTop - paddingBottom;
+
+  // Frequency range: 10 Hz (10^1) to 100,000 Hz (10^5) -> 4 Decades
+  const decMin = 1.0;
+  const decMax = 5.0;
+  const dbMin = -40.0;
+  const dbMax = 5.0;
+
+  function xFromFreq(f) {
+    const dec = Math.log10(Math.max(10, Math.min(100000, f)));
+    return paddingLeft + ((dec - decMin) / (decMax - decMin)) * plotW;
+  }
+
+  function yFromDb(db) {
+    return paddingTop + ((dbMax - db) / (dbMax - dbMin)) * plotH;
+  }
+
+  // Draw Grid Lines
+  bodeCtx.strokeStyle = 'rgba(71, 85, 105, 0.25)';
+  bodeCtx.lineWidth = 1;
+  bodeCtx.setLineDash([3, 3]);
+
+  // dB horizontal grid lines (0dB, -3dB, -10dB, -20dB, -30dB, -40dB)
+  const dBLabels = [0, -3, -10, -20, -30, -40];
+  bodeCtx.fillStyle = '#64748b';
+  bodeCtx.font = '10px "Fira Code", monospace';
+  bodeCtx.textAlign = 'right';
+
+  dBLabels.forEach(db => {
+    const y = yFromDb(db);
+    bodeCtx.beginPath();
+    bodeCtx.moveTo(paddingLeft, y);
+    bodeCtx.lineTo(paddingLeft + plotW, y);
+    bodeCtx.stroke();
+    bodeCtx.fillText(db + ' dB', paddingLeft - 8, y + 3);
+  });
+
+  // Frequency vertical decades (10Hz, 100Hz, 1kHz, 10kHz, 100kHz)
+  bodeCtx.textAlign = 'center';
+  const freqMarks = [10, 100, 1000, 10000, 100000];
+  freqMarks.forEach(fm => {
+    const x = xFromFreq(fm);
+    bodeCtx.beginPath();
+    bodeCtx.moveTo(x, paddingTop);
+    bodeCtx.lineTo(x, paddingTop + plotH);
+    bodeCtx.stroke();
+    bodeCtx.fillText(formatFreq(fm), x, paddingTop + plotH + 18);
+  });
+
+  bodeCtx.setLineDash([]);
+
+  // Highlight -3dB Reference Line (Red Dashed)
+  const yMinus3 = yFromDb(-3.0);
+  bodeCtx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+  bodeCtx.lineWidth = 1.5;
+  bodeCtx.setLineDash([5, 4]);
+  bodeCtx.beginPath();
+  bodeCtx.moveTo(paddingLeft, yMinus3);
+  bodeCtx.lineTo(paddingLeft + plotW, yMinus3);
+  bodeCtx.stroke();
+  bodeCtx.setLineDash([]);
+
+  // Plot Cutoff Frequency Vertical Line
+  const fc = getCutoffFrequency();
+  const xFc = xFromFreq(fc);
+  bodeCtx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+  bodeCtx.lineWidth = 1.5;
+  bodeCtx.setLineDash([4, 4]);
+  bodeCtx.beginPath();
+  bodeCtx.moveTo(xFc, paddingTop);
+  bodeCtx.lineTo(xFc, paddingTop + plotH);
+  bodeCtx.stroke();
+  bodeCtx.setLineDash([]);
+
+  // Cutoff marker text
+  bodeCtx.fillStyle = '#38bdf8';
+  bodeCtx.font = 'bold 11px "Chakra Petch"';
+  bodeCtx.textAlign = 'center';
+  bodeCtx.fillText(`fc = ${formatFreq(fc)} (-3dB)`, xFc, paddingTop - 8);
+
+  // Draw Full Frequency Response Curve
+  bodeCtx.strokeStyle = (STATE.filterType === 'lpf') ? '#38bdf8' : '#c084fc';
+  bodeCtx.lineWidth = 2.5;
+  bodeCtx.beginPath();
+
+  const numPoints = 120;
+  for (let i = 0; i <= numPoints; i++) {
+    const fDec = decMin + (i / numPoints) * (decMax - decMin);
+    const fVal = Math.pow(10, fDec);
+    const resp = calculateResponse(fVal);
+    const px = xFromFreq(fVal);
+    const py = yFromDb(resp.gainDb);
+
+    if (i === 0) bodeCtx.moveTo(px, py);
+    else bodeCtx.lineTo(px, py);
+  }
+  bodeCtx.stroke();
+
+  // Current Working Frequency Marker (Orange Dot)
+  const currentResp = calculateResponse(STATE.frequency);
+  const curX = xFromFreq(STATE.frequency);
+  const curY = yFromDb(currentResp.gainDb);
+
+  bodeCtx.fillStyle = '#f59e0b';
+  bodeCtx.beginPath();
+  bodeCtx.arc(curX, curY, 6, 0, 2 * Math.PI);
+  bodeCtx.fill();
+  bodeCtx.strokeStyle = '#fff';
+  bodeCtx.lineWidth = 2;
+  bodeCtx.stroke();
+
+  // Current Frequency Badge
+  bodeCtx.fillStyle = '#f59e0b';
+  bodeCtx.font = 'bold 11px "Fira Code"';
+  bodeCtx.textAlign = (curX > w - 120) ? 'right' : 'left';
+  bodeCtx.fillText(`f = ${formatFreq(STATE.frequency)} (${currentResp.gainDb.toFixed(1)} dB)`, curX + (curX > w - 120 ? -12 : 12), curY - 10);
+}
+
+/* ==========================================================================
+   Dual-Trace Oscilloscope Canvas Renderer
+   ========================================================================== */
+
+function autoAdjustTimebase(periodMs) {
+  // We want to show ~2 to 4 full cycles across 10 horizontal divisions
+  const targetTimePerDiv = (periodMs * 2.5) / 10.0;
+  const availableScales = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0];
+  
+  // Find closest scale
+  let closest = availableScales[0];
+  let minDiff = Math.abs(closest - targetTimePerDiv);
+  for (let s of availableScales) {
+    let diff = Math.abs(s - targetTimePerDiv);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = s;
+    }
+  }
+  STATE.timebaseMsDiv = closest;
+  document.getElementById('scope-txt-timebase').innerText = `${STATE.timebaseMsDiv} ms/div`;
+}
+
+function stepTimebase(dir) {
+  const scales = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0];
+  let idx = scales.indexOf(STATE.timebaseMsDiv);
+  if (dir > 0 && idx < scales.length - 1) idx++;
+  if (dir < 0 && idx > 0) idx--;
+  STATE.timebaseMsDiv = scales[idx];
+  document.getElementById('scope-txt-timebase').innerText = `${STATE.timebaseMsDiv} ms/div`;
+  drawOscilloscope(calculateResponse(STATE.frequency));
+}
+
+function stepVoltsDiv(ch, dir) {
+  const steps = [0.5, 1.0, 2.0, 5.0];
+  if (ch === 1) {
+    let idx = steps.indexOf(STATE.ch1VoltsDiv);
+    if (dir > 0 && idx < steps.length - 1) idx++;
+    if (dir < 0 && idx > 0) idx--;
+    STATE.ch1VoltsDiv = steps[idx];
+    document.getElementById('scope-txt-ch1v').innerText = `${STATE.ch1VoltsDiv} V/div`;
+  } else {
+    let idx = steps.indexOf(STATE.ch2VoltsDiv);
+    if (dir > 0 && idx < steps.length - 1) idx++;
+    if (dir < 0 && idx > 0) idx--;
+    STATE.ch2VoltsDiv = steps[idx];
+    document.getElementById('scope-txt-ch2v').innerText = `${STATE.ch2VoltsDiv} V/div`;
+  }
+  drawOscilloscope(calculateResponse(STATE.frequency));
+}
+
+function drawOscilloscope(res) {
+  if (!scopeCanvas) scopeCanvas = document.getElementById('scope-canvas');
+  if (!scopeCanvas) return;
+  if (!scopeCtx) scopeCtx = scopeCanvas.getContext('2d');
+  if (!scopeCtx) return;
+
+  const w = scopeCanvas.width || 500;
+  const h = scopeCanvas.height || 280;
+  if (w <= 0 || h <= 0) return;
+
+  // Background
+  scopeCtx.fillStyle = '#080c10';
+  scopeCtx.fillRect(0, 0, w, h);
+
+  // Draw 10x8 Division Scope Grid
+  const totalDivsX = 10;
+  const totalDivsY = 8;
+  const divX = w / totalDivsX;
+  const divY = h / totalDivsY;
+  const centerY = h / 2;
+
+  scopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+  scopeCtx.lineWidth = 1;
+  scopeCtx.setLineDash([4, 4]);
+
+  for (let i = 1; i < totalDivsX; i++) {
+    scopeCtx.beginPath();
+    scopeCtx.moveTo(i * divX, 0);
+    scopeCtx.lineTo(i * divX, h);
+    scopeCtx.stroke();
+  }
+  for (let j = 1; j < totalDivsY; j++) {
+    scopeCtx.beginPath();
+    scopeCtx.moveTo(0, j * divY);
+    scopeCtx.lineTo(w, j * divY);
+    scopeCtx.stroke();
+  }
+
+  // Center axes (Solid)
+  scopeCtx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+  scopeCtx.lineWidth = 1.5;
+  scopeCtx.setLineDash([]);
+  scopeCtx.beginPath();
+  scopeCtx.moveTo(0, centerY);
+  scopeCtx.lineTo(w, centerY);
+  scopeCtx.moveTo(w / 2, 0);
+  scopeCtx.lineTo(w / 2, h);
+  scopeCtx.stroke();
+
+  // Waveform parameters
+  const totalMs = STATE.timebaseMsDiv * totalDivsX;
+  const omega = 2 * Math.PI * STATE.frequency;
+  const phaseRad = res.phaseDeg * (Math.PI / 180.0);
+
+  const vinPeak = STATE.vinPkPk / 2.0;
+  const voutPeak = res.voutPkPk / 2.0;
+
+  const pxPerVoltCh1 = divY / STATE.ch1VoltsDiv;
+  const pxPerVoltCh2 = divY / STATE.ch2VoltsDiv;
+
+  // Channel 1: Vin Sine Wave (Yellow)
+  scopeCtx.strokeStyle = '#f59e0b';
+  scopeCtx.lineWidth = 2.5;
+  scopeCtx.beginPath();
+  for (let px = 0; px < w; px++) {
+    const tMs = (px / w) * totalMs;
+    const tSec = tMs / 1000.0;
+    const vIn = vinPeak * Math.sin(omega * tSec);
+    const py = centerY - (vIn * pxPerVoltCh1);
+    if (px === 0) scopeCtx.moveTo(px, py);
+    else scopeCtx.lineTo(px, py);
+  }
+  scopeCtx.stroke();
+
+  // Channel 2: Vout Sine Wave with phase shift (Cyan)
+  scopeCtx.strokeStyle = '#38bdf8';
+  scopeCtx.lineWidth = 2.5;
+  scopeCtx.beginPath();
+  for (let px = 0; px < w; px++) {
+    const tMs = (px / w) * totalMs;
+    const tSec = tMs / 1000.0;
+    const vOut = voutPeak * Math.sin(omega * tSec + phaseRad);
+    const py = centerY - (vOut * pxPerVoltCh2);
+    if (px === 0) scopeCtx.moveTo(px, py);
+    else scopeCtx.lineTo(px, py);
+  }
+  scopeCtx.stroke();
+
+  // Scope Watermark / Legend
+  scopeCtx.fillStyle = '#f59e0b';
+  scopeCtx.font = 'bold 11px "Chakra Petch"';
+  scopeCtx.fillText('● CH1 (Vin): ' + STATE.vinPkPk.toFixed(1) + ' Vp-p', 12, 18);
+
+  scopeCtx.fillStyle = '#38bdf8';
+  scopeCtx.fillText('● CH2 (Vout): ' + res.voutPkPk.toFixed(2) + ' Vp-p (Phase: ' + (res.phaseDeg > 0 ? '+' : '') + res.phaseDeg.toFixed(1) + '°)', 12, 34);
+}
+
+/* ==========================================================================
+   Worksheet & Auto-Measurement System
+   ========================================================================== */
+
+function setLabMode(mode) {
+  STATE.labDataSource = mode;
+  document.getElementById('btn-mode-sim').classList.toggle('active', mode === 'simulation');
+  document.getElementById('btn-mode-hw').classList.toggle('active', mode === 'hardware');
+  document.getElementById('hw-components-panel').style.display = (mode === 'hardware') ? 'block' : 'none';
+}
+
+function measureRow(tableNum, rowIdx, ratio) {
+  const fc = getCutoffFrequency();
+  const f = fc * ratio;
+  const prevType = STATE.filterType;
+  STATE.filterType = (tableNum === 1) ? 'lpf' : 'hpf';
+  const res = calculateResponse(f);
+  STATE.filterType = prevType;
+
+  const prefix = `t${tableNum}-`;
+  const voutEl = document.getElementById(`${prefix}vout-${rowIdx}`);
+  const avEl = document.getElementById(`${prefix}av-${rowIdx}`);
+  const dbEl = document.getElementById(`${prefix}db-${rowIdx}`);
+  const phaseEl = document.getElementById(`${prefix}phase-${rowIdx}`);
+
+  if (voutEl) voutEl.value = res.voutPkPk.toFixed(2);
+  if (avEl) avEl.value = res.av.toFixed(3);
+  if (dbEl) dbEl.value = res.gainDb.toFixed(2);
+  if (phaseEl) phaseEl.value = (res.phaseDeg > 0 ? '+' : '') + res.phaseDeg.toFixed(1);
+
+  // Flash highlight row
+  const row = voutEl?.closest('tr');
+  if (row) {
+    row.style.backgroundColor = 'rgba(56, 189, 248, 0.2)';
+    setTimeout(() => { row.style.backgroundColor = ''; }, 800);
+  }
+}
+
+function autoFillTable(tableNum) {
+  const ratios = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0];
+  ratios.forEach((r, idx) => {
+    measureRow(tableNum, idx, r);
+  });
+}
+
+/* ==========================================================================
+   Worksheet Submission & Grading Logic (10.0 Points Rubric)
+   ========================================================================== */
+
+function getWorksheetPayload() {
+  const t1Rows = [];
+  for (let i = 0; i < 6; i++) {
+    t1Rows.push([
+      document.getElementById(`t1-vout-${i}`)?.value || '',
+      document.getElementById(`t1-av-${i}`)?.value || '',
+      document.getElementById(`t1-db-${i}`)?.value || '',
+      document.getElementById(`t1-phase-${i}`)?.value || ''
+    ]);
+  }
+
+  const t2Rows = [];
+  for (let i = 0; i < 6; i++) {
+    t2Rows.push([
+      document.getElementById(`t2-vout-${i}`)?.value || '',
+      document.getElementById(`t2-av-${i}`)?.value || '',
+      document.getElementById(`t2-db-${i}`)?.value || '',
+      document.getElementById(`t2-phase-${i}`)?.value || ''
+    ]);
+  }
+
+  return {
+    labDataSource: STATE.labDataSource,
+    studentName: document.getElementById('student-name')?.value.trim() || '',
+    studentId: document.getElementById('student-id')?.value.trim() || '',
+    studentGroup: document.getElementById('student-group')?.value.trim() || '',
+    labDate: document.getElementById('lab-date')?.value || '',
+    cutoffFreq: formatFreq(getCutoffFrequency()),
+    t1Rows: t1Rows,
+    t2Rows: t2Rows,
+    q1Answer: (document.querySelector('input[name="q1"]:checked')?.value || '').trim(),
+    q2Answer: (document.querySelector('input[name="q2"]:checked')?.value || '').trim(),
+    q3Answer: (document.querySelector('input[name="q3"]:checked')?.value || '').trim(),
+    q4Answer: (document.querySelector('input[name="q4"]:checked')?.value || '').trim(),
+    labConclusion: document.getElementById('lab-conclusion')?.value.trim() || ''
+  };
+}
+
+function localGradeSimulator(data) {
+  let score = 0;
+  const maxScore = 10.0;
+  const isHardware = (data.labDataSource === 'hardware');
+  
+  // Temporal Dead Zone Safety: declare feedback first
+  const feedback = [
+    isHardware
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab)'
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
+
+  // Table 1 (LPF) evaluation (3.0 pts)
+  let t1Pass = 0;
+  if (data.t1Rows) {
+    data.t1Rows.forEach(row => {
+      const vout = parseFloat(row[0]);
+      const db = parseFloat(row[2]);
+      if (!isNaN(vout) && vout > 0 && !isNaN(db)) t1Pass++;
+    });
+  }
+  let t1Score = (t1Pass >= 5) ? 3.0 : ((t1Pass >= 3) ? 2.0 : ((t1Pass >= 1) ? 1.0 : 0.0));
+  score += t1Score;
+  feedback.push(`[ตอนที่ 1] บันทึกผลวงจรกรองความถี่ต่ำ LPF: ได้ ${t1Score.toFixed(1)} / 3.0 คะแนน (${t1Pass}/6 จุดความถี่)`);
+
+  // Table 2 (HPF) evaluation (3.0 pts)
+  let t2Pass = 0;
+  if (data.t2Rows) {
+    data.t2Rows.forEach(row => {
+      const vout = parseFloat(row[0]);
+      const db = parseFloat(row[2]);
+      if (!isNaN(vout) && vout > 0 && !isNaN(db)) t2Pass++;
+    });
+  }
+  let t2Score = (t2Pass >= 5) ? 3.0 : ((t2Pass >= 3) ? 2.0 : ((t2Pass >= 1) ? 1.0 : 0.0));
+  score += t2Score;
+  feedback.push(`[ตอนที่ 2] บันทึกผลวงจรกรองความถี่สูง HPF: ได้ ${t2Score.toFixed(1)} / 3.0 คะแนน (${t2Pass}/6 จุดความถี่)`);
+
+  // Questions evaluation (4.0 pts)
+  const q1Ok = (data.q1Answer === 'B');
+  const q2Ok = (data.q2Answer === 'C');
+  const q3Ok = (data.q3Answer === 'A');
+  const q4Ok = (data.q4Answer === 'D');
+
+  let qScore = 0;
+  if (q1Ok) qScore += 1.0;
+  if (q2Ok) qScore += 1.0;
+  if (q3Ok) qScore += 1.0;
+  if (q4Ok) qScore += 1.0;
+  score += qScore;
+
+  feedback.push(`[คำถามวัดความเข้าใจ]: ได้ ${qScore.toFixed(1)} / 4.0 คะแนน`);
+  feedback.push(`  ข้อ 1 (นิยามจุดตัด -3dB): ${q1Ok ? '✓ ถูกต้อง (+1.0)' : (data.q1Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 2 (Roll-off Rate): ${q2Ok ? '✓ ถูกต้อง (+1.0)' : (data.q2Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 3 (Phase Shift LPF ที่ fc): ${q3Ok ? '✓ ถูกต้อง (+1.0)' : (data.q3Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+  feedback.push(`  ข้อ 4 (การปรับแบนด์วิดท์ 2 เท่า): ${q4Ok ? '✓ ถูกต้อง (+1.0)' : (data.q4Answer ? '✗ ไม่ถูกต้อง' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+  return {
+    score: score,
+    maxScore: maxScore,
+    feedback: feedback
+  };
+}
+
+function previewScoreBeforeSubmit() {
+  const data = getWorksheetPayload();
+  const res = localGradeSimulator(data);
+
+  let modal = document.getElementById('grading-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'grading-modal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(5px); font-family:Sarabun, sans-serif;';
+    document.body.appendChild(modal);
+  }
+
+  let scoreColor = '#38bdf8';
+  if (res.score < 5) scoreColor = '#ef4444';
+  else if (res.score < 7) scoreColor = '#f59e0b';
+  else if (res.score >= 9) scoreColor = '#10b981';
+
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:2px solid #38bdf8; border-radius:14px; padding:24px; max-width:520px; width:92%; max-height:85vh; overflow-y:auto; color:#fff; box-shadow:0 15px 35px rgba(56, 189, 248, 0.35);">
+      <h2 style="font-family:'Chakra Petch'; font-size:19px; color:#38bdf8; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+        🔍 ผลการประเมินคะแนนเบื้องต้น (Score Preview)
+      </h2>
+      <div style="background:rgba(15,23,42,0.8); border-radius:8px; padding:12px; text-align:center; margin-bottom:14px;">
+        <span style="font-size:12px; color:#94a3b8;">คะแนนรวมที่ได้</span>
+        <div style="font-size:32px; color:${scoreColor}; font-weight:bold; font-family:'Chakra Petch';">${res.score.toFixed(1)} / ${res.maxScore.toFixed(1)}</div>
+      </div>
+      <div style="font-size:13px; line-height:1.6; color:#cbd5e1; white-space:pre-line; margin-bottom:16px;">
+        ${res.feedback.join('\n')}
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn btn-secondary" onclick="document.getElementById('grading-modal').style.display='none'">✏️ กลับไปแก้ไขคำตอบ</button>
+        <button class="btn btn-primary" onclick="document.getElementById('grading-modal').style.display='none'; submitReportToGAS();">🚀 ยืนยันส่งใบงานจริง</button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function printReport() {
+  const name = (document.getElementById('student-name')?.value || '').trim();
+  const id = (document.getElementById('student-id')?.value || '').trim();
+  if (!name || !id) {
+    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
+    if (!confirmPrint) {
+      if (typeof switchTab === 'function') switchTab('tab-worksheet');
+      document.getElementById('student-name')?.focus();
+      return;
+    }
+  }
+  window.print();
+}
+window.printReport = printReport;
+
+function resetWorksheetForNewUser() {
+  const confirmMsg = "⚠️ ยืนยันการเริ่มทำใบงานใหม่สำหรับผู้ใช้อื่น?\n\n" +
+    "• ระบบจะปลดล็อกและเคลียร์ข้อมูลในใบงานทั้งหมด เพื่อให้นักศึกษาคนถัดไปเข้าใช้งาน\n" +
+    "• คะแนนและข้อมูลที่ส่งไปแล้วของนักศึกษาคนเดิมยังคงถูกบันทึกไว้อย่างปลอดภัยใน Google Sheets\n" +
+    "• หากยังไม่ได้บันทึกผลงาน กรุณากด 'Cancel' แล้วกด '🖨️ พิมพ์รายงาน / บันทึก PDF' ก่อน";
+  
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const worksheetTab = document.getElementById('tab-worksheet');
+  const assessmentTab = document.getElementById('tab-assessment');
+  const targetTabs = [worksheetTab, assessmentTab].filter(Boolean);
+
+  targetTabs.forEach(tab => {
+    tab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = false;
+      el.readOnly = false;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+        el.dispatchEvent(new Event('change'));
+      } else if (el.id === 'lab-date') {
+        try {
+          el.value = new Date().toISOString().split('T')[0];
+        } catch (e) {
+          el.value = '';
+        }
+      } else {
+        el.value = '';
+      }
+    });
+  });
+
+  ['student-id', 'student-name', 'student-group'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  if (studentId) {
+    localStorage.removeItem('elab15-passive-filter-sheet-app_submitted_' + studentId);
+  }
+
+  alert("✅ เคลียร์ข้อมูลเรียบร้อยแล้ว พร้อมสำหรับนักศึกษาคนถัดไป");
+  if (typeof switchTab === 'function') switchTab('tab-worksheet');
+  document.getElementById('student-name')?.focus();
+}
+window.resetWorksheetForNewUser = resetWorksheetForNewUser;
+
+function submitReportToGAS() {
+  const data = getWorksheetPayload();
+  if (!data.studentName || !data.studentId) {
+    alert('⚠️ กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษาก่อนส่งใบงาน!');
+    switchTab('tab-worksheet');
+    document.getElementById('student-name')?.focus();
+    return;
+  }
+
+  // Native Google Apps Script execution
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(res => {
+        alert(`✅ บันทึกใบงานเรียบร้อยแล้ว!\nระบบได้ส่งข้อมูลการทดลองและคะแนนเข้าสู่ Google Sheets สำเร็จ\nคะแนนที่ได้: ${(res && res.score !== undefined) ? res.score : 'บันทึกแล้ว'} คะแนน`);
+      })
+      .withFailureHandler(err => {
+        alert(`⚠️ การส่งข้อมูลขัดข้อง: ` + err.toString());
+      })
+      .submitWorksheet(data);
+    return;
+  }
+
+  // Check GAS endpoint
+  const url = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : (localStorage.getItem('gas_endpoint_elab15-passive-filter-sheet-app') || '');
+  if (!url || !url.startsWith('http')) {
+    const res = localGradeSimulator(data);
+    alert(`🎉 ตรวจประเมินผลภายในเครื่องเสร็จสิ้น (Local Mode):\n\nคะแนนที่ได้: ${res.score.toFixed(1)} / ${res.maxScore.toFixed(1)} คะแนน\n\nคำแนะนำ: หากต้องการส่งเข้า Google Sheets ของอาจารย์ สามารถกรอก Web App URL ได้ที่เมนูตั้งค่า`);
+    return;
+  }
+
+  fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    alert(`✅ บันทึกใบงานเรียบร้อยแล้ว!\nระบบได้ส่งข้อมูลการทดลองและคะแนนเข้าสู่ Google Sheets สำเร็จ`);
+  })
+  .catch(err => {
+    alert(`⚠️ การส่งข้อมูลขัดข้อง: ` + err.message);
+  });
+}
+
+/* ==========================================================================
+   Anti-Cheat Protection System
+   ========================================================================== */
+
+(function initAntiCheatSystem() {
+  let toastTimeout = null;
+
+  function showAntiCheatWarning(targetEl) {
+    const toast = document.getElementById('anti-cheat-toast');
+    if (toast) {
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+      }, 10);
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(15px)';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 3000);
+    }
+
+    if (targetEl) {
+      const originalBorder = targetEl.style.borderColor;
+      targetEl.style.borderColor = '#ef4444';
+      targetEl.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.6)';
+      setTimeout(() => {
+        targetEl.style.borderColor = originalBorder;
+        targetEl.style.boxShadow = '';
+      }, 1200);
+    }
+  }
+
+  function setupAntiCheatListeners() {
+    const protectedElements = document.querySelectorAll('textarea');
+    protectedElements.forEach(el => {
+      el.addEventListener('paste', (e) => {
+        e.preventDefault();
+        showAntiCheatWarning(el);
+      });
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        showAntiCheatWarning(el);
+      });
+      el.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupAntiCheatListeners);
+  } else {
+    setupAntiCheatListeners();
+  }
+})();
+
+// Window Ready & Resize Bindings
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initUI);
+} else {
+  initUI();
+}
+
+window.addEventListener('resize', () => {
+  ensureCanvasSize();
+  updateAll();
+});
+
+  /* ==========================================================================
+   TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION & DISPATCHER
+   ========================================================================== */
+function getGasStorageKey() {
+  const match = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+  if (match) return 'elab_gas_endpoint_' + match[1];
+  const parts = window.location.pathname.split('/').filter(p => p && p !== 'index.html');
+  const labSlug = parts.length > 0 ? parts[parts.length - 1] : 'default_lab';
+  return 'elab_gas_endpoint_' + labSlug;
+}
+
+function copyCodeGsContent(labId) {
+  fetch('./Code.gs')
+    .then(res => {
+      if (!res.ok) throw new Error("Network error");
+      return res.text();
+    })
+    .then(code => {
+      navigator.clipboard.writeText(code).then(() => {
+        alert("คัดลอก Code.gs สำเร็จ! 🎉\n\nคัดลอกโค้ด Google Apps Script ประจำแล็บนี้ลง Clipboard เรียบร้อยแล้ว\nสามารถเปิด Google Apps Script แล้วกด Ctrl+V วางเพื่อ Deploy ได้ทันที!");
+      }).catch(() => {
+        prompt("คัดลอกโค้ดด้านล่างนี้ไปวางใน Code.gs:", code);
+      });
+    })
+    .catch(() => {
+      window.open("https://github.com/allarm2553/electronic_analysys_lab/blob/main/" + labId + "/Code.gs", "_blank");
+    });
+}
+
+function copyStudentShareLink(labId) {
+  const input = document.getElementById("gas-endpoint-url");
+  const val = (input && input.value.trim()) || (typeof getSavedGasEndpoint === "function" ? getSavedGasEndpoint() : "");
+  if (!val || !val.startsWith("https://script.google.com")) {
+    alert("กรุณากรอกหรือวาง Web App URL ในช่อง แล้วกดบันทึกก่อนคัดลอกลิงก์ส่งให้นักเรียนครับ");
+    return;
+  }
+  const shareUrl = window.location.origin + window.location.pathname + "?gas=" + encodeURIComponent(val);
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    alert("คัดลอกลิงก์สำหรับส่งให้นักเรียนเรียบร้อยแล้ว! 🎉\n\n" + shareUrl + "\n\nเมื่อนักเรียนคลิกลิงก์นี้ ระบบจะเชื่อมต่อส่งคะแนนเข้า Google Sheets ของอาจารย์โดยอัตโนมัติ!");
+  }).catch(() => {
+    prompt("คัดลอกลิงก์นี้ส่งให้นักเรียน:", shareUrl);
+  });
+}
+
+function getSavedGasEndpoint() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramUrl = urlParams.get('gas') || urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('sheetUrl');
+    const key = getGasStorageKey();
+    if (paramUrl && paramUrl.trim().startsWith('http')) {
+      localStorage.setItem(key, paramUrl.trim());
+      const labMatch = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+      if (labMatch) localStorage.setItem('gas_endpoint_' + labMatch[1], paramUrl.trim());
+      return paramUrl.trim();
+    }
+    let val = (localStorage.getItem(key) || '').trim();
+    if (!val) {
+      const labMatch = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+      if (labMatch) val = (localStorage.getItem('gas_endpoint_' + labMatch[1]) || '').trim();
+      if (!val) val = (localStorage.getItem('elab_gas_endpoint_index.html') || '').trim();
+      if (val) localStorage.setItem(key, val);
+    }
+    return val;
+  } catch(e) {
+    return '';
+  }
+}
+
+function initGasEndpointUI() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  const saved = getSavedGasEndpoint();
+  if (input && saved) {
+    input.value = saved;
+    if (badge) {
+      badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+      badge.style.color = 'var(--accent-green, #10b981)';
+      badge.style.borderColor = 'var(--accent-green, #10b981)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+  }
+}
+
+function saveGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  if (!input) return;
+  const val = input.value.trim();
+  const key = getGasStorageKey();
+  const labMatch = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+  if (!val) {
+    try { 
+      localStorage.removeItem(key); 
+      if (labMatch) localStorage.removeItem('gas_endpoint_' + labMatch[1]);
+    } catch(e){}
+    if (badge) {
+      badge.innerText = '⚪ โหมดจำลองในเครื่อง';
+      badge.style.color = 'var(--text-muted, #94a3b8)';
+      badge.style.borderColor = 'var(--border-color, rgba(71,85,105,0.35))';
+      badge.style.background = 'transparent';
+    }
+    alert('ล้างการเชื่อมต่อเรียบร้อย (ระบบจะทำงานในโหมดตรวจจำลองในเครื่อง)');
+    return;
+  }
+  if (!val.startsWith('https://script.google.com/macros/s/')) {
+    alert(`⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้`);
+  }
+  try { 
+    localStorage.setItem(key, val);
+    if (labMatch) localStorage.setItem('gas_endpoint_' + labMatch[1], val);
+  } catch(e){}
+  if (badge) {
+    badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+    badge.style.color = 'var(--accent-green, #10b981)';
+    badge.style.borderColor = 'var(--accent-green, #10b981)';
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+  }
+  alert('💾 บันทึก URL Google Apps Script สำหรับบันทึกคะแนนเรียบร้อยแล้ว!');
+}
+
+function testGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  if (!input || !input.value.trim()) {
+    alert('⚠️ กรุณากรอก URL Web App ก่อนกดทดสอบ');
+    return;
+  }
+  const url = input.value.trim();
+  const badge = document.getElementById('gas-status-badge');
+  if (badge) {
+    badge.innerText = '⏳ กำลังทดสอบ...';
+    badge.style.color = 'var(--accent-yellow, #f59e0b)';
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ping: true, test: true })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (badge) {
+      badge.innerText = '✅ เชื่อมต่อสำเร็จ 100%';
+      badge.style.color = 'var(--accent-green, #10b981)';
+      badge.style.borderColor = 'var(--accent-green, #10b981)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+    alert(`🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ`);
+  })
+  .catch(err => {
+    if (badge) {
+      badge.innerText = '⚠️ เชื่อมต่อขัดข้อง';
+      badge.style.color = 'var(--accent-red, #ef4444)';
+      badge.style.borderColor = 'var(--accent-red, #ef4444)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    }
+    alert(`⚠️ การทดสอบล้มเหลว: ` + err.message + `\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec`);
+  });
+}
+window.saveGasEndpoint = saveGasEndpoint;
+window.testGasEndpoint = testGasEndpoint;
+window.initGasEndpointUI = initGasEndpointUI;
+window.addEventListener('DOMContentLoaded', initGasEndpointUI);
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,3103 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบงานการทดลองที่ 10: การจัดไบอัสคงที่ของ JFET และ MOSFET (Fixed-Bias Configuration)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+/* Core Design System & Theme Definitions */
+:root {
+  --bg-primary: #0b0f19;
+  --bg-secondary: #131c31;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --border-color: rgba(71, 85, 105, 0.4);
+  
+  --accent-cyan: #38bdf8;
+  --accent-cyan-glow: rgba(56, 189, 248, 0.4);
+  
+  --accent-red: #ef4444;
+  --accent-red-glow: rgba(239, 68, 68, 0.4);
+  
+  --accent-green: #10b981;
+  --accent-green-glow: rgba(16, 185, 129, 0.3);
+  
+  --accent-yellow: #f59e0b;
+  --accent-purple: #a855f7;
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-blur: blur(12px);
+  --transition-speed: 0.3s;
+}
+
+/* Base resets & Fonts */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: 'Sarabun', sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+}
+
+/* Layout Container */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 280px;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo-icon {
+  font-size: 28px;
+  background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-text h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+}
+
+.logo-text span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  text-align: left;
+}
+
+.nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+}
+
+.nav-btn.active {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0) 100%);
+  border-left: 3px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.sidebar-footer {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  overflow-y: auto;
+  max-width: 1200px;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header standard */
+.content-header {
+  margin-bottom: 25px;
+}
+
+.content-header h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.content-header .subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Cards & UI Components */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 18px;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title .number {
+  background-color: var(--accent-cyan);
+  color: #0b0f19;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.subsection-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+  color: var(--text-main);
+  margin: 18px 0 10px 0;
+  border-left: 3px solid var(--accent-cyan);
+  padding-left: 8px;
+}
+
+.custom-list {
+  padding-left: 20px;
+}
+
+.custom-list li {
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.subcard {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.subcard h4 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.subcard.bias-forward h4 {
+  color: var(--accent-green);
+}
+
+.subcard.bias-reverse h4 {
+  color: var(--accent-cyan);
+}
+
+/* Lab Tables */
+.lab-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 13px;
+}
+
+.lab-table th, .lab-table td {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.lab-table th {
+  background-color: rgba(15, 23, 42, 0.7);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.lab-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%);
+  color: #0b0f19;
+  box-shadow: 0 0 15px var(--accent-cyan-glow);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 25px var(--accent-cyan-glow);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background: #334155;
+  border-color: var(--accent-cyan);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+  color: #0b0f19;
+  box-shadow: 0 0 15px var(--accent-green-glow);
+}
+
+.btn-success:hover {
+  box-shadow: 0 0 25px var(--accent-green-glow);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0b0f19;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.btn-large {
+  padding: 14px 28px;
+  font-size: 15px;
+}
+
+/* Simulator Grid */
+.grid-simulator-p2 {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .grid-simulator-p2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sim-pane-controls, .sim-pane-circuit {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-pane-controls h3, .sim-pane-circuit h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+  color: #fff;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+.control-group {
+  margin-bottom: 15px;
+}
+
+.control-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+select, input[type="text"], input[type="number"], input[type="date"] {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-main);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: all var(--transition-speed);
+}
+
+select:focus, input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: #1e293b;
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+/* Digital LCD & Multimeter */
+.digital-lcd-pane {
+  background: #040812;
+  border: 2px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 15px;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+}
+
+.lcd-header-dmm {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10px;
+  color: #64748b;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.lcd-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dmm-number {
+  font-family: 'Chakra Petch', monospace;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+.dmm-unit {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--accent-cyan);
+}
+
+.dmm-mode {
+  font-size: 11px;
+  color: #64748b;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* SVG circuit container */
+.circuit-svg-container {
+  flex-grow: 1;
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.circuit-status-indicator {
+  margin-top: 15px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.badge-normal {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-yellow);
+  border: 1px solid var(--accent-yellow);
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+}
+
+/* Student Information Header */
+.student-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.student-field label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Report Tables Form */
+.report-section {
+  margin-bottom: 25px;
+}
+
+.report-section h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  border-left: 3px solid var(--accent-cyan);
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
+
+.report-table-form {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.report-table-form th, .report-table-form td {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.report-table-form th {
+  background-color: rgba(15, 23, 42, 0.7);
+  font-family: 'Chakra Petch', sans-serif;
+  color: var(--accent-cyan);
+}
+
+.report-table-form input {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+  padding: 4px 8px;
+}
+
+.report-table-form input:focus {
+  background: #0f172a;
+}
+
+.post-instruction {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 15px;
+}
+
+.input-unit-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-unit-group input {
+  flex-grow: 1;
+}
+
+.input-unit-group .unit {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  min-width: 40px;
+}
+
+.q-label {
+  font-weight: 600;
+  color: var(--text-main);
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+textarea {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+textarea:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+/* Model Button Pill Styles */
+.model-btn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.model-pill-btn {
+  font-size: 11px;
+  padding: 6px 4px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: #1e293b;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.model-pill-btn:hover {
+  background: #334155;
+  color: #fff;
+}
+
+.model-pill-btn.active {
+  border-color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print, .sidebar {
+    display: none !important;
+  }
+  .main-content {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .tab-content {
+    display: block !important;
+  }
+  #theory, #simulator {
+    display: none !important;
+  }
+  #report {
+    display: block !important;
+  }
+  .card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 20px !important;
+  }
+  input, textarea, select {
+    background: transparent !important;
+    color: #000000 !important;
+    border: none !important;
+    border-bottom: 1px dotted #000 !important;
+  }
+  .report-table-form th, .report-table-form td {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+  }
+}
+  #submitted-viewonly-banner button { display: none !important; }
+  .tab-content { animation: none !important; opacity: 1 !important; }
+  #report, #worksheet, #assessment, #report.tab-content, #worksheet.tab-content, #assessment.tab-content, #assessment.tab-content { opacity: 1 !important; visibility: visible !important; }
+
+    .portal-link {
+      color: var(--accent-cyan, #38bdf8);
+      text-decoration: none;
+      font-size: 13px;
+      font-family: 'Chakra Petch', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.1);
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .portal-link:hover {
+      background: rgba(56, 189, 248, 0.25);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+      color: #fff;
+    }
+
+    @media print {
+      .portal-link, .top-nav-bar {
+        display: none !important;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-header">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">
+          <h2>E-Lab Simulator</h2>
+          <span>วิเคราะห์วงจรอิเล็กทรอนิกส์</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-tab="theory" onclick="switchTab('theory')">
+          <span class="btn-icon">📖</span>
+          <span class="btn-text">1. ทฤษฎีและอุปกรณ์</span>
+        </button>
+        <button class="nav-btn" data-tab="simulator" onclick="switchTab('simulator')">
+          <span class="btn-icon">🔬</span>
+          <span class="btn-text">2. ห้องทดลองจำลอง</span>
+        </button>
+        <button class="nav-btn" data-tab="worksheet" onclick="switchTab('worksheet')">
+          <span class="btn-icon">📝</span>
+          <span class="btn-text">3. ตารางบันทึกผล</span>
+        </button>
+        <button class="nav-btn" data-tab="assessment" onclick="switchTab('assessment')">
+          <span class="btn-icon">❓</span>
+          <span class="btn-text">4. คำถามและสรุปผล</span>
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <p>ใบงานการทดลองที่ 10<br>JFET & MOSFET Fixed-Bias Lab</p>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Portal Link Header -->
+      <div class="top-nav-bar no-print" style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px;">
+        <a href="../index.html" class="portal-link"><i class="fa-solid fa-arrow-left"></i> กลับสู่ E-Lab Portal</a>
+      </div>
+
+      
+      <!-- TAB 1: THEORY & EQUIPMENT -->
+      <section id="theory" class="tab-content active">
+        <header class="content-header">
+          <h1>ใบงานการทดลองที่ 10: การจัดไบอัสคงที่ของ JFET และ MOSFET (Fixed-Bias Configuration)</h1>
+          <p class="subtitle">วิชา: วิเคราะห์วงจรอิเล็กทรอนิกส์ (Electronic Circuit Analysis)</p>
+        </header>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">1.</span> วัตถุประสงค์เชิงปฏิบัติการ</h2>
+          <ul class="custom-list">
+            <li>เพื่อศึกษาโครงสร้างและการทำงานของวงจรจัดไบอัสคงที่ (Fixed-Bias Configuration) สำหรับทรานซิสเตอร์สนามไฟฟ้า JFET และ MOSFET</li>
+            <li>เพื่อศึกษาพฤติกรรมกระแสเกตเป็นศูนย์ (I<sub>G</sub> &approx; 0 A) และคุณสมบัติการควบคุมกระแสด้วยแรงดัน (Voltage-Controlled Device)</li>
+            <li>เพื่อทดลองพล็อตเส้นคุณลักษณะการถ่ายโอน (Transfer Characteristics: I<sub>D</sub> vs V<sub>GS</sub>) และคุณลักษณะเดรน (Drain Characteristics: I<sub>D</sub> vs V<sub>DS</sub>)</li>
+            <li>เพื่อสกัดหาค่าพารามิเตอร์ขีดเริ่มทางฟิสิกส์ (Pinch-off Voltage: V<sub>P</sub>, I<sub>DSS</sub> สำหรับ JFET และ Threshold Voltage: V<sub>th</sub>, k สำหรับ MOSFET)</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">2.</span> ทฤษฎีวงจร Fixed-Bias และสมการทางไฟฟ้า</h2>
+          <p>วงจรไบอัสคงที่ (Fixed-Bias Circuit) เป็นวงจรพื้นฐานที่จ่ายแรงดันกระแสตรงคงที่ V<sub>GG</sub> ผ่านตัวต้านทานเกต R<sub>G</sub> (ขนาดใหญ่ เช่น 1 M&Omega;) เข้าที่ขาเกต (Gate) และมีตัวต้านทานโหลดเดรน R<sub>D</sub> ต่ออนุกรมกับขาเดรน (Drain) เข้ากับแหล่งจ่ายหลัก V<sub>DD</sub> โดยที่ขาซอร์ส (Source) ต่อลงกราวด์โดยตรง (V<sub>S</sub> = 0 V)</p>
+          
+          <h3 class="subsection-title">2.1 ลูปอินพุตและแรงดันเกต-ซอร์ส (Gate-Source Voltage: V<sub>GS</sub>)</h3>
+          <p>เนื่องจากชั้นรอยต่อเกตของ JFET ได้รับไบอัสย้อนกลับ และเกตของ MOSFET มีชั้นฉนวนออกไซด์กั้น ส่งผลให้กระแสเกตมีค่าน้อยมากจนเป็นศูนย์:</p>
+          <div class="highlight-text" style="background: rgba(15,23,42,0.6); padding: 10px; border-radius: 6px; font-family: 'Chakra Petch', monospace; font-size: 14px; text-align: center; margin: 10px 0; border: 1px solid var(--border-color);">
+            I<sub>G</sub> &approx; 0 A &nbsp;&rArr;&nbsp; V<sub>RG</sub> = I<sub>G</sub> &times; R<sub>G</sub> = 0 V &nbsp;&rArr;&nbsp; <strong>V<sub>GS</sub> = V<sub>GG</sub></strong>
+          </div>
+          
+          <h3 class="subsection-title">2.2 ลูปเอาต์พุตและสมการเดรน (Drain Characteristics)</h3>
+          <p>จากกฎแรงดันของเคอร์ชอฟฟ์ (KVL) ในลูปเดรน-ซอร์ส:</p>
+          <div class="highlight-text" style="background: rgba(15,23,42,0.6); padding: 10px; border-radius: 6px; font-family: 'Chakra Petch', monospace; font-size: 14px; text-align: center; margin: 10px 0; border: 1px solid var(--border-color);">
+            V<sub>DS</sub> = V<sub>DD</sub> - I<sub>D</sub> R<sub>D</sub>
+          </div>
+
+          <div class="grid-2" style="margin-top: 15px;">
+            <div class="subcard bias-forward">
+              <h4>JFET (สมการช็อกเลย์ / Shockley's Equation)</h4>
+              <p>สำหรับ JFET N-Channel ไบอัสย้อนกลับ (V<sub>P</sub> &le; V<sub>GS</sub> &le; 0 V) ในย่านอิ่มตัว (Saturation):</p>
+              <div style="font-family: 'Chakra Petch', monospace; font-size: 14px; color: var(--accent-green); text-align: center; margin: 10px 0;">
+                I<sub>D</sub> = I<sub>DSS</sub> (1 - V<sub>GS</sub> / V<sub>P</sub>)<sup>2</sup>
+              </div>
+              <p style="font-size: 12px; color: var(--text-muted);">เมื่อ V<sub>GS</sub> &le; V<sub>P</sub> อุปกรณ์จะเข้าสู่ย่านคัทออฟ (I<sub>D</sub> = 0 A)</p>
+            </div>
+            <div class="subcard bias-reverse">
+              <h4>E-MOSFET (สมการกำลังสอง / Square-Law)</h4>
+              <p>สำหรับ E-MOSFET N-Channel เมื่อได้รับไบอัสบวก (V<sub>GS</sub> &gt; V<sub>th</sub>) ในย่านอิ่มตัว (Saturation):</p>
+              <div style="font-family: 'Chakra Petch', monospace; font-size: 14px; color: var(--accent-cyan); text-align: center; margin: 10px 0;">
+                I<sub>D</sub> = k (V<sub>GS</sub> - V<sub>th</sub>)<sup>2</sup>
+              </div>
+              <p style="font-size: 12px; color: var(--text-muted);">เมื่อ V<sub>GS</sub> &le; V<sub>th</sub> อุปกรณ์จะเข้าสู่ย่านคัทออฟ (I<sub>D</sub> = 0 A)</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title"><span class="number">3.</span> รายการอุปกรณ์และการจัดขา (Device Packages & Pinouts)</h2>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th style="width: 80px">ลำดับ</th>
+                <th>ประเภทอุปกรณ์</th>
+                <th>เบอร์โมเดล (Package)</th>
+                <th>คุณลักษณะสำคัญ (Parameters)</th>
+                <th style="width: 100px">จำนวน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center">1</td>
+                <td>JFET N-Channel</td>
+                <td><strong>2N5458</strong> (TO-92)</td>
+                <td>I<sub>DSS</sub> = 6.0 mA, V<sub>P</sub> = -3.5 V, R<sub>D</sub> = 1 k&Omega;</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">2</td>
+                <td>JFET N-Channel (RF)</td>
+                <td><strong>2N5484</strong> (TO-92)</td>
+                <td>I<sub>DSS</sub> = 3.5 mA, V<sub>P</sub> = -2.0 V, R<sub>D</sub> = 1 k&Omega;</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">3</td>
+                <td>JFET N-Channel (High gm)</td>
+                <td><strong>BF245B</strong> (TO-92)</td>
+                <td>I<sub>DSS</sub> = 10.0 mA, V<sub>P</sub> = -4.0 V, R<sub>D</sub> = 1 k&Omega;</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">4</td>
+                <td>Enhancement MOSFET</td>
+                <td><strong>2N7000</strong> (TO-92)</td>
+                <td>V<sub>th</sub> = 2.1 V, k = 50 mA/V<sup>2</sup>, R<sub>D</sub> = 1 k&Omega;</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">5</td>
+                <td>Enhancement MOSFET</td>
+                <td><strong>BS170</strong> (TO-92)</td>
+                <td>V<sub>th</sub> = 2.0 V, k = 60 mA/V<sup>2</sup>, R<sub>D</sub> = 1 k&Omega;</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">6</td>
+                <td>Power E-MOSFET</td>
+                <td><strong>IRF540</strong> (TO-220)</td>
+                <td>V<sub>th</sub> = 3.0 V, k = 80 mA/V<sup>2</sup>, R<sub>D</sub> = 220 &Omega;</td>
+                <td class="text-center">1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">7</td>
+                <td>ตัวต้านทานเกต (R<sub>G</sub>) และเดรน (R<sub>D</sub>)</td>
+                <td>R<sub>G</sub> = 1 M&Omega;, R<sub>D</sub> = 1 k&Omega; (และ 220 &Omega;)</td>
+                <td>1/4W และ 2W</td>
+                <td class="text-center">อย่างละ 1 ตัว</td>
+              </tr>
+              <tr>
+                <td class="text-center">8</td>
+                <td>แหล่งจ่ายไฟคู่ละเอียด (DC Power Supply)</td>
+                <td>V<sub>GG</sub> (ปรับได้ทั้งลบและบวก) และ V<sub>DD</sub> (0-15V)</td>
+                <td>ความละเอียด 0.1V</td>
+                <td class="text-center">1 ชุด</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="card-footer-action no-print">
+          <button class="btn btn-primary" onclick="switchTab('simulator')">เข้าสู่ห้องปฏิบัติการจำลอง 🔬</button>
+        </div>
+      </section>
+      
+      <!-- TAB 2: VIRTUAL LAB SIMULATOR -->
+      <section id="simulator" class="tab-content">
+        <header class="content-header">
+          <h1>เครื่องมือจำลองวิเคราะห์การไบอัส Fixed-Bias (JFET & MOSFET Simulator)</h1>
+          <p class="subtitle">ปรับเปลี่ยนแหล่งจ่ายเกต V<sub>GG</sub> และเดรน V<sub>DD</sub> เลือกจุดวัดทางไฟฟ้า และวิเคราะห์เส้นกราฟคุณลักษณะแบบเรียลไทม์</p>
+        </header>
+        
+        <div class="grid-simulator-p2">
+          <!-- Control Panel -->
+          <div class="sim-pane-controls">
+            <h3>ส่วนควบคุมแหล่งจ่ายและอุปกรณ์</h3>
+            
+            <!-- Device Selection Buttons -->
+            <div class="control-group" style="background: rgba(15, 23, 42, 0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 12px; font-weight: 600; color: var(--text-main);">🏷️ กลุ่ม JFET (N-Channel):</span>
+              </div>
+              <div class="model-btn-grid">
+                <button type="button" class="model-pill-btn active" id="btn-model-2N5458" onclick="selectFetModel('2N5458')">2N5458</button>
+                <button type="button" class="model-pill-btn" id="btn-model-2N5484" onclick="selectFetModel('2N5484')">2N5484</button>
+                <button type="button" class="model-pill-btn" id="btn-model-BF245B" onclick="selectFetModel('BF245B')">BF245B</button>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0 6px 0;">
+                <span style="font-size: 12px; font-weight: 600; color: var(--text-main);">🏷️ กลุ่ม E-MOSFET (N-Channel):</span>
+              </div>
+              <div class="model-btn-grid">
+                <button type="button" class="model-pill-btn" id="btn-model-2N7000" onclick="selectFetModel('2N7000')">2N7000</button>
+                <button type="button" class="model-pill-btn" id="btn-model-BS170" onclick="selectFetModel('BS170')">BS170</button>
+                <button type="button" class="model-pill-btn" id="btn-model-IRF540" onclick="selectFetModel('IRF540')">IRF540</button>
+              </div>
+              
+              <div id="model-desc-banner" style="font-size: 11px; color: var(--accent-cyan); margin-top: 6px; line-height: 1.4; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+                💡 2N5458: JFET N-Channel อเนกประสงค์ (IDSS = 6.0 mA, VP = -3.5 V, RD = 1 kΩ)
+              </div>
+            </div>
+            
+            <div class="control-group">
+              <label for="input-vgg" id="lbl-vgg-container">
+                แหล่งจ่ายไบอัสเกต (V<sub>GG</sub>): <strong id="val-vgg" style="color: var(--accent-cyan);">-1.5</strong> V
+              </label>
+              <input type="range" id="input-vgg" min="-5.0" max="0.0" step="0.1" value="-1.5" oninput="updateCircuitSimulation()">
+            </div>
+            
+            <div class="control-group">
+              <label for="input-vdd">
+                แหล่งจ่ายหลักขั้วเดรน (V<sub>DD</sub>): <strong id="val-vdd" style="color: #ef4444;">10.0</strong> V
+              </label>
+              <input type="range" id="input-vdd" min="0" max="15" step="0.5" value="10.0" oninput="updateCircuitSimulation()">
+            </div>
+            
+            <div class="control-group">
+              <label for="measuring-target">เลือกจุดตรวจวัดมัลติมิเตอร์ (DMM):</label>
+              <select id="measuring-target" onchange="updateCircuitSimulation()">
+                <option value="none">--- ปลดสายโพรบออก ---</option>
+                <option value="vgs">วัดแรงดันเกต-ซอร์ส (VGS) [ขนาน]</option>
+                <option value="vds">วัดแรงดันเดรน-ซอร์ส (VDS) [ขนาน]</option>
+                <option value="vrd">วัดแรงดันตกคร่อมตัวต้านทานเดรน (VRD) [ขนาน]</option>
+                <option value="vrg">วัดแรงดันตกคร่อมตัวต้านทานเกต (VRG) [ขนาน &approx; 0V]</option>
+                <option value="id">วัดกระแสไฟฟ้าขาเดรน (ID) [ต่ออนุกรม]</option>
+              </select>
+            </div>
+            
+            <!-- LCD Screen -->
+            <div class="digital-lcd-pane dmm-pane">
+              <div class="lcd-header-dmm">Digital Multimeter (Fixed Bias Mode)</div>
+              <div class="lcd-readout">
+                <span id="dmm-value" class="dmm-number">0.00</span>
+                <span id="dmm-unit" class="dmm-unit">V</span>
+              </div>
+              <div id="dmm-mode-text" class="dmm-mode">ไม่ได้ต่อโพรบวัด</div>
+            </div>
+            
+            <button class="btn btn-success w-100" onclick="recordCurrentValues()">
+              💾 บันทึกค่าวัดลงตารางใบงาน
+            </button>
+          </div>
+          
+          <!-- Circuit Schema Board -->
+          <div class="sim-pane-circuit">
+            <h3>แผนภาพวงจรทดลอง Fixed-Bias บนแผงปฏิบัติการ (Slate Workbench)</h3>
+            
+            <div class="circuit-svg-container">
+              <svg id="fet-circuit-svg" viewBox="0 0 460 260" width="100%">
+                <!-- Background plate -->
+                <rect x="0" y="0" width="460" height="260" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+                
+                <!-- Rails and wires -->
+                <!-- VGG Supply Connection to RG -->
+                <path d="M 60 110 L 95 110" fill="none" stroke="#38bdf8" stroke-width="3"/>
+                <!-- RG to Gate Node -->
+                <path d="M 135 110 L 190 110" fill="none" stroke="#38bdf8" stroke-width="3"/>
+                <!-- Gate lead into transistor -->
+                <path d="M 190 110 L 190 145" fill="none" stroke="#94a3b8" stroke-width="2"/>
+                
+                <!-- VDD Rail at top -->
+                <path d="M 320 35 L 320 55" fill="none" stroke="#ef4444" stroke-width="3"/>
+                <!-- Drain Resistor RD to Drain node via ammeter bridge -->
+                <path id="drain-ammeter-bridge" d="M 320 110 L 250 110" fill="none" stroke="#cbd5e1" stroke-width="3"/>
+                <path d="M 250 110 L 250 125" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+                
+                <!-- Source to GND Rail -->
+                <path d="M 250 165 L 250 220" fill="none" stroke="#3b82f6" stroke-width="3"/>
+                <path d="M 60 220 L 250 220" fill="none" stroke="#3b82f6" stroke-width="3"/>
+                
+                <!-- Ground Symbols -->
+                <path d="M 50 220 L 70 220 M 55 225 L 65 225 M 58 230 L 62 230" stroke="#3b82f6" stroke-width="2"/>
+                <text x="60" y="245" fill="#3b82f6" font-family="Chakra Petch" font-size="10" text-anchor="middle">GND</text>
+                
+                <!-- Node Points -->
+                <!-- VGG Input Node -->
+                <circle cx="60" cy="110" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+                <!-- RG Out Node -->
+                <circle cx="190" cy="110" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+                <!-- VDD Top Node -->
+                <circle cx="320" cy="35" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+                <!-- RD Bottom Node -->
+                <circle cx="320" cy="110" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+                <!-- Drain Input Node -->
+                <circle cx="250" cy="110" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+                <!-- Source/GND Node -->
+                <circle cx="250" cy="220" r="5" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+                
+                <!-- Supply Labels -->
+                <text x="60" y="95" fill="#38bdf8" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">V_GG</text>
+                <text id="svg-vgg-lbl" x="60" y="80" fill="#38bdf8" font-family="Chakra Petch" font-size="11" text-anchor="middle">-1.5V</text>
+                
+                <text x="320" y="24" fill="#ef4444" font-family="Chakra Petch" font-size="12" font-weight="bold" text-anchor="middle">+V_DD</text>
+                <text id="svg-vdd-lbl" x="320" y="12" fill="#ef4444" font-family="Chakra Petch" font-size="11" text-anchor="middle">10.0V</text>
+                
+                <!-- Gate Resistor RG = 1 MOhm (Horizontal: Brown-Black-Green-Gold) -->
+                <g id="resistor-rg">
+                  <line x1="60" y1="110" x2="190" y2="110" stroke="#94a3b8" stroke-width="2"/>
+                  <rect x="95" y="101" width="40" height="18" rx="3" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                  <rect x="103" y="101" width="4" height="18" fill="#78350f"/> <!-- Brown -->
+                  <rect x="111" y="101" width="4" height="18" fill="#000000"/> <!-- Black -->
+                  <rect x="119" y="101" width="4" height="18" fill="#10b981"/> <!-- Green -->
+                  <rect x="127" y="101" width="4" height="18" fill="#fbbf24"/> <!-- Gold -->
+                  <text x="115" y="92" fill="#94a3b8" font-family="Chakra Petch" font-size="10" text-anchor="middle">RG = 1 MΩ</text>
+                </g>
+                
+                <!-- Drain Resistor RD = 1 kOhm (Vertical: Brown-Black-Red-Gold) -->
+                <g id="resistor-rd">
+                  <line x1="320" y1="35" x2="320" y2="110" stroke="#94a3b8" stroke-width="2"/>
+                  <rect x="311" y="55" width="18" height="40" rx="3" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                  <rect x="311" y="62" width="18" height="4" fill="#78350f"/> <!-- Brown -->
+                  <rect x="311" y="70" width="18" height="4" fill="#000000"/> <!-- Black -->
+                  <rect x="311" y="78" width="18" height="4" fill="#dc2626"/> <!-- Red -->
+                  <rect x="311" y="88" width="18" height="4" fill="#fbbf24"/> <!-- Gold -->
+                  <text id="lbl-rd-val" x="339" y="77" fill="#94a3b8" font-family="Chakra Petch" font-size="10" text-anchor="start">RD = 1 kΩ</text>
+                </g>
+                
+                <!-- Transistor Graphic (JFET / MOSFET dynamically updated) -->
+                <g id="fet-device-graphic">
+                  <!-- Metal outline / Body -->
+                  <circle cx="225" cy="145" r="28" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+                  
+                  <!-- Dynamic Schematic Sub-elements -->
+                  <g id="fet-schematic-symbol">
+                    <!-- Base/Channel Bar -->
+                    <line x1="214" y1="130" x2="214" y2="160" stroke="#f8fafc" stroke-width="2.5"/>
+                    <!-- Gate Lead with Inward Arrow for N-JFET -->
+                    <line x1="190" y1="145" x2="214" y2="145" stroke="#f8fafc" stroke-width="2"/>
+                    <polygon id="fet-gate-arrow" points="208,145 200,141 200,149" fill="#38bdf8"/>
+                    
+                    <!-- Drain Lead -->
+                    <line x1="214" y1="135" x2="236" y2="135" stroke="#cbd5e1" stroke-width="2"/>
+                    <line x1="236" y1="135" x2="250" y2="125" stroke="#cbd5e1" stroke-width="2"/>
+                    
+                    <!-- Source Lead -->
+                    <line x1="214" y1="155" x2="236" y2="155" stroke="#3b82f6" stroke-width="2"/>
+                    <line x1="236" y1="155" x2="250" y2="165" stroke="#3b82f6" stroke-width="2"/>
+                  </g>
+                  
+                  <!-- Device Model Name text -->
+                  <text id="svg-device-model-txt" x="225" y="185" fill="#94a3b8" font-family="Chakra Petch" font-size="9" font-weight="bold" text-anchor="middle">2N5458</text>
+                  
+                  <!-- Pin Nodes -->
+                  <circle cx="190" cy="145" r="4" fill="#38bdf8"/> <!-- G Pin -->
+                  <circle cx="250" cy="125" r="4" fill="#cbd5e1"/> <!-- D Pin -->
+                  <circle cx="250" cy="165" r="4" fill="#3b82f6"/> <!-- S Pin -->
+                  
+                  <text x="178" y="148" fill="#38bdf8" font-family="Chakra Petch" font-size="9" font-weight="bold" text-anchor="end">G</text>
+                  <text x="260" y="128" fill="#cbd5e1" font-family="Chakra Petch" font-size="9" font-weight="bold" text-anchor="start">D</text>
+                  <text x="260" y="168" fill="#3b82f6" font-family="Chakra Petch" font-size="9" font-weight="bold" text-anchor="start">S</text>
+                </g>
+                
+                <!-- Probe lines animated layer -->
+                <g id="svg-probes-layer">
+                  <!-- Red Probe -->
+                  <path id="svg-probe-red-wire" d="M 0 0" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+                  <circle id="svg-probe-red-tip" cx="0" cy="0" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2" opacity="0"/>
+                  <!-- Black Probe with high visibility on slate canvas -->
+                  <path id="svg-probe-black-wire" d="M 0 0" fill="none" stroke="#000000" stroke-width="3.5" stroke-linecap="round"/>
+                  <circle id="svg-probe-black-tip" cx="0" cy="0" r="6" fill="#000000" stroke="#ffffff" stroke-width="2" opacity="0"/>
+                </g>
+              </svg>
+            </div>
+            
+            <div class="circuit-status-indicator">
+              <span>สถานะการทำงานของตัวนำ: </span>
+              <span id="fet-state-badge" class="badge badge-normal">อิ่มตัว (Saturation / ย่านกระแสคงที่)</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Interactive Curve Visualizer -->
+        <div class="card" style="margin-top: 24px;">
+          <h2 class="card-title">📈 กราฟคุณลักษณะทางไฟฟ้า (Transfer & Drain Characteristics Curves)</h2>
+          <div class="grid-2">
+            <div style="background: rgba(15,23,42,0.6); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <h4 style="font-family: 'Chakra Petch', sans-serif; font-size: 13px; color: var(--accent-cyan); margin-bottom: 10px; text-align: center;">กราฟคุณลักษณะการถ่ายโอน (Transfer Curve: ID vs VGS)</h4>
+              <div style="height: 220px; position: relative;">
+                <canvas id="transferChart"></canvas>
+              </div>
+            </div>
+            <div style="background: rgba(15,23,42,0.6); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <h4 style="font-family: 'Chakra Petch', sans-serif; font-size: 13px; color: var(--accent-green); margin-bottom: 10px; text-align: center;">กราฟคุณลักษณะเดรน (Drain Curves: ID vs VDS)</h4>
+              <div style="height: 220px; position: relative;">
+                <canvas id="drainChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- TAB 3: REPORT & AUTO-GRADING WORKSHEET -->
+      <section id="worksheet" class="tab-content">
+        <header class="content-header">
+          <h1>ใบบันทึกผลการทดลองที่ 10: วงจร Fixed-Bias ของ JFET และ MOSFET</h1>
+          <p class="subtitle">บันทึกผลการวัดทางไฟฟ้า คำนวณพารามิเตอร์ขีดเริ่ม และตอบคำถามสรุปผลการทดลอง</p>
+        </header>
+        
+        <!-- Student Information Form -->
+        <div class="card">
+          <div class="student-info-grid">
+            <div class="student-field">
+              <label for="student-name">ชื่อ-นามสกุล นักศึกษา:</label>
+              <input type="text" id="student-name" placeholder="ระบุชื่อจริง-นามสกุล">
+            </div>
+            <div class="student-field">
+              <label for="student-id">รหัสประจำตัวนักศึกษา:</label>
+              <input type="text" id="student-id" placeholder="รหัสนักศึกษา 10 หลัก">
+            </div>
+            <div class="student-field">
+              <label for="student-group">กลุ่มเรียน / ตอนเรียน:</label>
+              <input type="text" id="student-group" placeholder="เช่น บอ. 4 / ตอน 1">
+            </div>
+            <div class="student-field">
+              <label for="lab-date">วันที่ทำการทดลอง:</label>
+              <input type="date" id="lab-date">
+            </div>
+          </div>
+        </div>
+        <!-- LAB DATA SOURCE SELECTOR (Simulation vs Real Hardware) -->
+        
+        <!-- TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION -->
+        <div class="card gas-endpoint-card no-print" style="border: 1px dashed var(--accent-cyan); background: rgba(15, 23, 42, 0.75); padding: 14px 18px; margin-bottom: 20px; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">🔗</span>
+              <div>
+                <strong style="color: var(--accent-cyan); font-size: 13.5px;">เชื่อมต่อ Google Sheets ผู้สอน (Teacher Web App URL):</strong>
+                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                  นำลิงก์ Web App จาก Google Apps Script ของชีตผู้สอนมาวาง เพื่อบันทึกคะแนนเข้าชีตของท่านโดยตรง
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              <a href="./Code.gs" download="Code_elab10-mosfet-bias-sheet-app.gs" class="btn btn-secondary btn-small" style="padding: 4px 10px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: #93c5fd; border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.15);" title="ดาวน์โหลดไฟล์ Code.gs ของแล็บนี้">
+                📥 โหลด Code.gs
+              </a>
+              <button type="button" class="btn btn-secondary btn-small" onclick="copyCodeGsContent('elab10-mosfet-bias-sheet-app')" style="padding: 4px 10px; font-size: 11.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: #d8b4fe; border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.15);" title="คัดลอกโค้ด Code.gs ไปวางใน Google Apps Script">
+                📋 คัดลอก Code.gs
+              </button>
+              <span id="gas-status-badge" style="font-size: 11.5px; padding: 3px 10px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-weight: 500;">
+              🌐 โหมดจำลองในเครื่อง (ยังไม่เชื่อมต่อชีต)
+            </span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+            <input type="url" id="gas-endpoint-url" placeholder="วางลิงก์ https://script.google.com/macros/s/.../exec ที่นี่..." style="flex: 1; min-width: 250px; padding: 7px 12px; font-size: 12.5px; background: rgba(10, 15, 28, 0.85); border: 1px solid var(--border-color); border-radius: 5px; color: #f8fafc;">
+            <button type="button" class="btn btn-secondary btn-small" onclick="saveGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">💾 บันทึก URL</button>
+            <button type="button" class="btn btn-small" onclick="copyStudentShareLink('elab10-mosfet-bias-sheet-app')" style="padding: 7px 12px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="คัดลอกลิงก์ที่แนบ Google Apps Script ส่งให้นักเรียน">
+              🔗 คัดลอกลิงก์ให้นักเรียน
+            </button>
+            <button type="button" class="btn btn-primary btn-small" onclick="testGasEndpoint()" style="padding: 7px 12px; font-size: 12px;">🧪 ทดสอบเชื่อมต่อ</button>
+          </div>
+        </div>
+
+        <div class="card" id="lab-mode-card" style="border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.7); padding: 18px 20px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+            <div>
+              <h4 style="margin: 0; font-size: 15px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+                <span>⚙️ แหล่งที่มาของผลการทดลอง (Data Source):</span>
+              </h4>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                เลือกระหว่างการทดลองผ่านห้องแล็บจำลอง (Simulator) หรือต่อวงจรจริงด้วยอุปกรณ์ในห้องปฏิบัติการ (Hardware Lab)
+              </p>
+            </div>
+            <div class="no-print" style="display: flex; gap: 8px; background: rgba(15, 23, 42, 0.9); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <button type="button" id="btn-mode-sim" class="btn btn-secondary active" style="padding: 8px 14px; font-size: 13px; font-weight: bold;" onclick="setLabDataSource('simulation')">
+                🔬 ห้องทดลองจำลอง (Simulator)
+              </button>
+              <button type="button" id="btn-mode-hw" class="btn btn-secondary" style="padding: 8px 14px; font-size: 13px; font-weight: bold;" onclick="setLabDataSource('hardware')">
+                🔌 การทดลองจากอุปกรณ์จริง (Hardware Lab)
+              </button>
+            </div>
+          </div>
+
+          <!-- Component Model Selection Row in Worksheet -->
+          <div class="no-print" style="margin-top: 14px; padding: 12px 16px; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🏷️</span>
+              <div>
+                <strong style="color: #fff; font-size: 13.5px;">เลือกโมเดลทรานซิสเตอร์ MOSFETที่ใช้บันทึกผล (Component Model):</strong>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
+                  เลือกเบอร์อุปกรณ์ที่ทำการทดลอง (ระบบจะปรับสมการจำลองและเกณฑ์ตรวจคะแนนให้ตรงกับเบอร์ที่เลือกโดยอัตโนมัติ)
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <select id="select-component-model-ws" onchange="setComponentModel(this.value)" style="padding: 8px 14px; font-size: 13px; font-weight: bold; background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 6px; color: var(--accent-cyan); cursor: pointer;">
+                <option value="2N7000">2N7000 (N-Ch Enhancement VGS(th)≈2.1V, TO-92)</option>
+                <option value="BS170">BS170 (N-Ch Enhancement VGS(th)≈2.0V, TO-92)</option>
+                <option value="IRF540">IRF540 (Power MOSFET N-Ch VGS(th)≈3.2V, TO-220)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Printable summary line -->
+          <div id="print-lab-mode-badge" style="font-size: 13px; color: var(--text-main); margin-top: 10px; margin-bottom: 8px; font-weight: 500;">
+            <strong>แหล่งที่มาข้อมูล:</strong> <span id="print-mode-text" style="color: var(--accent-cyan); font-weight: bold;">🔬 ห้องทดลองจำลองเสมือน (Virtual Simulator)</span>
+            <span style="margin-left: 15px;"><strong>โมเดลอุปกรณ์:</strong> <span class="dyn-component-name" style="color: var(--accent-cyan); font-weight: bold;">2N7000</span></span>
+          </div>
+
+          <!-- Dynamic Mode Description & Banner -->
+          <div id="sim-mode-banner" class="no-print" style="margin-top: 12px; background: rgba(56, 189, 248, 0.08); border-left: 4px solid var(--accent-cyan); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.6; color: var(--text-main);">
+            <strong style="color: var(--accent-cyan);">🔬 โหมดห้องทดลองจำลอง:</strong> ค่าที่บันทึกคำนวณจากสมการทางฟิสิกส์ของอุปกรณ์เบอร์ <strong class="dyn-component-name" style="color:var(--accent-cyan);">2N7000</strong> ในระบบจำลอง (เกณฑ์ความคลาดเคลื่อนยอมรับได้ <span style="color:var(--accent-cyan); font-weight:bold;">±5%</span>) สามารถกดปุ่มดึงค่าจากแท็บห้องทดลองจำลองได้
+          </div>
+
+          <div id="hw-mode-banner" class="no-print" style="display: none; margin-top: 12px; background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--accent-green); padding: 12px 14px; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.6; color: var(--text-main);">
+            <strong style="color: var(--accent-green);">🔌 โหมดการทดลองจากอุปกรณ์จริง (Hardware Lab):</strong> ระบบได้ **ปรับเกณฑ์ความคลาดเคลื่อน (Tolerance ±15-20%)** เพื่อรองรับความคลาดเคลื่อนทางกายภาพของอุปกรณ์จริง (ความต้านทานภายในมิเตอร์, ค่าเผื่ออุปกรณ์ 5-10%, พิกัดรอยต่อจริง) <span style="text-decoration: underline;">กรุณาวัดค่าจาก Breadboard และเครื่องมือวัดจริงแล้วพิมพ์ลงตารางด้วยตนเอง</span>
+            
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(16, 185, 129, 0.3); display: flex; gap: 15px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">เบอร์ MOSFET จริงที่ใช้:</label>
+                <input type="text" id="hw-component-model" placeholder="เช่น 2N7000, BS170" value="2N7000" oninput="if(window.setComponentModel) setComponentModel(this.value.trim());" style="width: 100%; padding: 6px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid var(--border-color); border-radius: 4px; color: #fff;">
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">ค่าความต้านทาน RD วัดจริง:</label>
+                <div class="input-unit-group" style="height: 31px;">
+                  <input type="number" id="hw-rd-measured" placeholder="เช่น 995, 1005" value="1000" style="padding: 6px 10px; font-size: 12px; width:100%;">
+                  <span class="unit" style="font-size: 11px;">Ω</span>
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">แรงดัน VGS(th) วัดจริง:</label>
+                <div class="input-unit-group" style="height: 31px;">
+                  <input type="number" id="hw-vth-measured" placeholder="เช่น 2.05, 2.15" value="2.1" style="padding: 6px 10px; font-size: 12px; width:100%;">
+                  <span class="unit" style="font-size: 11px;">V</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+        <!-- Model Selection Card for Worksheet Report -->
+        <div class="card">
+          <h2 class="card-title" style="margin-bottom: 12px; font-size: 16px;">
+            <span class="number">🏷️</span> เลือกรุ่นทรานซิสเตอร์ที่จะบันทึกผลการทดลอง (Device Model Selection)
+          </h2>
+          <div style="background: rgba(15, 23, 42, 0.5); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 13px; font-weight: 600; color: var(--accent-cyan);">กลุ่ม JFET (N-Channel):</span>
+            </div>
+            <div class="model-btn-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 12px;">
+              <button type="button" class="model-pill-btn active" id="ws-btn-model-2N5458" onclick="selectFetModel('2N5458')">2N5458 (JFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-2N5484" onclick="selectFetModel('2N5484')">2N5484 (JFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-BF245B" onclick="selectFetModel('BF245B')">BF245B (JFET)</button>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 13px; font-weight: 600; color: var(--accent-green);">กลุ่ม E-MOSFET (N-Channel):</span>
+            </div>
+            <div class="model-btn-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 8px;">
+              <button type="button" class="model-pill-btn" id="ws-btn-model-2N7000" onclick="selectFetModel('2N7000')">2N7000 (MOSFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-BS170" onclick="selectFetModel('BS170')">BS170 (MOSFET)</button>
+              <button type="button" class="model-pill-btn" id="ws-btn-model-IRF540" onclick="selectFetModel('IRF540')">IRF540 (Power MOSFET)</button>
+            </div>
+            
+            <div id="ws-model-desc-banner" style="font-size: 12px; color: var(--accent-cyan); margin-top: 10px; line-height: 1.5; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+              📌 <strong>รุ่นที่กำลังบันทึกผล:</strong> 💡 2N5458: JFET N-Channel อเนกประสงค์ (IDSS = 6.0 mA, VP = -3.5 V, RD = 1 kΩ)
+            </div>
+          </div>
+        </div>
+        
+        <!-- PART 1: TRANSFER CHARACTERISTICS -->
+        <div class="card report-section">
+          <h3>ตอนที่ 1: ตารางบันทึกคุณลักษณะการถ่ายโอน (Transfer Characteristics: I<sub>D</sub> vs V<sub>GS</sub> เมื่อ V<sub>DS</sub> &approx; 10 V)</h3>
+          <div class="post-instruction">
+            ปรับระดับแรงดันแหล่งจ่ายเกต V<sub>GG</sub> ตามค่าที่กำหนดในตาราง สังเกตและบันทึกระดับแรงดันตกคร่อม V<sub>DS</sub> และกระแสเดรน I<sub>D</sub>:
+          </div>
+          
+          <div class="table-responsive">
+            <table class="report-table-form">
+              <thead>
+                <tr>
+                  <th style="width: 120px">แรงดันไบอัสเกต V<sub>GS</sub> (V)</th>
+                  <th>แรงดันวัดจริง V<sub>DS</sub> (V)</th>
+                  <th>กระแสไฟฟ้าเดรน I<sub>D</sub> (mA)</th>
+                  <th>สถานะการนำกระแส</th>
+                  <th style="width: 100px" class="no-print">ดึงค่าวัด</th>
+                </tr>
+              </thead>
+              <tbody id="table1-body">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- PART 2: DRAIN CHARACTERISTICS -->
+        <div class="card report-section">
+          <h3>ตอนที่ 2: ตารางบันทึกคุณลักษณะเดรน (Drain Characteristics: I<sub>D</sub> vs V<sub>DS</sub> เมื่อ V<sub>GS</sub> คงที่)</h3>
+          <div class="post-instruction">
+            ล็อกแรงดันป้อนเกต V<sub>GS</sub> คงที่ตามจุดทำงาน แล้วปรับระดับแหล่งจ่าย V<sub>DD</sub> ตามตาราง วัดกระแสเดรนและแรงดันตกคร่อมขั้วเดรน-ซอร์ส:
+          </div>
+          
+          <div class="table-responsive">
+            <table class="report-table-form">
+              <thead>
+                <tr>
+                  <th style="width: 120px">แรงดันแหล่งจ่าย V<sub>DD</sub> (V)</th>
+                  <th>แรงดันวัดจริง V<sub>DS</sub> (V)</th>
+                  <th>กระแสไฟฟ้าเดรน I<sub>D</sub> (mA)</th>
+                  <th>สถานะการนำกระแส</th>
+                  <th style="width: 100px" class="no-print">ดึงค่าวัด</th>
+                </tr>
+              </thead>
+              <tbody id="table2-body">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- PART 3: CALCULATIONS -->
+        <div class="card report-section">
+          <h3 id="p3-section-title">ตอนที่ 3: การหาค่าพารามิเตอร์ขีดเริ่มทางฟิสิกส์ (Device Parameters)</h3>
+          <div class="post-instruction" id="p3-instruction">
+            วิเคราะห์ระดับจุดนำกระแสและค่ากระแสสูงสุดจากตารางการทดลอง:
+          </div>
+          
+          <div class="grid-2">
+            <div class="input-field">
+              <label for="ans-p1" id="lbl-ans-p1">1. แรงดันพินช์ออฟ / ขีดเริ่ม (Pinch-off / Threshold Voltage):</label>
+              <div class="input-unit-group">
+                <input type="number" id="ans-p1" step="0.1" placeholder="เช่น -3.5">
+                <span class="unit">V</span>
+              </div>
+            </div>
+            <div class="input-field">
+              <label for="ans-p2" id="lbl-ans-p2">2. กระแสอิ่มตัวสูงสุด / ค่าคงที่การนำกระแส:</label>
+              <div class="input-unit-group">
+                <input type="number" id="ans-p2" step="0.01" placeholder="เช่น 6.0">
+                <span class="unit" id="unit-ans-p2">mA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+                <!-- Next Tab Action -->
+        <div style="text-align: right; margin-top: 20px;" class="no-print">
+          <button class="btn btn-primary" onclick="switchTab('assessment')">
+            <span>ไปที่แท็บ คำถามและสรุปผล ❓</span>
+            <span>👉</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: ASSESSMENT & CONCLUSION -->
+      <!-- ========================================== -->
+      <section id="assessment" class="tab-content">
+        <header class="content-header">
+          <h1>❓ คำถามท้ายการทดลองและสรุปผล (Post-Lab Assessment & Conclusion)</h1>
+          <p class="subtitle">ตอบคำถามเชิงวิเคราะห์และสรุปข้อค้นพบจากการทดลอง: การจัดไบแอสและกราฟถ่ายโอน MOSFET (MOSFET Biasing)</p>
+        </header>
+
+        <!-- CARD 1: POST-LAB MULTIPLE CHOICE QUESTIONS (4 Points) -->
+        <div class="card" style="margin-bottom: 25px;">
+          <h2 class="card-title" style="font-size: 16px; color: var(--accent-cyan); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <span>❓</span> <span>คำถามวัดความเข้าใจท้ายการทดลอง (Post-Lab Assessment)</span>
+            <span style="font-size: 12px; color: var(--text-muted); float: right;">(ข้อละ 1.0 คะแนน รวม 4.0 คะแนน)</span>
+          </h2>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">1. ในวงจรจัดไบแอสของ E-MOSFET (Enhancement-Mode MOSFET) ระดับแรงดัน VGS ต้องมีค่าอย่างไร อุปกรณ์จึงจะเริ่มสร้างช่องนำกระแส (Inversion Layer) และมีกระแส ID ไหล?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="A">
+                <span class="checkmark"></span>
+                <span>A) VGS < 0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="B">
+                <span class="checkmark"></span>
+                <span>B) VGS ≥ VGS(th) (แรงดันขีดเริ่ม Threshold Voltage)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="C">
+                <span class="checkmark"></span>
+                <span>C) VGS = 0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q1" value="D">
+                <span class="checkmark"></span>
+                <span>D) VGS < VP</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">2. สมการความสัมพันธ์ของกระแสเดรน ID ในย่านอิ่มตัว (Saturation Region) ของ E-MOSFET เป็นไปตามสมการใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="A">
+                <span class="checkmark"></span>
+                <span>A) ID = IDSS (1 - VGS/VP)²</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="B">
+                <span class="checkmark"></span>
+                <span>B) ID = k (VGS - VGS(th))² (Square-Law Equation)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="C">
+                <span class="checkmark"></span>
+                <span>C) ID = β × IB</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q2" value="D">
+                <span class="checkmark"></span>
+                <span>D) ID = VDS / RD</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">3. เหตุใดในวงจรไบแอสของ MOSFET กระแสเกต IG จึงมีค่าเป็นศูนย์ (IG ≈ 0A) ส่งผลให้แรงดันตกคร่อมตัวต้านทานเกต VRG ≈ 0V?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="A">
+                <span class="checkmark"></span>
+                <span>A) เพราะตัวต้านทาน RG มีค่าความต้านทานเป็นศูนย์</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="B">
+                <span class="checkmark"></span>
+                <span>B) เพราะมีฉนวน SiO₂ กั้นขาเกต ทำให้รอยต่อเกตมีอิมพีแดนซ์สูงมากจนไม่มีกระแส DC ไหลผ่าน</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="C">
+                <span class="checkmark"></span>
+                <span>C) เพราะแรงดัน VDD จ่ายกระแสไม่พอ</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q3" value="D">
+                <span class="checkmark"></span>
+                <span>D) เพราะขาเกตต่อลงกราวด์โดยตรง</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="question-group" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="font-weight: 600; color: #fff; display: block; margin-bottom: 10px; font-size: 13.5px;">4. ย่านการทำงานแบบอิ่มตัว (Saturation / Active Region) ของ MOSFET กำหนดโดยเงื่อนไขแรงดันตกคร่อมรอยต่อตามข้อใด?</label>
+            <div class="option-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="A">
+                <span class="checkmark"></span>
+                <span>A) VDS ≥ VGS - VGS(th)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="B">
+                <span class="checkmark"></span>
+                <span>B) VDS < VGS - VGS(th)</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="C">
+                <span class="checkmark"></span>
+                <span>C) VGS = 0 V</span>
+              </label>
+              <label class="radio-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                <input type="radio" name="q4" value="D">
+                <span class="checkmark"></span>
+                <span>D) VDS = 0 V</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card report-section">
+          <h3>สรุปผลการทดลอง (Conclusion)</h3>
+          <div class="input-field">
+            <textarea id="lab-conclusion" rows="5" placeholder="เขียนบันทึกสรุปแนวคิด วงจร Fixed-Bias การควบคุมกระแสด้วยแรงดัน และพฤติกรรมของ JFET/MOSFET..."></textarea>
+          </div>
+        </div>
+        
+        <!-- Footer actions -->
+        <div class="card-footer-action no-print" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 12px;">
+          <button type="button" class="btn btn-secondary btn-large" onclick="switchTab('simulator')">🔬 กลับหน้าระเบียบจ่ายจำลอง</button>
+          <button type="button" class="btn btn-secondary btn-large" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.08); font-weight: bold;" onclick="resetWorksheetForNewUser()">🔄 เริ่มทำใบงานใหม่ (ผู้ใช้อื่น)</button>
+          <button type="button" class="btn btn-secondary btn-large" onclick="printReport()">🖨️ พิมพ์รายงานส่งผล / บันทึก PDF</button>
+          <button type="button" class="btn btn-secondary btn-large" style="border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); font-weight: bold;" onclick="previewScoreBeforeSubmit()">🔍 ตรวจสอบคะแนนก่อนส่ง</button>
+          <button type="button" class="btn btn-primary btn-large" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color: #0284c7;" onclick="submitReportToGAS()">ส่งรายงานตรวจให้คะแนนสะสม 🚀</button>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <script>
+/**
+ * JFET & MOSFET Fixed-Bias Simulator Engine
+ */
+const FET_DEVICE_MODELS = {
+  // JFET Models
+  '2N5458': {
+    category: 'JFET',
+    type: 'N-Channel JFET',
+    idss: 6.0,
+    vp: -3.5,
+    vth: -3.5,
+    rd: 1000,
+    rg: 1e6,
+    vgsMin: -5.0,
+    vgsMax: 0.0,
+    vgsStep: 0.1,
+    defaultVgs: -1.5,
+    vgsTable1: [-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0, 0.0],
+    nominalVgsTable2: -1.5,
+    desc: '💡 2N5458: JFET N-Channel อเนกประสงค์ (IDSS = 6.0 mA, VP = -3.5 V, RD = 1 kΩ)'
+  },
+  '2N5484': {
+    category: 'JFET',
+    type: 'N-Channel JFET',
+    idss: 3.5,
+    vp: -2.0,
+    vth: -2.0,
+    rd: 1000,
+    rg: 1e6,
+    vgsMin: -3.0,
+    vgsMax: 0.0,
+    vgsStep: 0.1,
+    defaultVgs: -1.0,
+    vgsTable1: [-2.5, -2.0, -1.5, -1.2, -0.9, -0.6, -0.3, 0.0],
+    nominalVgsTable2: -1.0,
+    desc: '💡 2N5484: JFET N-Channel สัญญาณรบกวนต่ำ ย่านความถี่สูง (IDSS = 3.5 mA, VP = -2.0 V, RD = 1 kΩ)'
+  },
+  'BF245B': {
+    category: 'JFET',
+    type: 'N-Channel JFET',
+    idss: 10.0,
+    vp: -4.0,
+    vth: -4.0,
+    rd: 1000,
+    rg: 1e6,
+    vgsMin: -5.0,
+    vgsMax: 0.0,
+    vgsStep: 0.1,
+    defaultVgs: -2.0,
+    vgsTable1: [-4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.0, 0.0],
+    nominalVgsTable2: -2.0,
+    desc: '💡 BF245B: JFET N-Channel กำลังสูง gm สูงพิเศษ (IDSS = 10.0 mA, VP = -4.0 V, RD = 1 kΩ)'
+  },
+  // MOSFET Models
+  '2N7000': {
+    category: 'MOSFET',
+    type: 'N-Channel E-MOSFET',
+    vth: 2.1,
+    k: 0.05, // 50 mA/V^2
+    rd: 1000,
+    rg: 1e6,
+    vgsMin: 0.0,
+    vgsMax: 6.0,
+    vgsStep: 0.1,
+    defaultVgs: 3.0,
+    vgsTable1: [0.0, 1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0],
+    nominalVgsTable2: 3.0,
+    desc: '💡 2N7000: N-Channel Enhancement MOSFET (Vth = 2.1 V, k = 50 mA/V², RD = 1 kΩ)'
+  },
+  'BS170': {
+    category: 'MOSFET',
+    type: 'N-Channel E-MOSFET',
+    vth: 2.0,
+    k: 0.06,
+    rd: 1000,
+    rg: 1e6,
+    vgsMin: 0.0,
+    vgsMax: 6.0,
+    vgsStep: 0.1,
+    defaultVgs: 3.0,
+    vgsTable1: [0.0, 1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0],
+    nominalVgsTable2: 3.0,
+    desc: '💡 BS170: N-Channel Enhancement MOSFET สวิตชิ่งความเร็วสูง (Vth = 2.0 V, k = 60 mA/V², RD = 1 kΩ)'
+  },
+  'IRF540': {
+    category: 'MOSFET',
+    type: 'Power N-Channel E-MOSFET',
+    vth: 3.0,
+    k: 0.08,
+    rd: 220,
+    rg: 1e6,
+    vgsMin: 0.0,
+    vgsMax: 8.0,
+    vgsStep: 0.1,
+    defaultVgs: 4.5,
+    vgsTable1: [0.0, 1.0, 2.0, 3.0, 3.5, 4.0, 5.0, 6.0],
+    nominalVgsTable2: 4.5,
+    desc: '💡 IRF540: Power N-Channel Enhancement MOSFET กำลังสูง (Vth = 3.0 V, k = 80 mA/V², RD = 220 Ω)'
+  }
+};
+
+const STATE = {
+  fetModel: '2N5458',
+  vgg: -1.5,
+  vdd: 10.0,
+  measuringTarget: 'none'
+};
+
+function solveFetPhysics(modelName, Vdd, Vgs) {
+  const model = FET_DEVICE_MODELS[modelName] || FET_DEVICE_MODELS['2N5458'];
+  const rd = model.rd;
+  const vdd = Math.max(0, Vdd);
+  
+  if (model.category === 'JFET') {
+    const idss = model.idss;
+    const vp = model.vp;
+    const vgs = Math.min(0, Vgs);
+    
+    if (vgs <= vp) {
+      return { id: 0, vds: vdd, vrd: 0, vrg: 0, state: 'คัทออฟ (Cutoff / ไม่นำกระแส)' };
+    }
+    
+    const vdsPinch = Math.abs(vp) - Math.abs(vgs);
+    const idSat = idss * Math.pow(1 - (vgs / vp), 2);
+    const vdsSat = vdd - (idSat / 1000) * rd;
+    
+    if (vdsSat >= vdsPinch) {
+      return {
+        id: parseFloat(idSat.toFixed(3)),
+        vds: parseFloat(Math.max(0, vdsSat).toFixed(3)),
+        vrd: parseFloat(((idSat / 1000) * rd).toFixed(3)),
+        vrg: 0.000,
+        state: 'อิ่มตัว (Saturation / ย่านกระแสคงที่)'
+      };
+    } else {
+      const beta = (idss / 1000) / (vp * vp);
+      const a = beta * rd;
+      const b = -(2 * beta * rd * (Math.abs(vp) - Math.abs(vgs)) + 1);
+      const c = vdd;
+      const disc = b * b - 4 * a * c;
+      if (disc < 0) {
+        return { id: parseFloat(idSat.toFixed(3)), vds: 0.1, vrd: parseFloat(vdd.toFixed(3)), vrg: 0.000, state: 'โอห์มมิก (Ohmic / ความต้านทานปรับค่าได้)' };
+      }
+      const vds = (-b - Math.sqrt(disc)) / (2 * a);
+      const idA = beta * (2 * (Math.abs(vp) - Math.abs(vgs)) * vds - vds * vds);
+      const id_mA = idA * 1000;
+      return {
+        id: parseFloat(Math.max(0, id_mA).toFixed(3)),
+        vds: parseFloat(Math.max(0, vds).toFixed(3)),
+        vrd: parseFloat((vdd - vds).toFixed(3)),
+        vrg: 0.000,
+        state: 'โอห์มมิก (Ohmic / ความต้านทานปรับค่าได้)'
+      };
+    }
+  } else {
+    // MOSFET
+    const vth = model.vth;
+    const k = model.k;
+    const vgs = Math.max(0, Vgs);
+    
+    if (vgs <= vth) {
+      return { id: 0, vds: vdd, vrd: 0, vrg: 0, state: 'คัทออฟ (Cutoff / ไม่นำกระแส)' };
+    }
+    
+    const vdsSat = vgs - vth;
+    const idSatA = k * Math.pow(vgs - vth, 2);
+    const vdsCalculated = vdd - idSatA * rd;
+    
+    if (vdsCalculated >= vdsSat) {
+      return {
+        id: parseFloat((idSatA * 1000).toFixed(3)),
+        vds: parseFloat(Math.max(0, vdsCalculated).toFixed(3)),
+        vrd: parseFloat((idSatA * rd).toFixed(3)),
+        vrg: 0.000,
+        state: 'อิ่มตัว (Saturation / ย่านกระแสคงที่)'
+      };
+    } else {
+      const a = k * rd;
+      const b = -(2 * k * rd * (vgs - vth) + 1);
+      const c = vdd;
+      const disc = b * b - 4 * a * c;
+      if (disc < 0) {
+        return { id: parseFloat((idSatA * 1000).toFixed(3)), vds: 0.1, vrd: parseFloat(vdd.toFixed(3)), vrg: 0.000, state: 'ไตรโอด (Triode / โอห์มมิก)' };
+      }
+      const vds = (-b - Math.sqrt(disc)) / (2 * a);
+      const idA = k * (2 * (vgs - vth) * vds - vds * vds);
+      return {
+        id: parseFloat(Math.max(0, idA * 1000).toFixed(3)),
+        vds: parseFloat(Math.max(0, vds).toFixed(3)),
+        vrd: parseFloat((vdd - vds).toFixed(3)),
+        vrg: 0.000,
+        state: 'ไตรโอด (Triode / โอห์มมิก)'
+      };
+    }
+  }
+}
+
+function solveCircuit() {
+  const solved = solveFetPhysics(STATE.fetModel, STATE.vdd, STATE.vgg);
+  const noiseVal = () => (Math.random() - 0.5) * 0.004;
+  const idNoise = () => (Math.random() - 0.5) * 0.01;
+  const addNoise = (val, n = noiseVal()) => val > 0.01 ? parseFloat((val + n).toFixed(3)) : 0;
+  
+  return {
+    vgs: STATE.vgg,
+    vds: addNoise(solved.vds),
+    vrd: addNoise(solved.vrd),
+    vrg: 0.000,
+    id: solved.id > 0 ? parseFloat((solved.id + idNoise()).toFixed(3)) : 0,
+    state: solved.state
+  };
+}
+
+/**
+ * UI & Charting Controller
+ */
+let transferChart = null;
+let drainChart = null;
+
+function initApp() {
+  const dateInput = document.getElementById('lab-date');
+  if (dateInput) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  
+  initCharts();
+  selectFetModel('2N5458');
+  
+  checkExistingSubmission();
+  document.getElementById('student-id')?.addEventListener('change', checkExistingSubmission);
+  document.getElementById('student-id')?.addEventListener('input', checkExistingSubmission);
+}
+
+function selectFetModel(modelKey) {
+  if (!FET_DEVICE_MODELS[modelKey]) return;
+  STATE.fetModel = modelKey;
+  const model = FET_DEVICE_MODELS[modelKey];
+  
+  // Update button active state in Tab 2 and Tab 3
+  document.querySelectorAll('.model-pill-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.getElementById('btn-model-' + modelKey)?.classList.add('active');
+  document.getElementById('ws-btn-model-' + modelKey)?.classList.add('active');
+  
+  // Update description banners
+  const descEl = document.getElementById('model-desc-banner');
+  if (descEl) descEl.innerText = model.desc;
+  const wsDescEl = document.getElementById('ws-model-desc-banner');
+  if (wsDescEl) wsDescEl.innerHTML = '📌 <strong>รุ่นที่กำลังบันทึกผล:</strong> ' + model.desc;
+  
+  // Update SVG resistor labels & model text
+  const svgModelTxt = document.getElementById('svg-device-model-txt');
+  if (svgModelTxt) svgModelTxt.textContent = modelKey;
+  
+  const lblRd = document.getElementById('lbl-rd-val');
+  if (lblRd) lblRd.textContent = 'RD = ' + (model.rd >= 1000 ? (model.rd/1000) + ' kΩ' : model.rd + ' Ω');
+  
+  // Update slider bounds for VGG
+  const vggSlider = document.getElementById('input-vgg');
+  const lblVggContainer = document.getElementById('lbl-vgg-container');
+  if (vggSlider) {
+    vggSlider.min = model.vgsMin;
+    vggSlider.max = model.vgsMax;
+    vggSlider.step = model.vgsStep;
+    vggSlider.value = model.defaultVgs;
+    STATE.vgg = model.defaultVgs;
+  }
+  if (lblVggContainer) {
+    lblVggContainer.innerHTML = 'แหล่งจ่ายไบอัสเกต (V<sub>GG</sub>): <strong id="val-vgg" style="color: var(--accent-cyan);">' + model.defaultVgs.toFixed(1) + '</strong> V';
+  }
+  
+  // Update SVG schematic symbol
+  updateSvgDeviceSymbol(model.category);
+  
+  // Update Report Tables & Parameters Section
+  buildReportTables();
+  updateParametersLabels();
+  
+  // Run simulation & update charts
+  updateCircuitSimulation();
+  updateCharts();
+}
+
+function updateSvgDeviceSymbol(category) {
+  const gateArrow = document.getElementById('fet-gate-arrow');
+  if (gateArrow) {
+    if (category === 'JFET') {
+      gateArrow.style.display = 'block';
+    } else {
+      gateArrow.style.display = 'none';
+    }
+  }
+}
+
+function updateParametersLabels() {
+  const model = FET_DEVICE_MODELS[STATE.fetModel];
+  const isJfet = model.category === 'JFET';
+  
+  const p1Lbl = document.getElementById('lbl-ans-p1');
+  const p2Lbl = document.getElementById('lbl-ans-p2');
+  const p2Unit = document.getElementById('unit-ans-p2');
+  const p1In = document.getElementById('ans-p1');
+  const p2In = document.getElementById('ans-p2');
+  
+  if (isJfet) {
+    if (p1Lbl) p1Lbl.innerHTML = '1. แรงดันพินช์ออฟตรวจวัดได้ (Pinch-off Voltage V<sub>P</sub>):';
+    if (p2Lbl) p2Lbl.innerHTML = '2. กระแสเดรนอิ่มตัวสูงสุดที่ V<sub>GS</sub> = 0V (I<sub>DSS</sub>):';
+    if (p2Unit) p2Unit.innerHTML = 'mA';
+    if (p1In) p1In.placeholder = 'เช่น ' + model.vp.toFixed(1);
+    if (p2In) p2In.placeholder = 'เช่น ' + model.idss.toFixed(1);
+  } else {
+    if (p1Lbl) p1Lbl.innerHTML = '1. แรงดันขีดเริ่มนำกระแสตรวจวัดได้ (Threshold Voltage V<sub>th</sub>):';
+    if (p2Lbl) p2Lbl.innerHTML = '2. ค่าคงที่ transconductance คำนวณได้ (k = I<sub>D</sub> / (V<sub>GS</sub> - V<sub>th</sub>)<sup>2</sup>):';
+    if (p2Unit) p2Unit.innerHTML = 'mA/V<sup>2</sup>';
+    if (p1In) p1In.placeholder = 'เช่น ' + model.vth.toFixed(1);
+    if (p2In) p2In.placeholder = 'เช่น ' + (model.k * 1000).toFixed(0);
+  }
+}
+
+function buildReportTables() {
+  const model = FET_DEVICE_MODELS[STATE.fetModel];
+  const t1Body = document.getElementById('table1-body');
+  const t2Body = document.getElementById('table2-body');
+  
+  if (t1Body) {
+    t1Body.innerHTML = '';
+    model.vgsTable1.forEach((vgsVal, idx) => {
+      t1Body.innerHTML += `
+        <tr>
+          <td class="text-center font-bold" style="color: var(--accent-cyan);">${vgsVal.toFixed(1)} V</td>
+          <td><input type="number" id="t1-vds-${idx}" step="0.001" placeholder="0.00"></td>
+          <td><input type="number" id="t1-id-${idx}" step="0.001" placeholder="0.00"></td>
+          <td><input type="text" id="t1-state-${idx}" placeholder="อิ่มตัว / คัทออฟ..."></td>
+          <td class="no-print text-center">
+            <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="applyTableRow1(${vgsVal}, ${idx})">ดึงค่าวัด</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+  
+  const vddSteps = [0.5, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0];
+  if (t2Body) {
+    t2Body.innerHTML = '';
+    vddSteps.forEach((vddVal, idx) => {
+      t2Body.innerHTML += `
+        <tr>
+          <td class="text-center font-bold" style="color: #ef4444;">${vddVal.toFixed(1)} V</td>
+          <td><input type="number" id="t2-vds-${idx}" step="0.001" placeholder="0.00"></td>
+          <td><input type="number" id="t2-id-${idx}" step="0.001" placeholder="0.00"></td>
+          <td><input type="text" id="t2-state-${idx}" placeholder="โอห์มมิก / อิ่มตัว..."></td>
+          <td class="no-print text-center">
+            <button type="button" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="applyTableRow2(${vddVal}, ${idx})">ดึงค่าวัด</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+}
+
+function applyTableRow1(vgsVal, idx) {
+  document.getElementById('input-vgg').value = vgsVal;
+  document.getElementById('input-vdd').value = 10.0;
+  updateCircuitSimulation();
+  
+  const results = solveCircuit();
+  const vdsIn = document.getElementById('t1-vds-' + idx);
+  const idIn = document.getElementById('t1-id-' + idx);
+  const stateIn = document.getElementById('t1-state-' + idx);
+  
+  if (vdsIn) vdsIn.value = results.vds.toFixed(3);
+  if (idIn) idIn.value = results.id.toFixed(3);
+  if (stateIn) stateIn.value = results.state.split(' ')[0];
+}
+
+function applyTableRow2(vddVal, idx) {
+  const model = FET_DEVICE_MODELS[STATE.fetModel];
+  document.getElementById('input-vgg').value = model.nominalVgsTable2;
+  document.getElementById('input-vdd').value = vddVal;
+  updateCircuitSimulation();
+  
+  const results = solveCircuit();
+  const vdsIn = document.getElementById('t2-vds-' + idx);
+  const idIn = document.getElementById('t2-id-' + idx);
+  const stateIn = document.getElementById('t2-state-' + idx);
+  
+  if (vdsIn) vdsIn.value = results.vds.toFixed(3);
+  if (idIn) idIn.value = results.id.toFixed(3);
+  if (stateIn) stateIn.value = results.state.split(' ')[0];
+}
+
+function updateCircuitSimulation() {
+  const vggVal = parseFloat(document.getElementById('input-vgg').value);
+  const vddVal = parseFloat(document.getElementById('input-vdd').value);
+  STATE.vgg = vggVal;
+  STATE.vdd = vddVal;
+  
+  const valVggEl = document.getElementById('val-vgg');
+  if (valVggEl) valVggEl.innerText = vggVal.toFixed(1);
+  
+  const valVddEl = document.getElementById('val-vdd');
+  if (valVddEl) valVddEl.innerText = vddVal.toFixed(1);
+  
+  const svgVggLbl = document.getElementById('svg-vgg-lbl');
+  if (svgVggLbl) svgVggLbl.textContent = vggVal.toFixed(1) + 'V';
+  
+  const svgVddLbl = document.getElementById('svg-vdd-lbl');
+  if (svgVddLbl) svgVddLbl.textContent = vddVal.toFixed(1) + 'V';
+  
+  const results = solveCircuit();
+  
+  // Update state badge
+  const stateBadge = document.getElementById('fet-state-badge');
+  if (stateBadge) {
+    stateBadge.innerText = results.state;
+    if (results.state.includes('คัทออฟ') || results.state.includes('Cutoff')) {
+      stateBadge.className = 'badge badge-danger';
+    } else if (results.state.includes('โอห์มมิก') || results.state.includes('Triode')) {
+      stateBadge.className = 'badge badge-warning';
+    } else {
+      stateBadge.className = 'badge badge-normal';
+    }
+  }
+  
+  // DMM and Probes
+  const target = document.getElementById('measuring-target').value;
+  STATE.measuringTarget = target;
+  const dmmVal = document.getElementById('dmm-value');
+  const dmmUnit = document.getElementById('dmm-unit');
+  const dmmMode = document.getElementById('dmm-mode-text');
+  
+  const pRed = document.getElementById('svg-probe-red-tip');
+  const pBlack = document.getElementById('svg-probe-black-tip');
+  const pRedWire = document.getElementById('svg-probe-red-wire');
+  const pBlackWire = document.getElementById('svg-probe-black-wire');
+  
+  if (pRed && pBlack && pRedWire && pBlackWire) {
+    pRed.setAttribute('opacity', '0');
+    pBlack.setAttribute('opacity', '0');
+    pRedWire.setAttribute('d', 'M 0 0');
+    pBlackWire.setAttribute('d', 'M 0 0');
+  }
+  
+  // Ammeter wire bridge
+  const drainBridge = document.getElementById('drain-ammeter-bridge');
+  if (drainBridge) {
+    drainBridge.style.display = 'block';
+    drainBridge.setAttribute('stroke', '#cbd5e1');
+  }
+  
+  if (target === 'none') {
+    if (dmmVal) dmmVal.innerText = '0.00';
+    if (dmmUnit) dmmUnit.innerText = 'V';
+    if (dmmMode) dmmMode.innerText = 'ไม่ได้ต่อโพรบวัด';
+  } else if (target === 'vgs') {
+    if (dmmVal) dmmVal.innerText = results.vgs.toFixed(2);
+    if (dmmUnit) dmmUnit.innerText = 'V';
+    if (dmmMode) dmmMode.innerText = 'DC Voltage: Gate-Source voltage (VGS)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      pRed.setAttribute('cx', '190'); pRed.setAttribute('cy', '110'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 220 20, 200 60, 190 110');
+      
+      pBlack.setAttribute('cx', '250'); pBlack.setAttribute('cy', '220'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 220 50, 240 120, 250 220');
+    }
+  } else if (target === 'vds') {
+    if (dmmVal) dmmVal.innerText = results.vds.toFixed(3);
+    if (dmmUnit) dmmUnit.innerText = 'V';
+    if (dmmMode) dmmMode.innerText = 'DC Voltage: Drain-Source voltage (VDS)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      pRed.setAttribute('cx', '250'); pRed.setAttribute('cy', '110'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 260 20, 260 60, 250 110');
+      
+      pBlack.setAttribute('cx', '250'); pBlack.setAttribute('cy', '220'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 220 50, 240 120, 250 220');
+    }
+  } else if (target === 'vrd') {
+    if (dmmVal) dmmVal.innerText = results.vrd.toFixed(3);
+    if (dmmUnit) dmmUnit.innerText = 'V';
+    if (dmmMode) dmmMode.innerText = 'DC Voltage: Drain Resistor drop (VRD)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      pRed.setAttribute('cx', '320'); pRed.setAttribute('cy', '35'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 280 15, 300 20, 320 35');
+      
+      pBlack.setAttribute('cx', '320'); pBlack.setAttribute('cy', '110'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 250 30, 300 60, 320 110');
+    }
+  } else if (target === 'vrg') {
+    if (dmmVal) dmmVal.innerText = results.vrg.toFixed(3);
+    if (dmmUnit) dmmUnit.innerText = 'V';
+    if (dmmMode) dmmMode.innerText = 'DC Voltage: Gate Resistor drop (VRG ≈ 0V, IG = 0A)';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      pRed.setAttribute('cx', '60'); pRed.setAttribute('cy', '110'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 180 15, 100 40, 60 110');
+      
+      pBlack.setAttribute('cx', '190'); pBlack.setAttribute('cy', '110'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 200 30, 195 60, 190 110');
+    }
+  } else if (target === 'id') {
+    if (dmmVal) dmmVal.innerText = results.id.toFixed(3);
+    if (dmmUnit) dmmUnit.innerText = 'mA';
+    if (dmmMode) dmmMode.innerText = 'DC Current: Drain series current (ID)';
+    
+    // Auto-lift / open ammeter bridge
+    if (drainBridge) drainBridge.style.display = 'none';
+    
+    if (pRed && pBlack && pRedWire && pBlackWire) {
+      pRed.setAttribute('cx', '320'); pRed.setAttribute('cy', '110'); pRed.setAttribute('opacity', '1');
+      pRedWire.setAttribute('d', 'M 250 20 C 280 20, 310 60, 320 110');
+      
+      pBlack.setAttribute('cx', '250'); pBlack.setAttribute('cy', '110'); pBlack.setAttribute('opacity', '1');
+      pBlackWire.setAttribute('d', 'M 210 20 C 220 30, 240 70, 250 110');
+    }
+  }
+}
+
+function recordCurrentValues() {
+  const results = solveCircuit();
+  alert('บันทึกค่าวัดปัจจุบัน:\n' +
+    '- รุ่น FET: ' + STATE.fetModel + '\n' +
+    '- VGG = ' + STATE.vgg.toFixed(2) + ' V\n' +
+    '- VDD = ' + STATE.vdd.toFixed(2) + ' V\n' +
+    '- VGS = ' + results.vgs.toFixed(2) + ' V\n' +
+    '- VDS = ' + results.vds.toFixed(3) + ' V\n' +
+    '- ID = ' + results.id.toFixed(3) + ' mA\n' +
+    '- สถานะ: ' + results.state + '\n\n(ท่านสามารถกดปุ่ม \"ดึงค่าวัด\" ในตารางเพื่อบันทึกแต่ละแถวได้ทันที)');
+}
+
+function initCharts() {
+  const ctxT = document.getElementById('transferChart')?.getContext('2d');
+  const ctxD = document.getElementById('drainChart')?.getContext('2d');
+  
+  if (ctxT) {
+    transferChart = new Chart(ctxT, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'เส้นถ่ายโอน (ID vs VGS)',
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+            borderWidth: 2.5,
+            tension: 0.3,
+            fill: true,
+            data: []
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Chakra Petch' } } } },
+        scales: {
+          x: { title: { display: true, text: 'VGS (V)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { title: { display: true, text: 'ID (mA)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
+  
+  if (ctxD) {
+    drainChart = new Chart(ctxD, {
+      type: 'line',
+      data: {
+        labels: [0, 1, 2, 4, 6, 8, 10, 12, 15],
+        datasets: []
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Chakra Petch' } } } },
+        scales: {
+          x: { title: { display: true, text: 'VDS (V)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { title: { display: true, text: 'ID (mA)', color: '#94a3b8' }, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
+}
+
+function updateCharts() {
+  const model = FET_DEVICE_MODELS[STATE.fetModel];
+  if (!transferChart || !drainChart) return;
+  
+  // 1. Update Transfer Curve
+  const tLabels = [];
+  const tData = [];
+  const minV = model.vgsMin;
+  const maxV = model.vgsMax;
+  const steps = 15;
+  const stepSize = (maxV - minV) / steps;
+  
+  for (let i = 0; i <= steps; i++) {
+    const v = parseFloat((minV + i * stepSize).toFixed(2));
+    const sol = solveFetPhysics(STATE.fetModel, 10.0, v);
+    tLabels.push(v);
+    tData.push(sol.id);
+  }
+  
+  transferChart.data.labels = tLabels;
+  transferChart.data.datasets[0].data = tData;
+  transferChart.update();
+  
+  // 2. Update Drain Curves (3 typical Vgs levels)
+  const isJfet = model.category === 'JFET';
+  const vgsCurves = isJfet
+    ? [0.0, model.vp * 0.33, model.vp * 0.66]
+    : [model.vth + 0.5, model.vth + 1.5, model.vth + 2.5];
+  
+  const colors = ['#10b981', '#38bdf8', '#f59e0b'];
+  drainChart.data.datasets = vgsCurves.map((vgsVal, idx) => {
+    const dPoints = [];
+    const vddList = [0, 1, 2, 4, 6, 8, 10, 12, 15];
+    vddList.forEach(v => {
+      const sol = solveFetPhysics(STATE.fetModel, v, vgsVal);
+      dPoints.push(sol.id);
+    });
+    return {
+      label: 'VGS = ' + vgsVal.toFixed(1) + ' V',
+      borderColor: colors[idx],
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: 0.2,
+      data: dPoints
+    };
+  });
+  drainChart.update();
+}
+
+function switchTab(tabId) {
+  // Update sidebar active buttons
+  const navButtons = document.querySelectorAll('.nav-btn, .nav-item');
+  navButtons.forEach(btn => {
+    const dataTab = btn.getAttribute('data-tab');
+    if (dataTab === tabId || (tabId === 'worksheet' && dataTab === 'report')) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // Switch tab contents
+  const tabPanes = document.querySelectorAll('.tab-content, .tab-pane');
+  tabPanes.forEach(pane => {
+    if (pane.id === tabId || (tabId === 'report' && pane.id === 'worksheet')) {
+      pane.classList.add('active');
+    } else {
+      pane.classList.remove('active');
+    }
+  });
+
+  if (tabId === 'simulator') {
+    setTimeout(() => { updateCharts(); }, 150);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function printReport() {
+  window.print();
+}
+
+function getWorksheetPayload() {
+  const model = FET_DEVICE_MODELS[STATE.fetModel];
+  const table1Rows = [];
+  model.vgsTable1.forEach((vgsVal, idx) => {
+    table1Rows.push({
+      vgs: vgsVal,
+      vds: document.getElementById('t1-vds-' + idx)?.value || '',
+      id: document.getElementById('t1-id-' + idx)?.value || '',
+      state: document.getElementById('t1-state-' + idx)?.value || ''
+    });
+  });
+  
+  const vddSteps = [0.5, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0];
+  const table2Rows = [];
+  vddSteps.forEach((vddVal, idx) => {
+    table2Rows.push({
+      vdd: vddVal,
+      vds: document.getElementById('t2-vds-' + idx)?.value || '',
+      id: document.getElementById('t2-id-' + idx)?.value || '',
+      state: document.getElementById('t2-state-' + idx)?.value || ''
+    });
+  });
+  
+  return {
+    labDataSource: (window.STATE && STATE.labDataSource) ? STATE.labDataSource : 'simulation',
+    componentModel: (window.STATE && STATE.componentModel) ? STATE.componentModel : '2N7000',
+    hwComponentModel: document.getElementById('hw-component-model')?.value.trim() || '2N7000',
+    studentName: (document.getElementById('student-name')?.value || '').trim(),
+    studentId: (document.getElementById('student-id')?.value || '').trim(),
+    studentGroup: (document.getElementById('student-group')?.value || '').trim(),
+    labDate: document.getElementById('lab-date')?.value || '',
+    fetModel: STATE.fetModel,
+    table1Rows: table1Rows,
+    table2Rows: table2Rows,
+    ansP1: document.getElementById('ans-p1')?.value || '',
+    ansP2: document.getElementById('ans-p2')?.value || '',
+    q1Answer: (document.querySelector('input[name="q1"]:checked')?.value || '').trim(),
+    q2Answer: (document.querySelector('input[name="q2"]:checked')?.value || '').trim(),
+    q3Answer: (document.querySelector('input[name="q3"]:checked')?.value || '').trim(),
+    q4Answer: (document.querySelector('input[name="q4"]:checked')?.value || '').trim(),
+    q1: (document.querySelector('input[name="q1"]:checked')?.value || '').trim(),
+    q2: (document.querySelector('input[name="q2"]:checked')?.value || '').trim(),
+    q3: (document.querySelector('input[name="q3"]:checked')?.value || '').trim(),
+    q4: (document.querySelector('input[name="q4"]:checked')?.value || '').trim(),
+    labConclusion: document.getElementById('lab-conclusion')?.value || ''
+  };
+}
+
+function previewScoreBeforeSubmit() {
+  const data = getWorksheetPayload();
+  if (!data.studentName || !data.studentId || !data.studentGroup) {
+    alert('⚠️ กรุณากรอกข้อมูลนักศึกษา (ชื่อ, รหัสนักศึกษา, กลุ่มเรียน) ให้ครบถ้วนก่อนตรวจสอบคะแนน');
+    switchTab('worksheet');
+    document.getElementById('student-name')?.focus();
+    return;
+  }
+  
+  const res = localGradeSimulator(data);
+  showGradingOverlay(true);
+  
+  const title = document.getElementById('overlay-title');
+  const spinner = document.getElementById('overlay-spinner');
+  const msg = document.getElementById('overlay-message');
+  const closeBtn = document.getElementById('overlay-close-btn');
+  const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+  
+  title.innerText = '🔍 ตรวจสอบคะแนนก่อนส่ง (Score Preview)';
+  title.style.color = 'var(--accent-cyan)';
+  if (spinner) spinner.style.display = 'none';
+  
+  let scoreColor = res.score >= 9 ? 'var(--accent-green)' : (res.score >= 7 ? 'var(--accent-cyan)' : 'var(--accent-yellow)');
+  
+  msg.innerHTML = `
+    <div style="background: rgba(56, 189, 248, 0.1); border: 1px dashed var(--accent-cyan); border-radius: 8px; padding: 10px 14px; margin-bottom: 15px; color: var(--accent-cyan); font-size: 13px; text-align: left;">
+      ℹ️ <strong>โหมดทดลองตรวจคำตอบ:</strong> ผลคะแนนด้านล่างเป็นการประเมินเบื้องต้น <u>ยังไม่ได้บันทึกส่ง</u> เข้าระบบจริง
+    </div>
+    <div style="text-align: left; background: rgba(15,23,42,0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin: 12px 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 16px; font-weight: bold; color: var(--text-main);">คะแนนประเมินที่ได้:</span>
+        <span style="font-size: 24px; font-weight: bold; color: ${scoreColor};">${res.score} / ${res.maxScore}</span>
+      </div>
+      <p style="font-size: 13px; font-weight: bold; margin-bottom: 12px; color: var(--accent-cyan);">
+        ระดับผลการประเมิน: ${res.comment}
+      </p>
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+      <p style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">📋 รายละเอียดการตรวจสอบข้อคำตอบ:</p>
+      <div style="font-size: 12px; font-family: 'Sarabun', sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${res.feedback.replace(/\n/g, '<br>')}</div>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+      💡 หากต้องการแก้ไข สามารถกด <strong>"✏️ กลับไปแก้ไขคำตอบ"</strong> หรือกด <strong>"🚀 ยืนยันส่งใบงานจริง"</strong> ได้ทันที
+    </p>
+  `;
+  
+  if (closeBtn) { closeBtn.innerText = '✏️ กลับไปแก้ไขคำตอบ'; closeBtn.style.display = 'inline-block'; }
+  if (confirmBtn) { confirmBtn.style.display = 'inline-block'; }
+}
+
+function confirmSubmitFromPreview() {
+  showGradingOverlay(false);
+  submitReportToGAS();
+}
+
+function submitReportToGAS() {
+  const data = getWorksheetPayload();
+  if (!data.studentName || !data.studentId || !data.studentGroup) {
+    alert('⚠️ กรุณากรอกข้อมูลนักศึกษา (ชื่อ, รหัสนักศึกษา, กลุ่มเรียน) ให้ครบถ้วนก่อนส่งใบงาน');
+    switchTab('worksheet');
+    document.getElementById('student-name')?.focus();
+    return;
+  }
+  
+  showGradingOverlay(true);
+  
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(onSuccessGrading)
+      .withFailureHandler(onFailureGrading)
+      .submitWorksheet(data);
+  } else {
+    const endpointUrl = typeof getSavedGasEndpoint === 'function' ? getSavedGasEndpoint() : '';
+    if (endpointUrl && endpointUrl.startsWith('http')) {
+      fetch(endpointUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && (res.status === 'success' || res.score !== undefined)) {
+          onSuccessGrading(res);
+        } else {
+          throw new Error(res.message || 'Error recording submission');
+        }
+      })
+      .catch(err => {
+        console.warn('GAS Fetch failed, falling back to local simulation:', err);
+        const localRes = localGradeSimulator(data);
+        localRes.feedback = (localRes.feedback || '') + `\n\n⚠️ หมายเหตุ: บันทึกข้อมูลผ่าน Web App ไม่สำเร็จ (${err.message}) ระบบจึงทำการตรวจประเมินแบบจำลองในเครื่องให้แทน`;
+        onSuccessGrading(localRes);
+      });
+    } else {
+      setTimeout(() => {
+        const localRes = localGradeSimulator(data);
+        onSuccessGrading(localRes);
+      }, 800);
+    }
+  }
+}
+
+function localGradeSimulator(data) {
+  const isHardware = (data.labDataSource === 'hardware');
+const model = FET_DEVICE_MODELS[data.fetModel] || FET_DEVICE_MODELS['2N5458'];
+  const isJfet = model.category === 'JFET';
+  let score = 0;
+  const maxScore = 10;
+  const feedback = [
+    isHardware 
+      ? '📌 โหมดการตรวจ: 🔌 อุปกรณ์จริง (Hardware Lab) - ปรับเกณฑ์ความคลาดเคลื่อนตามมาตรฐานอุปกรณ์จริง' 
+      : '📌 โหมดการตรวจ: 🔬 ห้องทดลองจำลองเสมือน (Virtual Simulation)'
+  ];
+  
+  let t1Correct = 0;
+  (data.table1Rows || []).forEach(row => {
+    if (row.vds && parseFloat(row.vds) >= 0) t1Correct++;
+  });
+  const t1Score = Math.min(2, Math.floor(t1Correct / 2));
+  score += t1Score;
+  feedback.push('ตารางที่ 1 (Transfer Characteristics): ได้ ' + t1Score + ' / 2 คะแนน');
+  
+  let t2Correct = 0;
+  (data.table2Rows || []).forEach(row => {
+    if (row.vds && parseFloat(row.vds) >= 0) t2Correct++;
+  });
+  const t2Score = Math.min(4, Math.floor(t2Correct / 2));
+  score += t2Score;
+  feedback.push('ตารางที่ 2 (Drain Characteristics): ได้ ' + t2Score + ' / 4 คะแนน');
+  
+  const p1Val = parseFloat(data.ansP1);
+  const p2Val = parseFloat(data.ansP2);
+  let p1Ok = false;
+  let p2Ok = false;
+  
+  if (isJfet) {
+    p1Ok = !isNaN(p1Val) && (Math.abs(p1Val - model.vp) <= 0.8 || Math.abs(Math.abs(p1Val) - Math.abs(model.vp)) <= 0.8);
+    p2Ok = !isNaN(p2Val) && Math.abs(p2Val - model.idss) <= 2.5;
+  } else {
+    p1Ok = !isNaN(p1Val) && Math.abs(p1Val - model.vth) <= 0.8;
+    p2Ok = !isNaN(p2Val) && p2Val > 0;
+  }
+  
+  if (p1Ok) { score++; feedback.push('พารามิเตอร์ที่ 1: ถูกต้องตามเกณฑ์ (+1)'); }
+  else { feedback.push('พารามิเตอร์ที่ 1: คลาดเคลื่อนจากเกณฑ์ (+0)'); }
+  
+  if (p2Ok) { score++; feedback.push('พารามิเตอร์ที่ 2: ถูกต้องตามเกณฑ์ (+1)'); }
+  else { feedback.push('พารามิเตอร์ที่ 2: คลาดเคลื่อนจากเกณฑ์ (+0)'); }
+
+      // --- PART 3/4: POST-LAB CONCEPTUAL QUESTIONS (4 Points Total) ---
+      const ansQ1 = (data.q1Answer || data.q1 || '').trim().toUpperCase();
+      const ansQ2 = (data.q2Answer || data.q2 || '').trim().toUpperCase();
+      const ansQ3 = (data.q3Answer || data.q3 || '').trim().toUpperCase();
+      const ansQ4 = (data.q4Answer || data.q4 || '').trim().toUpperCase();
+
+      let qScore = 0;
+      const q1Ok = (ansQ1 === 'A');
+      const q2Ok = (ansQ2 === 'B');
+      const q3Ok = (ansQ3 === 'B');
+      const q4Ok = (ansQ4 === 'A');
+
+      if (q1Ok) qScore++;
+      if (q2Ok) qScore++;
+      if (q3Ok) qScore++;
+      if (q4Ok) qScore++;
+
+      score += qScore;
+      feedback.push(`\n[คำถามวัดความเข้าใจท้ายการทดลอง]: ตอบถูก ${qScore} จาก 4 ข้อ (ได้ ${qScore} / 4 คะแนน)`);
+      feedback.push(`  ข้อ 1: ${q1Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ1 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 2: ${q2Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ2 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 3: ${q3Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ3 ? '✗ ไม่ถูกต้อง (เฉลย B)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+      feedback.push(`  ข้อ 4: ${q4Ok ? '✓ ถูกต้อง (+1 คะแนน)' : (ansQ4 ? '✗ ไม่ถูกต้อง (เฉลย A)' : '✗ ยังไม่ได้เลือกคำตอบ')}`);
+
+
+  
+  let comment = "ต้องปรับปรุงแก้ไขใบงาน";
+  if (score >= 9) comment = "ผ่านเกณฑ์ดีเยี่ยม (Excellent)";
+  else if (score >= 7) comment = "ผ่านเกณฑ์ดี (Good)";
+  else if (score >= 5) comment = "ผ่านเกณฑ์พอใช้ (Fair)";
+  
+  return {
+    status: 'success',
+    score: score,
+    maxScore: maxScore,
+    comment: comment,
+    feedback: feedback.join('\n')
+  };
+}
+
+function showGradingOverlay(show) {
+  let overlay = document.getElementById('grading-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'grading-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(11, 15, 25, 0.92)';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '9999';
+    overlay.style.color = '#f8fafc';
+    overlay.style.fontFamily = 'Chakra Petch, sans-serif';
+    overlay.style.padding = '20px';
+    
+    overlay.innerHTML = `
+      <div class="card" style="width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; text-align: center; border: 2px solid var(--accent-cyan); background-color: var(--bg-secondary); padding: 26px; box-shadow: 0 0 35px rgba(56, 189, 248, 0.35);">
+        <h2 id="overlay-title" style="margin-bottom: 16px; font-size: 22px; color: var(--accent-cyan);">กำลังประมวลผลคำตอบ...</h2>
+        <div id="overlay-spinner" class="logo-icon" style="font-size: 45px; animation: spin 2s linear infinite; margin-bottom: 16px;">⚡</div>
+        <p id="overlay-message" style="font-size: 14px; font-family: Sarabun, sans-serif; color: var(--text-muted); line-height: 1.6;"></p>
+        <div id="overlay-actions" style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button type="button" id="overlay-close-btn" class="btn btn-secondary" style="display: none;" onclick="showGradingOverlay(false)">ปิดหน้าต่างนี้ ❌</button>
+          <button type="button" id="overlay-confirm-submit-btn" class="btn btn-primary" style="display: none;" onclick="confirmSubmitFromPreview()">🚀 ยืนยันส่งใบงานจริง</button>
+        </div>
+      </div>
+      <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+      </style>
+    `;
+    document.body.appendChild(overlay);
+  }
+  
+  overlay.style.display = show ? 'flex' : 'none';
+  if (show) {
+    document.getElementById('overlay-title').innerText = 'กำลังประมวลผลคำตอบ...';
+    document.getElementById('overlay-title').style.color = 'var(--accent-cyan)';
+    document.getElementById('overlay-spinner').style.display = 'block';
+    document.getElementById('overlay-message').innerText = 'ระบบกำลังส่งข้อมูลผลการทดลองของคุณไปยังฐานข้อมูล Google Sheets และตรวจให้คะแนนอัตโนมัติ กรุณารอสักครู่...';
+    document.getElementById('overlay-close-btn').style.display = 'none';
+    const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+    if (confirmBtn) confirmBtn.style.display = 'none';
+  }
+}
+
+function onSuccessGrading(res) {
+  if (!res || res.status === 'error') {
+    onFailureGrading(res ? (res.message || 'เกิดข้อผิดพลาดในการประมวลผล') : 'ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์');
+    return;
+  }
+  showGradingOverlay(true);
+  const title = document.getElementById('overlay-title');
+  const spinner = document.getElementById('overlay-spinner');
+  const msg = document.getElementById('overlay-message');
+  const closeBtn = document.getElementById('overlay-close-btn');
+  const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+
+  if (res.status === 'duplicate') {
+    if (title) { title.innerText = '⚠️ ไม่อนุญาตให้ส่งใบงานซ้ำ'; title.style.color = '#f59e0b'; }
+    if (spinner) spinner.style.display = 'none';
+    
+    const formattedMsg = (res.message || 'รหัสนักศึกษานี้ได้เคยทำการส่งใบงานไปแล้ว').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+    
+    if (msg) {
+      msg.innerHTML = '<div style="text-align: left; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 6px; padding: 15px; margin: 15px 0;"><p style="font-size: 15px; font-weight: bold; color: #f59e0b; margin-bottom: 10px;">⚠️ พบประวัติการส่งใบงานในระบบ</p><div style="font-size: 13px; font-family: Sarabun, sans-serif; line-height: 1.8; color: var(--text-main);">' + formattedMsg + '</div></div><p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--text-muted);">โหมดดูอย่างเดียว (View-Only): ท่านสามารถตรวจสอบข้อมูลและกดปุ่ม "🖨️ พิมพ์รายงานผลการทดลอง / บันทึก PDF" เพื่อเก็บเป็นหลักฐานได้</p>';
+    }
+    if (closeBtn) { closeBtn.innerText = 'รับทราบ ❌'; closeBtn.style.display = 'inline-block'; }
+    if (confirmBtn) confirmBtn.style.display = 'none';
+    
+    const studentId = (document.getElementById('student-id')?.value || '').trim();
+    if (studentId) {
+      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, 'ก่อนหน้านี้');
+    }
+    lockFormAsSubmitted('ก่อนหน้านี้');
+    return;
+  }
+  
+  if (res.status === 'success') {
+    title.innerText = '🎉 ใบงานตรวจและบันทึกคะแนนเสร็จสิ้น!';
+    title.style.color = 'var(--accent-green)';
+    spinner.style.display = 'none';
+    
+    const formattedFeedback = res.feedback.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+    
+    msg.innerHTML = `
+      <div style="text-align: left; background: rgba(15,23,42,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin: 15px 0;">
+        <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: var(--text-main);">
+          คะแนนสอบ: <span style="font-size: 24px; color: var(--accent-green);">${res.score}</span> / ${res.maxScore}
+        </p>
+        <p style="font-size: 14px; font-weight: bold; margin-bottom: 15px; color: var(--text-muted);">
+          การประเมิน: <span style="color: var(--accent-cyan);">${res.comment}</span>
+        </p>
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 15px;">
+        <p style="font-size: 13px; font-weight: bold; color: var(--accent-cyan); margin-bottom: 8px;">รายละเอียดการตรวจ:</p>
+        <div style="font-size: 12px; font-family: Sarabun, sans-serif; line-height: 1.8; color: var(--text-main); max-height: 220px; overflow-y: auto;">${formattedFeedback}</div>
+      </div>
+      <p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--accent-green); font-weight: bold;">✓ ขอบคุณที่ส่งรายงานผลการปฏิบัติการ ข้อมูลการส่งได้รับการเก็บบันทึกบน Google Sheets ของอาจารย์เรียบร้อยแล้ว!</p>
+    `;
+    closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
+    closeBtn.style.display = 'inline-block';
+    if (confirmBtn) confirmBtn.style.display = 'none';
+
+    const studentId = (document.getElementById('student-id')?.value || '').trim();
+    const nowFormatted = new Date().toLocaleString('th-TH');
+    if (studentId) {
+      localStorage.setItem(LAB_STORAGE_KEY_PREFIX + studentId, nowFormatted);
+    }
+    lockFormAsSubmitted(nowFormatted);
+  } else {
+    onFailureGrading(res.message);
+  }
+}
+
+function onFailureGrading(error) {
+  showGradingOverlay(true);
+  const title = document.getElementById('overlay-title');
+  const spinner = document.getElementById('overlay-spinner');
+  const msg = document.getElementById('overlay-message');
+  const closeBtn = document.getElementById('overlay-close-btn');
+  const confirmBtn = document.getElementById('overlay-confirm-submit-btn');
+  
+  title.innerText = '❌ เกิดข้อผิดพลาดในการส่งข้อมูล';
+  title.style.color = 'var(--accent-red)';
+  spinner.style.display = 'none';
+  msg.innerHTML = `
+    <p style="color: var(--accent-red); font-weight: bold; margin-bottom: 15px;">ไม่สามารถเขียนข้อมูลหรือส่งให้คะแนนได้:</p>
+    <div style="font-family: monospace; font-size: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); padding: 10px; border-radius: 4px; color: var(--text-main); margin-bottom: 15px; text-align: left;">
+      ${error}
+    </div>
+    <p style="font-size: 13px; font-family: Sarabun, sans-serif; color: var(--text-muted);">คำแนะนำ: โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต และสิทธิ์การเข้าถึง Web App</p>
+  `;
+  closeBtn.innerText = 'ปิดหน้าต่างนี้ ❌';
+  closeBtn.style.display = 'inline-block';
+  if (confirmBtn) confirmBtn.style.display = 'none';
+}
+
+// ========================================================
+// SINGLE-SUBMISSION & FORM LOCKING SYSTEM
+// ========================================================
+const LAB_STORAGE_KEY_PREFIX = 'submitted_elab_mosfet_bias_';
+
+function checkExistingSubmission() {
+  const studentId = (document.getElementById('student-id')?.value || '').trim();
+  if (studentId) {
+    const prevSubmitTime = localStorage.getItem(LAB_STORAGE_KEY_PREFIX + studentId);
+    if (prevSubmitTime) {
+      lockFormAsSubmitted(prevSubmitTime);
+      return true;
+    }
+  }
+  return false;
+}
+window.checkExistingSubmission = checkExistingSubmission;
+
+function printReport() {
+  const name = (document.getElementById('student-name')?.value || '').trim();
+  const id = (document.getElementById('student-id')?.value || '').trim();
+  if (!name || !id) {
+    const confirmPrint = confirm('⚠️ คำแนะนำ: คุณยังไม่ได้กรอกชื่อ หรือรหัสนักศึกษา ต้องการดำเนินการพิมพ์รายงานต่อไปหรือไม่?');
+    if (!confirmPrint) {
+      if (typeof switchTab === 'function') switchTab(document.getElementById('worksheet') ? 'worksheet' : 'report');
+      document.getElementById('student-name')?.focus();
+      return;
+    }
+  }
+  window.print();
+}
+window.printReport = printReport;
+
+function lockFormAsSubmitted(submittedTime) {
+  const reportTab = document.getElementById('worksheet') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  if (!reportTab) return;
+
+  // 1. Disable inputs, selects, and textareas inside report / worksheet tab
+  reportTab.querySelectorAll('input, select, textarea, .model-pill-btn').forEach(el => {
+    el.disabled = true;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.readOnly = true;
+    }
+    if (el.classList && el.classList.contains('model-pill-btn')) {
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.7';
+    }
+  });
+
+  // 2. Disable submission button and update styling
+  const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"], button[onclick*="previewScore"]');
+  submitButtons.forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    btn.style.cursor = 'default';
+    btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    btn.innerHTML = '✓ ส่งใบงานเรียบร้อยแล้ว (' + submittedTime + ')';
+  });
+
+  // 3. Add or update View-Only banner at top of report tab
+  let banner = document.getElementById('submitted-viewonly-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'submitted-viewonly-banner';
+    banner.style.cssText = 'background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 14px 20px; border-radius: 8px; margin: 15px 0 20px 0; font-size: 13.5px; font-family: Sarabun, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 14px; font-weight: 500; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+    const reportHeader = reportTab.querySelector('.content-header') || reportTab.querySelector('.report-header') || reportTab.firstElementChild;
+    if (reportHeader && reportHeader.nextSibling) {
+      reportTab.insertBefore(banner, reportHeader.nextSibling);
+    } else {
+      reportTab.prepend(banner);
+    }
+  }
+  banner.innerHTML = '<div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">' +
+    '<span style="font-size: 20px;">🔒</span>' +
+    '<span>ใบงานนี้ได้ทำการส่งและบันทึกคะแนนเรียบร้อยแล้วเมื่อ <strong>' + submittedTime + '</strong> (โหมดดูอย่างเดียว / View-Only) สามารถกดปุ่ม <strong>"🖨️ พิมพ์รายงาน / บันทึก PDF"</strong> เพื่อบันทึกเป็นหลักฐานได้</span>' +
+    '</div>' +
+    '<button type="button" class="btn no-print" onclick="resetWorksheetForNewUser()" style="background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #fca5a5; padding: 8px 16px; font-size: 13px; font-family: Sarabun, sans-serif; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background=\'rgba(239, 68, 68, 0.35)\'" onmouseout="this.style.background=\'rgba(239, 68, 68, 0.2)\'">' +
+    '🔄 สลับผู้ใช้ / เริ่มทำใหม่' +
+    '</button>';
+}
+window.lockFormAsSubmitted = lockFormAsSubmitted;
+
+function resetWorksheetForNewUser() {
+  const confirmMsg = "⚠️ ยืนยันการเริ่มทำใบงานใหม่สำหรับผู้ใช้อื่น?\n\n" +
+    "• ระบบจะปลดล็อกและเคลียร์ข้อมูลในใบงานทั้งหมด เพื่อให้นักศึกษาคนถัดไปเข้าใช้งาน\n" +
+    "• คะแนนและข้อมูลที่ส่งไปแล้วของนักศึกษาคนเดิมยังคงถูกบันทึกไว้อย่างปลอดภัยใน Google Sheets\n" +
+    "• หากยังไม่ได้บันทึกผลงาน กรุณากด 'Cancel' แล้วกด '🖨️ พิมพ์รายงาน / บันทึก PDF' ก่อน";
+  
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const reportTab = document.getElementById('worksheet') || document.getElementById('worksheet') || document.querySelector('.tab-content.active');
+  if (reportTab) {
+    reportTab.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = false;
+      el.readOnly = false;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = false;
+      } else if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+        el.dispatchEvent(new Event('change'));
+      } else if (el.id === 'lab-date') {
+        try {
+          el.value = new Date().toISOString().split('T')[0];
+        } catch (e) {
+          el.value = '';
+        }
+      } else {
+        el.value = '';
+      }
+    });
+
+    reportTab.querySelectorAll('.model-pill-btn').forEach(el => {
+      el.style.pointerEvents = '';
+      el.style.opacity = '';
+    });
+
+    // Restore Submit buttons
+    const submitButtons = reportTab.querySelectorAll('button[onclick*="submit"], button[onclick*="previewScore"]');
+    submitButtons.forEach(btn => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.style.background = '';
+      if (btn.getAttribute('onclick').includes('submit')) {
+        btn.innerHTML = '🚀 ส่งใบงานและตรวจคะแนนอัตโนมัติ';
+      }
+    });
+
+    // Remove View-Only banner
+    const banner = document.getElementById('submitted-viewonly-banner');
+    if (banner) {
+      banner.remove();
+    }
+  }
+
+  // Ensure header student credentials are completely cleared and unlocked
+  ['student-id', 'student-name', 'student-group'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      el.disabled = false;
+      el.readOnly = false;
+    }
+  });
+
+  // Switch to report/worksheet tab
+  if (typeof switchTab === 'function') {
+    switchTab(document.getElementById('worksheet') ? 'worksheet' : 'report');
+  }
+
+  // Focus on student-id for immediate next user input
+  const idInput = document.getElementById('student-id');
+  if (idInput) {
+    idInput.focus();
+  }
+
+  // Close any modal dialog if open
+  const overlay = document.getElementById('submission-overlay') || document.getElementById('grading-overlay') || document.getElementById('dialog-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+}
+window.resetWorksheetForNewUser = resetWorksheetForNewUser;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+  </script>
+
+  <!-- Anti-Cheat & Plagiarism Prevention Toast -->
+  <div id="anti-cheat-toast" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(15px); background: linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(185, 28, 28, 0.96)); color: #ffffff; padding: 14px 24px; border-radius: 10px; font-family: 'Chakra Petch', sans-serif; font-size: 14px; font-weight: bold; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.45); z-index: 100000; border: 1px solid rgba(255, 255, 255, 0.35); pointer-events: none; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; backdrop-filter: blur(8px);">
+    🚫 ไม่อนุญาตให้คัดลอก/วางข้อความ (Anti-Cheat Protection)<br>
+    <span style="font-size: 12px; font-weight: normal; font-family: 'Sarabun', sans-serif; opacity: 0.95;">กรุณาคิด วิเคราะห์ และพิมพ์คำตอบสรุปผลด้วยตนเอง</span>
+  </div>
+
+  <script>
+  // ========================================================
+  // ANTI-CHEAT & PLAGIARISM PREVENTION SYSTEM
+  // Blocks Copy/Paste/Drop on questions & conclusion textareas
+  // ========================================================
+  (function initAntiCheatSystem() {
+    let pasteAttempts = 0;
+    let toastTimeout = null;
+
+    function showAntiCheatWarning(targetEl) {
+      pasteAttempts++;
+      const toast = document.getElementById('anti-cheat-toast');
+      if (toast) {
+        toast.style.display = 'block';
+        setTimeout(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateX(-50%) translateY(0)';
+        }, 10);
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(15px)';
+          setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 3000);
+      }
+
+      if (targetEl) {
+        const originalBorder = targetEl.style.borderColor;
+        const originalShadow = targetEl.style.boxShadow;
+        targetEl.style.borderColor = '#ef4444';
+        targetEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.6)';
+        setTimeout(() => {
+          targetEl.style.borderColor = originalBorder;
+          targetEl.style.boxShadow = originalShadow;
+        }, 1200);
+      }
+    }
+
+    function setupAntiCheatListeners() {
+      const protectedElements = document.querySelectorAll('textarea, input[type="text"].protected-answer');
+      protectedElements.forEach(el => {
+        el.addEventListener('paste', (e) => {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        });
+
+        el.addEventListener('drop', (e) => {
+          e.preventDefault();
+          showAntiCheatWarning(el);
+        });
+
+        el.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V' || e.keyCode === 86)) {
+            e.preventDefault();
+            showAntiCheatWarning(el);
+          }
+          if (e.shiftKey && (e.key === 'Insert' || e.keyCode === 45)) {
+            e.preventDefault();
+            showAntiCheatWarning(el);
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAntiCheatListeners);
+    } else {
+      setupAntiCheatListeners();
+    }
+
+    window.getAntiCheatStats = function() {
+      return { pasteAttempts: pasteAttempts };
+    };
+  })();
+  
+// --- LAB DATA SOURCE & HARDWARE EXPERIMENT LOGIC ---
+if (!window.STATE) window.STATE = {};
+window.STATE.labDataSource = 'simulation';
+window.STATE.componentModel = '2N7000';
+
+function setLabDataSource(mode) {
+  if (!window.STATE) window.STATE = {};
+  STATE.labDataSource = mode;
+  const btnSim = document.getElementById('btn-mode-sim');
+  const btnHw = document.getElementById('btn-mode-hw');
+  const bannerSim = document.getElementById('sim-mode-banner');
+  const bannerHw = document.getElementById('hw-mode-banner');
+  const printText = document.getElementById('print-mode-text');
+  
+  if (mode === 'hardware') {
+    if (btnSim) btnSim.classList.remove('active');
+    if (btnHw) btnHw.classList.add('active');
+    if (bannerSim) bannerSim.style.display = 'none';
+    if (bannerHw) bannerHw.style.display = 'block';
+    if (printText) {
+      printText.textContent = '🔌 การทดลองจากอุปกรณ์จริง (Hardware Lab)';
+      printText.style.color = 'var(--accent-green)';
+    }
+  } else {
+    if (btnHw) btnHw.classList.remove('active');
+    if (btnSim) btnSim.classList.add('active');
+    if (bannerHw) bannerHw.style.display = 'none';
+    if (bannerSim) bannerSim.style.display = 'block';
+    if (printText) {
+      printText.textContent = '🔬 ห้องทดลองจำลองเสมือน (Virtual Simulator)';
+      printText.style.color = 'var(--accent-cyan)';
+    }
+  }
+}
+window.setLabDataSource = setLabDataSource;
+
+function setComponentModel(modelKey) {
+  if (!window.STATE) window.STATE = {};
+  STATE.componentModel = modelKey;
+  const selWS = document.getElementById('select-component-model-ws');
+  const hwInput = document.getElementById('hw-component-model');
+  if (selWS) selWS.value = modelKey;
+  if (hwInput) hwInput.value = modelKey;
+  
+  document.querySelectorAll('.dyn-component-name').forEach(el => {
+    el.innerText = modelKey;
+  });
+}
+window.setComponentModel = setComponentModel;
+
+
+
+/* ==========================================================================
+   TEACHER GOOGLE SHEETS / GAS WEB APP ENDPOINT CONFIGURATION & DISPATCHER
+   ========================================================================== */
+function getGasStorageKey() {
+  const match = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+  if (match) return 'elab_gas_endpoint_' + match[1];
+  const parts = window.location.pathname.split('/').filter(p => p && p !== 'index.html');
+  const labSlug = parts.length > 0 ? parts[parts.length - 1] : 'default_lab';
+  return 'elab_gas_endpoint_' + labSlug;
+}
+
+function copyCodeGsContent(labId) {
+  fetch('./Code.gs')
+    .then(res => {
+      if (!res.ok) throw new Error("Network error");
+      return res.text();
+    })
+    .then(code => {
+      navigator.clipboard.writeText(code).then(() => {
+        alert("คัดลอก Code.gs สำเร็จ! 🎉\n\nคัดลอกโค้ด Google Apps Script ประจำแล็บนี้ลง Clipboard เรียบร้อยแล้ว\nสามารถเปิด Google Apps Script แล้วกด Ctrl+V วางเพื่อ Deploy ได้ทันที!");
+      }).catch(() => {
+        prompt("คัดลอกโค้ดด้านล่างนี้ไปวางใน Code.gs:", code);
+      });
+    })
+    .catch(() => {
+      window.open("https://github.com/allarm2553/electronic_analysys_lab/blob/main/" + labId + "/Code.gs", "_blank");
+    });
+}
+
+function copyStudentShareLink(labId) {
+  const input = document.getElementById("gas-endpoint-url");
+  const val = (input && input.value.trim()) || (typeof getSavedGasEndpoint === "function" ? getSavedGasEndpoint() : "");
+  if (!val || !val.startsWith("https://script.google.com")) {
+    alert("กรุณากรอกหรือวาง Web App URL ในช่อง แล้วกดบันทึกก่อนคัดลอกลิงก์ส่งให้นักเรียนครับ");
+    return;
+  }
+  const shareUrl = window.location.origin + window.location.pathname + "?gas=" + encodeURIComponent(val);
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    alert("คัดลอกลิงก์สำหรับส่งให้นักเรียนเรียบร้อยแล้ว! 🎉\n\n" + shareUrl + "\n\nเมื่อนักเรียนคลิกลิงก์นี้ ระบบจะเชื่อมต่อส่งคะแนนเข้า Google Sheets ของอาจารย์โดยอัตโนมัติ!");
+  }).catch(() => {
+    prompt("คัดลอกลิงก์นี้ส่งให้นักเรียน:", shareUrl);
+  });
+}
+
+function getSavedGasEndpoint() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramUrl = urlParams.get('gas') || urlParams.get('endpoint') || urlParams.get('gasUrl') || urlParams.get('sheetUrl');
+    const key = getGasStorageKey();
+    if (paramUrl && paramUrl.trim().startsWith('http')) {
+      localStorage.setItem(key, paramUrl.trim());
+      const labMatch = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+      if (labMatch) localStorage.setItem('gas_endpoint_' + labMatch[1], paramUrl.trim());
+      return paramUrl.trim();
+    }
+    let val = (localStorage.getItem(key) || '').trim();
+    if (!val) {
+      const labMatch = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+      if (labMatch) val = (localStorage.getItem('gas_endpoint_' + labMatch[1]) || '').trim();
+      if (!val) val = (localStorage.getItem('elab_gas_endpoint_index.html') || '').trim();
+      if (val) localStorage.setItem(key, val);
+    }
+    return val;
+  } catch(e) {
+    return '';
+  }
+}
+
+function initGasEndpointUI() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  const saved = getSavedGasEndpoint();
+  if (input && saved) {
+    input.value = saved;
+    if (badge) {
+      badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+      badge.style.color = 'var(--accent-green, #10b981)';
+      badge.style.borderColor = 'var(--accent-green, #10b981)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+  }
+}
+
+function saveGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  const badge = document.getElementById('gas-status-badge');
+  if (!input) return;
+  const val = input.value.trim();
+  const key = getGasStorageKey();
+  const labMatch = window.location.pathname.match(/(elab\d+-[a-z0-9-]+)/i);
+  if (!val) {
+    try { 
+      localStorage.removeItem(key); 
+      if (labMatch) localStorage.removeItem('gas_endpoint_' + labMatch[1]);
+    } catch(e){}
+    if (badge) {
+      badge.innerText = '⚪ โหมดจำลองในเครื่อง';
+      badge.style.color = 'var(--text-muted, #94a3b8)';
+      badge.style.borderColor = 'var(--border-color, rgba(71,85,105,0.35))';
+      badge.style.background = 'transparent';
+    }
+    alert('ล้างการเชื่อมต่อเรียบร้อย (ระบบจะทำงานในโหมดตรวจจำลองในเครื่อง)');
+    return;
+  }
+  if (!val.startsWith('https://script.google.com/macros/s/')) {
+    alert(`⚠️ คำเตือน: ลิงก์ที่กรอกควรขึ้นต้นด้วย "https://script.google.com/macros/s/.../exec"\n(ได้จากการ Deploy Web App ใน Google Apps Script ของชีตผู้สอน)\n\nหากเป็นลิงก์ Google Sheets ทั่วไป ระบบจะไม่สามารถส่งคะแนนได้`);
+  }
+  try { 
+    localStorage.setItem(key, val);
+    if (labMatch) localStorage.setItem('gas_endpoint_' + labMatch[1], val);
+  } catch(e){}
+  if (badge) {
+    badge.innerText = '🟢 เชื่อมต่อชีตแล้ว';
+    badge.style.color = 'var(--accent-green, #10b981)';
+    badge.style.borderColor = 'var(--accent-green, #10b981)';
+    badge.style.background = 'rgba(16, 185, 129, 0.15)';
+  }
+  alert('💾 บันทึก URL Google Apps Script สำหรับบันทึกคะแนนเรียบร้อยแล้ว!');
+}
+
+function testGasEndpoint() {
+  const input = document.getElementById('gas-endpoint-url');
+  if (!input || !input.value.trim()) {
+    alert('⚠️ กรุณากรอก URL Web App ก่อนกดทดสอบ');
+    return;
+  }
+  const url = input.value.trim();
+  const badge = document.getElementById('gas-status-badge');
+  if (badge) {
+    badge.innerText = '⏳ กำลังทดสอบ...';
+    badge.style.color = 'var(--accent-yellow, #f59e0b)';
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ping: true, test: true })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (badge) {
+      badge.innerText = '✅ เชื่อมต่อสำเร็จ 100%';
+      badge.style.color = 'var(--accent-green, #10b981)';
+      badge.style.borderColor = 'var(--accent-green, #10b981)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+    }
+    alert(`🎉 ทดสอบการเชื่อมต่อสำเร็จ!\nระบบตอบรับพร้อมรับข้อมูลคะแนนเข้า Google Sheets เรียบร้อยครับ`);
+  })
+  .catch(err => {
+    if (badge) {
+      badge.innerText = '⚠️ เชื่อมต่อขัดข้อง';
+      badge.style.color = 'var(--accent-red, #ef4444)';
+      badge.style.borderColor = 'var(--accent-red, #ef4444)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    }
+    alert(`⚠️ การทดสอบล้มเหลว: ` + err.message + `\n\nคำแนะนำ:\n1. ตรวจสอบว่าใน Apps Script ได้ตั้งค่า Who has access เป็น "Anyone (ทุกคน)" หรือไม่\n2. ตรวจสอบว่า URL เป็นเวอร์ชัน /exec`);
+  });
+}
+window.saveGasEndpoint = saveGasEndpoint;
+window.testGasEndpoint = testGasEndpoint;
+window.initGasEndpointUI = initGasEndpointUI;
+window.addEventListener('DOMContentLoaded', initGasEndpointUI);
+
+</script>
+</body>
+</html>

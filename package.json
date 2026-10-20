@@ -4,9 +4,9 @@
   "description": "Electronic Analysis Lab Worksheets Web Apps",
   "main": "index.html",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "python3 server.py",
+    "build": "echo 'Static site - no compilation needed'",
+    "preview": "python3 server.py"
   },
   "keywords": [
     "electronic",

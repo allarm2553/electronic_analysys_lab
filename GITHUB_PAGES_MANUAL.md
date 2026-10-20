@@ -52,20 +52,23 @@
 
 | ลำดับ | หัวข้อการทดลอง | ลิงก์เข้าสู่ใบงานออนไลน์ (GitHub Pages) |
 | :---: | :--- | :--- |
-| **Lab 1** | คุณสมบัติของไดโอด (Diode Characteristics) | [เข้าสู่ Lab 1](https://allarm2553.github.io/electronic_analysys_lab/elab-diode-sheets-app/) |
-| **Lab 2** | คุณสมบัติซีเนอร์ไดโอด (Zener Diode Characteristics) | [เข้าสู่ Lab 2](https://allarm2553.github.io/electronic_analysys_lab/elab-zener-sheets-app/) |
-| **Lab 3** | วงจรเรียงกระแสครึ่งคลื่น (Half-Wave Rectifier) | [เข้าสู่ Lab 3](https://allarm2553.github.io/electronic_analysys_lab/elab-rectifier-sheets-app/) |
-| **Lab 4** | วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier) | [เข้าสู่ Lab 4](https://allarm2553.github.io/electronic_analysys_lab/elab-bridge-rectifier-sheets-app/) |
-| **Lab 5** | คุณสมบัติทรานซิสเตอร์ BJT (Transistor Pinout & Char.) | [เข้าสู่ Lab 5](https://allarm2553.github.io/electronic_analysys_lab/elab-transistor-sheets-app/) |
-| **Lab 6** | การไบอัสทรานซิสเตอร์ DC (BJT DC Biasing & Q-Point) | [เข้าสู่ Lab 6](https://allarm2553.github.io/electronic_analysys_lab/elab-bjt-bias-sheets-app/) |
-| **Lab 7** | BJT re-Model สัญญาณขนาดเล็ก (BJT re-Model AC Amp) | [เข้าสู่ Lab 7](https://allarm2553.github.io/electronic_analysys_lab/elab-bjt-re-model-sheets-app/) |
-| **Lab 8** | BJT h-Parameter สัญญาณขนาดเล็ก (BJT h-Parameter Amp) | [เข้าสู่ Lab 8](https://allarm2553.github.io/electronic_analysys_lab/elab-bjt-h-parameter-sheets-app/) |
-| **Lab 9** | JFET สัญญาณขนาดเล็ก (JFET Small-Signal Analysis) | [เข้าสู่ Lab 9](https://allarm2553.github.io/electronic_analysys_lab/elab-fet-small-signal-sheets-app/) |
-| **Lab 10** | การไบอัส MOSFET (MOSFET DC Biasing Characteristics) | [เข้าสู่ Lab 10](https://allarm2553.github.io/electronic_analysys_lab/elab-mosfet-bias-sheets-app/) |
-| **Lab 11** | หาตำแหน่งขาและทดสอบ MOSFET (MOSFET Pinout & Test) | [เข้าสู่ Lab 11](https://allarm2553.github.io/electronic_analysys_lab/elab-mosfet-pinout-sheets-app/) |
-| **Lab 12** | วงจรขยายหลายภาค RC-Coupled (Multistage Amplifier) | [เข้าสู่ Lab 12](https://allarm2553.github.io/electronic_analysys_lab/elab-multistage-sheets-app/) |
-| **Lab 13** | เพาเวอร์แอมป์ Class A/B (Power Amplifier & Follower) | [เข้าสู่ Lab 13](https://allarm2553.github.io/electronic_analysys_lab/elab-power-amp-sheets-app/) |
-| **Lab 14** | การอ่าน Data Sheet อุปกรณ์ (Datasheet Reading & Specs) | [เข้าสู่ Lab 14](https://allarm2553.github.io/electronic_analysys_lab/elab-datasheet-reading-sheets-app/) |
+| **Lab 1** | คุณสมบัติของไดโอด (Diode Characteristics) | [เข้าสู่ Lab 1](https://allarm2553.github.io/electronic_analysys_lab/elab1-diode-sheet-app/) |
+| **Lab 2** | คุณสมบัติซีเนอร์ไดโอด (Zener Diode Characteristics) | [เข้าสู่ Lab 2](https://allarm2553.github.io/electronic_analysys_lab/elab2-zener-sheet-app/) |
+| **Lab 3** | วงจรเรียงกระแสครึ่งคลื่นและเต็มคลื่น (Rectifiers) | [เข้าสู่ Lab 3](https://allarm2553.github.io/electronic_analysys_lab/elab3-rectifier-sheet-app/) |
+| **Lab 4** | วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier) | [เข้าสู่ Lab 4](https://allarm2553.github.io/electronic_analysys_lab/elab4-bridge-rectifier-sheet-app/) |
+| **Lab 5** | คุณสมบัติทรานซิสเตอร์ BJT (Transistor Pinout & Char.) | [เข้าสู่ Lab 5](https://allarm2553.github.io/electronic_analysys_lab/elab5-transistor-sheet-app/) |
+| **Lab 6** | การไบอัสทรานซิสเตอร์ DC (BJT DC Biasing & Q-Point) | [เข้าสู่ Lab 6](https://allarm2553.github.io/electronic_analysys_lab/elab6-bjt-bias-sheet-app/) |
+| **Lab 7** | BJT re-Model สัญญาณขนาดเล็ก (BJT re-Model AC Amp) | [เข้าสู่ Lab 7](https://allarm2553.github.io/electronic_analysys_lab/elab7-bjt-re-model-sheet-app/) |
+| **Lab 8** | BJT h-Parameter สัญญาณขนาดเล็ก (BJT h-Parameter Amp) | [เข้าสู่ Lab 8](https://allarm2553.github.io/electronic_analysys_lab/elab8-bjt-h-parameter-sheet-app/) |
+| **Lab 9** | หาตำแหน่งขาและทดสอบ MOSFET (MOSFET Pinout & Test) | [เข้าสู่ Lab 9](https://allarm2553.github.io/electronic_analysys_lab/elab9-mosfet-pinout-sheet-app/) |
+| **Lab 10** | การไบอัส MOSFET (MOSFET DC Biasing Characteristics) | [เข้าสู่ Lab 10](https://allarm2553.github.io/electronic_analysys_lab/elab10-mosfet-bias-sheet-app/) |
+| **Lab 11** | FET/MOSFET สัญญาณขนาดเล็ก (gm Model Analysis) | [เข้าสู่ Lab 11](https://allarm2553.github.io/electronic_analysys_lab/elab11-fet-small-signal-sheet-app/) |
+| **Lab 12** | การอ่าน Data Sheet อุปกรณ์ (Datasheet Reading & Specs) | [เข้าสู่ Lab 12](https://allarm2553.github.io/electronic_analysys_lab/elab12-datasheet-reading-sheet-app/) |
+| **Lab 13** | วงจรขยายหลายภาค RC-Coupled (Multistage Amplifier) | [เข้าสู่ Lab 13](https://allarm2553.github.io/electronic_analysys_lab/elab13-multistage-sheet-app/) |
+| **Lab 14** | เพาเวอร์แอมป์ Class A/B (Power Amplifier & Follower) | [เข้าสู่ Lab 14](https://allarm2553.github.io/electronic_analysys_lab/elab14-power-amp-sheet-app/) |
+| **Lab 15** | วงจรกรองความถี่พาสซีฟ RC (Passive RC Filters) | [เข้าสู่ Lab 15](https://allarm2553.github.io/electronic_analysys_lab/elab15-passive-filter-sheet-app/) |
+| **Lab 16** | วงจรขยายแบบป้อนกลับลบ (Negative Feedback Amplifiers) | [เข้าสู่ Lab 16](https://allarm2553.github.io/electronic_analysys_lab/elab16-negative-feedback-sheet-app/) |
+| **Lab 17** | วงจรรักษาระดับแรงดันไอซี 78xx & 79xx (IC Voltage Regulators) | [เข้าสู่ Lab 17](https://allarm2553.github.io/electronic_analysys_lab/elab17-voltage-regulator-sheet-app/) |
 
 ---
 
@@ -102,7 +105,7 @@
 เพื่อให้นักศึกษาไม่ต้องพิมพ์หรือวาง URL เอง ครูผู้สอนสามารถแนบ `?endpoint=...` ต่อท้าย URL แล็บได้เลย เช่น:
 
 ```text
-https://allarm2553.github.io/electronic_analysys_lab/elab-diode-sheets-app/?endpoint=https://script.google.com/macros/s/AKfycbz_XXXXX/exec
+https://allarm2553.github.io/electronic_analysys_lab/elab1-diode-sheet-app/?endpoint=https://script.google.com/macros/s/AKfycbz_XXXXX/exec
 ```
 
 > 💡 **เมื่อนักศึกษาคลิกลิงก์นี้:** หน้าเว็บจะทำการตั้งค่าเชื่อมต่อกับ Google Sheets ของครูท่านนั้นให้อัตโนมัติทันที 100%!

@@ -13,20 +13,23 @@ elab-sheet-apps/
 ├── index.html                       # หน้าหลักพอร์ทัลแผงควบคุม (Lab Portal Dashboard)
 ├── package.json                     # ไฟล์กำหนดการรันจำลอง Local Server (Vite)
 ├── .gitignore                       # ป้องกันการอัปโหลดโฟลเดอร์ที่ไม่จำเป็นขึ้น Git
-├── elab-diode-sheets-app/           # [แล็บ 1] ใบงานหาลักษณะสมบัติของไดโอด (Diode Characteristics)
-├── elab-rectifier-sheets-app/       # [แล็บ 2] ใบงานวงจรเรียงกระแสแบบครึ่งคลื่น (Half-Wave Rectifier)
-├── elab-bridge-rectifier-sheets-app/# [แล็บ 3] ใบงานวงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier)
-├── elab-zener-sheets-app/           # [แล็บ 4] ใบงานรักษาแรงดันด้วยซีเนอร์ไดโอด (Zener Regulator)
-├── elab-transistor-sheets-app/      # [แล็บ 5] ใบงานพล็อตเส้นกราฟ BJT Output Characteristics
-├── elab-bjt-bias-sheets-app/        # [แล็บ 6] ใบงานวงจร Fixed Bias BJT (ทรานซิสเตอร์ BC108 + แสดงกราฟจำลอง)
-├── elab-bjt-re-model-sheets-app/    # [แล็บ 7] ใบงานการวิเคราะห์วงจรขยายด้วยแบบจำลอง re ของ BJT
-├── elab-bjt-h-parameter-sheets-app/ # [แล็บ 8] ใบงานการวิเคราะห์วงจรขยายด้วยแบบจำลอง h-Parameter ของ BJT
-├── elab-mosfet-pinout-sheets-app/   # [แล็บ 9] ใบงานการระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต (MOSFET)
-├── elab-mosfet-bias-sheets-app/     # [แล็บ 10] ใบงานการจัดไบแอสกระแสตรงและคุณลักษณะถ่ายโอนของ MOSFET
-├── elab-fet-small-signal-sheets-app/# [แล็บ 11] ใบงานแบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET (gm Model)
-├── elab-datasheet-reading-sheets-app/# [แล็บ 12] ใบงานการอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์
-├── elab-multistage-sheets-app/      # [แล็บ 13] ใบงานวงจรขยายสัญญาณหลายภาค (Multi-Stage BJT Amplifier)
-└── elab-power-amp-sheets-app/       # [แล็บ 14] ใบงานวงจรขยายกำลังและวงจรกันชน (Power Amplifier & Emitter Follower)
+├── elab1-diode-sheet-app/           # [แล็บ 1] ใบงานหาลักษณะสมบัติของไดโอด (Diode Characteristics)
+├── elab3-rectifier-sheet-app/       # [แล็บ 2] ใบงานวงจรเรียงกระแสแบบครึ่งคลื่น (Half-Wave Rectifier)
+├── elab4-bridge-rectifier-sheet-app/# [แล็บ 3] ใบงานวงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier)
+├── elab2-zener-sheet-app/           # [แล็บ 4] ใบงานรักษาแรงดันด้วยซีเนอร์ไดโอด (Zener Regulator)
+├── elab5-transistor-sheet-app/      # [แล็บ 5] ใบงานพล็อตเส้นกราฟ BJT Output Characteristics
+├── elab6-bjt-bias-sheet-app/        # [แล็บ 6] ใบงานวงจร Fixed Bias BJT (ทรานซิสเตอร์ BC108 + แสดงกราฟจำลอง)
+├── elab7-bjt-re-model-sheet-app/    # [แล็บ 7] ใบงานการวิเคราะห์วงจรขยายด้วยแบบจำลอง re ของ BJT
+├── elab8-bjt-h-parameter-sheet-app/ # [แล็บ 8] ใบงานการวิเคราะห์วงจรขยายด้วยแบบจำลอง h-Parameter ของ BJT
+├── elab9-mosfet-pinout-sheet-app/   # [แล็บ 9] ใบงานการระบุตำแหน่งขาและลักษณะสมบัติของมอสเฟต (MOSFET)
+├── elab10-mosfet-bias-sheet-app/     # [แล็บ 10] ใบงานการจัดไบแอสกระแสตรงและคุณลักษณะถ่ายโอนของ MOSFET
+├── elab11-fet-small-signal-sheet-app/# [แล็บ 11] ใบงานแบบจำลองสัญญาณขนาดเล็กของ FET/MOSFET (gm Model)
+├── elab12-datasheet-reading-sheet-app/# [แล็บ 12] ใบงานการอ่าน Data Sheet ของอุปกรณ์อิเล็กทรอนิกส์
+├── elab13-multistage-sheet-app/      # [แล็บ 13] ใบงานวงจรขยายสัญญาณหลายภาค (Multi-Stage BJT Amplifier)
+├── elab14-power-amp-sheet-app/       # [แล็บ 14] ใบงานวงจรขยายกำลังและวงจรกันชน (Power Amplifier & Emitter Follower)
+├── elab15-passive-filter-sheet-app/  # [แล็บ 15] ใบงานวงจรกรองความถี่ต่ำและความถี่สูงแบบพาสซีฟ (Passive RC Filters)
+├── elab16-negative-feedback-sheet-app/# [แล็บ 16] ใบงานวงจรขยายแบบป้อนกลับลบ (Negative Feedback Amplifiers)
+└── elab17-voltage-regulator-sheet-app/# [แล็บ 17] ใบงานวงจรรักษาระดับแรงดันด้วยไอซีเร็กกูเลเตอร์ 78xx และ 79xx
 ```
 
 ทุกโฟลเดอร์ของใบงานการทดลองย่อยจะประกอบด้วย:
