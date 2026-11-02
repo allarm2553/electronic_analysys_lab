@@ -54,7 +54,7 @@
 | :---: | :--- | :--- |
 | **Lab 1** | คุณสมบัติของไดโอด (Diode Characteristics) | [เข้าสู่ Lab 1](https://allarm2553.github.io/electronic_analysys_lab/elab1-diode-sheet-app/) |
 | **Lab 2** | คุณสมบัติซีเนอร์ไดโอด (Zener Diode Characteristics) | [เข้าสู่ Lab 2](https://allarm2553.github.io/electronic_analysys_lab/elab2-zener-sheet-app/) |
-| **Lab 3** | วงจรเรียงกระแสครึ่งคลื่นและเต็มคลื่น (Rectifiers) | [เข้าสู่ Lab 3](https://allarm2553.github.io/electronic_analysys_lab/elab3-rectifier-sheet-app/) |
+| **Lab 3** | วงจรเรียงกระแสแบบครึ่งคลื่น (Half-Wave Rectifier) | [เข้าสู่ Lab 3](https://allarm2553.github.io/electronic_analysys_lab/elab3-rectifier-sheet-app/) |
 | **Lab 4** | วงจรเรียงกระแสเต็มคลื่นแบบบริดจ์ (Bridge Rectifier) | [เข้าสู่ Lab 4](https://allarm2553.github.io/electronic_analysys_lab/elab4-bridge-rectifier-sheet-app/) |
 | **Lab 5** | คุณสมบัติทรานซิสเตอร์ BJT (Transistor Pinout & Char.) | [เข้าสู่ Lab 5](https://allarm2553.github.io/electronic_analysys_lab/elab5-transistor-sheet-app/) |
 | **Lab 6** | การไบอัสทรานซิสเตอร์ DC (BJT DC Biasing & Q-Point) | [เข้าสู่ Lab 6](https://allarm2553.github.io/electronic_analysys_lab/elab6-bjt-bias-sheet-app/) |

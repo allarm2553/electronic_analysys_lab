@@ -468,6 +468,26 @@ body {
   stroke-width: 3 !important;
 }
 
+/* Interactive Circuit Switches (Jumper & Capacitor) */
+.interactive-switch {
+  cursor: pointer;
+  user-select: none;
+}
+
+.interactive-switch .switch-hit-box {
+  transition: all 0.2s ease;
+}
+
+.interactive-switch:hover .switch-hit-box {
+  stroke: var(--accent-cyan) !important;
+  stroke-width: 1.5 !important;
+  fill: rgba(56, 189, 248, 0.16) !important;
+}
+
+.interactive-switch:active .switch-hit-box {
+  fill: rgba(56, 189, 248, 0.28) !important;
+}
+
 /* Table Forms in Report */
 .report-table-form {
   width: 100%;
@@ -871,8 +891,18 @@ body {
           <ol style="padding-left: 20px; margin-top: 8px;">
             <li>นักศึกษาต้องเปิดหรือ **ถอดสายจัมป์ B-C** ออกจากกันเพื่อให้กระแสในวงจรหลักหยุดไหล</li>
             <li>ปรับย่านวัดมัลติมิเตอร์ไปที่ **DC Current (mA-)**</li>
-            <li>นำสายวัดสีแดงมาแตะที่ **จุด B (ออกบริดจ์)** และสายวัดสีดำมาแตะที่ **จุด C (เข้าโหลด)** เพื่อต่อ DMM แบบอนุกรมเข้ากับวงจร ระบบจะแสดงค่ากระแสปกติ 9.91 mA</li>
+            <li>นำสายวัดสีแดงมาแตะที่ **จุด B (ออกบริดจ์)** และสายวัดสีดำมาแตะที่ **จุด C (เข้าโหลด)** เพื่อต่อ DMM แบบอนุกรมเข้ากับวงจร ระบบจะแสดงค่ากระแสปกติ</li>
           </ol>
+
+          <h3 class="subsection-title" style="margin-top: 15px; font-weight: bold; color: #fff;">2.2 วงจรกรองแรงดันด้วยตัวเก็บประจุ (Capacitor Filter)</h3>
+          <p>เมื่อต่อตัวเก็บประจุ (C) ขนานเข้ากับโหลด R<sub>L</sub> ตัวเก็บประจุจะประจุแรงดันจนถึงจุดสูงสุด V<sub>p,load</sub> ในช่วงที่ไดโอดนำกระแส และคายประจุผ่านโหลด R<sub>L</sub> ในช่วงที่ไดโอดหยุดนำกระแส ส่งผลให้แรงดันไฟตรงเฉลี่ย V<sub>dc</sub> เพิ่มสูงขึ้นเข้าใกล้แรงดันยอด และลดระลอกคลื่น (Ripple) ให้เล็กลงตามสมการ:</p>
+          <div class="note-box" style="margin-top: 8px;">
+            <ul>
+              <li><strong>แรงดันริปเปิลยอดถึงยอด (Peak-to-Peak Ripple Voltage):</strong> V<sub>r(p-p)</sub> &approx; V<sub>p,load</sub> / (2 &times; f &times; R<sub>L</sub> &times; C)</li>
+              <li><strong>แรงดันไฟตรงเฉลี่ยเมื่อกรองกระแส (Filtered DC Voltage):</strong> V<sub>dc</sub> &approx; V<sub>p,load</sub> - (V<sub>r(p-p)</sub> / 2)</li>
+              <li>เมื่อปลดตัวเก็บประจุออกจากวงจร (Filter OFF) วงจรจะกลับสู่รูปคลื่นเรียงกระแสเต็มคลื่นแบบพัลส์ปกติ (V<sub>dc</sub> &approx; 0.636 &times; V<sub>p,load</sub>)</li>
+            </ul>
+          </div>
         </div>
         
         <div class="card-footer-action no-print">
@@ -888,22 +918,43 @@ body {
         </header>
         
         <!-- Selection parameters -->
-        <div class="card no-print">
-          <h2 class="card-title">แผงควบคุมวงจรทดลอง</h2>
-          <div class="grid-2 student-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
-            <div class="input-field">
-              <label for="jumper-select">สถานะสายจัมป์เชื่อมต่อ (Jumper B-C):</label>
-              <select id="jumper-select" onchange="toggleJumperSelect(this.value)">
-                <option value="closed">เชื่อมต่อสายจัมป์ B-C (Closed - กระแสไหลผ่านปกติ)</option>
-                <option value="open">ถอดสายจัมป์ B-C (Open - วงจรขาด ต้องใช้แอมมิเตอร์ต่ออนุกรมเพื่อเชื่อมต่อ)</option>
+        <div class="card no-print" style="margin-bottom: 20px;">
+          <h2 class="card-title" style="margin-bottom: 12px; font-size: 16px; color: var(--accent-cyan); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span>🎛️ แผงควบคุมวงจรทดลอง (Bridge Rectifier & Filter Control)</span>
+            <span id="badge-circuit-status" style="font-size: 12px; padding: 4px 12px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); border: 1px solid var(--accent-cyan); color: #38bdf8; font-weight: 500;">⚡ ต่อ C ฟิลเตอร์ 220 µF (กรองเรียบ)</span>
+          </h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+            <div class="input-field" style="margin-bottom: 0;">
+              <label for="jumper-select" style="font-weight: 600; font-size: 12px; color: var(--text-main); display: block; margin-bottom: 4px;">1. สวิตช์สายจัมป์ (Jumper B-C):</label>
+              <select id="jumper-select" onchange="toggleJumperSelect(this.value)" style="width: 100%; padding: 8px 12px; font-size: 12.5px; background: #0f172a; border: 1.5px solid var(--border-color); border-radius: 6px; color: #fff;">
+                <option value="closed">🟢 เชื่อมต่อสายจัมป์ B-C (วงจรครบปกติ)</option>
+                <option value="open">🔴 ถอดสายจัมป์ B-C (เปิดวงจรเพื่อต่อแอมมิเตอร์วัด DCA)</option>
               </select>
             </div>
-            <div class="input-field" style="justify-content: center; align-items: flex-start; padding-left: 20px;">
-              <label>&nbsp;</label>
-              <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.4;">
-                💡 <strong>คำแนะนำวัดกระแส:</strong> ปรับสถานะสวิตช์จัมเปอร์เป็น <strong>"ถอดสายจัมป์ (Open)"</strong> (หรือคลิกที่เส้นเชื่อม B-C ในรูปวงจร) แล้วเปลี่ยนโหมด DMM เป็น <strong>DC Current</strong> นำโพรบสีแดงจิ้มที่ **จุด B** และสีดำจิ้มที่ **จุด C**
-              </p>
+            
+            <div class="input-field" style="margin-bottom: 0;">
+              <label for="cap-switch-select" style="font-weight: 600; font-size: 12px; color: var(--text-main); display: block; margin-bottom: 4px;">2. สวิตช์คาปาซิเตอร์ฟิลเตอร์ (C Filter Switch):</label>
+              <select id="cap-switch-select" onchange="setCapacitorConnection(this.value)" style="width: 100%; padding: 8px 12px; font-size: 12.5px; background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 6px; color: var(--accent-cyan); font-weight: bold;">
+                <option value="connected" selected>⚡ ต่อตัวคาปาซิเตอร์ (Filter ON - กรองแรงดันเรียบ)</option>
+                <option value="disconnected">🔌 ปลดตัวคาปาซิเตอร์ (Filter OFF - คลื่นพัลส์ตรงปกติ)</option>
+              </select>
             </div>
+
+            <div class="input-field" style="margin-bottom: 0;">
+              <label for="cap-val-select" style="font-weight: 600; font-size: 12px; color: var(--text-main); display: block; margin-bottom: 4px;">3. ค่าความจุคาปาซิเตอร์ (Capacitance C):</label>
+              <select id="cap-val-select" onchange="setCapacitorValue(this.value)" style="width: 100%; padding: 8px 12px; font-size: 12.5px; background: #0f172a; border: 1.5px solid var(--accent-green); border-radius: 6px; color: var(--accent-green); font-weight: bold;">
+                <option value="47">47 µF (ริปเปิลปานกลาง)</option>
+                <option value="100">100 µF (ริปเปิลต่ำ)</option>
+                <option value="220" selected>220 µF (มาตรฐานแล็บ - แนะนำ)</option>
+                <option value="470">470 µF (ริปเปิลต่ำมาก)</option>
+                <option value="1000">1000 µF (แรงดันเรียบสนิท)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="margin-top: 12px; padding: 8px 12px; background: rgba(56, 189, 248, 0.06); border-radius: 6px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span>💡 <strong>คำแนะนำ:</strong> สามารถคลิกที่ <strong>ตัวคาปาซิเตอร์ / สวิตช์ Sc</strong> หรือ <strong>Jumper B-C</strong> บนแผนภาพวงจรเพื่อสลับสถานะ ปลด/ต่อ ได้โดยตรง</span>
+            <span style="color: var(--accent-cyan); font-size: 11.5px;">(ค่าคาปาซิเตอร์และสถานะจะเชื่อมโยงกับใบงานในแท็บ 3 โดยอัตโนมัติ)</span>
           </div>
         </div>
         
@@ -967,7 +1018,7 @@ body {
               <div class="multimeter-dial-selection">
                 <div style="margin-bottom: 8px;">
                   <label style="font-size: 12px; color: #0f172a; font-weight: bold;">ย่านการวัด DMM:</label>
-                  <select id="dmm-dial-select" onchange="updateSimulation()">
+                  <select id="dmm-dial-select" onchange="onDmmDialChanged(this.value)">
                     <option value="ACV">AC Voltage (V~)</option>
                     <option value="DCV">DC Voltage (V-)</option>
                     <option value="DCA">DC Current (mA-)</option>
@@ -1015,7 +1066,7 @@ body {
             </div>
             
             <div class="svg-circuit-wrapper">
-              <svg viewBox="0 0 460 300" width="100%" height="100%">
+              <svg viewBox="0 0 540 300" width="100%" height="100%">
                 
                 <!-- AC Voltage Source -->
                 <circle cx="60" cy="150" r="25" fill="none" stroke="#64748b" stroke-width="3"/>
@@ -1072,26 +1123,73 @@ body {
                 <line x1="220" y1="110" x2="220" y2="70" stroke="#475569" stroke-width="3"/>
                 <line x1="220" y1="70" x2="285" y2="70" stroke="#475569" stroke-width="3"/>
                 
-                <!-- Bridge Output Negative Node (Bottom) to Ground & RL Bottom -->
+                <!-- Bridge Output Negative Node (Bottom) to Ground & Rails -->
                 <line x1="220" y1="190" x2="220" y2="230" stroke="#475569" stroke-width="3"/>
-                <line x1="220" y1="230" x2="380" y2="230" stroke="#475569" stroke-width="3"/>
+                <line x1="220" y1="230" x2="485" y2="230" stroke="#475569" stroke-width="3"/>
                 
-                <!-- Resistor RL Top wire -->
-                <line x1="335" y1="70" x2="380" y2="70" stroke="#475569" stroke-width="3"/>
-                
-                <!-- Load Resistor RL = 1k -->
-                <rect x="365" y="110" width="30" height="80" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="3"/>
-                <line x1="380" y1="70" x2="380" y2="110" stroke="#475569" stroke-width="3"/>
-                <line x1="380" y1="190" x2="380" y2="230" stroke="#475569" stroke-width="3"/>
-                <text x="415" y="145" fill="#10b981" font-family="Chakra Petch" font-size="12" font-weight="bold">RL = 1kΩ</text>
+                <!-- Top wire past Jumper B-C to C and Loads -->
+                <line x1="335" y1="70" x2="485" y2="70" stroke="#475569" stroke-width="3"/>
                 
                 <!-- Jumper Switch B-C (Interactive Group) -->
-                <g id="jumper-switch" style="cursor: pointer;" onclick="toggleJumper()">
-                  <circle cx="285" cy="70" r="3.5" fill="#fff"/>
-                  <circle cx="335" cy="70" r="3.5" fill="#fff"/>
-                  <line id="jumper-line" x1="285" y1="70" x2="335" y2="70" stroke="#10b981" stroke-width="3"/>
-                  <text x="310" y="52" id="jumper-text" fill="#10b981" font-family="Sarabun" font-size="9" text-anchor="middle">Jumper B-C</text>
+                <g id="jumper-switch" class="interactive-switch" onclick="toggleJumper()">
+                  <title>คลิกเพื่อต่อหรือยกสายจัมป์ B-C (Toggle Jumper B-C)</title>
+                  <!-- Broad clickable hit-box -->
+                  <rect class="switch-hit-box" x="272" y="24" width="76" height="58" rx="8" fill="rgba(56, 189, 248, 0.05)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1" stroke-dasharray="3,3" pointer-events="all"/>
+                  
+                  <circle cx="285" cy="70" r="4" fill="#fff" stroke="#475569" stroke-width="1.5" pointer-events="none"/>
+                  <circle cx="335" cy="70" r="4" fill="#fff" stroke="#475569" stroke-width="1.5" pointer-events="none"/>
+                  <line id="jumper-line" x1="285" y1="70" x2="335" y2="70" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" pointer-events="none"/>
+                  <text x="310" y="42" id="jumper-text" fill="#10b981" font-family="Chakra Petch, sans-serif" font-size="9.5" font-weight="bold" text-anchor="middle" pointer-events="none">Jumper: ต่ออยู่</text>
+                  <text x="310" y="55" fill="#94a3b8" font-family="Sarabun, sans-serif" font-size="7.5" text-anchor="middle" pointer-events="none">👆 คลิกสลับ</text>
                 </g>
+                
+                <!-- Filter Capacitor Branch C (Interactive Group) -->
+                <g id="svg-cap-branch" class="interactive-switch" onclick="toggleCapacitorSwitch()">
+                  <title>คลิกเพื่อต่อหรือปลดตัวคาปาซิเตอร์ฟิลเตอร์ (Toggle Filter C)</title>
+                  
+                  <!-- Switch Sc Clickable Box -->
+                  <rect class="switch-hit-box" x="375" y="66" width="80" height="64" rx="8" fill="rgba(56, 189, 248, 0.05)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1" stroke-dasharray="3,3" pointer-events="all"/>
+                  
+                  <!-- Top branch lead to switch -->
+                  <line x1="415" y1="70" x2="415" y2="88" stroke="#475569" stroke-width="3" pointer-events="none"/>
+                  
+                  <!-- Switch Sc Contacts -->
+                  <circle cx="415" cy="88" r="4" fill="#fff" stroke="#475569" stroke-width="1.5" pointer-events="none"/>
+                  <circle cx="415" cy="118" r="4" fill="#fff" stroke="#475569" stroke-width="1.5" pointer-events="none"/>
+                  <!-- Switch Sc Blade -->
+                  <line id="svg-cap-switch-line" x1="415" y1="88" x2="415" y2="118" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" pointer-events="none"/>
+                  <text id="svg-cap-switch-lbl" x="390" y="106" fill="#10b981" font-family="Chakra Petch, sans-serif" font-size="10" font-weight="bold" text-anchor="end" pointer-events="none">Sc: ต่อ</text>
+                  <text x="415" y="80" fill="#94a3b8" font-family="Sarabun, sans-serif" font-size="7.5" text-anchor="middle" pointer-events="none">👆 คลิกสลับ C</text>
+                  
+                  <!-- Capacitor Body Clickable Box -->
+                  <rect class="switch-hit-box" x="375" y="132" width="80" height="78" rx="8" fill="rgba(56, 189, 248, 0.02)" stroke="transparent" pointer-events="all"/>
+                  
+                  <!-- Wire from switch Sc to Capacitor Top Plate -->
+                  <line x1="415" y1="118" x2="415" y2="138" stroke="#475569" stroke-width="3" pointer-events="none"/>
+                  
+                  <!-- Capacitor Symbol (+) Top Plate -->
+                  <line id="svg-cap-plate-top" x1="398" y1="138" x2="432" y2="138" stroke="#38bdf8" stroke-width="3.5" pointer-events="none"/>
+                  <text x="438" y="137" fill="#ef4444" font-family="Chakra Petch" font-size="10" font-weight="bold" pointer-events="none">+</text>
+                  
+                  <!-- Capacitor Symbol (-) Bottom Plate -->
+                  <line id="svg-cap-plate-bot" x1="398" y1="146" x2="432" y2="146" stroke="#94a3b8" stroke-width="3.5" pointer-events="none"/>
+                  <text x="438" y="149" fill="#94a3b8" font-family="Chakra Petch" font-size="10" font-weight="bold" pointer-events="none">-</text>
+                  
+                  <!-- Wire from Capacitor Bottom Plate to Ground Rail -->
+                  <line x1="415" y1="146" x2="415" y2="230" stroke="#475569" stroke-width="3" pointer-events="none"/>
+                  
+                  <!-- Dynamic Labels for Capacitor -->
+                  <text id="svg-cap-val" x="415" y="170" fill="#38bdf8" font-family="Chakra Petch, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" pointer-events="none">C = 220 µF</text>
+                  <text id="svg-cap-status" x="415" y="186" fill="#10b981" font-family="Sarabun, sans-serif" font-size="9.5" text-anchor="middle" pointer-events="none">(กรองไฟเรียบ)</text>
+                  <text x="415" y="200" fill="#64748b" font-family="Sarabun, sans-serif" font-size="8" text-anchor="middle" pointer-events="none">คลิกสลับต่อ/ปลด C</text>
+                </g>
+                
+                <!-- Load Resistor RL = 1k -->
+                <line x1="485" y1="70" x2="485" y2="110" stroke="#475569" stroke-width="3"/>
+                <rect x="470" y="110" width="30" height="80" rx="3" fill="#1e293b" stroke="#10b981" stroke-width="3"/>
+                <line x1="485" y1="190" x2="485" y2="230" stroke="#475569" stroke-width="3"/>
+                <text x="485" y="102" fill="#10b981" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="middle">RL</text>
+                <text x="485" y="154" fill="#10b981" font-family="Chakra Petch" font-size="11" font-weight="bold" text-anchor="middle">1 kΩ</text>
                 
                 <!-- Ground Connection Symbol -->
                 <line x1="220" y1="230" x2="220" y2="250" stroke="#475569" stroke-width="3"/>
@@ -1123,10 +1221,10 @@ body {
                 
                 <!-- Hotspot C (Resistor Top) -->
                 <g id="point-C" class="probe-point" onclick="selectProbePoint('C')">
-                  <circle cx="350" cy="70" r="10" fill="#a78bfa" stroke="#000" stroke-width="1.5"/>
-                  <text x="350" y="74" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">C</text>
+                  <circle cx="355" cy="70" r="10" fill="#a78bfa" stroke="#000" stroke-width="1.5"/>
+                  <text x="355" y="74" fill="#000" font-family="Chakra Petch" font-size="10" font-weight="bold" text-anchor="middle">C</text>
                 </g>
-                <text x="350" y="90" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">ขั้วโหลด C</text>
+                <text x="355" y="90" fill="#94a3b8" font-family="Sarabun" font-size="9" text-anchor="middle">ขั้วโหลด C</text>
                 
                 <!-- Hotspot G (Ground) -->
                 <g id="point-G" class="probe-point" onclick="selectProbePoint('G')">
@@ -1234,24 +1332,38 @@ body {
             </div>
           </div>
 
-          <!-- Component Model Selection Row in Worksheet -->
-          <div class="no-print" style="margin-top: 14px; padding: 12px 16px; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
+          <!-- Component Model & Capacitor Filter Selection Row in Worksheet -->
+          <div class="no-print" style="margin-top: 14px; padding: 12px 16px; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">
               <span style="font-size: 20px;">🏷️</span>
               <div>
-                <strong style="color: #fff; font-size: 13.5px;">เลือกโมเดลบริดจ์เรกติไฟเออร์ที่ใช้บันทึกผล (Component Model):</strong>
+                <strong style="color: #fff; font-size: 13.5px;">กำหนดพารามิเตอร์จำลอง (Simulation Parameters):</strong>
                 <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted); font-family: 'Sarabun', sans-serif;">
-                  เลือกเบอร์อุปกรณ์ที่ทำการทดลอง (ระบบจะปรับสมการจำลองและเกณฑ์ตรวจคะแนนให้ตรงกับเบอร์ที่เลือกโดยอัตโนมัติ)
+                  เลือกรุ่นไดโอดบริดจ์และสถานะคาปาซิเตอร์ฟิลเตอร์ (ระบบจะปรับการคำนวณและเชื่อมโยงกับแท็บห้องแล็บจำลองอัตโนมัติ)
                 </p>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <select id="select-component-model-ws" onchange="setComponentModel(this.value)" style="padding: 8px 14px; font-size: 13px; font-weight: bold; background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 6px; color: var(--accent-cyan); cursor: pointer;">
-                <option value="1N4001x4">ไดโอด 1N4001 x 4 ตัว (50V 1A)</option>
-                <option value="1N4007x4">ไดโอด 1N4007 x 4 ตัว (1000V 1A)</option>
-                <option value="W04M">Bridge Rectifier IC W04M (400V 1.5A)</option>
-                <option value="2W10M">Bridge Rectifier IC 2W10M (1000V 2A)</option>
-              </select>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <label for="select-component-model-ws" style="font-size: 12px; color: var(--text-muted);">เบอร์ไดโอด:</label>
+                <select id="select-component-model-ws" onchange="setComponentModel(this.value)" style="padding: 7px 12px; font-size: 12.5px; font-weight: bold; background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 6px; color: var(--accent-cyan); cursor: pointer;">
+                  <option value="1N4001x4">ไดโอด 1N4001 x 4 ตัว (50V 1A)</option>
+                  <option value="1N4007x4">ไดโอด 1N4007 x 4 ตัว (1000V 1A)</option>
+                  <option value="W04M">Bridge Rectifier IC W04M (400V 1.5A)</option>
+                  <option value="2W10M">Bridge Rectifier IC 2W10M (1000V 2A)</option>
+                </select>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <label for="select-c-filter-ws" style="font-size: 12px; color: var(--text-muted);">คาปาซิเตอร์ C:</label>
+                <select id="select-c-filter-ws" onchange="setCapacitorFilterWS(this.value)" style="padding: 7px 12px; font-size: 12.5px; font-weight: bold; background: #0f172a; border: 1.5px solid var(--accent-green); border-radius: 6px; color: var(--accent-green); cursor: pointer;">
+                  <option value="connected_220" selected>⚡ ต่อ C = 220 µF (กรองเรียบ)</option>
+                  <option value="connected_100">⚡ ต่อ C = 100 µF (กรองเรียบ)</option>
+                  <option value="connected_47">⚡ ต่อ C = 47 µF (กรองเรียบ)</option>
+                  <option value="connected_470">⚡ ต่อ C = 470 µF (กรองเรียบ)</option>
+                  <option value="connected_1000">⚡ ต่อ C = 1000 µF (กรองเรียบ)</option>
+                  <option value="disconnected">🔌 ปลด C (วงจรบริดจ์ตรง)</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -1259,11 +1371,12 @@ body {
           <div id="print-lab-mode-badge" style="font-size: 13px; color: var(--text-main); margin-top: 10px; margin-bottom: 8px; font-weight: 500;">
             <strong>แหล่งที่มาข้อมูล:</strong> <span id="print-mode-text" style="color: var(--accent-cyan); font-weight: bold;">🔬 ห้องทดลองจำลองเสมือน (Virtual Simulator)</span>
             <span style="margin-left: 15px;"><strong>โมเดลอุปกรณ์:</strong> <span class="dyn-component-name" style="color: var(--accent-cyan); font-weight: bold;">1N4001x4</span></span>
+            <span style="margin-left: 15px;"><strong>คาปาซิเตอร์ฟิลเตอร์:</strong> <span class="dyn-c-filter-status" style="color: var(--accent-green); font-weight: bold;">ต่อ C = 220 µF (กรองเรียบ)</span></span>
           </div>
 
           <!-- Dynamic Mode Description & Banner -->
           <div id="sim-mode-banner" class="no-print" style="margin-top: 12px; background: rgba(56, 189, 248, 0.08); border-left: 4px solid var(--accent-cyan); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.6; color: var(--text-main);">
-            <strong style="color: var(--accent-cyan);">🔬 โหมดห้องทดลองจำลอง:</strong> ค่าที่บันทึกคำนวณจากสมการทางฟิสิกส์ของอุปกรณ์เบอร์ <strong class="dyn-component-name" style="color:var(--accent-cyan);">1N4001x4</strong> ในระบบจำลอง (เกณฑ์ความคลาดเคลื่อนยอมรับได้ <span style="color:var(--accent-cyan); font-weight:bold;">±5%</span>) สามารถกดปุ่มดึงค่าจากแท็บห้องทดลองจำลองได้
+            <strong style="color: var(--accent-cyan);">🔬 โหมดห้องทดลองจำลอง:</strong> คำนวณจากสมการทางฟิสิกส์ของอุปกรณ์เบอร์ <strong class="dyn-component-name" style="color:var(--accent-cyan);">1N4001x4</strong> และ <strong class="dyn-c-filter-status" style="color:var(--accent-green);">ต่อ C = 220 µF (กรองเรียบ)</strong> (เกณฑ์ความคลาดเคลื่อนยอมรับได้ <span style="color:var(--accent-cyan); font-weight:bold;">±5%</span>) สามารถกดปุ่มดึงค่าจากแท็บห้องทดลองจำลองได้
           </div>
 
           <div id="hw-mode-banner" class="no-print" style="display: none; margin-top: 12px; background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--accent-green); padding: 12px 14px; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.6; color: var(--text-main);">
@@ -1284,7 +1397,7 @@ body {
               <div style="flex: 1; min-width: 200px;">
                 <label style="font-size: 11px; color: var(--accent-green); font-weight: bold; display: block; margin-bottom: 4px;">ค่าคาปาซิเตอร์ C ฟิลเตอร์จริง:</label>
                 <div class="input-unit-group" style="height: 31px;">
-                  <input type="number" id="hw-c-measured" placeholder="เช่น 100, 220, 470" value="220" style="padding: 6px 10px; font-size: 12px; width:100%;">
+                  <input type="number" id="hw-c-measured" placeholder="เช่น 100, 220, 470" value="220" oninput="if(window.setHardwareCapacitor) setHardwareCapacitor(this.value);" style="padding: 6px 10px; font-size: 12px; width:100%;">
                   <span class="unit" style="font-size: 11px;">µF</span>
                 </div>
               </div>
@@ -1570,6 +1683,8 @@ const STATE = {
   rlResistor: 1000.0,       // 1k Ohm Load
   diodeForwardDrop: 0.7,    // 0.7V Diode drop (conduction pathway drops 2 * 0.7 = 1.4V)
   isJumperClosed: true,     // Jumper B-C connection state
+  isCapacitorConnected: true, // Capacitor filter switch state (true = filter ON, false = filter OFF)
+  cFilterValue: 220,        // Capacitor value in uF (47, 100, 220, 470, 1000)
   
   // Instrument settings
   ch1VoltsDiv: 5,           // 5V per div
@@ -1605,6 +1720,74 @@ function isBcConnected() {
 }
 
 /**
+ * Calculates steady-state voltage and current statistics across RL with or without Filter Capacitor
+ */
+function getFilteredLoadStats() {
+  const active = isBcConnected();
+  const vPeak = getVPeakInput();
+  const vDiodeTotal = STATE.diodeForwardDrop * 2;
+  const vPeakLoad = active ? Math.max(0, vPeak - vDiodeTotal) : 0;
+  
+  if (!active || vPeakLoad <= 0) {
+    return { vMax: 0, vMin: 0, vDc: 0, vRms: 0, vRpp: 0, iDcMa: 0 };
+  }
+  
+  if (!STATE.isCapacitorConnected) {
+    // Unfiltered pulsating full-wave rectified DC
+    const vDc = (2 * vPeakLoad) / Math.PI;
+    const vRms = vPeakLoad / Math.sqrt(2);
+    const iDcMa = (vDc / STATE.rlResistor) * 1000;
+    return {
+      vMax: vPeakLoad,
+      vMin: 0,
+      vDc: vDc,
+      vRms: vRms,
+      vRpp: vPeakLoad,
+      iDcMa: iDcMa
+    };
+  }
+  
+  // Filter Capacitor active: solve steady-state exponential discharge across RL
+  const C = (STATE.cFilterValue || 220) * 1e-6;
+  const tau = STATE.rlResistor * C;
+  const omega = 2 * Math.PI * STATE.frequency;
+  const dt = 0.00005; // 50 microseconds
+  const steps = 2000; // 100ms (5 full AC cycles = 10 rectified half cycles)
+  
+  let vc = 0;
+  const history = [];
+  for (let i = 0; i < steps; i++) {
+    const t = i * dt;
+    const vin = Math.abs(vPeak * Math.sin(omega * t));
+    const vRect = Math.max(0, vin - vDiodeTotal);
+    if (vRect > vc) {
+      vc = vRect;
+    } else {
+      vc = vc * Math.exp(-dt / tau);
+    }
+    if (t >= 0.08) {
+      history.push(vc);
+    }
+  }
+  
+  const vMax = Math.max(...history);
+  const vMin = Math.min(...history);
+  const vRpp = vMax - vMin;
+  const vDc = history.reduce((a, b) => a + b, 0) / history.length;
+  const vRms = Math.sqrt(history.reduce((a, b) => a + b * b, 0) / history.length);
+  const iDcMa = (vDc / STATE.rlResistor) * 1000;
+  
+  return {
+    vMax: vMax,
+    vMin: vMin,
+    vDc: vDc,
+    vRms: vRms,
+    vRpp: vRpp,
+    iDcMa: iDcMa
+  };
+}
+
+/**
  * Calculates current multimeter reading based on dial and probe positions
  */
 function getMultimeterReading() {
@@ -1618,94 +1801,59 @@ function getMultimeterReading() {
   const mode = STATE.dmmDialMode;
   const active = isBcConnected();
   const vPeak = getVPeakInput();
-  const vDiodeTotal = STATE.diodeForwardDrop * 2; // 2 diodes conduct -> 1.4V
+  const vDiodeTotal = STATE.diodeForwardDrop * 2;
+  const stats = getFilteredLoadStats();
   
-  // Generate average & RMS values over 1 full period (20ms) using numerical integration
-  const N = 200;
-  const dt = 0.0001; // 0.1ms step
-  const omega = 2 * Math.PI * STATE.frequency;
-  
-  let sumDiff = 0;
-  let sumDiffSq = 0;
-  
-  for (let i = 0; i < N; i++) {
-    const t = i * dt;
-    const vIn = vPeak * Math.sin(omega * t);
-    
-    let vA1 = 0;
-    let vA2 = 0;
-    let vB = 0;
-    let vC = 0;
-    
-    // Precise full-wave bridge solver relative to DC load negative output (G = 0V)
-    if (vIn > vDiodeTotal) {
-      // Positive half cycle conduction
-      vA1 = vIn - STATE.diodeForwardDrop;
-      vA2 = STATE.diodeForwardDrop;
-      vB = vIn - vDiodeTotal;
-    } else if (vIn < -vDiodeTotal) {
-      // Negative half cycle conduction
-      vA1 = STATE.diodeForwardDrop;
-      vA2 = -vIn - STATE.diodeForwardDrop;
-      vB = -vIn - vDiodeTotal;
-    } else {
-      // Non-conducting dead band
-      vA1 = vIn / 2;
-      vA2 = -vIn / 2;
-      vB = 0;
-    }
-    
-    if (active) {
-      vC = vB;
-    } else {
-      vC = 0; // Jumper open, no current flows, top of RL pulled to ground (0V)
-    }
-    
-    const valRed = (r === 'A1') ? vA1 : (r === 'A2') ? vA2 : (r === 'B') ? vB : (r === 'C') ? vC : 0;
-    const valBlack = (b === 'A1') ? vA1 : (b === 'A2') ? vA2 : (b === 'B') ? vB : (b === 'C') ? vC : 0;
-    const diff = valRed - valBlack;
-    
-    sumDiff += diff;
-    sumDiffSq += diff * diff;
-  }
-  
-  const vDc = sumDiff / N;
-  const vRms = Math.sqrt(sumDiffSq / N);
-  
-  // 1. AC Voltage Mode (ACV)
-  if (mode === 'ACV') {
-    // Pure input AC source across A1 and A2
-    if ((r === 'A1' && b === 'A2') || (r === 'A2' && b === 'A1')) {
+  // 1. Pure input AC source across A1 and A2
+  if ((r === 'A1' && b === 'A2') || (r === 'A2' && b === 'A1')) {
+    if (mode === 'ACV') {
       return { value: STATE.vRmsInput.toFixed(2), unit: 'V AC' };
     }
-    const acRms = Math.sqrt(Math.max(0, vRms * vRms - vDc * vDc));
-    return { value: acRms.toFixed(2), unit: 'V AC' };
+    return { value: '0.00', unit: (mode === 'DCV' ? 'V DC' : 'mA DC') };
   }
   
-  // 2. DC Voltage Mode (DCV)
-  if (mode === 'DCV') {
-    return { value: vDc.toFixed(2), unit: 'V DC' };
-  }
-  
-  // 3. DC Current Mode (DCA)
-  if (mode === 'DCA') {
-    // DCA completes the circuit in series across B and C
-    if ((r === 'B' && b === 'C') || (r === 'C' && b === 'B')) {
-      const vPeakLoad = Math.max(0, vPeak - vDiodeTotal);
-      const vDcLoad = (2 * vPeakLoad) / Math.PI;
-      const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000;
-      const multiplier = (r === 'B') ? 1 : -1;
-      return { value: (iDcLoadMa * multiplier).toFixed(2), unit: 'mA DC' };
+  // 2. Diode forward drop (A1 to B, or A2 to B)
+  if ((r === 'A1' && b === 'B') || (r === 'B' && b === 'A1') ||
+      (r === 'A2' && b === 'B') || (r === 'B' && b === 'A2')) {
+    const sign = (r === 'A1' || r === 'A2') ? 1 : -1;
+    if (mode === 'DCV') {
+      return { value: (STATE.diodeForwardDrop * sign).toFixed(2), unit: 'V DC' };
+    } else if (mode === 'ACV') {
+      return { value: (STATE.diodeForwardDrop * 0.4).toFixed(2), unit: 'V AC' };
     }
-    // If circuit is closed by jumper, and they measure in series elsewhere
-    if (active && ((r === 'B' && b === 'C') || (r === 'C' && b === 'B'))) {
-      const vPeakLoad = Math.max(0, vPeak - vDiodeTotal);
-      const vDcLoad = (2 * vPeakLoad) / Math.PI;
-      const iDcLoadMa = (vDcLoad / STATE.rlResistor) * 1000;
-      const multiplier = (r === 'B') ? 1 : -1;
-      return { value: (iDcLoadMa * multiplier).toFixed(2), unit: 'mA DC' };
+  }
+  
+  // 3. DC Current Mode (DCA) in series across B and C
+  if (mode === 'DCA') {
+    if ((r === 'B' && b === 'C') || (r === 'C' && b === 'B')) {
+      const mult = (r === 'B') ? 1 : -1;
+      return { value: (stats.iDcMa * mult).toFixed(2), unit: 'mA DC' };
     }
     return { value: '0.00', unit: 'mA DC' };
+  }
+  
+  // 4. DC Voltage across Load (C to G) or Bridge Output (B to G)
+  if (mode === 'DCV') {
+    if ((r === 'C' && b === 'G') || (r === 'G' && b === 'C')) {
+      const mult = (r === 'C') ? 1 : -1;
+      return { value: (stats.vDc * mult).toFixed(2), unit: 'V DC' };
+    }
+    if ((r === 'B' && b === 'G') || (r === 'G' && b === 'B')) {
+      const mult = (r === 'B') ? 1 : -1;
+      const vAtB = active ? stats.vDc : ((2 * Math.max(0, vPeak - vDiodeTotal)) / Math.PI);
+      return { value: (vAtB * mult).toFixed(2), unit: 'V DC' };
+    }
+    return { value: '0.00', unit: 'V DC' };
+  }
+  
+  // 5. AC Voltage across Load (C to G) - Measures ripple component (V_ac_rms)
+  if (mode === 'ACV') {
+    if ((r === 'C' && b === 'G') || (r === 'G' && b === 'C') ||
+        ((r === 'B' && b === 'G') && active) || ((r === 'G' && b === 'B') && active)) {
+      const acRms = Math.sqrt(Math.max(0, stats.vRms * stats.vRms - stats.vDc * stats.vDc));
+      return { value: acRms.toFixed(2), unit: 'V AC' };
+    }
+    return { value: '0.00', unit: 'V AC' };
   }
   
   return { value: '0.00', unit: '' };
@@ -1736,30 +1884,53 @@ function getOscilloscopeWaveforms(width, height) {
   const vDiodeTotal = STATE.diodeForwardDrop * 2;
   const omega = 2 * Math.PI * STATE.frequency;
   const active = isBcConnected();
+  const stats = getFilteredLoadStats();
+  
+  // Warm up filter capacitor to steady state at t=0
+  let vc = 0;
+  if (active && STATE.isCapacitorConnected) {
+    const C = (STATE.cFilterValue || 220) * 1e-6;
+    const tau = STATE.rlResistor * C;
+    const dtWarm = 0.00005;
+    for (let t = 0; t < 0.1; t += dtWarm) {
+      const vin = Math.abs(vPeak * Math.sin(omega * t));
+      const vRect = Math.max(0, vin - vDiodeTotal);
+      if (vRect > vc) vc = vRect;
+      else vc = vc * Math.exp(-dtWarm / tau);
+    }
+  }
+  
+  const totalSec = totalMs / 1000;
+  const dtPoint = totalSec / width;
+  const C = (STATE.cFilterValue || 220) * 1e-6;
+  const tau = STATE.rlResistor * C;
   
   // Generate waveform points
   for (let px = 0; px < width; px++) {
-    const tMs = (px / width) * totalMs;
-    const tSec = tMs / 1000;
-    
+    const tSec = px * dtPoint;
     const vIn = vPeak * Math.sin(omega * tSec);
     
-    // Node C voltage: follows rectified full-wave if circuit is closed, else flat 0V
-    const vOut = active ? Math.max(0, Math.abs(vIn) - vDiodeTotal) : 0;
+    let vOut = 0;
+    if (active) {
+      if (!STATE.isCapacitorConnected) {
+        vOut = Math.max(0, Math.abs(vIn) - vDiodeTotal);
+      } else {
+        const vRect = Math.max(0, Math.abs(vIn) - vDiodeTotal);
+        if (vRect > vc) {
+          vc = vRect;
+        } else {
+          vc = vc * Math.exp(-dtPoint / tau);
+        }
+        vOut = vc;
+      }
+    }
     
     const pyCh1 = centerY - (vIn * ch1PixelsPerVolt);
-    // Draw full-wave rectified output on CH2, shifting up since it is positive only
     const pyCh2 = centerY - (vOut * ch2PixelsPerVolt);
     
     ch1Points.push({ x: px, y: pyCh1 });
     ch2Points.push({ x: px, y: pyCh2 });
   }
-  
-  // Calculate digital measurements of the displayed full-wave rectified signal
-  const vPeakLoad = active ? Math.max(0, vPeak - vDiodeTotal) : 0;
-  const ch2Vdc = active ? ((2 * vPeakLoad) / Math.PI) : 0;
-  // RMS of full-wave rectified wave is same as sine: Vpeak_load / sqrt(2)
-  const ch2Vrms = active ? (vPeakLoad / Math.sqrt(2)) : 0;
   
   return {
     ch1Points: ch1Points,
@@ -1767,9 +1938,9 @@ function getOscilloscopeWaveforms(width, height) {
     measurements: {
       ch1Vpp: (vPeak * 2).toFixed(1),
       ch1Vrms: STATE.vRmsInput.toFixed(1),
-      ch2Vmax: vPeakLoad.toFixed(1),
-      ch2Vdc: ch2Vdc.toFixed(2),
-      ch2Vrms: ch2Vrms.toFixed(2),
+      ch2Vmax: stats.vMax.toFixed(1),
+      ch2Vdc: stats.vDc.toFixed(2),
+      ch2Vrms: stats.vRms.toFixed(2),
       frequency: active ? (STATE.frequency * 2).toFixed(1) : '0.0', // 100 Hz due to full-wave rectification
       periodMs: active ? (1000 / (STATE.frequency * 2)).toFixed(1) : '0.0' // 10 ms
     }
@@ -1782,6 +1953,7 @@ window.getMultimeterReading = getMultimeterReading;
 window.getOscilloscopeWaveforms = getOscilloscopeWaveforms;
 window.getVPeakInput = getVPeakInput;
 window.isBcConnected = isBcConnected;
+window.getFilteredLoadStats = getFilteredLoadStats;
 
 </script>
 <script>
@@ -1816,6 +1988,13 @@ function initUI() {
   window.adjustVoltsDiv = adjustVoltsDiv;
   window.toggleJumper = toggleJumper;
   window.toggleJumperSelect = toggleJumperSelect;
+  window.onDmmDialChanged = onDmmDialChanged;
+  window.setCapacitorConnection = setCapacitorConnection;
+  window.setCapacitorValue = setCapacitorValue;
+  window.toggleCapacitorSwitch = toggleCapacitorSwitch;
+  window.setCapacitorFilterWS = setCapacitorFilterWS;
+  window.setHardwareCapacitor = setHardwareCapacitor;
+  window.updateCapacitorUI = updateCapacitorUI;
   window.printReport = printReport;
 }
 
@@ -1938,6 +2117,161 @@ function toggleJumperSelect(val) {
 }
 
 /**
+ * Sets Filter Capacitor Connection state from UI select or toggle
+ */
+function setCapacitorConnection(val) {
+  STATE.isCapacitorConnected = (val === 'connected');
+  updateSimulation();
+}
+
+/**
+ * Sets Filter Capacitor Capacitance Value from select
+ */
+function setCapacitorValue(val) {
+  STATE.cFilterValue = parseFloat(val) || 220;
+  updateSimulation();
+}
+
+/**
+ * Toggles Capacitor Filter switch Sc (from clicking SVG diagram or switch)
+ */
+function toggleCapacitorSwitch() {
+  STATE.isCapacitorConnected = !STATE.isCapacitorConnected;
+  updateSimulation();
+}
+
+/**
+ * Synchronizes Filter Capacitor settings from Tab 3 Worksheet dropdown
+ */
+function setCapacitorFilterWS(val) {
+  if (val === 'disconnected') {
+    STATE.isCapacitorConnected = false;
+  } else if (val.startsWith('connected_')) {
+    STATE.isCapacitorConnected = true;
+    STATE.cFilterValue = parseFloat(val.replace('connected_', '')) || 220;
+  }
+  updateSimulation();
+}
+
+/**
+ * Hardware mode: updates measured capacitor value from student input
+ */
+function setHardwareCapacitor(val) {
+  const num = parseFloat(val);
+  if (!isNaN(num) && num > 0) {
+    STATE.hwCapacitor = num;
+  }
+  updateCapacitorUI();
+}
+
+/**
+ * Updates and syncs all Filter Capacitor UI components across tabs and SVG
+ */
+function updateCapacitorUI() {
+  const capSwitchSel = document.getElementById('cap-switch-select');
+  const capValSel = document.getElementById('cap-val-select');
+  const capWsSel = document.getElementById('select-c-filter-ws');
+  const badgeEl = document.getElementById('badge-circuit-status');
+  
+  if (capSwitchSel) {
+    capSwitchSel.value = STATE.isCapacitorConnected ? 'connected' : 'disconnected';
+  }
+  if (capValSel) {
+    capValSel.value = String(STATE.cFilterValue);
+  }
+  if (capWsSel) {
+    capWsSel.value = STATE.isCapacitorConnected ? ('connected_' + STATE.cFilterValue) : 'disconnected';
+  }
+  
+  // Status badge on Tab 2
+  if (badgeEl) {
+    if (STATE.isCapacitorConnected) {
+      badgeEl.innerHTML = `⚡ ต่อ C ฟิลเตอร์ ${STATE.cFilterValue} µF (กรองเรียบ)`;
+      badgeEl.style.color = '#38bdf8';
+      badgeEl.style.borderColor = 'var(--accent-cyan)';
+      badgeEl.style.background = 'rgba(56, 189, 248, 0.15)';
+    } else {
+      badgeEl.innerHTML = '🔌 ปลดตัวคาปาซิเตอร์ (ไม่มีฟิลเตอร์ / คลื่นตรงพัลส์)';
+      badgeEl.style.color = '#f59e0b';
+      badgeEl.style.borderColor = '#f59e0b';
+      badgeEl.style.background = 'rgba(245, 158, 11, 0.15)';
+    }
+  }
+  
+  // SVG Switch & Labels
+  const switchLine = document.getElementById('svg-cap-switch-line');
+  const switchLbl = document.getElementById('svg-cap-switch-lbl');
+  const capValText = document.getElementById('svg-cap-val');
+  const capStatusText = document.getElementById('svg-cap-status');
+  const plateTop = document.getElementById('svg-cap-plate-top');
+  const plateBot = document.getElementById('svg-cap-plate-bot');
+  
+  if (capValText) {
+    capValText.textContent = `C = ${STATE.cFilterValue} µF`;
+  }
+  
+  if (STATE.isCapacitorConnected) {
+    if (switchLine) {
+      switchLine.setAttribute('x1', '415');
+      switchLine.setAttribute('y1', '88');
+      switchLine.setAttribute('x2', '415');
+      switchLine.setAttribute('y2', '118');
+      switchLine.setAttribute('stroke', '#10b981');
+    }
+    if (switchLbl) {
+      switchLbl.textContent = 'Sc: ต่อ';
+      switchLbl.setAttribute('fill', '#10b981');
+    }
+    if (capStatusText) {
+      capStatusText.textContent = '(กรองไฟเรียบ)';
+      capStatusText.setAttribute('fill', '#10b981');
+    }
+    if (plateTop) plateTop.setAttribute('stroke', '#38bdf8');
+    if (plateBot) plateBot.setAttribute('stroke', '#94a3b8');
+  } else {
+    // Open tilted switch blade
+    if (switchLine) {
+      switchLine.setAttribute('x1', '415');
+      switchLine.setAttribute('y1', '88');
+      switchLine.setAttribute('x2', '432');
+      switchLine.setAttribute('y2', '102');
+      switchLine.setAttribute('stroke', '#ef4444');
+    }
+    if (switchLbl) {
+      switchLbl.textContent = 'Sc: ปลด';
+      switchLbl.setAttribute('fill', '#ef4444');
+    }
+    if (capStatusText) {
+      capStatusText.textContent = '(ปลด C ออก)';
+      capStatusText.setAttribute('fill', '#ef4444');
+    }
+    if (plateTop) plateTop.setAttribute('stroke', '#475569');
+    if (plateBot) plateBot.setAttribute('stroke', '#475569');
+  }
+  
+  // Sync dynamic labels across worksheet
+  const statusStr = STATE.isCapacitorConnected ? `ต่อ C = ${STATE.cFilterValue} µF (กรองเรียบ)` : `ปลด C (ไม่มีฟิลเตอร์ / คลื่นตรงพัลส์)`;
+  document.querySelectorAll('.dyn-c-filter-status').forEach(el => {
+    el.innerText = statusStr;
+  });
+}
+
+/**
+ * Handles DMM Dial changes
+ */
+function onDmmDialChanged(val) {
+  const prevMode = STATE.dmmDialMode;
+  STATE.dmmDialMode = val;
+  const dialSel = document.getElementById('dmm-dial-select');
+  if (dialSel) dialSel.value = val;
+  if (val === 'DCA' && prevMode !== 'DCA') {
+    // When switching to DCA mode, automatically open the jumper to help the user insert ammeter in series
+    STATE.isJumperClosed = false;
+  }
+  updateSimulation();
+}
+
+/**
  * Main function to redraw canvas and recalculate values
  */
 function updateSimulation() {
@@ -1950,18 +2284,7 @@ function updateSimulation() {
   if (blackSel) STATE.dmmBlackProbe = blackSel.value;
   if (dialSel) STATE.dmmDialMode = dialSel.value;
   
-  // When measuring DC current, the jumper B-C is physically lifted up to insert the ammeter in series
-  if (STATE.dmmDialMode === 'DCA') {
-    STATE.isJumperClosed = false;
-  } else {
-    // When measuring voltage (ACV/DCV), keep jumper closed for proper circuit operation
-    if (jumperSel && jumperSel.value === 'open') {
-      STATE.isJumperClosed = false;
-    } else {
-      STATE.isJumperClosed = true;
-    }
-  }
-
+  // Sync jumper dropdown select to match current STATE
   if (jumperSel) {
     jumperSel.value = STATE.isJumperClosed ? 'closed' : 'open';
   }
@@ -1976,19 +2299,22 @@ function updateSimulation() {
       jLine.setAttribute('x2', '335');
       jLine.setAttribute('y2', '70');
       jLine.setAttribute('stroke', '#10b981');
-      jText.textContent = 'Jumper B-C: ต่ออยู่';
+      jText.textContent = 'Jumper: ต่ออยู่';
       jText.setAttribute('fill', '#10b981');
     } else {
-      // Lifted / Open state: tilted green bridge upwards
+      // Lifted / Open state: tilted red bridge upwards
       jLine.setAttribute('x1', '285');
       jLine.setAttribute('y1', '70');
       jLine.setAttribute('x2', '315');
-      jLine.setAttribute('y2', '40');
-      jLine.setAttribute('stroke', '#10b981'); // Green lifted bridge
-      jText.textContent = 'Jumper B-C: ยกออก (วัดกระแส)';
-      jText.setAttribute('fill', '#10b981');
+      jLine.setAttribute('y2', '45');
+      jLine.setAttribute('stroke', '#ef4444');
+      jText.textContent = 'Jumper: ปลดออก';
+      jText.setAttribute('fill', '#ef4444');
     }
   }
+  
+  // Update Capacitor UI controls & SVG representation
+  updateCapacitorUI();
   
   // Update Multimeter LCD
   const dmmResult = getMultimeterReading();
