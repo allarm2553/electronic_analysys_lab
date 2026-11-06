@@ -259,167 +259,7 @@
     .stage-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
     .stage1 { background: rgba(56, 189, 248, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
     .stage2 { background: rgba(168, 85, 247, 0.15); border: 1px solid var(--accent-purple); color: var(--accent-purple); }
-    /* Print styling */
-    @media print {
-      @page {
-        size: A4 portrait;
-        margin: 12mm 12mm 12mm 12mm;
-      }
-
-      html, body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-size: 11pt;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-      }
-
-      .app-container, .main-content {
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-      }
-
-      .sidebar, .nav-btn, .btn, .no-print, #submission-overlay, #anti-cheat-toast,
-      #tab-theory, #tab-simulator {
-        display: none !important;
-      }
-
-      * {
-        animation: none !important;
-        transition: none !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-
-      .tab-pane {
-        display: none !important;
-        height: auto !important;
-        min-height: 0 !important;
-        animation: none !important;
-        opacity: 1 !important;
-      }
-
-      #tab-worksheet,
-      #tab-assessment {
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-      }
-
-      .content-header {
-        page-break-after: avoid !important;
-        break-after: avoid !important;
-        margin-bottom: 8px !important;
-      }
-
-      .content-header h1 {
-        font-size: 13pt !important;
-        color: #0f172a !important;
-      }
-
-      .content-header .subtitle {
-        font-size: 9pt !important;
-        color: #475569 !important;
-      }
-
-      #submitted-viewonly-banner button,
-      #submitted-viewonly-banner-assessment button {
-        display: none !important;
-      }
-
-      .card {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #94a3b8 !important;
-        box-shadow: none !important;
-        padding: 12px 16px !important;
-        margin-bottom: 12px !important;
-      }
-
-      .card-title {
-        color: #0f172a !important;
-        border-bottom: 1.5px solid #94a3b8 !important;
-        font-size: 12pt !important;
-        padding-bottom: 5px !important;
-        margin-bottom: 8px !important;
-      }
-
-      .card-title .number {
-        color: #0284c7 !important;
-      }
-
-      .lab-table th, table.lab-table th {
-        background: #f1f5f9 !important;
-        color: #0f172a !important;
-        border: 1px solid #64748b !important;
-        font-weight: bold;
-      }
-
-      .lab-table td, table.lab-table td {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #cbd5e1 !important;
-      }
-
-      .lab-table input, .lab-table select, select, input {
-        background: #f8fafc !important;
-        color: #000000 !important;
-        border: 1px solid #94a3b8 !important;
-        font-weight: bold;
-      }
-
-      .question-card, .question-block {
-        background: #ffffff !important;
-        border: 1px solid #94a3b8 !important;
-        color: #0f172a !important;
-        padding: 8px 12px !important;
-        margin-bottom: 8px !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
-
-      .question-title {
-        color: #0f172a !important;
-        font-weight: bold !important;
-        font-size: 9.5pt !important;
-      }
-
-      .option-label {
-        color: #0f172a !important;
-        background: #f8fafc !important;
-        border: 1px solid #cbd5e1 !important;
-        font-size: 9pt !important;
-        padding: 4px 8px !important;
-        margin-bottom: 3px !important;
-      }
-
-      .option-label span {
-        color: #0f172a !important;
-      }
-
-      textarea {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #94a3b8 !important;
-      }
-
-      .highlight-box {
-        background: #f8fafc !important;
-        border-left: 4px solid #0284c7 !important;
-        color: #000000 !important;
-      }
-    }
-  
+    
     .portal-link {
       color: var(--accent-cyan, #38bdf8);
       text-decoration: none;
@@ -442,13 +282,520 @@
       color: #fff;
     }
 
-    @media print {
-      .portal-link, .top-nav-bar {
-        display: none !important;
-      }
-    }
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE STYLES (Smartphones & Tablets)
+   ========================================================================== */
+@media (max-width: 992px) {
+  .app-container {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    grid-template-columns: 1fr !important;
+  }
 
-  </style>
+  .sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color, rgba(56, 189, 248, 0.2)) !important;
+    padding: 10px 14px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: var(--bg-secondary, #0f172a) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    height: auto !important;
+  }
+
+  .sidebar-header {
+    margin-bottom: 8px !important;
+    padding-bottom: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  .sidebar-header .logo-text h2 {
+    font-size: 15px !important;
+    margin: 0 !important;
+  }
+
+  .sidebar-header .logo-text span {
+    font-size: 10px !important;
+  }
+
+  .sidebar-header .logo-icon {
+    font-size: 22px !important;
+  }
+
+  .sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    padding: 2px 2px 6px 2px !important;
+    scrollbar-width: thin;
+    flex-wrap: nowrap !important;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.3);
+    border-radius: 4px;
+  }
+
+  .nav-btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
+    gap: 6px !important;
+    border-radius: 8px !important;
+    min-height: 38px !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+  }
+
+  .sidebar-footer {
+    display: none !important;
+  }
+
+  .main-content, .content-area, main {
+    padding: 14px 12px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .content-header h1, .report-header h1 {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+  }
+
+  .subtitle {
+    font-size: 12.5px !important;
+  }
+
+  .card, .panel, .quiz-card {
+    padding: 16px 14px !important;
+    margin-bottom: 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .card-title {
+    font-size: 16px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .simulator-layout, .sim-grid, .circuit-sim-container, .workbench-layout,
+  .schematic-layout, .theory-grid, .grid-2, .grid-3, .grid-4, .two-col, .col-2,
+  .simulator-workspace, .grid-simulator-p2 {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .student-grid, .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .instrument-panel, .oscilloscope-box, .multimeter-box, .schematic-box,
+  .circuit-display-panel, .controls-panel, .sim-pane-controls, .sim-pane-circuit {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .oscilloscope-screen-wrapper {
+    width: 100% !important;
+  }
+
+  .oscilloscope-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .scope-controls {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    justify-content: space-around !important;
+  }
+
+  .scope-measurements {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    font-size: 11px !important;
+  }
+
+  .svg-circuit-wrapper, .circuit-diagram, .schematic-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 4px 0 !important;
+  }
+
+  .svg-circuit-wrapper svg, .schematic-box svg, .circuit-diagram svg {
+    max-width: 100% !important;
+    height: auto !important;
+    min-width: 280px;
+  }
+
+  .table-responsive {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
+    display: block !important;
+  }
+
+  .report-table-form, .lab-table, table {
+    min-width: 520px !important;
+  }
+
+  .report-table-form th, .report-table-form td {
+    padding: 8px 6px !important;
+    font-size: 12px !important;
+  }
+
+  .card-footer-action {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .card-footer-action .btn, .card-footer-action button {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+    font-size: 13.5px !important;
+  }
+
+  .top-nav-bar {
+    padding: 8px 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .portal-link {
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-btn .btn-icon, .nav-btn span:first-child {
+    font-size: 16px !important;
+  }
+  .nav-btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+  .card {
+    padding: 14px 10px !important;
+  }
+  .report-table-form, .lab-table, table {
+    min-width: 480px !important;
+  }
+}
+
+/* ==========================================================================
+   UNIVERSAL PRINT STYLES (Mobile, Tablet & Desktop PDF Export)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm 12mm 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    font-family: 'Sarabun', 'TH Sarabun New', sans-serif !important;
+    font-size: 10.5pt !important;
+    line-height: 1.45 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .app-container {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+  }
+
+  .main-content, .content-area, main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+  }
+
+  .sidebar, 
+  .top-nav-bar, 
+  .portal-link, 
+  .no-print, 
+  nav, 
+  aside,
+  header,
+  button, 
+  input[type="button"], 
+  input[type="submit"], 
+  .gas-endpoint-card, 
+  #gas-modal, 
+  .card-footer-action, 
+  #theory, 
+  #simulator, 
+  #explorer,
+  #tab-theory, 
+  #tab-simulator, 
+  #tab-explorer,
+  .tab-theory, 
+  .tab-simulator, 
+  .tab-explorer,
+  .nav-btn, 
+  .probe-helper-btns, 
+  .interactive-switch .switch-hit-box,
+  .btn-action-primary,
+  .btn-action-secondary,
+  .btn-preset,
+  .btn-fetch {
+    display: none !important;
+  }
+
+  .tab-content, .tab-pane {
+    display: none !important;
+  }
+
+  #worksheet, 
+  #assessment, 
+  #report, 
+  #tab-worksheet, 
+  #tab-assessment, 
+  .tab-worksheet, 
+  .tab-assessment,
+  #worksheet.tab-content, 
+  #assessment.tab-content, 
+  #report.tab-content,
+  #tab-worksheet.tab-pane,
+  #tab-assessment.tab-pane,
+  #worksheet.tab-pane,
+  #assessment.tab-pane {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    animation: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  h1, h2, h3, h4, h5, p, span, label, strong, b, td, th, div, li {
+    color: #000000 !important;
+  }
+
+  .content-header, .report-header {
+    margin-bottom: 12px !important;
+    text-align: center !important;
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 8px !important;
+  }
+
+  .content-header h1, .report-header h1 {
+    font-size: 16pt !important;
+    font-weight: bold !important;
+    color: #000000 !important;
+    margin: 0 0 4px 0 !important;
+  }
+
+  .subtitle {
+    font-size: 10pt !important;
+    color: #333333 !important;
+    margin: 0 !important;
+  }
+
+  .card, .panel, .quiz-card, .mode-select-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #94a3b8 !important;
+    box-shadow: none !important;
+    padding: 10px 14px !important;
+    margin-bottom: 12px !important;
+    border-radius: 6px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .card-title {
+    font-size: 12pt !important;
+    font-weight: bold !important;
+    color: #000000 !important;
+    border-bottom: 1.5px solid #000000 !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 8px !important;
+  }
+
+  input[type="text"], 
+  input[type="number"], 
+  input[type="date"], 
+  select {
+    background: transparent !important;
+    color: #000000 !important;
+    border: none !important;
+    border-bottom: 1px solid #000000 !important;
+    border-radius: 0 !important;
+    padding: 2px 4px !important;
+    font-size: 10pt !important;
+    box-shadow: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  textarea {
+    background: transparent !important;
+    color: #000000 !important;
+    border: 1px solid #475569 !important;
+    border-radius: 4px !important;
+    padding: 6px !important;
+    min-height: 80px !important;
+    width: 100% !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    font-size: 10pt !important;
+    box-shadow: none !important;
+  }
+
+  .table-responsive {
+    width: 100% !important;
+    overflow: visible !important;
+    border: none !important;
+    margin-bottom: 10px !important;
+  }
+
+  table, .report-table-form, .lab-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1.5px solid #000000 !important;
+  }
+
+  th, td {
+    border: 1px solid #000000 !important;
+    padding: 5px 8px !important;
+    font-size: 9.5pt !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    text-align: center;
+  }
+
+  th {
+    background: #e2e8f0 !important;
+    font-weight: bold !important;
+  }
+
+  td input {
+    text-align: center !important;
+    font-weight: bold !important;
+    width: 100% !important;
+  }
+
+  .question-group, .quiz-card {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 8px 10px !important;
+    margin-bottom: 8px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .question-group label, .quiz-question {
+    color: #000000 !important;
+    font-size: 10pt !important;
+  }
+
+  .option-list, .quiz-options {
+    gap: 4px !important;
+  }
+
+  .radio-container, .quiz-option {
+    color: #000000 !important;
+    font-size: 9.5pt !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .checkmark {
+    border: 1.5px solid #000000 !important;
+    background: #ffffff !important;
+  }
+
+  .radio-container input:checked ~ .checkmark {
+    background: #000000 !important;
+  }
+
+  .radio-container input:checked ~ span {
+    font-weight: bold !important;
+    color: #000000 !important;
+  }
+
+  #print-lab-mode-badge {
+    display: block !important;
+    font-size: 10pt !important;
+    margin-bottom: 8px !important;
+  }
+
+  #print-lab-mode-badge span {
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+
+  #sim-mode-banner, #hw-mode-banner {
+    border-left: 3px solid #000000 !important;
+    background: #f8fafc !important;
+    color: #000000 !important;
+    font-size: 9.5pt !important;
+  }
+
+  #submitted-viewonly-banner {
+    background: #f0fdf4 !important;
+    border: 1px solid #16a34a !important;
+    color: #15803d !important;
+  }
+
+  #submitted-viewonly-banner button {
+    display: none !important;
+  }
+}
+
+</style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
