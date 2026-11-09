@@ -2732,6 +2732,8 @@ function getWorksheetPayload() {
   });
   
   return {
+    labId: 'elab10-mosfet-bias-sheet-app',
+    labNumber: 10,
     labDataSource: (window.STATE && STATE.labDataSource) ? STATE.labDataSource : 'simulation',
     componentModel: (window.STATE && STATE.componentModel) ? STATE.componentModel : '2N7000',
     hwComponentModel: document.getElementById('hw-component-model')?.value.trim() || '2N7000',
@@ -2812,6 +2814,16 @@ function confirmSubmitFromPreview() {
 
 function submitReportToGAS() {
   const data = getWorksheetPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(data) : ((typeof localGrader === 'function') ? localGrader(data) : null);
+    if (_eval && _eval.score !== undefined) {
+      data.localScore = _eval.score;
+      data.localMaxScore = _eval.maxScore || 10;
+      data.localComment = _eval.comment || '';
+      data.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
   if (!data.studentName || !data.studentId || !data.studentGroup) {
     alert('⚠️ กรุณากรอกข้อมูลนักศึกษา (ชื่อ, รหัสนักศึกษา, กลุ่มเรียน) ให้ครบถ้วนก่อนส่งใบงาน');
     switchTab('worksheet');

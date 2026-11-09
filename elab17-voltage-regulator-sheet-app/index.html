@@ -2297,6 +2297,8 @@
       }
 
       return {
+    labId: 'elab17-voltage-regulator-sheet-app',
+    labNumber: 17,
         studentName: (document.getElementById('student-name')?.value || '').trim(),
         studentId: (document.getElementById('student-id')?.value || '').trim(),
         studentGroup: (document.getElementById('student-group')?.value || '').trim(),
@@ -2421,6 +2423,16 @@
 
     function submitReportToGAS() {
       const payload = getWorksheetPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(payload) : ((typeof localGrader === 'function') ? localGrader(payload) : null);
+    if (_eval && _eval.score !== undefined) {
+      payload.localScore = _eval.score;
+      payload.localMaxScore = _eval.maxScore || 10;
+      payload.localComment = _eval.comment || '';
+      payload.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
       if (!payload.studentName || !payload.studentId) {
         alert("⚠️ กรุณาระบุชื่อ-นามสกุล และรหัสนักศึกษา ในแท็บ '3. ตารางบันทึกผล' ก่อนส่งงาน");
         switchTab('tab-worksheet');

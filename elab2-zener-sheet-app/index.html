@@ -3577,6 +3577,8 @@ function getWorksheetPayload() {
   
   const activeModel = ZENER_MODELS[STATE.selectedZenerModel || '1N4735A'] || { vz: 6.2 };
   return {
+    labId: 'elab2-zener-sheet-app',
+    labNumber: 2,
     labDataSource: (window.STATE && STATE.labDataSource) ? STATE.labDataSource : 'simulation',
     componentModel: (window.STATE && STATE.componentModel) ? STATE.componentModel : '1N4735A',
     hwComponentModel: document.getElementById('hw-component-model')?.value.trim() || '1N4735A',
@@ -3659,6 +3661,16 @@ function confirmSubmitFromPreview() {
 
 function submitReportToGAS() {
   const data = getWorksheetPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(data) : ((typeof localGrader === 'function') ? localGrader(data) : null);
+    if (_eval && _eval.score !== undefined) {
+      data.localScore = _eval.score;
+      data.localMaxScore = _eval.maxScore || 10;
+      data.localComment = _eval.comment || '';
+      data.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
   
   if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
     alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');

@@ -2400,6 +2400,8 @@
     // --- WORKSPACE DATA HELPER ---
     function getWorksheetPayload() {
       return {
+    labId: 'elab12-datasheet-reading-sheet-app',
+    labNumber: 12,
     labDataSource: (window.STATE && STATE.labDataSource) ? STATE.labDataSource : 'simulation',
     componentModel: (window.STATE && STATE.componentModel) ? STATE.componentModel : 'SET-STD',
     hwComponentModel: document.getElementById('hw-component-model')?.value.trim() || 'SET-STD',
@@ -2589,6 +2591,16 @@
     // --- SUBMISSION TO GOOGLE APPS SCRIPT ---
     function submitReportToGAS() {
       const payload = getWorksheetPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(payload) : ((typeof localGrader === 'function') ? localGrader(payload) : null);
+    if (_eval && _eval.score !== undefined) {
+      payload.localScore = _eval.score;
+      payload.localMaxScore = _eval.maxScore || 10;
+      payload.localComment = _eval.comment || '';
+      payload.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
 
       if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
         alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่ม และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');

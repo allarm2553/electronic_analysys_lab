@@ -2807,6 +2807,8 @@ function getWorksheetPayload() {
   }
 
   return {
+    labId: 'elab15-passive-filter-sheet-app',
+    labNumber: 15,
     labDataSource: STATE.labDataSource,
     studentName: document.getElementById('student-name')?.value.trim() || '',
     studentId: document.getElementById('student-id')?.value.trim() || '',
@@ -2997,6 +2999,16 @@ window.resetWorksheetForNewUser = resetWorksheetForNewUser;
 
 function submitReportToGAS() {
   const data = getWorksheetPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(data) : ((typeof localGrader === 'function') ? localGrader(data) : null);
+    if (_eval && _eval.score !== undefined) {
+      data.localScore = _eval.score;
+      data.localMaxScore = _eval.maxScore || 10;
+      data.localComment = _eval.comment || '';
+      data.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
   if (!data.studentName || !data.studentId) {
     alert('⚠️ กรุณากรอกชื่อ-นามสกุล และรหัสนักศึกษาก่อนส่งใบงาน!');
     switchTab('tab-worksheet');

@@ -4539,6 +4539,8 @@ function getWorksheetPayload() {
   }
   
   return {
+    labId: 'elab1-diode-sheet-app',
+    labNumber: 1,
     studentName: document.getElementById('student-name')?.value.trim() || '',
     studentId: document.getElementById('student-id')?.value.trim() || '',
     studentGroup: document.getElementById('student-group')?.value.trim() || '',
@@ -4628,6 +4630,16 @@ function confirmSubmitFromPreview() {
 
 function submitReportToGAS() {
   const data = getWorksheetPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(data) : ((typeof localGrader === 'function') ? localGrader(data) : null);
+    if (_eval && _eval.score !== undefined) {
+      data.localScore = _eval.score;
+      data.localMaxScore = _eval.maxScore || 10;
+      data.localComment = _eval.comment || '';
+      data.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
   
   if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
     alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่ทดลอง) ให้ครบถ้วนก่อนส่งใบงาน!');

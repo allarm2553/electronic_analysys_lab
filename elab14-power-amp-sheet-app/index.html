@@ -2459,6 +2459,8 @@ function autoFillPart2() {
 
 function getPayload() {
   return {
+    labId: 'elab14-power-amp-sheet-app',
+    labNumber: 14,
     studentName: document.getElementById('student-name')?.value.trim() || '',
     studentId: document.getElementById('student-id')?.value.trim() || '',
     studentGroup: document.getElementById('student-group')?.value.trim() || '',
@@ -2648,6 +2650,16 @@ function closeModal() {
 
 function confirmAndSubmit() {
   const d = getPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(d) : ((typeof localGrader === 'function') ? localGrader(d) : null);
+    if (_eval && _eval.score !== undefined) {
+      d.localScore = _eval.score;
+      d.localMaxScore = _eval.maxScore || 10;
+      d.localComment = _eval.comment || '';
+      d.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
   const modalBody = document.getElementById('modal-body');
   const modalTitle = document.getElementById('modal-title');
   document.getElementById('modal-spinner').style.display = 'block';

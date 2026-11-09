@@ -3369,6 +3369,8 @@ let score = 0;
       const p = getActiveWorksheetParams();
 
       return {
+        labId: 'elab8-bjt-h-parameter-sheet-app',
+        labNumber: 8,
         studentName: name,
         studentId: id,
         studentGroup: group,
@@ -3468,6 +3470,15 @@ let score = 0;
     // --- GOOGLE APPS SCRIPT SUBMISSION & AUTO-GRADING ---
     function submitReportToGAS() {
       const data = getWorksheetSubmissionData();
+      try {
+        const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(data) : null;
+        if (_eval && _eval.score !== undefined) {
+          data.localScore = _eval.score;
+          data.localMaxScore = _eval.maxScore || 10;
+          data.localComment = _eval.comment || '';
+          data.localFeedback = _eval.feedback || '';
+        }
+      } catch(e) {}
 
       if (!data.studentName || !data.studentId || !data.studentGroup || !data.labDate) {
         alert('⚠️ กรุณากรอกข้อมูลส่วนตัว (ชื่อ-นามสกุล, รหัสนักศึกษา, กลุ่มเรียน และวันที่) ให้ครบถ้วนก่อนส่งใบงาน!');

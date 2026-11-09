@@ -2120,6 +2120,8 @@ function getPayload() {
   const q4 = document.querySelector('input[name="q4"]:checked')?.value || '';
   const p = getWsParams();
   return {
+    labId: 'elab13-multistage-sheet-app',
+    labNumber: 13,
     studentName: document.getElementById('student-name').value.trim(),
     studentId: document.getElementById('student-id').value.trim(),
     studentGroup: document.getElementById('student-group').value.trim(),
@@ -2290,6 +2292,16 @@ function confirmAndSubmit() {
 
 function submitToGAS() {
   const payload = getPayload();
+  try {
+    const _eval = (typeof localGradeSimulator === 'function') ? localGradeSimulator(payload) : ((typeof localGrader === 'function') ? localGrader(payload) : null);
+    if (_eval && _eval.score !== undefined) {
+      payload.localScore = _eval.score;
+      payload.localMaxScore = _eval.maxScore || 10;
+      payload.localComment = _eval.comment || '';
+      payload.localFeedback = _eval.feedback || '';
+    }
+  } catch(e) {}
+
   if (!payload.studentName || !payload.studentId || !payload.studentGroup || !payload.labDate) {
     alert('⚠️ กรุณากรอกข้อมูลส่วนตัวให้ครบก่อนส่ง!');
     switchTab('worksheet');
